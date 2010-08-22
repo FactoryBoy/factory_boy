@@ -164,4 +164,4 @@ Sequences can be combined with lazy attributes::
         name = 'Mark'
         email = factory.LazyAttributeSequence(lambda a, n: '{0}+{1}@example.com'.format(a.name, n).lower())
         
-    UserFactory().email  # => mark+1@example.com
+    UserFactory().email  # => mark+0@example.com
