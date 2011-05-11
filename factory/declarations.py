@@ -18,6 +18,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import threading
+
+global_counter_lock = threading.Lock()
+
+class GlobalCounter(object):
+    """A simple global counter."""
+
+    _value = 0
+
+    @classmethod
+    def step(cls):
+        with global_counter_lock:
+            current = cls._value
+            cls._value += 1
+        return current
+
+
 class OrderedDeclaration(object):
     '''A factory declaration.
 
@@ -26,13 +43,7 @@ class OrderedDeclaration(object):
     _next_order = 0
 
     def __init__(self):
-        self.order = self.next_order()
-
-    @classmethod
-    def next_order(cls):
-        next_order = cls._next_order
-        cls._next_order += 1
-        return next_order
+        self.order = GlobalCounter.step()
 
     def evaluate(self, factory, attributes):
         '''Evaluate this declaration.
