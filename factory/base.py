@@ -69,37 +69,37 @@ class BaseFactoryMetaClass(type):
         else:
             raise BaseFactory.UnknownStrategy('Unknown default_strategy: {0}'.format(cls.default_strategy))
 
-    def __new__(cls, class_name, bases, dict, extra_dict={}):
+    def __new__(cls, class_name, bases, attrs, extra_attrs={}):
         '''Record attributes (unordered declarations) and ordered declarations for construction of
         an associated class instance at a later time.'''
 
         base = get_factory_base(bases)
         if not base:
             # If this isn't a subclass of Factory, don't do anything special.
-            return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, dict)
+            return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
         ordered_declarations = getattr(base, CLASS_ATTRIBUTE_ORDERED_DECLARATIONS, [])
         unordered_declarations = getattr(base, CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS, [])
 
-        for name in list(dict):
-            if isinstance(dict[name], OrderedDeclaration):
+        for name in list(attrs):
+            if isinstance(attrs[name], OrderedDeclaration):
                 ordered_declarations = [(_name, declaration) for (_name, declaration) in ordered_declarations if _name != name]
-                ordered_declarations.append((name, dict[name]))
-                del dict[name]
+                ordered_declarations.append((name, attrs[name]))
+                del attrs[name]
             elif not name.startswith('__'):
                 unordered_declarations = [(_name, value) for (_name, value) in unordered_declarations if _name != name]
-                unordered_declarations.append((name, dict[name]))
-                del dict[name]
+                unordered_declarations.append((name, attrs[name]))
+                del attrs[name]
 
         ordered_declarations.sort(key=lambda d: d[1].order)
 
-        dict[CLASS_ATTRIBUTE_ORDERED_DECLARATIONS] = ordered_declarations
-        dict[CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS] = unordered_declarations
+        attrs[CLASS_ATTRIBUTE_ORDERED_DECLARATIONS] = ordered_declarations
+        attrs[CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS] = unordered_declarations
 
-        for name, value in extra_dict.iteritems():
-            dict[name] = value
+        for name, value in extra_attrs.iteritems():
+            attrs[name] = value
 
-        return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, dict)
+        return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
 class FactoryMetaClass(BaseFactoryMetaClass):
     '''Factory metaclass for handling class association and ordered declarations.'''
@@ -110,24 +110,23 @@ class FactoryMetaClass(BaseFactoryMetaClass):
     Also, autodiscovery failed using the name '{1}'
     based on the Factory name '{2}' in {3}.'''
 
-    def __new__(cls, class_name, bases, dict):
+    def __new__(cls, class_name, bases, attrs):
         '''Determine the associated class based on the factory class name. Record the associated class
         for construction of an associated class instance at a later time.'''
 
         base = get_factory_base(bases)
         if not base:
             # If this isn't a subclass of Factory, don't do anything special.
-            return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, dict)
+            return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
         inherited_associated_class = getattr(base, CLASS_ATTRIBUTE_ASSOCIATED_CLASS, None)
         own_associated_class = None
         used_auto_discovery = False
 
-        if FACTORY_CLASS_DECLARATION in dict:
-            own_associated_class = dict[FACTORY_CLASS_DECLARATION]
-            del dict[FACTORY_CLASS_DECLARATION]
+        if FACTORY_CLASS_DECLARATION in attrs:
+            own_associated_class = attrs.pop(FACTORY_CLASS_DECLARATION)
         else:
-            factory_module = sys.modules[dict['__module__']]
+            factory_module = sys.modules[attrs['__module__']]
             match = re.match(r'^(\w+)Factory$', class_name)
             if match:
                 used_auto_discovery = True
@@ -137,10 +136,7 @@ class FactoryMetaClass(BaseFactoryMetaClass):
                 except AttributeError:
                     pass
 
-        if own_associated_class != None and inherited_associated_class != None and own_associated_class != inherited_associated_class:
-            format = 'These factories are for conflicting classes: {0} and {1}'
-            raise Factory.AssociatedClassError(format.format(inherited_associated_class, own_associated_class))
-        elif inherited_associated_class != None:
+        if own_associated_class is None and inherited_associated_class is not None:
             own_associated_class = inherited_associated_class
 
         if not own_associated_class and used_auto_discovery:
@@ -149,8 +145,8 @@ class FactoryMetaClass(BaseFactoryMetaClass):
         elif not own_associated_class:
             raise Factory.AssociatedClassError(FactoryMetaClass.ERROR_MESSAGE.format(FACTORY_CLASS_DECLARATION))
 
-        extra_dict = {CLASS_ATTRIBUTE_ASSOCIATED_CLASS: own_associated_class}
-        return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, dict, extra_dict=extra_dict)
+        extra_attrs = {CLASS_ATTRIBUTE_ASSOCIATED_CLASS: own_associated_class}
+        return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs, extra_attrs=extra_attrs)
 
 # Factory base classes
 
@@ -178,15 +174,13 @@ class BaseFactory(object):
 
         for name, value in getattr(cls, CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS):
             if name in kwargs:
-                attributes[name] = kwargs[name]
-                del kwargs[name]
+                attributes[name] = kwargs.pop(name)
             else:
                 attributes[name] = value
 
         for name, ordered_declaration in getattr(cls, CLASS_ATTRIBUTE_ORDERED_DECLARATIONS):
             if name in kwargs:
-                attributes[name] = kwargs[name]
-                del kwargs[name]
+                attributes[name] = kwargs.pop(name)
             else:
                 a = ObjectParamsWrapper(attributes)
                 attributes[name] = ordered_declaration.evaluate(cls, a)
