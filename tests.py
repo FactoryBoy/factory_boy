@@ -276,17 +276,6 @@ class FactoryCreationTestCase(unittest.TestCase):
         except Factory.AssociatedClassError as e:
             self.assertTrue('autodiscovery' not in str(e))
             
-    def testInheritanceWithConflictingClassesError(self):
-        class TestObjectFactory(Factory):
-            pass
-
-        try:
-            class TestModelFactory(TestObjectFactory):
-                pass
-            self.fail()
-        except Factory.AssociatedClassError as e:
-            self.assertTrue('conflicting' in str(e))
-            
     def testInheritanceFromMoreThanOneFactory(self):
         class TestObjectFactory(StubFactory):
             pass
