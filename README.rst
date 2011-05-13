@@ -171,7 +171,7 @@ Customizing creation
 
 Sometimes, the default build/create by keyword arguments doesn't allow for enough
 customization of the generated objects. In such cases, you should override the
-:meth:`base.Factory._prepare` method::
+Factory._prepare method::
 
     class UserFactory(factory.Factory):
         @classmethod
@@ -180,6 +180,6 @@ customization of the generated objects. In such cases, you should override the
             user = super(UserFactory, cls)._prepare(create, kwargs)
             if password:
                 user.set_password(user)
-            if create:
-                user.save()
+                if create:
+                    user.save()
             return user
