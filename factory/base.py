@@ -21,7 +21,7 @@
 import re
 import sys
 
-from containers import ObjectParamsWrapper, StubObject
+from containers import ObjectParamsWrapper, OrderedDeclarationDict, StubObject
 from declarations import OrderedDeclaration
 
 # Strategies
@@ -78,20 +78,15 @@ class BaseFactoryMetaClass(type):
             # If this isn't a subclass of Factory, don't do anything special.
             return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
-        ordered_declarations = getattr(base, CLASS_ATTRIBUTE_ORDERED_DECLARATIONS, [])
-        unordered_declarations = getattr(base, CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS, [])
+        ordered_declarations = getattr(base, CLASS_ATTRIBUTE_ORDERED_DECLARATIONS,
+                                       OrderedDeclarationDict())
+        unordered_declarations = getattr(base, CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS, {})
 
         for name in list(attrs):
             if isinstance(attrs[name], OrderedDeclaration):
-                ordered_declarations = [(_name, declaration) for (_name, declaration) in ordered_declarations if _name != name]
-                ordered_declarations.append((name, attrs[name]))
-                del attrs[name]
+                ordered_declarations[name] = attrs.pop(name)
             elif not name.startswith('_'):
-                unordered_declarations = [(_name, value) for (_name, value) in unordered_declarations if _name != name]
-                unordered_declarations.append((name, attrs[name]))
-                del attrs[name]
-
-        ordered_declarations.sort(key=lambda d: d[1].order)
+                unordered_declarations[name] = attrs.pop(name)
 
         attrs[CLASS_ATTRIBUTE_ORDERED_DECLARATIONS] = ordered_declarations
         attrs[CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS] = unordered_declarations
@@ -169,16 +164,25 @@ class BaseFactory(object):
 
     @classmethod
     def attributes(cls, **kwargs):
+        """Build a dict of attribute values, respecting declaration order.
+
+        The process is:
+        - Handle 'orderless' attributes, overriding defaults with provided
+            kwargs when applicable
+        - Handle ordered attributes, overriding them with provided kwargs when
+            applicable; the current list of computed attributes is available for
+            to the currently processed object.
+        """
         attributes = {}
         cls.sequence = cls._generate_next_sequence()
 
-        for name, value in getattr(cls, CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS):
+        for name, value in getattr(cls, CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS).iteritems():
             if name in kwargs:
                 attributes[name] = kwargs.pop(name)
             else:
                 attributes[name] = value
 
-        for name, ordered_declaration in getattr(cls, CLASS_ATTRIBUTE_ORDERED_DECLARATIONS):
+        for name, ordered_declaration in getattr(cls, CLASS_ATTRIBUTE_ORDERED_DECLARATIONS).iteritems():
             if name in kwargs:
                 attributes[name] = kwargs.pop(name)
             else:

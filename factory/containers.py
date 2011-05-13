@@ -41,6 +41,48 @@ class ObjectParamsWrapper(object):
         except KeyError:
             raise AttributeError("The param '{0}' does not exist. Perhaps your declarations are out of order?".format(name))
 
+
+class OrderedDeclarationDict(object):
+    def __init__(self, **kwargs):
+        self._order = {}
+        self._values = {}
+        for k, v in kwargs.iteritems():
+            self[k] = v
+
+    def __contains__(self, key):
+        return key in self._values
+
+    def __getitem__(self, key):
+        return self._values[key]
+
+    def __setitem__(self, key, val):
+        if key in self:
+            del self[key]
+        self._values[key] = val
+        self._order[val.order] = key
+
+    def __delitem__(self, key):
+        self.pop(key)
+
+    def pop(self, key):
+        val = self._values.pop(key)
+        del self._order[val.order]
+        return val
+
+    def items(self):
+        return list(self.iteritems())
+
+    def iteritems(self):
+        order = sorted(self._order.keys())
+        for i in order:
+            key = self._order[i]
+            yield (key, self._values[key])
+
+    def __iter__(self):
+        order = sorted(self._order.keys())
+        for i in order:
+            yield self._order[i]
+
 class StubObject(object):
     '''A generic container.'''
 
