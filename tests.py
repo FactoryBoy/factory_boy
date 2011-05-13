@@ -258,6 +258,23 @@ class FactoryCreationTestCase(unittest.TestCase):
 
         self.assertEqual(TestFactory.default_strategy, STUB_STRATEGY)
 
+    def testCustomCreation(self):
+        class TestModelFactory(Factory):
+            @classmethod
+            def _prepare(cls, create, **kwargs):
+                kwargs['four'] = 4
+                return super(TestModelFactory, cls)._prepare(create, **kwargs)
+
+        b = TestModelFactory.build(one=1)
+        self.assertEqual(1, b.one)
+        self.assertEqual(4, b.four)
+        self.assertEqual(None, b.id)
+
+        c = TestModelFactory(one=1)
+        self.assertEqual(1, c.one)
+        self.assertEqual(4, c.four)
+        self.assertEqual(1, c.id)
+
     # Errors
 
     def testNoAssociatedClassWithAutodiscovery(self):

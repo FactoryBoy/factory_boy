@@ -165,3 +165,21 @@ Sequences can be combined with lazy attributes::
         email = factory.LazyAttributeSequence(lambda a, n: '{0}+{1}@example.com'.format(a.name, n).lower())
         
     UserFactory().email  # => mark+0@example.com
+
+Customizing creation
+--------------------
+
+Sometimes, the default build/create by keyword arguments doesn't allow for enough
+customization of the generated objects. In such cases, you should override the
+:meth:`base.Factory._prepare` method::
+
+    class UserFactory(factory.Factory):
+        @classmethod
+        def _prepare(cls, create, **kwargs):
+            password = kwargs.pop('password', None)
+            user = super(UserFactory, cls)._prepare(create, kwargs)
+            if password:
+                user.set_password(user)
+            if create:
+                user.save()
+            return user

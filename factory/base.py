@@ -86,7 +86,7 @@ class BaseFactoryMetaClass(type):
                 ordered_declarations = [(_name, declaration) for (_name, declaration) in ordered_declarations if _name != name]
                 ordered_declarations.append((name, attrs[name]))
                 del attrs[name]
-            elif not name.startswith('__'):
+            elif not name.startswith('_'):
                 unordered_declarations = [(_name, value) for (_name, value) in unordered_declarations if _name != name]
                 unordered_declarations.append((name, attrs[name]))
                 del attrs[name]
@@ -230,9 +230,30 @@ class Factory(BaseFactory):
         return cls._creation_function[0]
 
     @classmethod
+    def _prepare(cls, create, **kwargs):
+        """Prepare an object for this factory.
+
+        Args:
+            create: bool, whether to create or to build the object
+            **kwargs: arguments to pass to the creation function
+        """
+        if create:
+            return cls.get_creation_function()(getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS), **kwargs)
+        else:
+            return getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)(**kwargs)
+
+    @classmethod
+    def _build(cls, **kwargs):
+        return cls._prepare(create=False, **kwargs)
+
+    @classmethod
+    def _create(cls, **kwargs):
+        return cls._prepare(create=True, **kwargs)
+
+    @classmethod
     def build(cls, **kwargs):
-        return getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)(**cls.attributes(**kwargs))
+        return cls._build(**cls.attributes(**kwargs))
 
     @classmethod
     def create(cls, **kwargs):
-        return cls.get_creation_function()(getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS), **cls.attributes(**kwargs))
+        return cls._create(**cls.attributes(**kwargs))
