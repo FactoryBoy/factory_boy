@@ -1,5 +1,7 @@
 *.pyc
 .*.swp
+.coverage
 MANIFEST
 build/
 dist/
+htmlcov/
