@@ -1,4 +1,5 @@
 *.pyc
+.*.swp
 MANIFEST
 build/
 dist/
