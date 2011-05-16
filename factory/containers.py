@@ -18,6 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from declarations import OrderedDeclaration
+
 class ObjectParamsWrapper(object):
     '''A generic container that allows for getting but not setting of attributes.
 
@@ -82,6 +84,56 @@ class OrderedDeclarationDict(object):
         order = sorted(self._order.keys())
         for i in order:
             yield self._order[i]
+
+class DeclarationsHolder(object):
+    """Holds all declarations, ordered and unordered."""
+
+    def __init__(self):
+        self._ordered = OrderedDeclarationDict()
+        self._unordered = {}
+
+    def update_base(self, attrs):
+        """Updates the DeclarationsHolder from a class definition.
+
+        Takes into account all public attributes and OrderedDeclaration
+        instances; ignores all attributes starting with '_'.
+
+        Returns a dict containing all remaining elements.
+        """
+        remaining = {}
+        for key, value in attrs.iteritems():
+            if isinstance(value, OrderedDeclaration):
+                self._ordered[key] = value
+            elif not key.startswith('_'):
+                self._unordered[key] = value
+            else:
+                remaining[key] = value
+        return remaining
+
+    def __contains__(self, key):
+        return key in self._ordered or key in self._unordered
+
+    def __getitem__(self, key):
+        try:
+            return self._unordered[key]
+        except KeyError:
+            return self._ordered[key]
+
+    def build_attributes(self, factory, extra):
+        """Build the list of attributes based on class attributes."""
+        attributes = {}
+        # For fields in _unordered, use the value from attrs if any; otherwise,
+        # use the default value.
+        for key, value in self._unordered.iteritems():
+            attributes[key] = extra.get(key, value)
+        for key, value in self._ordered.iteritems():
+            if key in extra:
+                attributes[key] = extra[key]
+            else:
+                wrapper = ObjectParamsWrapper(attributes)
+                attributes[key] = value.evaluate(factory, wrapper)
+        attributes.update(extra)
+        return attributes
 
 class StubObject(object):
     '''A generic container.'''

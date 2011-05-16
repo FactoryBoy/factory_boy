@@ -21,7 +21,7 @@
 import re
 import sys
 
-from containers import ObjectParamsWrapper, OrderedDeclarationDict, StubObject
+from containers import DeclarationsHolder, ObjectParamsWrapper, OrderedDeclarationDict, StubObject
 from declarations import OrderedDeclaration
 
 # Strategies
@@ -40,8 +40,7 @@ FACTORY_CLASS_DECLARATION = 'FACTORY_FOR'
 
 # Factory class attributes
 
-CLASS_ATTRIBUTE_ORDERED_DECLARATIONS = '_ordered_declarations'
-CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS = '_unordered_declarations'
+CLASS_ATTRIBUTE_DECLARATIONS = '_declarations'
 CLASS_ATTRIBUTE_ASSOCIATED_CLASS = '_associated_class'
 
 # Factory metaclasses
@@ -78,21 +77,12 @@ class BaseFactoryMetaClass(type):
             # If this isn't a subclass of Factory, don't do anything special.
             return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
-        ordered_declarations = getattr(base, CLASS_ATTRIBUTE_ORDERED_DECLARATIONS,
-                                       OrderedDeclarationDict())
-        unordered_declarations = getattr(base, CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS, {})
+        declarations = getattr(base, CLASS_ATTRIBUTE_DECLARATIONS, DeclarationsHolder())
+        attrs = declarations.update_base(attrs)
 
-        for name in list(attrs):
-            if isinstance(attrs[name], OrderedDeclaration):
-                ordered_declarations[name] = attrs.pop(name)
-            elif not name.startswith('_'):
-                unordered_declarations[name] = attrs.pop(name)
+        attrs[CLASS_ATTRIBUTE_DECLARATIONS] = declarations
 
-        attrs[CLASS_ATTRIBUTE_ORDERED_DECLARATIONS] = ordered_declarations
-        attrs[CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS] = unordered_declarations
-
-        for name, value in extra_attrs.iteritems():
-            attrs[name] = value
+        attrs.update(extra_attrs)
 
         return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
@@ -176,23 +166,7 @@ class BaseFactory(object):
         attributes = {}
         cls.sequence = cls._generate_next_sequence()
 
-        for name, value in getattr(cls, CLASS_ATTRIBUTE_UNORDERED_DECLARATIONS).iteritems():
-            if name in kwargs:
-                attributes[name] = kwargs.pop(name)
-            else:
-                attributes[name] = value
-
-        for name, ordered_declaration in getattr(cls, CLASS_ATTRIBUTE_ORDERED_DECLARATIONS).iteritems():
-            if name in kwargs:
-                attributes[name] = kwargs.pop(name)
-            else:
-                a = ObjectParamsWrapper(attributes)
-                attributes[name] = ordered_declaration.evaluate(cls, a)
-
-        for name in kwargs:
-            attributes[name] = kwargs[name]
-
-        return attributes
+        return getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS).build_attributes(cls, kwargs)
 
     @classmethod
     def build(cls, **kwargs):
