@@ -18,24 +18,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__version__ = '1.0.2'  # Remember to change in setup.py as well!
-__author__ = 'Mark Sandstrom <mark@deliciouslynerdy.com>'
+import unittest
 
-from base import (
-    Factory,
-    StubFactory,
-    BUILD_STRATEGY,
-    CREATE_STRATEGY,
-    STUB_STRATEGY
-)
+from declarations import GlobalCounter, OrderedDeclaration, Sequence
 
-from declarations import (
-    LazyAttribute,
-    Sequence,
-    LazyAttributeSequence,
-    SubFactory,
-    lazy_attribute,
-    sequence,
-    lazy_attribute_sequence
-)
+class GlobalCounterTestCase(unittest.TestCase):
+    def test_incr(self):
+        init = GlobalCounter.step()
+        mid = GlobalCounter.step()
+        last = GlobalCounter.step()
+        self.assertEqual(2, last - init)
+        self.assertEqual(1, mid - init)
 
+
+class OrderedDeclarationTestCase(unittest.TestCase):
+    def test_errors(self):
+        decl = OrderedDeclaration()
+        self.assertRaises(NotImplementedError, decl.evaluate, None, {})
+
+    def test_order(self):
+        decl1 = OrderedDeclaration()
+        decl2 = OrderedDeclaration()
+        decl3 = Sequence(lambda n: 3 * n)
+        self.assertTrue(decl1.order < decl2.order)
+        self.assertTrue(decl2.order < decl3.order)
+
+if __name__ == '__main__':
+    unittest.main()

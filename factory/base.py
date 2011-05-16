@@ -153,7 +153,7 @@ class BaseFactory(object):
         return next_sequence
 
     @classmethod
-    def attributes(cls, **kwargs):
+    def attributes(cls, create=False, **kwargs):
         """Build a dict of attribute values, respecting declaration order.
 
         The process is:
@@ -166,7 +166,11 @@ class BaseFactory(object):
         attributes = {}
         cls.sequence = cls._generate_next_sequence()
 
-        return getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS).build_attributes(cls, kwargs)
+        return getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS).build_attributes(cls, create, kwargs)
+
+    @classmethod
+    def declarations(cls):
+        return DeclarationsHolder(getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS))
 
     @classmethod
     def build(cls, **kwargs):
@@ -230,8 +234,8 @@ class Factory(BaseFactory):
 
     @classmethod
     def build(cls, **kwargs):
-        return cls._build(**cls.attributes(**kwargs))
+        return cls._build(**cls.attributes(create=False, **kwargs))
 
     @classmethod
     def create(cls, **kwargs):
-        return cls._create(**cls.attributes(**kwargs))
+        return cls._create(**cls.attributes(create=True, **kwargs))

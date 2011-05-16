@@ -20,6 +20,9 @@
 
 import unittest
 
+from base import BaseFactory, Factory, StubFactory, BUILD_STRATEGY, CREATE_STRATEGY, STUB_STRATEGY
+import declarations
+
 class TestObject(object):
     def __init__(self, one=None, two=None, three=None, four=None):
         self.one = one
@@ -44,6 +47,12 @@ class FakeDjangoModel(object):
 class TestModel(FakeDjangoModel):
     pass
 
+
+class SafetyTestCase(unittest.TestCase):
+    def testBaseFactory(self):
+        self.assertRaises(RuntimeError, BaseFactory)
+
+
 class FactoryTestCase(unittest.TestCase):
     def testAttribute(self):
         class TestObjectFactory(Factory):
@@ -54,8 +63,8 @@ class FactoryTestCase(unittest.TestCase):
 
     def testSequence(self):
         class TestObjectFactory(Factory):
-            one = Sequence(lambda n: 'one' + n)
-            two = Sequence(lambda n: 'two' + n)
+            one = declarations.Sequence(lambda n: 'one' + n)
+            two = declarations.Sequence(lambda n: 'two' + n)
 
         test_object0 = TestObjectFactory.build()
         self.assertEqual(test_object0.one, 'one0')
@@ -67,8 +76,8 @@ class FactoryTestCase(unittest.TestCase):
 
     def testLazyAttribute(self):
         class TestObjectFactory(Factory):
-            one = LazyAttribute(lambda a: 'abc' )
-            two = LazyAttribute(lambda a: a.one + ' xyz')
+            one = declarations.LazyAttribute(lambda a: 'abc' )
+            two = declarations.LazyAttribute(lambda a: a.one + ' xyz')
 
         test_object = TestObjectFactory.build()
         self.assertEqual(test_object.one, 'abc')
@@ -76,7 +85,7 @@ class FactoryTestCase(unittest.TestCase):
 
     def testLazyAttributeNonExistentParam(self):
         class TestObjectFactory(Factory):
-            one = LazyAttribute(lambda a: a.does_not_exist )
+            one = declarations.LazyAttribute(lambda a: a.does_not_exist )
 
         try:
             TestObjectFactory()
@@ -86,8 +95,8 @@ class FactoryTestCase(unittest.TestCase):
 
     def testLazyAttributeSequence(self):
         class TestObjectFactory(Factory):
-            one = LazyAttributeSequence(lambda a, n: 'abc' + n)
-            two = LazyAttributeSequence(lambda a, n: a.one + ' xyz' + n)
+            one = declarations.LazyAttributeSequence(lambda a, n: 'abc' + n)
+            two = declarations.LazyAttributeSequence(lambda a, n: a.one + ' xyz' + n)
 
         test_object0 = TestObjectFactory.build()
         self.assertEqual(test_object0.one, 'abc0')
@@ -99,7 +108,7 @@ class FactoryTestCase(unittest.TestCase):
 
     def testLazyAttributeDecorator(self):
         class TestObjectFactory(Factory):
-            @lazy_attribute
+            @declarations.lazy_attribute
             def one(a):
                 return 'one'
 
@@ -108,7 +117,7 @@ class FactoryTestCase(unittest.TestCase):
 
     def testSequenceDecorator(self):
         class TestObjectFactory(Factory):
-            @sequence
+            @declarations.sequence
             def one(n):
                 return 'one' + n
 
@@ -117,10 +126,10 @@ class FactoryTestCase(unittest.TestCase):
 
     def testLazyAttributeSequenceDecorator(self):
         class TestObjectFactory(Factory):
-            @lazy_attribute_sequence
+            @declarations.lazy_attribute_sequence
             def one(a, n):
                 return 'one' + n
-            @lazy_attribute_sequence
+            @declarations.lazy_attribute_sequence
             def two(a, n):
                 return a.one + ' two' + n
 
@@ -130,8 +139,8 @@ class FactoryTestCase(unittest.TestCase):
 
     def testBuildWithParameters(self):
         class TestObjectFactory(Factory):
-            one = Sequence(lambda n: 'one' + n)
-            two = Sequence(lambda n: 'two' + n)
+            one = declarations.Sequence(lambda n: 'one' + n)
+            two = declarations.Sequence(lambda n: 'two' + n)
 
         test_object0 = TestObjectFactory.build(three='three')
         self.assertEqual(test_object0.one, 'one0')
@@ -153,13 +162,13 @@ class FactoryTestCase(unittest.TestCase):
     def testInheritance(self):
         class TestObjectFactory(Factory):
             one = 'one'
-            two = LazyAttribute(lambda a: a.one + ' two')
+            two = declarations.LazyAttribute(lambda a: a.one + ' two')
 
         class TestObjectFactory2(TestObjectFactory):
             FACTORY_FOR = TestObject
 
             three = 'three'
-            four = LazyAttribute(lambda a: a.three + ' four')
+            four = declarations.LazyAttribute(lambda a: a.three + ' four')
 
         test_object = TestObjectFactory2.build()
         self.assertEqual(test_object.one, 'one')
@@ -170,11 +179,11 @@ class FactoryTestCase(unittest.TestCase):
     def testInheritanceWithInheritedClass(self):
         class TestObjectFactory(Factory):
             one = 'one'
-            two = LazyAttribute(lambda a: a.one + ' two')
+            two = declarations.LazyAttribute(lambda a: a.one + ' two')
 
         class TestFactory(TestObjectFactory):
             three = 'three'
-            four = LazyAttribute(lambda a: a.three + ' four')
+            four = declarations.LazyAttribute(lambda a: a.three + ' four')
 
         test_object = TestFactory.build()
         self.assertEqual(test_object.one, 'one')
@@ -221,6 +230,23 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertEqual(test_model.one, 'one')
         self.assertTrue(test_model.id)
 
+    def testSubFactory(self):
+        class TestModel2(FakeDjangoModel):
+            pass
+
+        class TestModelFactory(Factory):
+            FACTORY_FOR = TestModel
+            one = 3
+
+        class TestModel2Factory(Factory):
+            FACTORY_FOR = TestModel2
+            two = declarations.SubFactory(TestModelFactory, one=1)
+
+        test_model = TestModel2Factory(two__one=4)
+        self.assertEqual(4, test_model.two.one)
+        self.assertEqual(1, test_model.id)
+        self.assertEqual(1, test_model.two.id)
+
     def testStubStrategy(self):
         Factory.default_strategy = STUB_STRATEGY
 
@@ -245,6 +271,9 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
         TestModelFactory.default_strategy = CREATE_STRATEGY
 
+        self.assertRaises(StubFactory.UnsupportedStrategy, TestModelFactory)
+
+        TestModelFactory.default_strategy = BUILD_STRATEGY
         self.assertRaises(StubFactory.UnsupportedStrategy, TestModelFactory)
 
 class FactoryCreationTestCase(unittest.TestCase):

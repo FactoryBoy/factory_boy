@@ -75,6 +75,21 @@ class LazyAttributeSequence(Sequence):
     def evaluate(self, factory, attributes):
         return self.function(attributes, self.type(factory.sequence))
 
+class SubFactory(OrderedDeclaration):
+    """Base class for attributes based upon a sub-factory."""
+    def __init__(self, factory, **kwargs):
+        super(SubFactory, self).__init__()
+        self.defaults = factory.declarations()
+        self.defaults.update_base(kwargs)
+        self.factory = factory
+
+    def evaluate(self, factory, create, attributes):
+        attrs = self.defaults.build_attributes(self.factory, create, attributes)
+        if create:
+            return self.factory.create(**attrs)
+        else:
+            return self.factory.build(**attrs)
+
 # Decorators... in case lambdas don't cut it
 
 def lazy_attribute(func):

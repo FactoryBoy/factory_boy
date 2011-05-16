@@ -18,7 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from declarations import OrderedDeclaration
+from declarations import OrderedDeclaration, SubFactory
+
+
+ATTR_SPLITTER = '__'
 
 class ObjectParamsWrapper(object):
     '''A generic container that allows for getting but not setting of attributes.
@@ -27,8 +30,8 @@ class ObjectParamsWrapper(object):
 
     initialized = False
 
-    def __init__(self, dict):
-        self.dict = dict
+    def __init__(self, attrs):
+        self.attrs = attrs
         self.initialized = True
 
     def __setattr__(self, name, value):
@@ -39,7 +42,7 @@ class ObjectParamsWrapper(object):
 
     def __getattr__(self, name):
         try:
-            return self.dict[name]
+            return self.attrs[name]
         except KeyError:
             raise AttributeError("The param '{0}' does not exist. Perhaps your declarations are out of order?".format(name))
 
@@ -88,9 +91,12 @@ class OrderedDeclarationDict(object):
 class DeclarationsHolder(object):
     """Holds all declarations, ordered and unordered."""
 
-    def __init__(self):
+    def __init__(self, defaults=None):
+        if not defaults:
+            defaults = {}
         self._ordered = OrderedDeclarationDict()
         self._unordered = {}
+        self.update_base(defaults)
 
     def update_base(self, attrs):
         """Updates the DeclarationsHolder from a class definition.
@@ -119,10 +125,29 @@ class DeclarationsHolder(object):
         except KeyError:
             return self._ordered[key]
 
-    def build_attributes(self, factory, extra):
+    def iteritems(self):
+        for pair in self._unordered.iteritems():
+            yield pair
+        for pair in self._ordered.iteritems():
+            yield pair
+
+    def items(self):
+        return list(self.iteritems())
+
+    def build_attributes(self, factory, create=False, extra=None):
         """Build the list of attributes based on class attributes."""
+        if not extra:
+            extra = {}
+
         attributes = {}
-        # For fields in _unordered, use the value from attrs if any; otherwise,
+        sub_fields = {}
+        for key in list(extra.keys()):
+            if ATTR_SPLITTER in key:
+                cls_name, attr_name = key.split(ATTR_SPLITTER, 1)
+                if cls_name in self:
+                    sub_fields.setdefault(cls_name, {})[attr_name] = extra.pop(key)
+
+        # For fields in _unordered, use the value from extra if any; otherwise,
         # use the default value.
         for key, value in self._unordered.iteritems():
             attributes[key] = extra.get(key, value)
@@ -130,8 +155,13 @@ class DeclarationsHolder(object):
             if key in extra:
                 attributes[key] = extra[key]
             else:
-                wrapper = ObjectParamsWrapper(attributes)
-                attributes[key] = value.evaluate(factory, wrapper)
+                if isinstance(value, SubFactory):
+                    new_value = value.evaluate(factory, create,
+                                               sub_fields.get(key, {}))
+                else:
+                    wrapper = ObjectParamsWrapper(attributes)
+                    new_value = value.evaluate(factory, wrapper)
+                attributes[key] = new_value
         attributes.update(extra)
         return attributes
 
