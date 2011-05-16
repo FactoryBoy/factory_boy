@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 # Remember to change in factory/__init__.py as well!
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 
 setup(
     name='factory_boy',
