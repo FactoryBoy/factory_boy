@@ -176,6 +176,9 @@ class FactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object.three, 'three')
         self.assertEqual(test_object.four, 'three four')
 
+        test_object_alt = TestObjectFactory.build()
+        self.assertEqual(None, test_object_alt.three)
+
     def testInheritanceWithInheritedClass(self):
         class TestObjectFactory(Factory):
             one = 'one'

@@ -77,7 +77,7 @@ class BaseFactoryMetaClass(type):
             # If this isn't a subclass of Factory, don't do anything special.
             return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
-        declarations = getattr(base, CLASS_ATTRIBUTE_DECLARATIONS, DeclarationsHolder())
+        declarations = DeclarationsHolder(defaults=getattr(base, CLASS_ATTRIBUTE_DECLARATIONS, {}))
         attrs = declarations.update_base(attrs)
 
         attrs[CLASS_ATTRIBUTE_DECLARATIONS] = declarations
