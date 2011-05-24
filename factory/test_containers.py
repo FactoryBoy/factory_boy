@@ -114,6 +114,11 @@ class DeclarationsHolderTestCase(unittest.TestCase):
 
     def test_simple(self):
         """Tests a simple use case without OrderedDeclaration."""
+        class ExampleFactory(object):
+            @classmethod
+            def _generate_next_sequence(cls):
+                return 42
+
         holder = DeclarationsHolder({'one': 1, 'two': 2})
         self.assertTrue('one' in holder)
         self.assertTrue('two' in holder)
@@ -122,15 +127,16 @@ class DeclarationsHolderTestCase(unittest.TestCase):
         self.assertEqual(3, holder['two'])
         self.assertEqual(3, holder['three'])
 
-        attrs = holder.build_attributes(None)
+        attrs = holder.build_attributes(ExampleFactory)
         self.assertEqual(1, attrs['one'])
         self.assertEqual(3, attrs['two'])
         self.assertEqual(3, attrs['three'])
+        self.assertEqual(42, ExampleFactory.sequence)
 
         self.assertEqual(set([('one', 1), ('two', 3), ('three', 3)]),
                          set(holder.items()))
 
-        attrs = holder.build_attributes(None, False, {'two': 2})
+        attrs = holder.build_attributes(ExampleFactory, False, {'two': 2})
         self.assertEqual(1, attrs['one'])
         self.assertEqual(2, attrs['two'])
         self.assertEqual(3, attrs['three'])
@@ -148,6 +154,11 @@ class DeclarationsHolderTestCase(unittest.TestCase):
 
     def test_ordered(self):
         """Tests the handling of OrderedDeclaration."""
+        class ExampleFactory(object):
+            @classmethod
+            def _generate_next_sequence(cls):
+                return 42
+
         two = declarations.LazyAttribute(lambda o: 2 * o.one)
         three = declarations.LazyAttribute(lambda o: o.one + o.two)
         holder = DeclarationsHolder({'one': 1, 'two': two, 'three': three})
@@ -157,17 +168,17 @@ class DeclarationsHolderTestCase(unittest.TestCase):
 
         self.assertEqual(two, holder['two'])
 
-        attrs = holder.build_attributes(None)
+        attrs = holder.build_attributes(ExampleFactory)
         self.assertEqual(1, attrs['one'])
         self.assertEqual(2, attrs['two'])
         self.assertEqual(3, attrs['three'])
 
-        attrs = holder.build_attributes(None, False, {'one': 4})
+        attrs = holder.build_attributes(ExampleFactory, False, {'one': 4})
         self.assertEqual(4, attrs['one'])
         self.assertEqual(8, attrs['two'])
         self.assertEqual(12, attrs['three'])
 
-        attrs = holder.build_attributes(None, False, {'one': 4, 'two': 2})
+        attrs = holder.build_attributes(ExampleFactory, False, {'one': 4, 'two': 2})
         self.assertEqual(4, attrs['one'])
         self.assertEqual(2, attrs['two'])
         self.assertEqual(6, attrs['three'])
@@ -175,15 +186,26 @@ class DeclarationsHolderTestCase(unittest.TestCase):
     def test_sub_factory(self):
         """Tests the behaviour of sub-factories."""
         class TestObject(object):
-            def __init__(self, one=None, two=None, three=None, four=None):
+            def __init__(self, one=None, two=None, three=None, four=None, five=None):
                 self.one = one
                 self.two = two
                 self.three = three
                 self.four = four
+                self.five = five
 
         class TestObjectFactory(base.Factory):
             FACTORY_FOR = TestObject
             two = 2
+            five = declarations.Sequence(lambda n: n+1, type=int)
+
+            @classmethod
+            def _generate_next_sequence(cls):
+                return 42
+
+        class ExampleFactory(object):
+            @classmethod
+            def _generate_next_sequence(cls):
+                return 42
 
         sub = declarations.SubFactory(TestObjectFactory,
                                       three=3,
@@ -194,13 +216,13 @@ class DeclarationsHolderTestCase(unittest.TestCase):
         self.assertEqual(sub, holder['sub'])
         self.assertTrue('sub' in holder)
 
-        attrs = holder.build_attributes(None)
+        attrs = holder.build_attributes(ExampleFactory)
         self.assertEqual(1, attrs['one'])
         self.assertEqual(2, attrs['sub'].two)
         self.assertEqual(3, attrs['sub'].three)
         self.assertEqual(4, attrs['sub'].four)
 
-        attrs = holder.build_attributes(None, False, {'sub__two': 8, 'three__four': 4})
+        attrs = holder.build_attributes(ExampleFactory, False, {'sub__two': 8, 'three__four': 4})
         self.assertEqual(1, attrs['one'])
         self.assertEqual(4, attrs['three__four'])
         self.assertEqual(8, attrs['sub'].two)

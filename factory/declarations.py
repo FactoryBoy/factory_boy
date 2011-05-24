@@ -76,7 +76,13 @@ class LazyAttributeSequence(Sequence):
         return self.function(attributes, self.type(factory.sequence))
 
 class SubFactory(OrderedDeclaration):
-    """Base class for attributes based upon a sub-factory."""
+    """Base class for attributes based upon a sub-factory.
+
+    Attributes:
+        defaults: DeclarationsHolder, the declarations from the wrapped factory
+        factory: Factory, the wrapped factory
+    """
+
     def __init__(self, factory, **kwargs):
         super(SubFactory, self).__init__()
         self.defaults = factory.declarations()
@@ -84,6 +90,14 @@ class SubFactory(OrderedDeclaration):
         self.factory = factory
 
     def evaluate(self, factory, create, attributes):
+        """Evaluate the current definition and fill its attributes.
+
+        Uses attributes definition in the following order:
+        - attributes defined in the wrapped factory class
+        - values defined when defining the SubFactory
+        - additional valued defined in attributes
+        """
+
         attrs = self.defaults.build_attributes(self.factory, create, attributes)
         if create:
             return self.factory.create(**attrs)

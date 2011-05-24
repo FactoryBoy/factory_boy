@@ -139,6 +139,8 @@ class DeclarationsHolder(object):
         if not extra:
             extra = {}
 
+        factory.sequence = factory._generate_next_sequence()
+
         attributes = {}
         sub_fields = {}
         for key in list(extra.keys()):

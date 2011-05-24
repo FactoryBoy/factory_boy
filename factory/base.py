@@ -163,9 +163,6 @@ class BaseFactory(object):
             applicable; the current list of computed attributes is available for
             to the currently processed object.
         """
-        attributes = {}
-        cls.sequence = cls._generate_next_sequence()
-
         return getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS).build_attributes(cls, create, kwargs)
 
     @classmethod
