@@ -250,6 +250,24 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertEqual(1, test_model.id)
         self.assertEqual(1, test_model.two.id)
 
+    def testSubFactoryWithLazyFields(self):
+        class TestModel2(FakeDjangoModel):
+            pass
+
+        class TestModelFactory(Factory):
+            FACTORY_FOR = TestModel
+
+        class TestModel2Factory(Factory):
+            FACTORY_FOR = TestModel2
+            two = declarations.SubFactory(TestModelFactory,
+                                          one=declarations.Sequence(lambda n: 'x%sx' % n),
+                                          two=declarations.LazyAttribute(
+                                              lambda o: '%s%s' % (o.one, o.one)))
+
+        test_model = TestModel2Factory(one=42)
+        self.assertEqual('x0x', test_model.two.one)
+        self.assertEqual('x0xx0x', test_model.two.two)
+
     def testStubStrategy(self):
         Factory.default_strategy = STUB_STRATEGY
 
