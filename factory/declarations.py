@@ -62,6 +62,16 @@ class LazyAttribute(OrderedDeclaration):
     def evaluate(self, factory, attributes):
         return self.function(attributes)
 
+
+class SelfAttribute(OrderedDeclaration):
+    def __init__(self, attribute_name):
+        super(SelfAttribute, self).__init__()
+        self.attribute_name = attribute_name
+
+    def evaluate(self, factory, attributes):
+        return getattr(attributes, self.attribute_name)
+
+
 class Sequence(OrderedDeclaration):
     def __init__(self, function, type=str):
         super(Sequence, self).__init__()

@@ -115,6 +115,14 @@ class FactoryTestCase(unittest.TestCase):
         test_object = TestObjectFactory.build()
         self.assertEqual(test_object.one, 'one')
 
+    def testSelfAttribute(self):
+        class TestObjectFactory(Factory):
+            one = 'xx'
+            two = declarations.SelfAttribute('one')
+
+        test_object = TestObjectFactory.build(one=1)
+        self.assertEqual(1, test_object.two)
+
     def testSequenceDecorator(self):
         class TestObjectFactory(Factory):
             @declarations.sequence
