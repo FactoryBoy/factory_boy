@@ -144,10 +144,16 @@ class BaseFactory(object):
     def __new__(cls, *args, **kwargs):
         raise RuntimeError('You cannot instantiate BaseFactory')
 
-    _next_sequence = 0
+    _next_sequence = None
+
+    @classmethod
+    def _setup_next_sequence(cls):
+        return 0
 
     @classmethod
     def _generate_next_sequence(cls):
+        if cls._next_sequence is None:
+            cls._next_sequence = cls._setup_next_sequence()
         next_sequence = cls._next_sequence
         cls._next_sequence += 1
         return next_sequence

@@ -74,6 +74,23 @@ class FactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object1.one, 'one1')
         self.assertEqual(test_object1.two, 'two1')
 
+    def testSequenceCustomBegin(self):
+        class TestObjectFactory(Factory):
+            @classmethod
+            def _setup_next_sequence(cls):
+                return 42
+
+            one = declarations.Sequence(lambda n: 'one' + n)
+            two = declarations.Sequence(lambda n: 'two' + n)
+
+        test_object0 = TestObjectFactory.build()
+        self.assertEqual('one42', test_object0.one)
+        self.assertEqual('two42', test_object0.two)
+
+        test_object1 = TestObjectFactory.build()
+        self.assertEqual('one43', test_object1.one)
+        self.assertEqual('two43', test_object1.two)
+
     def testLazyAttribute(self):
         class TestObjectFactory(Factory):
             one = declarations.LazyAttribute(lambda a: 'abc' )
