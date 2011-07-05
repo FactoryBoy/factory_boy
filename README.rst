@@ -166,6 +166,14 @@ Sequences can be combined with lazy attributes::
         
     UserFactory().email  # => mark+0@example.com
 
+If you wish to use a custom method to set the initial ID for a sequence, you can override the ``_setup_next_sequence`` class method::
+
+    class MyFactory(factory.Factory):
+
+        @classmethod
+        def _setup_next_sequence(cls):
+            return cls.FACTORY_FOR.objects.values_list('id').order_by('-id')[0] + 1
+
 Customizing creation
 --------------------
 
@@ -183,3 +191,30 @@ Factory._prepare method::
                 if create:
                     user.save()
             return user
+
+Subfactories
+------------
+
+If one of your factories has a field which is another factory, you can declare it as a ``SubFactory``. This allows to define attributes of that field when calling
+the global factory, using a simple syntax : ``field__attr=42`` will set the attribute ``attr`` of the ``SubFactory`` defined in ``field`` to 42::
+
+    class InnerFactory(factory.Factory):
+        foo = 'foo'
+        bar = factory.LazyAttribute(lambda o: foo * 2)
+
+    class ExternalFactory(factory.Factory):
+        inner = factory.SubFactory(InnerFactory, foo='bar')
+
+    >>> e = ExternalFactory()
+    >>> e.foo
+    'bar'
+    >>> e.bar
+    'barbar'
+
+    >>> e2 : ExternalFactory(inner__bar='baz')
+    >>> e2.foo
+    'bar'
+    >>> e2.bar
+    'baz'
+
+
