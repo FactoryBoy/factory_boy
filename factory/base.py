@@ -242,3 +242,20 @@ class Factory(BaseFactory):
     @classmethod
     def create(cls, **kwargs):
         return cls._create(**cls.attributes(create=True, **kwargs))
+
+
+class DjangoModelFactory(Factory):
+    """Factory for django models.
+
+    This makes sure that the 'sequence' field of created objects is an unused id.
+
+    Possible improvement: define a new 'attribute' type, AutoField, which would
+    handle those for non-numerical primary keys.
+    """
+
+    @classmethod
+    def _setup_next_sequence(cls):
+        try:
+            return cls._associated_class.objects.values_list('id').order_by('-id')[0] + 1
+        except IndexError:
+            return 1
