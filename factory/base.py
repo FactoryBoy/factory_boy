@@ -73,7 +73,7 @@ class BaseFactoryMetaClass(type):
         an associated class instance at a later time.'''
 
         base = get_factory_base(bases)
-        if not base:
+        if not base or attrs.get('ABSTRACT_FACTORY', False):
             # If this isn't a subclass of Factory, don't do anything special.
             return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
@@ -100,7 +100,7 @@ class FactoryMetaClass(BaseFactoryMetaClass):
         for construction of an associated class instance at a later time.'''
 
         base = get_factory_base(bases)
-        if not base:
+        if not base or attrs.get('ABSTRACT_FACTORY', False):
             # If this isn't a subclass of Factory, don't do anything special.
             return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
@@ -252,6 +252,8 @@ class DjangoModelFactory(Factory):
     Possible improvement: define a new 'attribute' type, AutoField, which would
     handle those for non-numerical primary keys.
     """
+
+    ABSTRACT_FACTORY = True
 
     @classmethod
     def _setup_next_sequence(cls):
