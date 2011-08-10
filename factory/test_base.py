@@ -219,6 +219,21 @@ class FactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object.three, 'three')
         self.assertEqual(test_object.four, 'three four')
 
+    def testInheritanceWithSequence(self):
+        """Tests that sequence IDs are shared between parent and son."""
+        class TestObjectFactory(Factory):
+            one = declarations.Sequence(lambda a: a)
+
+        class TestSubFactory(TestObjectFactory):
+            pass
+
+        parent = TestObjectFactory.build()
+        sub = TestSubFactory.build()
+        alt_parent = TestObjectFactory.build()
+        alt_sub = TestSubFactory.build()
+        ones = set([x.one for x in (parent, alt_parent, sub, alt_sub)])
+        self.assertEqual(4, len(ones))
+
     def testSetCreationFunction(self):
         def creation_function(class_to_create, **kwargs):
             return "This doesn't even return an instance of {0}".format(class_to_create.__name__)

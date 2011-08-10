@@ -123,12 +123,14 @@ class FactoryMetaClass(BaseFactoryMetaClass):
 
         if own_associated_class is None and inherited_associated_class is not None:
             own_associated_class = inherited_associated_class
+            attrs['_base_factory'] = base
 
-        if not own_associated_class and used_auto_discovery:
-            format_args = FACTORY_CLASS_DECLARATION, associated_class_name, class_name, factory_module
-            raise Factory.AssociatedClassError(FactoryMetaClass.ERROR_MESSAGE_AUTODISCOVERY.format(*format_args))
-        elif not own_associated_class:
-            raise Factory.AssociatedClassError(FactoryMetaClass.ERROR_MESSAGE.format(FACTORY_CLASS_DECLARATION))
+        if not own_associated_class:
+            if used_auto_discovery:
+                format_args = FACTORY_CLASS_DECLARATION, associated_class_name, class_name, factory_module
+                raise Factory.AssociatedClassError(FactoryMetaClass.ERROR_MESSAGE_AUTODISCOVERY.format(*format_args))
+            else:
+                raise Factory.AssociatedClassError(FactoryMetaClass.ERROR_MESSAGE.format(FACTORY_CLASS_DECLARATION))
 
         extra_attrs = {CLASS_ATTRIBUTE_ASSOCIATED_CLASS: own_associated_class}
         return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs, extra_attrs=extra_attrs)
@@ -145,13 +147,17 @@ class BaseFactory(object):
         raise RuntimeError('You cannot instantiate BaseFactory')
 
     _next_sequence = None
+    _base_factory = None
 
     @classmethod
     def _setup_next_sequence(cls):
+        """Set up an initial sequence value for Sequence attributes."""
         return 0
 
     @classmethod
     def _generate_next_sequence(cls):
+        if cls._base_factory:
+            return cls._base_factory._generate_next_sequence()
         if cls._next_sequence is None:
             cls._next_sequence = cls._setup_next_sequence()
         next_sequence = cls._next_sequence

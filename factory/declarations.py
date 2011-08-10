@@ -23,7 +23,10 @@ import threading
 global_counter_lock = threading.Lock()
 
 class GlobalCounter(object):
-    """A simple global counter."""
+    """A simple global counter.
+
+    It is used to order the various OrderedDeclaration together.
+    """
 
     _value = 0
 
