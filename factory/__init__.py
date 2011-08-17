@@ -24,6 +24,7 @@ __author__ = 'Mark Sandstrom <mark@deliciouslynerdy.com>'
 from base import (
     Factory,
     StubFactory,
+    DjangoModelFactory,
     BUILD_STRATEGY,
     CREATE_STRATEGY,
     STUB_STRATEGY
