@@ -46,12 +46,8 @@ CLASS_ATTRIBUTE_ASSOCIATED_CLASS = '_associated_class'
 # Factory metaclasses
 
 def get_factory_base(bases):
-    parents = [b for b in bases if isinstance(b, BaseFactoryMetaClass)]
-    if not parents:
-        return None
-    if len(parents) > 1:
-        raise RuntimeError('You can only inherit from one Factory')
-    return parents[0]
+    return [b for b in bases if isinstance(b, BaseFactoryMetaClass)]
+
 
 class BaseFactoryMetaClass(type):
     '''Factory metaclass for handling ordered declarations.'''
@@ -72,19 +68,22 @@ class BaseFactoryMetaClass(type):
         '''Record attributes (unordered declarations) and ordered declarations for construction of
         an associated class instance at a later time.'''
 
-        base = get_factory_base(bases)
-        if not base or attrs.get('ABSTRACT_FACTORY', False):
+        parent_factories = get_factory_base(bases)
+        if not parent_factories or attrs.get('ABSTRACT_FACTORY', False):
             # If this isn't a subclass of Factory, don't do anything special.
             return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
-        declarations = DeclarationsHolder(defaults=getattr(base, CLASS_ATTRIBUTE_DECLARATIONS, {}))
-        attrs = declarations.update_base(attrs)
+        declarations = DeclarationsHolder()
+        for base in parent_factories:
+            declarations.update_base(getattr(base, CLASS_ATTRIBUTE_DECLARATIONS, {}))
 
-        attrs[CLASS_ATTRIBUTE_DECLARATIONS] = declarations
+        non_factory_attrs = declarations.update_base(attrs)
 
-        attrs.update(extra_attrs)
+        non_factory_attrs[CLASS_ATTRIBUTE_DECLARATIONS] = declarations
 
-        return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
+        non_factory_attrs.update(extra_attrs)
+
+        return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, non_factory_attrs)
 
 class FactoryMetaClass(BaseFactoryMetaClass):
     '''Factory metaclass for handling class association and ordered declarations.'''
@@ -99,10 +98,12 @@ class FactoryMetaClass(BaseFactoryMetaClass):
         '''Determine the associated class based on the factory class name. Record the associated class
         for construction of an associated class instance at a later time.'''
 
-        base = get_factory_base(bases)
-        if not base or attrs.get('ABSTRACT_FACTORY', False):
+        parent_factories = get_factory_base(bases)
+        if not parent_factories or attrs.get('ABSTRACT_FACTORY', False):
             # If this isn't a subclass of Factory, don't do anything special.
             return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
+
+        base = parent_factories[0]
 
         inherited_associated_class = getattr(base, CLASS_ATTRIBUTE_ASSOCIATED_CLASS, None)
         own_associated_class = None

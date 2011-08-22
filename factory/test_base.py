@@ -234,6 +234,24 @@ class FactoryTestCase(unittest.TestCase):
         ones = set([x.one for x in (parent, alt_parent, sub, alt_sub)])
         self.assertEqual(4, len(ones))
 
+    def testDualInheritance(self):
+        class TestObjectFactory(Factory):
+            one = 'one'
+
+        class TestOtherFactory(Factory):
+            FACTORY_FOR = TestObject
+            two = 'two'
+            four = 'four'
+
+        class TestFactory(TestObjectFactory, TestOtherFactory):
+            three = 'three'
+
+        obj = TestFactory.build(two=2)
+        self.assertEqual('one', obj.one)
+        self.assertEqual(2, obj.two)
+        self.assertEqual('three', obj.three)
+        self.assertEqual('four', obj.four)
+
     def testSetCreationFunction(self):
         def creation_function(class_to_create, **kwargs):
             return "This doesn't even return an instance of {0}".format(class_to_create.__name__)
@@ -400,19 +418,6 @@ class FactoryCreationTestCase(unittest.TestCase):
         except Factory.AssociatedClassError as e:
             self.assertTrue('autodiscovery' not in str(e))
 
-    def testInheritanceFromMoreThanOneFactory(self):
-        class TestObjectFactory(StubFactory):
-            pass
-
-        class TestModelFactory(TestObjectFactory):
-            pass
-
-        try:
-            class TestFactory(TestObjectFactory, TestModelFactory):
-                pass
-            self.fail()
-        except RuntimeError as e:
-            self.assertTrue('one Factory' in str(e))
 
 if __name__ == '__main__':
     unittest.main()
