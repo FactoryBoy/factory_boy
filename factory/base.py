@@ -50,10 +50,10 @@ def get_factory_base(bases):
 
 
 class BaseFactoryMetaClass(type):
-    '''Factory metaclass for handling ordered declarations.'''
+    """Factory metaclass for handling ordered declarations."""
 
     def __call__(cls, **kwargs):
-        '''Create an associated class instance using the default build strategy. Never create a Factory instance.'''
+        """Create an associated class instance using the default build strategy. Never create a Factory instance."""
 
         if cls.default_strategy == BUILD_STRATEGY:
             return cls.build(**kwargs)
@@ -65,8 +65,8 @@ class BaseFactoryMetaClass(type):
             raise BaseFactory.UnknownStrategy('Unknown default_strategy: {0}'.format(cls.default_strategy))
 
     def __new__(cls, class_name, bases, attrs, extra_attrs={}):
-        '''Record attributes (unordered declarations) and ordered declarations for construction of
-        an associated class instance at a later time.'''
+        """Record attributes (unordered declarations) and ordered declarations for construction of
+        an associated class instance at a later time."""
 
         parent_factories = get_factory_base(bases)
         if not parent_factories or attrs.get('ABSTRACT_FACTORY', False):
@@ -85,18 +85,19 @@ class BaseFactoryMetaClass(type):
 
         return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, non_factory_attrs)
 
-class FactoryMetaClass(BaseFactoryMetaClass):
-    '''Factory metaclass for handling class association and ordered declarations.'''
 
-    ERROR_MESSAGE = '''Could not determine what class this factory is for.
-    Use the {0} attribute to specify a class.'''
-    ERROR_MESSAGE_AUTODISCOVERY = ERROR_MESSAGE + '''
+class FactoryMetaClass(BaseFactoryMetaClass):
+    """Factory metaclass for handling class association and ordered declarations."""
+
+    ERROR_MESSAGE = """Could not determine what class this factory is for.
+    Use the {0} attribute to specify a class."""
+    ERROR_MESSAGE_AUTODISCOVERY = ERROR_MESSAGE + """
     Also, autodiscovery failed using the name '{1}'
-    based on the Factory name '{2}' in {3}.'''
+    based on the Factory name '{2}' in {3}."""
 
     def __new__(cls, class_name, bases, attrs):
-        '''Determine the associated class based on the factory class name. Record the associated class
-        for construction of an associated class instance at a later time.'''
+        """Determine the associated class based on the factory class name. Record the associated class
+        for construction of an associated class instance at a later time."""
 
         parent_factories = get_factory_base(bases)
         if not parent_factories or attrs.get('ABSTRACT_FACTORY', False):
@@ -139,7 +140,7 @@ class FactoryMetaClass(BaseFactoryMetaClass):
 # Factory base classes
 
 class BaseFactory(object):
-    '''Factory base support for sequences, attributes and stubs.'''
+    """Factory base support for sequences, attributes and stubs."""
 
     class UnknownStrategy(RuntimeError): pass
     class UnsupportedStrategy(RuntimeError): pass
@@ -203,9 +204,9 @@ class StubFactory(BaseFactory):
     default_strategy = STUB_STRATEGY
 
 class Factory(BaseFactory):
-    '''Factory base with build and create support.
+    """Factory base with build and create support.
 
-    This class has the ability to support multiple ORMs by using custom creation functions.'''
+    This class has the ability to support multiple ORMs by using custom creation functions."""
 
     __metaclass__ = FactoryMetaClass
 

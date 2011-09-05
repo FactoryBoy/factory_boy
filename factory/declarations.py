@@ -39,21 +39,21 @@ class GlobalCounter(object):
 
 
 class OrderedDeclaration(object):
-    '''A factory declaration.
+    """A factory declaration.
 
     Ordered declarations keep track of the order in which they're defined so that later declarations
-    can refer to attributes created by earlier declarations when the declarations are evaluated.'''
+    can refer to attributes created by earlier declarations when the declarations are evaluated."""
     _next_order = 0
 
     def __init__(self):
         self.order = GlobalCounter.step()
 
     def evaluate(self, factory, attributes):
-        '''Evaluate this declaration.
+        """Evaluate this declaration.
 
         Args:
             factory: The factory this declaration was defined in.
-            attributes: The attributes created by the unordered and ordered declarations up to this point.'''
+            attributes: The attributes created by the unordered and ordered declarations up to this point."""
 
         raise NotImplementedError('This is an abstract method')
 

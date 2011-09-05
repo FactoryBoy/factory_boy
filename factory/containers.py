@@ -24,9 +24,9 @@ from declarations import OrderedDeclaration, SubFactory
 ATTR_SPLITTER = '__'
 
 class ObjectParamsWrapper(object):
-    '''A generic container that allows for getting but not setting of attributes.
+    """A generic container that allows for getting but not setting of attributes.
 
-    Attributes are set at initialization time.'''
+    Attributes are set at initialization time."""
 
     initialized = False
 
@@ -168,6 +168,6 @@ class DeclarationsHolder(object):
         return attributes
 
 class StubObject(object):
-    '''A generic container.'''
+    """A generic container."""
 
     pass
