@@ -161,21 +161,25 @@ class DeclarationsHolder(object):
         for base in (self._unordered, self._ordered, extra):
             sub_fields.update(self._extract_sub_fields(base))
 
+        def make_value(key, val):
+            if key in extra:
+                val = extra.pop(key)
+            if isinstance(val, SubFactory):
+                new_val = val.evaluate(factory, create, sub_fields.get(key, {}))
+            elif isinstance(val, OrderedDeclaration):
+                wrapper = ObjectParamsWrapper(attributes)
+                new_val = val.evaluate(factory, wrapper)
+            else:
+                new_val = val
+
+            return new_val
+
         # For fields in _unordered, use the value from extra if any; otherwise,
         # use the default value.
         for key, value in self._unordered.iteritems():
-            attributes[key] = extra.get(key, value)
+            attributes[key] = make_value(key, value)
         for key, value in self._ordered.iteritems():
-            if key in extra:
-                attributes[key] = extra[key]
-            else:
-                if isinstance(value, SubFactory):
-                    new_value = value.evaluate(factory, create,
-                                               sub_fields.get(key, {}))
-                else:
-                    wrapper = ObjectParamsWrapper(attributes)
-                    new_value = value.evaluate(factory, wrapper)
-                attributes[key] = new_value
+            attributes[key] = make_value(key, value)
         attributes.update(extra)
         return attributes
 
