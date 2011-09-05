@@ -134,6 +134,21 @@ class DeclarationsHolder(object):
     def items(self):
         return list(self.iteritems())
 
+    def _extract_sub_fields(self, base):
+        """Extract all subfields declaration from a given dict-like object.
+
+        Will compare with attributes declared in the current object, and
+        will pop() values from the given base.
+        """
+        sub_fields = dict()
+
+        for key in list(base):
+            if ATTR_SPLITTER in key:
+                cls_name, attr_name = key.split(ATTR_SPLITTER, 1)
+                if cls_name in self:
+                    sub_fields.setdefault(cls_name, {})[attr_name] = base.pop(key)
+        return sub_fields
+
     def build_attributes(self, factory, create=False, extra=None):
         """Build the list of attributes based on class attributes."""
         if not extra:
@@ -143,11 +158,8 @@ class DeclarationsHolder(object):
 
         attributes = {}
         sub_fields = {}
-        for key in list(extra.keys()):
-            if ATTR_SPLITTER in key:
-                cls_name, attr_name = key.split(ATTR_SPLITTER, 1)
-                if cls_name in self:
-                    sub_fields.setdefault(cls_name, {})[attr_name] = extra.pop(key)
+        for base in (self._unordered, self._ordered, extra):
+            sub_fields.update(self._extract_sub_fields(base))
 
         # For fields in _unordered, use the value from extra if any; otherwise,
         # use the default value.

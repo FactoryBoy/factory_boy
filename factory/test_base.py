@@ -326,6 +326,32 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertEqual('x0x', test_model.two.one)
         self.assertEqual('x0xx0x', test_model.two.two)
 
+    def testNestedSubFactory(self):
+        """Test nested sub-factories."""
+
+        class TestObject(object):
+            def __init__(self, **kwargs):
+                for k, v in kwargs.iteritems():
+                    setattr(self, k, v)
+
+        class TestObjectFactory(Factory):
+            FACTORY_FOR = TestObject
+
+        class WrappingTestObjectFactory(Factory):
+            FACTORY_FOR = TestObject
+
+            wrapped = declarations.SubFactory(TestObjectFactory)
+            wrapped_bis = declarations.SubFactory(TestObjectFactory, one=1)
+
+        class OuterWrappingTestObjectFactory(Factory):
+            FACTORY_FOR = TestObject
+
+            wrap = declarations.SubFactory(WrappingTestObjectFactory, wrapped__two=2)
+
+        outer = OuterWrappingTestObjectFactory.build()
+        self.assertEqual(outer.wrap.wrapped.two, 2)
+        self.assertEqual(outer.wrap.wrapped_bis.one, 1)
+
     def testStubStrategy(self):
         Factory.default_strategy = STUB_STRATEGY
 
