@@ -194,7 +194,7 @@ class BaseFactory(object):
     @classmethod
     def stub(cls, **kwargs):
         stub_object = StubObject()
-        for name, value in cls.attributes(**kwargs).iteritems():
+        for name, value in cls.attributes(create=False, extra=kwargs).iteritems():
             setattr(stub_object, name, value)
         return stub_object
 
