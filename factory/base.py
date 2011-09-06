@@ -247,11 +247,11 @@ class Factory(BaseFactory):
 
     @classmethod
     def build(cls, **kwargs):
-        return cls._build(**cls.attributes(create=False, **kwargs))
+        return cls._build(**cls.attributes(create=False, extra=kwargs))
 
     @classmethod
     def create(cls, **kwargs):
-        return cls._create(**cls.attributes(create=True, **kwargs))
+        return cls._create(**cls.attributes(create=True, extra=kwargs))
 
 
 class DjangoModelFactory(Factory):

@@ -64,14 +64,14 @@ class OrderedDict(object):
         if key in self:
             del self[key]
         self._values[key] = val
-        self._order[val.order] = key
+        self._order.setdefault(val.order, set()).add(key)
 
     def __delitem__(self, key):
         self.pop(key)
 
     def pop(self, key):
         val = self._values.pop(key)
-        del self._order[val.order]
+        self._order[val.order].remove(key)
         return val
 
     def items(self):
@@ -80,13 +80,14 @@ class OrderedDict(object):
     def iteritems(self):
         order = sorted(self._order.keys())
         for i in order:
-            key = self._order[i]
-            yield (key, self._values[key])
+            for key in self._order[i]:
+                yield (key, self._values[key])
 
     def __iter__(self):
         order = sorted(self._order.keys())
         for i in order:
-            yield self._order[i]
+            for k in self._order[i]:
+                yield k
 
 
 class DeclarationDict(object):
@@ -181,7 +182,7 @@ class AttributeBuilder(object):
             extra = {}
         self.factory = factory
         self._attrs = factory.declarations(extra)
-        self._subfield = self._extract_subfields()
+        self._subfields = self._extract_subfields()
 
     def _extract_subfields(self):
         sub_fields = {}
@@ -198,7 +199,7 @@ class AttributeBuilder(object):
         attributes = {}
         for key, val in self._attrs.iteritems():
             if isinstance(val, SubFactory):
-                val = val.evaluate(self.factory, create, self._subfield.get(key, {}))
+                val = val.evaluate(self.factory, create, self._subfields.get(key, {}))
             elif isinstance(val, OrderedDeclaration):
                 wrapper = ObjectParamsWrapper(attributes)
                 val = val.evaluate(self.factory, wrapper)
