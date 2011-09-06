@@ -48,22 +48,24 @@ class OrderedDeclaration(object):
     def __init__(self):
         self.order = GlobalCounter.step()
 
-    def evaluate(self, factory, attributes):
+    def evaluate(self, factory, obj):
         """Evaluate this declaration.
 
         Args:
             factory: The factory this declaration was defined in.
+            obj: The object holding currently computed attributes
             attributes: The attributes created by the unordered and ordered declarations up to this point."""
 
         raise NotImplementedError('This is an abstract method')
+
 
 class LazyAttribute(OrderedDeclaration):
     def __init__(self, function):
         super(LazyAttribute, self).__init__()
         self.function = function
 
-    def evaluate(self, factory, attributes):
-        return self.function(attributes)
+    def evaluate(self, factory, obj):
+        return self.function(obj)
 
 
 class SelfAttribute(OrderedDeclaration):
@@ -71,8 +73,8 @@ class SelfAttribute(OrderedDeclaration):
         super(SelfAttribute, self).__init__()
         self.attribute_name = attribute_name
 
-    def evaluate(self, factory, attributes):
-        return getattr(attributes, self.attribute_name)
+    def evaluate(self, factory, obj):
+        return getattr(obj, self.attribute_name)
 
 
 class Sequence(OrderedDeclaration):
@@ -81,12 +83,14 @@ class Sequence(OrderedDeclaration):
         self.function = function
         self.type = type
 
-    def evaluate(self, factory, attributes):
+    def evaluate(self, factory, obj):
         return self.function(self.type(factory.sequence))
 
+
 class LazyAttributeSequence(Sequence):
-    def evaluate(self, factory, attributes):
-        return self.function(attributes, self.type(factory.sequence))
+    def evaluate(self, factory, obj):
+        return self.function(obj, self.type(factory.sequence))
+
 
 class SubFactory(OrderedDeclaration):
     """Base class for attributes based upon a sub-factory.
@@ -98,20 +102,24 @@ class SubFactory(OrderedDeclaration):
 
     def __init__(self, factory, **kwargs):
         super(SubFactory, self).__init__()
-        self.defaults = factory.declarations()
-        self.defaults.update_base(kwargs)
+        self.defaults = kwargs
         self.factory = factory
 
-    def evaluate(self, factory, create, attributes):
+    def evaluate(self, factory, create, extra):
         """Evaluate the current definition and fill its attributes.
 
         Uses attributes definition in the following order:
         - attributes defined in the wrapped factory class
         - values defined when defining the SubFactory
-        - additional valued defined in attributes
+        - additional values defined in attributes
         """
 
-        attrs = self.defaults.build_attributes(self.factory, create, attributes)
+        defaults = dict(self.defaults)
+        if extra:
+            defaults.update(extra)
+
+        attrs = self.factory.attributes(create, defaults)
+
         if create:
             return self.factory.create(**attrs)
         else:

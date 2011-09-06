@@ -21,7 +21,7 @@
 import re
 import sys
 
-from containers import DeclarationsHolder, ObjectParamsWrapper, OrderedDeclarationDict, StubObject
+from containers import AttributeBuilder, DeclarationDict, ObjectParamsWrapper, StubObject
 from declarations import OrderedDeclaration
 
 # Strategies
@@ -73,14 +73,14 @@ class BaseFactoryMetaClass(type):
             # If this isn't a subclass of Factory, don't do anything special.
             return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
-        declarations = DeclarationsHolder()
-        for base in parent_factories:
-            declarations.update_base(getattr(base, CLASS_ATTRIBUTE_DECLARATIONS, {}))
+        declarations = DeclarationDict()
 
-        non_factory_attrs = declarations.update_base(attrs)
+        #Add parent declarations in reverse order.
+        for base in reversed(parent_factories):
+            declarations.update_with_public(getattr(base, CLASS_ATTRIBUTE_DECLARATIONS, {}))
 
+        non_factory_attrs = declarations.update_with_public(attrs)
         non_factory_attrs[CLASS_ATTRIBUTE_DECLARATIONS] = declarations
-
         non_factory_attrs.update(extra_attrs)
 
         return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, non_factory_attrs)
@@ -167,21 +167,21 @@ class BaseFactory(object):
         return next_sequence
 
     @classmethod
-    def attributes(cls, create=False, **kwargs):
+    def attributes(cls, create=False, extra=None):
         """Build a dict of attribute values, respecting declaration order.
 
         The process is:
         - Handle 'orderless' attributes, overriding defaults with provided
             kwargs when applicable
         - Handle ordered attributes, overriding them with provided kwargs when
-            applicable; the current list of computed attributes is available for
+            applicable; the current list of computed attributes is available
             to the currently processed object.
         """
-        return getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS).build_attributes(cls, create, kwargs)
+        return AttributeBuilder(cls, extra).build(create)
 
     @classmethod
-    def declarations(cls):
-        return DeclarationsHolder(getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS))
+    def declarations(cls, extra_defs=None):
+        return getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS).copy(extra_defs)
 
     @classmethod
     def build(cls, **kwargs):
@@ -198,10 +198,12 @@ class BaseFactory(object):
             setattr(stub_object, name, value)
         return stub_object
 
+
 class StubFactory(BaseFactory):
     __metaclass__ = BaseFactoryMetaClass
 
     default_strategy = STUB_STRATEGY
+
 
 class Factory(BaseFactory):
     """Factory base with build and create support.
