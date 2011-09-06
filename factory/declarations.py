@@ -18,37 +18,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import threading
-
-global_counter_lock = threading.Lock()
-
-class GlobalCounter(object):
-    """A simple global counter.
-
-    It is used to order the various OrderedDeclaration together.
-    """
-
-    _value = 0
-
-    @classmethod
-    def step(cls):
-        with global_counter_lock:
-            current = cls._value
-            cls._value += 1
-        return current
-
-
 class OrderedDeclaration(object):
     """A factory declaration.
 
     Ordered declarations keep track of the order in which they're defined so that later declarations
     can refer to attributes created by earlier declarations when the declarations are evaluated."""
-    _next_order = 0
-
-    def __init__(self):
-        self.order = GlobalCounter.step()
-
-    def evaluate(self, factory, obj):
+    def evaluate(self, sequence, obj):
         """Evaluate this declaration.
 
         Args:
@@ -64,7 +39,7 @@ class LazyAttribute(OrderedDeclaration):
         super(LazyAttribute, self).__init__()
         self.function = function
 
-    def evaluate(self, factory, obj):
+    def evaluate(self, sequence, obj):
         return self.function(obj)
 
 
@@ -73,7 +48,7 @@ class SelfAttribute(OrderedDeclaration):
         super(SelfAttribute, self).__init__()
         self.attribute_name = attribute_name
 
-    def evaluate(self, factory, obj):
+    def evaluate(self, sequence, obj):
         return getattr(obj, self.attribute_name)
 
 
@@ -83,13 +58,13 @@ class Sequence(OrderedDeclaration):
         self.function = function
         self.type = type
 
-    def evaluate(self, factory, obj):
-        return self.function(self.type(factory.sequence))
+    def evaluate(self, sequence, obj):
+        return self.function(self.type(sequence))
 
 
 class LazyAttributeSequence(Sequence):
-    def evaluate(self, factory, obj):
-        return self.function(obj, self.type(factory.sequence))
+    def evaluate(self, sequence, obj):
+        return self.function(obj, self.type(sequence))
 
 
 class SubFactory(OrderedDeclaration):
@@ -105,7 +80,7 @@ class SubFactory(OrderedDeclaration):
         self.defaults = kwargs
         self.factory = factory
 
-    def evaluate(self, factory, create, extra):
+    def evaluate(self, create, extra):
         """Evaluate the current definition and fill its attributes.
 
         Uses attributes definition in the following order:

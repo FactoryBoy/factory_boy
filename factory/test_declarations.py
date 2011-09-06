@@ -20,28 +20,12 @@
 
 import unittest
 
-from declarations import GlobalCounter, OrderedDeclaration, Sequence
-
-class GlobalCounterTestCase(unittest.TestCase):
-    def test_incr(self):
-        init = GlobalCounter.step()
-        mid = GlobalCounter.step()
-        last = GlobalCounter.step()
-        self.assertEqual(2, last - init)
-        self.assertEqual(1, mid - init)
-
+from declarations import OrderedDeclaration, Sequence
 
 class OrderedDeclarationTestCase(unittest.TestCase):
     def test_errors(self):
         decl = OrderedDeclaration()
         self.assertRaises(NotImplementedError, decl.evaluate, None, {})
-
-    def test_order(self):
-        decl1 = OrderedDeclaration()
-        decl2 = OrderedDeclaration()
-        decl3 = Sequence(lambda n: 3 * n)
-        self.assertTrue(decl1.order < decl2.order)
-        self.assertTrue(decl2.order < decl3.order)
 
 if __name__ == '__main__':
     unittest.main()

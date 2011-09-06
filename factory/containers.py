@@ -23,7 +23,12 @@ from declarations import OrderedDeclaration, SubFactory
 
 ATTR_SPLITTER = '__'
 
-class ObjectParamsWrapper(object):
+
+class CyclicDefinitionError(Exception):
+    """Raised when cyclic definition were found."""
+
+
+class LazyStub(object):
     """A generic container that allows for getting but not setting of attributes.
 
     Attributes are set at initialization time."""
@@ -31,107 +36,45 @@ class ObjectParamsWrapper(object):
     initialized = False
 
     def __init__(self, attrs):
-        self.attrs = attrs
+        self.__attrs = attrs
+        self.__values = {}
+        self.__pending = []
         self.initialized = True
+
+    def __fill__(self):
+        res = {}
+        for attr in self.__attrs:
+            res[attr] = getattr(self, attr)
+        return res
+
+    def __getattr__(self, name):
+        if name in self.__pending:
+            raise CyclicDefinitionError(
+                    "Cyclic lazy attribute definition for %s. Current cycle is %r." %
+                    (name, self.__pending))
+        elif name in self.__values:
+            return self.__values[name]
+        elif name in self.__attrs:
+            val = self.__attrs[name]
+            if isinstance(val, LazyValue):
+                self.__pending.append(name)
+                val = val.evaluate(self)
+                assert name == self.__pending.pop()
+            self.__values[name] = val
+            return val
+        else:
+            raise AttributeError(
+                "The parameter %s is unknown. Evaluated attributes are %r, definitions are %r." % (name, self.__values, self.__attrs))
+
 
     def __setattr__(self, name, value):
         if not self.initialized:
-            return super(ObjectParamsWrapper, self).__setattr__(name, value)
+            return super(LazyStub, self).__setattr__(name, value)
         else:
             raise AttributeError('Setting of object attributes is not allowed')
 
-    def __getattr__(self, name):
-        try:
-            return self.attrs[name]
-        except KeyError:
-            raise AttributeError("The param '{0}' does not exist. Perhaps your declarations are out of order?".format(name))
 
-
-class OrderedDict(object):
-    def __init__(self, **kwargs):
-        self._order = {}
-        self._values = {}
-        for k, v in kwargs.iteritems():
-            self[k] = v
-
-    def __contains__(self, key):
-        return key in self._values
-
-    def __getitem__(self, key):
-        return self._values[key]
-
-    def __setitem__(self, key, val):
-        if key in self:
-            del self[key]
-        self._values[key] = val
-        self._order.setdefault(val.order, set()).add(key)
-
-    def __delitem__(self, key):
-        self.pop(key)
-
-    def pop(self, key):
-        val = self._values.pop(key)
-        self._order[val.order].remove(key)
-        return val
-
-    def items(self):
-        return list(self.iteritems())
-
-    def iteritems(self):
-        order = sorted(self._order.keys())
-        for i in order:
-            for key in self._order[i]:
-                yield (key, self._values[key])
-
-    def __iter__(self):
-        order = sorted(self._order.keys())
-        for i in order:
-            for k in self._order[i]:
-                yield k
-
-
-class DeclarationDict(object):
-    """Holds a dict of declarations, keeping OrderedDeclaration at the end."""
-    def __init__(self, extra=None):
-        if not extra:
-            extra = {}
-        self._ordered = OrderedDict()
-        self._unordered = {}
-        self.update(extra)
-
-    def __setitem__(self, key, value):
-        if key in self:
-            del self[key]
-
-        if isinstance(value, OrderedDeclaration):
-            self._ordered[key] = value
-        else:
-            self._unordered[key] = value
-
-    def __getitem__(self, key):
-        """Try in _unordered first, then in _ordered."""
-        try:
-            return self._unordered[key]
-        except KeyError:
-            return self._ordered[key]
-
-    def __delitem__(self, key):
-        if key in self._unordered:
-            del self._unordered[key]
-        else:
-            del self._ordered[key]
-
-    def pop(self, key, *args):
-        assert len(args) <= 1
-        try:
-            return self._unordered.pop(key)
-        except KeyError:
-            return self._ordered.pop(key, *args)
-
-    def update(self, d):
-        for k in d:
-            self[k] = d[k]
-
+class DeclarationDict(dict):
     def update_with_public(self, d):
         """Updates the DeclarationDict from a class definition dict.
 
@@ -155,23 +98,29 @@ class DeclarationDict(object):
             new.update(extra)
         return new
 
-    def __contains__(self, key):
-        return key in self._unordered or key in self._ordered
 
-    def items(self):
-        return list(self.iteritems())
+class LazyValue(object):
+    def evaluate(self, obj):
+        raise NotImplementedError("This is an abstract method.")
 
-    def iteritems(self):
-        for pair in self._unordered.iteritems():
-            yield pair
-        for pair in self._ordered.iteritems():
-            yield pair
 
-    def __iter__(self):
-        for k in self._unordered:
-            yield k
-        for k in self._ordered:
-            yield k
+class SubFactoryWrapper(LazyValue):
+    def __init__(self, subfactory, subfields, create):
+        self.subfactory = subfactory
+        self.subfields = subfields
+        self.create = create
+
+    def evaluate(self, obj):
+        return self.subfactory.evaluate(self.create, self.subfields)
+
+
+class OrderedDeclarationWrapper(LazyValue):
+    def __init__(self, declaration, sequence):
+        self.declaration = declaration
+        self.sequence = sequence
+
+    def evaluate(self, obj):
+        return self.declaration.evaluate(self.sequence, obj)
 
 
 class AttributeBuilder(object):
@@ -196,16 +145,16 @@ class AttributeBuilder(object):
     def build(self, create):
         self.factory.sequence = self.factory._generate_next_sequence()
 
-        attributes = {}
-        for key, val in self._attrs.iteritems():
-            if isinstance(val, SubFactory):
-                val = val.evaluate(self.factory, create, self._subfields.get(key, {}))
-            elif isinstance(val, OrderedDeclaration):
-                wrapper = ObjectParamsWrapper(attributes)
-                val = val.evaluate(self.factory, wrapper)
-            attributes[key] = val
+        wrapped_attrs = {}
+        for k, v in self._attrs.iteritems():
+            if isinstance(v, SubFactory):
+                v = SubFactoryWrapper(v, self._subfields.get(k, {}), create)
+            elif isinstance(v, OrderedDeclaration):
+                v = OrderedDeclarationWrapper(v, self.factory.sequence)
+            wrapped_attrs[k] = v
 
-        return attributes
+        stub = LazyStub(wrapped_attrs)
+        return stub.__fill__()
 
 
 class StubObject(object):

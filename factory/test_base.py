@@ -104,11 +104,7 @@ class FactoryTestCase(unittest.TestCase):
         class TestObjectFactory(Factory):
             one = declarations.LazyAttribute(lambda a: a.does_not_exist )
 
-        try:
-            TestObjectFactory()
-            self.fail()
-        except AttributeError as e:
-            self.assertTrue('does not exist' in str(e))
+        self.assertRaises(AttributeError, TestObjectFactory)
 
     def testLazyAttributeSequence(self):
         class TestObjectFactory(Factory):
@@ -368,6 +364,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
             FACTORY_FOR = TestObject
 
             wrapped = declarations.SubFactory(TestObjectFactory)
+            friend = declarations.LazyAttribute(lambda o: o.wrapped.two.four + 1)
 
         class OuterWrappingTestObjectFactory(Factory):
             FACTORY_FOR = TestObject
@@ -375,9 +372,9 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
             wrap = declarations.SubFactory(WrappingTestObjectFactory,
                     wrapped__two=declarations.SubFactory(TestObjectFactory, four=4))
 
-
         outer = OuterWrappingTestObjectFactory.build()
         self.assertEqual(outer.wrap.wrapped.two.four, 4)
+        self.assertEqual(outer.wrap.friend, 5)
 
     def testStubStrategy(self):
         Factory.default_strategy = STUB_STRATEGY

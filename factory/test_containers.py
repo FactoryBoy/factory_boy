@@ -20,109 +20,51 @@
 
 import unittest
 
-from containers import AttributeBuilder, DeclarationDict, OrderedDict, ObjectParamsWrapper
 import base
+import containers
 import declarations
 
-class ObjectParamsWrapperTestCase(unittest.TestCase):
-    def test_read(self):
-        vals = {'one': 1, 'two': 2}
-        wrapper = ObjectParamsWrapper(vals)
+class LazyStubTestCase(unittest.TestCase):
+    def test_basic(self):
+        stub = containers.LazyStub({'one': 1, 'two': 2})
 
-        self.assertEqual(1, wrapper.one)
-        self.assertEqual(2, wrapper.two)
-        self.assertRaises(AttributeError, getattr, wrapper, 'three')
-        self.assertRaises(AttributeError, setattr, wrapper, 'one', 1)
+        self.assertEqual({'one': 1, 'two': 2}, stub.__fill__())
 
-    def test_standard_attributes(self):
-        wrapper = ObjectParamsWrapper({})
-        self.assertEqual(ObjectParamsWrapper, wrapper.__class__)
+    def test_setting_values(self):
+        stub = containers.LazyStub({'one': 1, 'two': 2})
 
+        self.assertRaises(AttributeError, setattr, stub, 'one', 1)
 
-class OrderedDeclarationMock(object):
-    def __init__(self, order):
-        self.order = order
+    def test_reading_value(self):
+        stub = containers.LazyStub({'one': 1, 'two': 2})
+        self.assertEqual(1, stub.one)
 
+        self.assertRaises(AttributeError, getattr, stub, 'three')
 
-class OrderedDictTestCase(unittest.TestCase):
-    def test_basics(self):
-        one = OrderedDeclarationMock(1)
-        two = OrderedDeclarationMock(2)
-        three = OrderedDeclarationMock(3)
-        d = OrderedDict(one=one, two=two, three=three)
-        self.assertEqual(one, d['one'])
-        self.assertEqual(two, d['two'])
-        self.assertEqual(three, d['three'])
+    def test_cyclic_definition(self):
+        class LazyAttr(containers.LazyValue):
+            def __init__(self, attrname):
+                self.attrname = attrname
 
-        self.assertTrue('one' in d)
-        self.assertTrue('two' in d)
-        self.assertTrue('three' in d)
+            def evaluate(self, obj):
+                return 1 + getattr(obj, self.attrname)
 
-        self.assertEqual(one, d.pop('one'))
-        self.assertFalse('one' in d)
+        stub = containers.LazyStub({'one': LazyAttr('two'), 'two': LazyAttr('one')})
 
-        d['one'] = one
-        self.assertTrue('one' in d)
-        self.assertEqual(one, d['one'])
-
-        self.assertEqual(set(['one', 'two', 'three']),
-                         set(d))
-
-    def test_order(self):
-        one = OrderedDeclarationMock(1)
-        two = OrderedDeclarationMock(2)
-        ten = OrderedDeclarationMock(10)
-        d = OrderedDict(one=one, two=two, ten=ten)
-
-        self.assertEqual(['one', 'two', 'ten'], list(d))
-        self.assertEqual([('one', one), ('two', two), ('ten', ten)],
-                         d.items())
-        self.assertEqual([('one', one), ('two', two), ('ten', ten)],
-                         list(d.iteritems()))
-
-    def test_insert(self):
-        one = OrderedDeclarationMock(1)
-        two = OrderedDeclarationMock(2)
-        four = OrderedDeclarationMock(4)
-        ten = OrderedDeclarationMock(10)
-        d = OrderedDict(one=one, two=two, ten=ten)
-
-        self.assertEqual(['one', 'two', 'ten'], list(d))
-        d['four'] = four
-        self.assertEqual(['one', 'two', 'four', 'ten'], list(d))
-
-    def test_replace(self):
-        one = OrderedDeclarationMock(1)
-        two = OrderedDeclarationMock(2)
-        three = OrderedDeclarationMock(3)
-        ten = OrderedDeclarationMock(10)
-        d = OrderedDict(one=one, two=two, ten=ten)
-
-        self.assertEqual(['one', 'two', 'ten'], list(d))
-        d['one'] = three
-
-        self.assertEqual(three, d['one'])
-        self.assertEqual(['two', 'one', 'ten'], list(d))
-
-    def test_order_conflict(self):
-        one = OrderedDeclarationMock(1)
-        two = OrderedDeclarationMock(1)
-
-        d = OrderedDict(one=one, two=two)
-        self.assertEqual(set(['one', 'two']), set(d))
+        self.assertRaises(containers.CyclicDefinitionError, getattr, stub, 'one')
 
 
-class OrderedDeclarationFullMock(declarations.OrderedDeclaration):
+class OrderedDeclarationMock(declarations.OrderedDeclaration):
     pass
 
 
 class DeclarationDictTestCase(unittest.TestCase):
     def test_basics(self):
-        one = OrderedDeclarationFullMock()
+        one = OrderedDeclarationMock()
         two = 2
-        three = OrderedDeclarationFullMock()
+        three = OrderedDeclarationMock()
 
-        d = DeclarationDict(dict(one=one, two=two, three=three))
+        d = containers.DeclarationDict(dict(one=one, two=two, three=three))
 
         self.assertTrue('one' in d)
         self.assertTrue('two' in d)
@@ -142,44 +84,57 @@ class DeclarationDictTestCase(unittest.TestCase):
         self.assertEqual(set(['one', 'two', 'three']),
                          set(d))
 
-    def test_order(self):
-        one = OrderedDeclarationFullMock()
-        two = 2
-        three = OrderedDeclarationFullMock()
-
-        d = DeclarationDict(dict(one=one, two=two, three=three))
-
-        self.assertEqual(['two', 'one', 'three'], list(d))
-        self.assertEqual([('two', two), ('one', one), ('three', three)],
-                         list(d.items()))
-        self.assertEqual([('two', two), ('one', one), ('three', three)],
-                         list(d.iteritems()))
-
     def test_insert(self):
-        one = OrderedDeclarationFullMock()
+        one = OrderedDeclarationMock()
         two = 2
-        three = OrderedDeclarationFullMock()
-        four = OrderedDeclarationFullMock()
+        three = OrderedDeclarationMock()
+        four = OrderedDeclarationMock()
 
-        d = DeclarationDict(dict(one=one, two=two, four=four))
+        d = containers.DeclarationDict(dict(one=one, two=two, four=four))
 
-        self.assertEqual(['two', 'one', 'four'], list(d))
+        self.assertEqual(set(['two', 'one', 'four']), set(d))
 
         d['three'] = three
-        self.assertEqual(['two', 'one', 'three', 'four'], list(d))
+        self.assertEqual(set(['two', 'one', 'three', 'four']), set(d))
 
     def test_replace(self):
-        one = OrderedDeclarationFullMock()
+        one = OrderedDeclarationMock()
         two = 2
-        three = OrderedDeclarationFullMock()
-        four = OrderedDeclarationFullMock()
+        three = OrderedDeclarationMock()
+        four = OrderedDeclarationMock()
 
-        d = DeclarationDict(dict(one=one, two=two, three=three))
+        d = containers.DeclarationDict(dict(one=one, two=two, three=three))
 
-        self.assertEqual(['two', 'one', 'three'], list(d))
+        self.assertEqual(set(['two', 'one', 'three']), set(d))
 
-        d['one'] = four
-        self.assertEqual(['two', 'three', 'one'], list(d))
+        d['three'] = four
+        self.assertEqual(set(['two', 'one', 'three']), set(d))
+        self.assertEqual(set([two, one, four]), set(d.values()))
+
+    def test_copy(self):
+        one = OrderedDeclarationMock()
+        two = 2
+        three = OrderedDeclarationMock()
+        four = OrderedDeclarationMock()
+
+        d = containers.DeclarationDict(dict(one=one, two=two, three=three))
+        d2 = d.copy({'five': 5})
+
+        self.assertEqual(5, d2['five'])
+        self.assertFalse('five' in d)
+
+        d.pop('one')
+        self.assertEqual(one, d2['one'])
+
+        d2['two'] = four
+        self.assertEqual(four, d2['two'])
+        self.assertEqual(two, d['two'])
+
+    def test_update_with_public(self):
+        d = containers.DeclarationDict()
+        d.update_with_public({'one': 1, '_two': 2, 'three': 3})
+        self.assertEqual(set(['one', 'three']), set(d))
+        self.assertEqual(set([1, 3]), set(d.values()))
 
 
 class AttributeBuilderTestCase(unittest.TestCase):
@@ -195,7 +150,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
             def _generate_next_sequence(cls):
                 return 1
 
-        ab = AttributeBuilder(FakeFactory)
+        ab = containers.AttributeBuilder(FakeFactory)
 
         self.assertEqual({}, ab.build(create=False))
 
@@ -211,7 +166,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
             def _generate_next_sequence(cls):
                 return 1
 
-        ab = AttributeBuilder(FakeFactory)
+        ab = containers.AttributeBuilder(FakeFactory)
         self.assertEqual({'one': 1}, ab.build(create=False))
 
     def test_extended(self):
@@ -226,7 +181,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
             def _generate_next_sequence(cls):
                 return 1
 
-        ab = AttributeBuilder(FakeFactory, {'two': 2})
+        ab = containers.AttributeBuilder(FakeFactory, {'two': 2})
         self.assertEqual({'one': 1, 'two': 2}, ab.build(create=False))
 
     def test_overridden(self):
@@ -241,7 +196,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
             def _generate_next_sequence(cls):
                 return 1
 
-        ab = AttributeBuilder(FakeFactory, {'one': 2})
+        ab = containers.AttributeBuilder(FakeFactory, {'one': 2})
         self.assertEqual({'one': 2}, ab.build(create=False))
 
     def test_factory_defined_sequence(self):
@@ -258,7 +213,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
             def _generate_next_sequence(cls):
                 return 1
 
-        ab = AttributeBuilder(FakeFactory)
+        ab = containers.AttributeBuilder(FakeFactory)
         self.assertEqual({'one': 'xx1'}, ab.build(create=False))
 
     def test_additionnal_sequence(self):
@@ -275,7 +230,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
             def _generate_next_sequence(cls):
                 return 1
 
-        ab = AttributeBuilder(FakeFactory, extra={'two': seq})
+        ab = containers.AttributeBuilder(FakeFactory, extra={'two': seq})
         self.assertEqual({'one': 1, 'two': 'xx1'}, ab.build(create=False))
 
     def test_replaced_sequence(self):
@@ -293,7 +248,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
             def _generate_next_sequence(cls):
                 return 1
 
-        ab = AttributeBuilder(FakeFactory, extra={'one': seq2})
+        ab = containers.AttributeBuilder(FakeFactory, extra={'one': seq2})
         self.assertEqual({'one': 'yy1'}, ab.build(create=False))
 
     def test_lazy_attribute(self):
@@ -302,7 +257,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
         class FakeFactory(object):
             @classmethod
             def declarations(cls, extra):
-                d = DeclarationDict({'one': 1, 'two': la})
+                d = containers.DeclarationDict({'one': 1, 'two': la})
                 d.update(extra)
                 return d
 
@@ -310,13 +265,13 @@ class AttributeBuilderTestCase(unittest.TestCase):
             def _generate_next_sequence(cls):
                 return 1
 
-        ab = AttributeBuilder(FakeFactory)
+        ab = containers.AttributeBuilder(FakeFactory)
         self.assertEqual({'one': 1, 'two': 2}, ab.build(create=False))
 
-        ab = AttributeBuilder(FakeFactory, {'one': 4})
+        ab = containers.AttributeBuilder(FakeFactory, {'one': 4})
         self.assertEqual({'one': 4, 'two': 8}, ab.build(create=False))
 
-        ab = AttributeBuilder(FakeFactory, {'one': 4, 'three': la})
+        ab = containers.AttributeBuilder(FakeFactory, {'one': 4, 'three': la})
         self.assertEqual({'one': 4, 'two': 8, 'three': 8}, ab.build(create=False))
 
     def test_sub_factory(self):

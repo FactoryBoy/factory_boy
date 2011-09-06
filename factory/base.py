@@ -21,7 +21,7 @@
 import re
 import sys
 
-from containers import AttributeBuilder, DeclarationDict, ObjectParamsWrapper, StubObject
+from containers import AttributeBuilder, DeclarationDict, StubObject
 from declarations import OrderedDeclaration
 
 # Strategies
