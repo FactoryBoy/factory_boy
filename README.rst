@@ -8,14 +8,14 @@ Credits
 
 This README parallels the factory_girl README as much as possible; text and examples are reproduced for comparison purposes. Ruby users of factory_girl should feel right at home with factory_boy in Python.
 
-factory_boy was written by Mark Sandstrom.
+factory_boy was written by Mark Sandstrom, and improved by Raphaël Barrois.
 
 Thank you Joe Ferris and thoughtbot for creating factory_girl.
 
 Download
 --------
 
-Github: http://github.com/dnerdy/factory_boy/tree/master
+Github: http://github.com/rbarrois/factory_boy/tree/master
 
 easy_install::
 
