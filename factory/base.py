@@ -268,6 +268,6 @@ class DjangoModelFactory(Factory):
     @classmethod
     def _setup_next_sequence(cls):
         try:
-            return cls._associated_class.objects.values_list('id', flat=True).order_by('-id')[0] + 1
+            return cls._associated_class._default_manager.values_list('id', flat=True).order_by('-id')[0] + 1
         except IndexError:
             return 1
