@@ -3,15 +3,15 @@
 from distutils.core import setup
 
 # Remember to change in factory/__init__.py as well!
-VERSION = '1.0.2'
+VERSION = '1.0.4'
 
 setup(
     name='factory_boy',
     version=VERSION,
-    description="A test fixtures replacement based on thoughtbot's factory_girl for Ruby.",
-    author='Mark Sandstrom',
-    author_email='mark@deliciouslynerdy.com',
-    url='http://github.com/dnerdy/factory_boy',
+    description="A test fixtures replacement based on thoughtbot's factory_girl for Ruby (originally by mark@deliciouslynerdy.com).",
+    author='Raphaël Barrois',
+    author_email='raphael.barrois@polytechnique.org',
+    url='http://github.com/rbarrois/factory_boy',
     keywords=['factory_boy', 'factory', 'fixtures'],
     packages=['factory'],
     license='MIT',
