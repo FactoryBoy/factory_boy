@@ -7,7 +7,7 @@ from distutils.core import setup
 VERSION = '1.0.4'
 
 setup(
-    name='factory_boy',
+    name='factory_boy_rbarrois',
     version=VERSION,
     description="A test fixtures replacement based on thoughtbot's factory_girl for Ruby (originally by mark@deliciouslynerdy.com).",
     author='Raphaël Barrois',
