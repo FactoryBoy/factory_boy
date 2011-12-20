@@ -34,6 +34,12 @@ STUB_STRATEGY = 'stub'
 
 DJANGO_CREATION = lambda class_to_create, **kwargs: class_to_create.objects.create(**kwargs)
 
+# Building functions. Use Factory.set_building_function() to set a building functions appropriate for your ORM.
+
+NAIVE_BUILD = lambda class_to_build, **kwargs: class_to_build(**kwargs)
+MOGO_BUILD = lambda class_to_build, **kwargs: class_to_build.new(**kwargs)
+
+
 # Special declarations
 
 FACTORY_CLASS_DECLARATION = 'FACTORY_FOR'
@@ -214,15 +220,60 @@ class Factory(BaseFactory):
 
     default_strategy = CREATE_STRATEGY
 
-    class AssociatedClassError(RuntimeError): pass
+    class AssociatedClassError(RuntimeError):
+        pass
 
+    # Customizing 'create' strategy
     _creation_function = (DJANGO_CREATION,)  # Using a tuple to keep the creation function from turning into an instance method
+
     @classmethod
     def set_creation_function(cls, creation_function):
+        """Set the creation function for this class.
+
+        Args:
+            creation_function (function): the new creation function. That
+                function should take one non-keyword argument, the 'class' for
+                which an instance will be created. The value of the various
+                fields are passed as keyword arguments.
+        """
         cls._creation_function = (creation_function,)
+
     @classmethod
     def get_creation_function(cls):
+        """Retrieve the creation function for this class.
+
+        Returns:
+            function: A function that takes one parameter, the class for which
+                an instance will be created, and keyword arguments for the value
+                of the fields of the instance.
+        """
         return cls._creation_function[0]
+
+    # Customizing 'build' strategy
+    _building_function = (NAIVE_BUILD,)
+
+    @classmethod
+    def set_building_function(cls, building_function):
+        """Set the building function for this class.
+
+        Args:
+            building_function (function): the new building function. That
+                function should take one non-keyword argument, the 'class' for
+                which an instance will be built. The value of the various
+                fields are passed as keyword arguments.
+        """
+        cls._building_function = (building_function,)
+
+    @classmethod
+    def get_building_function(cls):
+        """Retrieve the building function for this class.
+
+        Returns:
+            function: A function that takes one parameter, the class for which
+                an instance will be created, and keyword arguments for the value
+                of the fields of the instance.
+        """
+        return cls._building_function[0]
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -235,7 +286,7 @@ class Factory(BaseFactory):
         if create:
             return cls.get_creation_function()(getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS), **kwargs)
         else:
-            return getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)(**kwargs)
+            return cls.get_building_function()(getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS), **kwargs)
 
     @classmethod
     def _build(cls, **kwargs):
