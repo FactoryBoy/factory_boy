@@ -3,19 +3,21 @@ factory_boy
 
 factory_boy is a fixtures replacement based on thoughtbot's `factory_girl <http://github.com/thoughtbot/factory_girl>`_ . Like factory_girl it has a straightforward definition syntax, support for multiple build strategies (saved instances, unsaved instances, attribute dicts, and stubbed objects), and support for multiple factories for the same class, including factory inheritance. Django support is included, and support for other ORMs can be easily added.
 
+The official repository is at http://github.com/rbarrois/factory_boy.
+
 Credits
 -------
 
 This README parallels the factory_girl README as much as possible; text and examples are reproduced for comparison purposes. Ruby users of factory_girl should feel right at home with factory_boy in Python.
 
-factory_boy was written by Mark Sandstrom, and improved by Raphaël Barrois.
+factory_boy was originally written by Mark Sandstrom, and improved by Raphaël Barrois.
 
 Thank you Joe Ferris and thoughtbot for creating factory_girl.
 
 Download
 --------
 
-Github: http://github.com/rbarrois/factory_boy/tree/master
+Github: http://github.com/rbarrois/factory_boy/
 
 easy_install::
 
