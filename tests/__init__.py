@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2011 Raphaël Barrois
 
 from .test_base import *
