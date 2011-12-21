@@ -2,9 +2,40 @@
 # -*- coding: utf-8 -*-
 
 from distutils.core import setup
+from distutils import cmd
 
 # Remember to change in factory/__init__.py as well!
 VERSION = '1.0.4'
+
+
+class test(cmd.Command):
+    """Run the tests for this package."""
+    command_name = 'test'
+    description = 'run the tests associated with the package'
+
+    user_options = [
+        ('test-suite=', None, "A test suite to run (defaults to 'tests')"),
+    ]
+
+    def initialize_options(self):
+        self.test_runner = None
+        self.test_suite = None
+
+    def finalize_options(self):
+        self.ensure_string('test_suite', 'tests')
+
+    def run(self):
+        """Run the test suite."""
+        import unittest
+        if self.verbose:
+            verbosity=1
+        else:
+            verbosity=0
+
+        suite = unittest.TestLoader().loadTestsFromName(self.test_suite)
+
+        unittest.TextTestRunner(verbosity=verbosity).run(suite)
+
 
 setup(
     name='factory_boy_rbarrois',
@@ -25,5 +56,6 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development :: Testing',
         'Topic :: Software Development :: Libraries :: Python Modules'
-    ]
+    ],
+    cmdclass={'test': test},
 )

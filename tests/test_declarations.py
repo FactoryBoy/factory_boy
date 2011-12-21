@@ -20,7 +20,7 @@
 
 import unittest
 
-from declarations import OrderedDeclaration, Sequence
+from factory.declarations import OrderedDeclaration, Sequence
 
 class OrderedDeclarationTestCase(unittest.TestCase):
     def test_errors(self):

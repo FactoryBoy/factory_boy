@@ -20,9 +20,9 @@
 
 import unittest
 
-import base
-import containers
-import declarations
+from factory import base
+from factory import containers
+from factory import declarations
 
 class LazyStubTestCase(unittest.TestCase):
     def test_basic(self):

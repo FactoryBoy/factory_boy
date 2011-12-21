@@ -20,8 +20,8 @@
 
 import unittest
 
-from base import BaseFactory, Factory, StubFactory, BUILD_STRATEGY, CREATE_STRATEGY, STUB_STRATEGY
-import declarations
+from factory.base import BaseFactory, Factory, StubFactory, BUILD_STRATEGY, CREATE_STRATEGY, STUB_STRATEGY
+from factory import declarations
 
 class TestObject(object):
     def __init__(self, one=None, two=None, three=None, four=None):
