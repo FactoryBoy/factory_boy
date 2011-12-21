@@ -215,31 +215,58 @@ class FactoryMetaClass(BaseFactoryMetaClass):
 
         return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs, extra_attrs=extra_attrs)
 
+
 # Factory base classes
 
 class BaseFactory(object):
     """Factory base support for sequences, attributes and stubs."""
 
-    class UnknownStrategy(RuntimeError): pass
-    class UnsupportedStrategy(RuntimeError): pass
+    class UnknownStrategy(RuntimeError):
+        pass
+
+    class UnsupportedStrategy(RuntimeError):
+        pass
 
     def __new__(cls, *args, **kwargs):
+        """Would be called if trying to instantiate the class."""
         raise RuntimeError('You cannot instantiate BaseFactory')
 
+    # ID to use for the next 'declarations.Sequence' attribute.
     _next_sequence = None
+
+    # Base factory, if this class was inherited from another factory. This is
+    # used for sharing the _next_sequence counter among factories for the same
+    # class.
     _base_factory = None
 
     @classmethod
     def _setup_next_sequence(cls):
-        """Set up an initial sequence value for Sequence attributes."""
+        """Set up an initial sequence value for Sequence attributes.
+
+        Returns:
+            int: the first available ID to use for instances of this factory.
+        """
         return 0
 
     @classmethod
     def _generate_next_sequence(cls):
+        """Retrieve a new sequence ID.
+
+        This will call, in order:
+        - _generate_next_sequence from the base factory, if provided
+        - _setup_next_sequence, if this is the 'toplevel' factory and the
+            sequence counter wasn't initialized yet; then increase it.
+        """
+
+        # Rely upon our parents
         if cls._base_factory:
             return cls._base_factory._generate_next_sequence()
+
+        # Make sure _next_sequence is initialized
         if cls._next_sequence is None:
             cls._next_sequence = cls._setup_next_sequence()
+
+        # Pick current value, then increase class counter for the next call.
         next_sequence = cls._next_sequence
         cls._next_sequence += 1
         return next_sequence
@@ -259,18 +286,31 @@ class BaseFactory(object):
 
     @classmethod
     def declarations(cls, extra_defs=None):
+        """Retrieve a copy of the declared attributes.
+
+        Args:
+            extra_defs (dict): additional definitions to insert into the
+                retrieved DeclarationDict.
+        """
         return getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS).copy(extra_defs)
 
     @classmethod
     def build(cls, **kwargs):
+        """Build an instance of the associated class, with overriden attrs."""
         raise cls.UnsupportedStrategy()
 
     @classmethod
     def create(cls, **kwargs):
+        """Create an instance of the associated class, with overriden attrs."""
         raise cls.UnsupportedStrategy()
 
     @classmethod
     def stub(cls, **kwargs):
+        """Retrieve a stub of the associated class, with overriden attrs.
+
+        This will return an object whose attributes are those defined in this
+        factory's declarations or in the extra kwargs.
+        """
         stub_object = containers.StubObject()
         for name, value in cls.attributes(create=False, extra=kwargs).iteritems():
             setattr(stub_object, name, value)
@@ -286,8 +326,9 @@ class StubFactory(BaseFactory):
 class Factory(BaseFactory):
     """Factory base with build and create support.
 
-    This class has the ability to support multiple ORMs by using custom creation functions."""
-
+    This class has the ability to support multiple ORMs by using custom creation
+    functions.
+    """
     __metaclass__ = FactoryMetaClass
 
     default_strategy = CREATE_STRATEGY
@@ -295,8 +336,9 @@ class Factory(BaseFactory):
     class AssociatedClassError(RuntimeError):
         pass
 
-    # Customizing 'create' strategy
-    _creation_function = (DJANGO_CREATION,)  # Using a tuple to keep the creation function from turning into an instance method
+    # Customizing 'create' strategy, using a tuple to keep the creation function
+    # from turning it into an instance method.
+    _creation_function = (DJANGO_CREATION,)
 
     @classmethod
     def set_creation_function(cls, creation_function):
@@ -321,7 +363,8 @@ class Factory(BaseFactory):
         """
         return cls._creation_function[0]
 
-    # Customizing 'build' strategy
+    # Customizing 'build' strategy, using a tuple to keep the creation function
+    # from turning it into an instance method.
     _building_function = (NAIVE_BUILD,)
 
     @classmethod
@@ -378,7 +421,7 @@ class Factory(BaseFactory):
 
 
 class DjangoModelFactory(Factory):
-    """Factory for django models.
+    """Factory for Django models.
 
     This makes sure that the 'sequence' field of created objects is an unused id.
 
@@ -390,7 +433,9 @@ class DjangoModelFactory(Factory):
 
     @classmethod
     def _setup_next_sequence(cls):
+        """Compute the next available ID, based on the 'id' database field."""
         try:
-            return cls._associated_class._default_manager.values_list('id', flat=True).order_by('-id')[0] + 1
+            return 1 + cls._associated_class._default_manager.values_list('id', flat=True
+                ).order_by('-id')[0]
         except IndexError:
             return 1
