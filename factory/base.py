@@ -23,37 +23,33 @@
 import re
 import sys
 
-from containers import AttributeBuilder, DeclarationDict, StubObject
-from declarations import OrderedDeclaration
+from factory import containers
 
 # Strategies
-
 BUILD_STRATEGY = 'build'
 CREATE_STRATEGY = 'create'
 STUB_STRATEGY = 'stub'
 
 # Creation functions. Use Factory.set_creation_function() to set a creation function appropriate for your ORM.
-
 DJANGO_CREATION = lambda class_to_create, **kwargs: class_to_create.objects.create(**kwargs)
 
 # Building functions. Use Factory.set_building_function() to set a building functions appropriate for your ORM.
-
 NAIVE_BUILD = lambda class_to_build, **kwargs: class_to_build(**kwargs)
 MOGO_BUILD = lambda class_to_build, **kwargs: class_to_build.new(**kwargs)
 
 
 # Special declarations
-
 FACTORY_CLASS_DECLARATION = 'FACTORY_FOR'
 
 # Factory class attributes
-
 CLASS_ATTRIBUTE_DECLARATIONS = '_declarations'
 CLASS_ATTRIBUTE_ASSOCIATED_CLASS = '_associated_class'
 
+
 # Factory metaclasses
 
-def get_factory_base(bases):
+def get_factory_bases(bases):
+    """Retrieve all BaseFactoryMetaClass-derived bases from a list."""
     return [b for b in bases if isinstance(b, BaseFactoryMetaClass)]
 
 
@@ -61,7 +57,10 @@ class BaseFactoryMetaClass(type):
     """Factory metaclass for handling ordered declarations."""
 
     def __call__(cls, **kwargs):
-        """Create an associated class instance using the default build strategy. Never create a Factory instance."""
+        """Override the default Factory() syntax to call the default build strategy.
+
+        Returns an instance of the associated class.
+        """
 
         if cls.default_strategy == BUILD_STRATEGY:
             return cls.build(**kwargs)
@@ -72,24 +71,48 @@ class BaseFactoryMetaClass(type):
         else:
             raise BaseFactory.UnknownStrategy('Unknown default_strategy: {0}'.format(cls.default_strategy))
 
-    def __new__(cls, class_name, bases, attrs, extra_attrs={}):
-        """Record attributes (unordered declarations) and ordered declarations for construction of
-        an associated class instance at a later time."""
+    def __new__(cls, class_name, bases, attrs, extra_attrs=None):
+        """Record attributes as a pattern for later instance construction.
 
-        parent_factories = get_factory_base(bases)
+        This is called when a new Factory subclass is defined; it will collect
+        attribute declaration from the class definition.
+
+        Args:
+            class_name (str): the name of the class being created
+            bases (list of class): the parents of the class being created
+            attrs (str => obj dict): the attributes as defined in the class
+                definition
+            extra_attrs (str => obj dict): extra attributes that should not be
+                included in the factory defaults, even if public. This
+                argument is only provided by extensions of this metaclass.
+
+        Returns:
+            A new class
+        """
+
+        parent_factories = get_factory_bases(bases)
         if not parent_factories or attrs.get('ABSTRACT_FACTORY', False):
-            # If this isn't a subclass of Factory, don't do anything special.
+            # If this isn't a subclass of Factory, or specifically declared
+            # abstract, don't do anything special.
             return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
-        declarations = DeclarationDict()
+        declarations = containers.DeclarationDict()
 
-        #Add parent declarations in reverse order.
+        # Add parent declarations in reverse order.
         for base in reversed(parent_factories):
+            # Import all 'public' attributes (avoid those starting with _)
             declarations.update_with_public(getattr(base, CLASS_ATTRIBUTE_DECLARATIONS, {}))
 
+        # Import attributes from the class definition, storing protected/private
+        # attributes in 'non_factory_attrs'.
         non_factory_attrs = declarations.update_with_public(attrs)
+
+        # Store the DeclarationDict in the attributes of the newly created class
         non_factory_attrs[CLASS_ATTRIBUTE_DECLARATIONS] = declarations
-        non_factory_attrs.update(extra_attrs)
+
+        # Add extra args if provided.
+        if extra_attrs:
+            non_factory_attrs.update(extra_attrs)
 
         return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, non_factory_attrs)
 
@@ -103,46 +126,93 @@ class FactoryMetaClass(BaseFactoryMetaClass):
     Also, autodiscovery failed using the name '{1}'
     based on the Factory name '{2}' in {3}."""
 
+    @classmethod
+    def _discover_associated_class(cls, class_name, attrs, inherited=None):
+        """Try to find the class associated with this factory.
+
+        In order, the following tests will be performed:
+        - Lookup the FACTORY_CLASS_DECLARATION attribute
+        - If the newly created class is named 'FooBarFactory', look for a FooBar
+            class in its module
+        - If an inherited associated class was provided, use it.
+
+        Args:
+            class_name (str): the name of the factory class being created
+            attrs (dict): the dict of attributes from the factory class
+                definition
+            inherited (class): the optional associated class inherited from a
+                parent factory
+
+        Returns:
+            class: the class to associate with this factory
+
+        Raises:
+            AssociatedClassError: If we were unable to associate this factory
+                to a class.
+        """
+        own_associated_class = None
+        used_auto_discovery = False
+
+        if FACTORY_CLASS_DECLARATION in attrs:
+            return attrs[FACTORY_CLASS_DECLARATION]
+
+        factory_module = sys.modules[attrs['__module__']]
+        if class_name.endswith('Factory'):
+            # Try a module lookup
+            used_auto_discovery = True
+            associated_class_name = class_name[:-len('Factory')]
+            if associated_class_name:
+                # Class name was longer than just 'Factory'.
+                try:
+                    return getattr(factory_module, associated_class_name)
+                except AttributeError:
+                    pass
+
+        # Unable to guess a good option; return the inherited class.
+        if inherited is not None:
+            return inherited
+
+        # Unable to find an associated class; fail.
+        if used_auto_discovery:
+            raise Factory.AssociatedClassError(
+                FactoryMetaClass.ERROR_MESSAGE_AUTODISCOVERY.format(
+                    FACTORY_CLASS_DECLARATION,
+                    associated_class_name,
+                    class_name,
+                    factory_module,))
+        else:
+            raise Factory.AssociatedClassError(
+                FactoryMetaClass.ERROR_MESSAGE.format(
+                    FACTORY_CLASS_DECLARATION))
+
     def __new__(cls, class_name, bases, attrs):
         """Determine the associated class based on the factory class name. Record the associated class
         for construction of an associated class instance at a later time."""
 
-        parent_factories = get_factory_base(bases)
+        parent_factories = get_factory_bases(bases)
         if not parent_factories or attrs.get('ABSTRACT_FACTORY', False):
             # If this isn't a subclass of Factory, don't do anything special.
             return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
         base = parent_factories[0]
 
-        inherited_associated_class = getattr(base, CLASS_ATTRIBUTE_ASSOCIATED_CLASS, None)
-        own_associated_class = None
-        used_auto_discovery = False
+        inherited_associated_class = getattr(base,
+                CLASS_ATTRIBUTE_ASSOCIATED_CLASS, None)
+        associated_class = cls._discover_associated_class(class_name, attrs,
+                inherited_associated_class)
 
-        if FACTORY_CLASS_DECLARATION in attrs:
-            own_associated_class = attrs.pop(FACTORY_CLASS_DECLARATION)
-        else:
-            factory_module = sys.modules[attrs['__module__']]
-            match = re.match(r'^(\w+)Factory$', class_name)
-            if match:
-                used_auto_discovery = True
-                associated_class_name = match.group(1)
-                try:
-                    own_associated_class = getattr(factory_module, associated_class_name)
-                except AttributeError:
-                    pass
+        # Remove the FACTORY_CLASS_DECLARATION attribute from attrs, if present.
+        attrs.pop(FACTORY_CLASS_DECLARATION, None)
 
-        if own_associated_class is None and inherited_associated_class is not None:
-            own_associated_class = inherited_associated_class
+        # If inheriting the factory from a parent, keep a link to it.
+        # This allows to use the sequence counters from the parents.
+        if associated_class == inherited_associated_class:
             attrs['_base_factory'] = base
 
-        if not own_associated_class:
-            if used_auto_discovery:
-                format_args = FACTORY_CLASS_DECLARATION, associated_class_name, class_name, factory_module
-                raise Factory.AssociatedClassError(FactoryMetaClass.ERROR_MESSAGE_AUTODISCOVERY.format(*format_args))
-            else:
-                raise Factory.AssociatedClassError(FactoryMetaClass.ERROR_MESSAGE.format(FACTORY_CLASS_DECLARATION))
+        # The CLASS_ATTRIBUTE_ASSOCIATED_CLASS must *not* be taken into account
+        # when parsing the declared attributes of the new class.
+        extra_attrs = {CLASS_ATTRIBUTE_ASSOCIATED_CLASS: associated_class}
 
-        extra_attrs = {CLASS_ATTRIBUTE_ASSOCIATED_CLASS: own_associated_class}
         return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs, extra_attrs=extra_attrs)
 
 # Factory base classes
@@ -185,7 +255,7 @@ class BaseFactory(object):
             applicable; the current list of computed attributes is available
             to the currently processed object.
         """
-        return AttributeBuilder(cls, extra).build(create)
+        return containers.AttributeBuilder(cls, extra).build(create)
 
     @classmethod
     def declarations(cls, extra_defs=None):
@@ -201,7 +271,7 @@ class BaseFactory(object):
 
     @classmethod
     def stub(cls, **kwargs):
-        stub_object = StubObject()
+        stub_object = containers.StubObject()
         for name, value in cls.attributes(create=False, extra=kwargs).iteritems():
             setattr(stub_object, name, value)
         return stub_object
