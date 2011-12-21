@@ -23,22 +23,33 @@
 class OrderedDeclaration(object):
     """A factory declaration.
 
-    Ordered declarations keep track of the order in which they're defined so that later declarations
-    can refer to attributes created by earlier declarations when the declarations are evaluated."""
+    Ordered declarations mark an attribute as needing lazy evaluation.
+    This allows them to refer to attributes defined by other OrderedDeclarations
+    in the same factory.
+    """
+
     def evaluate(self, sequence, obj):
         """Evaluate this declaration.
 
         Args:
-            factory: The factory this declaration was defined in.
-            obj: The object holding currently computed attributes
-            attributes: The attributes created by the unordered and ordered declarations up to this point."""
-
+            sequence (int): the current sequence counter to use when filling
+                the current instance
+            obj (containers.LazyStub): The object holding currently computed
+                attributes
+        """
         raise NotImplementedError('This is an abstract method')
 
 
 class LazyAttribute(OrderedDeclaration):
-    def __init__(self, function):
-        super(LazyAttribute, self).__init__()
+    """Specific OrderedDeclaration computed using a lambda.
+
+    Attributes:
+        function (function): a function, expecting the current LazyStub and
+            returning the computed value.
+    """
+
+    def __init__(self, function, *args, **kwargs):
+        super(LazyAttribute, self).__init__(*args, **kwargs)
         self.function = function
 
     def evaluate(self, sequence, obj):
@@ -46,15 +57,33 @@ class LazyAttribute(OrderedDeclaration):
 
 
 class SelfAttribute(OrderedDeclaration):
-    def __init__(self, attribute_name):
-        super(SelfAttribute, self).__init__()
+    """Specific OrderedDeclaration copying values from other fields.
+
+    Attributes:
+        attribute_name (str): the name of the attribute to copy.
+    """
+
+    def __init__(self, attribute_name, *args, **kwargs):
+        super(SelfAttribute, self).__init__(*args, **kwargs)
         self.attribute_name = attribute_name
 
     def evaluate(self, sequence, obj):
+        # TODO(rbarrois): allow the use of ATTR_SPLITTER to fetch fields of
+        # subfactories.
         return getattr(obj, self.attribute_name)
 
 
 class Sequence(OrderedDeclaration):
+    """Specific OrderedDeclaration to use for 'sequenced' fields.
+
+    These fields are typically used to generate increasing unique values.
+
+    Attributes:
+        function (function): A function, expecting the current sequence counter
+            and returning the computed value.
+        type (function): A function converting an integer into the expected kind
+            of counter for the 'function' attribute.
+    """
     def __init__(self, function, type=str):
         super(Sequence, self).__init__()
         self.function = function
@@ -65,6 +94,14 @@ class Sequence(OrderedDeclaration):
 
 
 class LazyAttributeSequence(Sequence):
+    """Composite of a LazyAttribute and a Sequence.
+
+    Attributes:
+        function (function): A function, expecting the current LazyStub and the
+            current sequence counter.
+        type (function): A function converting an integer into the expected kind
+            of counter for the 'function' attribute.
+    """
     def evaluate(self, sequence, obj):
         return self.function(obj, self.type(sequence))
 
@@ -73,8 +110,9 @@ class SubFactory(OrderedDeclaration):
     """Base class for attributes based upon a sub-factory.
 
     Attributes:
-        defaults: DeclarationsHolder, the declarations from the wrapped factory
-        factory: Factory, the wrapped factory
+        defaults (dict): Overrides to the defaults defined in the wrapped
+            factory
+        factory (base.Factory): the wrapped factory
     """
 
     def __init__(self, factory, **kwargs):
@@ -101,6 +139,7 @@ class SubFactory(OrderedDeclaration):
             return self.factory.create(**attrs)
         else:
             return self.factory.build(**attrs)
+
 
 # Decorators... in case lambdas don't cut it
 

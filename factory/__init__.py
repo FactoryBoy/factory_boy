@@ -27,9 +27,14 @@ from base import (
     Factory,
     StubFactory,
     DjangoModelFactory,
+
     BUILD_STRATEGY,
     CREATE_STRATEGY,
-    STUB_STRATEGY
+    STUB_STRATEGY,
+
+    DJANGO_CREATION,
+    NAIVE_BUILD,
+    MOGO_BUILD,
 )
 
 from declarations import (
@@ -37,8 +42,9 @@ from declarations import (
     Sequence,
     LazyAttributeSequence,
     SubFactory,
+
     lazy_attribute,
     sequence,
-    lazy_attribute_sequence
+    lazy_attribute_sequence,
 )
 
