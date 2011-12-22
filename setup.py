@@ -40,7 +40,7 @@ class test(cmd.Command):
 setup(
     name='factory_boy_rbarrois',
     version=VERSION,
-    description="A test fixtures replacement based on thoughtbot's factory_girl for Ruby (originally by mark@deliciouslynerdy.com).",
+    description="A test fixtures replacement based on thoughtbot's factory_girl for Ruby.",
     author='Mark Sandstrom',
     author_email='mark@deliciouslynerdy.com',
     maintainer='Raphaël Barrois',
