@@ -31,6 +31,7 @@ from base import (
     build,
     create,
     stub,
+    make_factory,
 
     BUILD_STRATEGY,
     CREATE_STRATEGY,

@@ -442,7 +442,8 @@ class DjangoModelFactory(Factory):
             return 1
 
 
-def _make_factory(klass, **kwargs):
+def make_factory(klass, **kwargs):
+    """Create a new, simple factory for the given class."""
     factory_name = '%sFactory' % klass.__name__
     kwargs[FACTORY_CLASS_DECLARATION] = klass
     factory_class = type(Factory).__new__(type(Factory), factory_name, (Factory,), kwargs)
@@ -452,10 +453,13 @@ def _make_factory(klass, **kwargs):
 
 
 def build(klass, **kwargs):
-    return _make_factory(klass, **kwargs).build()
+    """Create a factory for the given class, and build an instance."""
+    return make_factory(klass, **kwargs).build()
 
 def create(klass, **kwargs):
-    return _make_factory(klass, **kwargs).create()
+    """Create a factory for the given class, and create an instance."""
+    return make_factory(klass, **kwargs).create()
 
 def stub(klass, **kwargs):
-    return _make_factory(klass, **kwargs).stub()
+    """Create a factory for the given class, and stub an instance."""
+    return make_factory(klass, **kwargs).stub()

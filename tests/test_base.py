@@ -65,6 +65,13 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.three, None)
         self.assertEqual(obj.four, None)
 
+    def test_complex(self):
+        obj = base.build(TestObject, two=2, three=declarations.LazyAttribute(lambda o: o.two + 1))
+        self.assertEqual(obj.one, None)
+        self.assertEqual(obj.two, 2)
+        self.assertEqual(obj.three, 3)
+        self.assertEqual(obj.four, None)
+
     def test_create(self):
         obj = base.create(FakeDjangoModel, foo='bar')
         self.assertEqual(obj.id, 1)
@@ -74,6 +81,21 @@ class SimpleBuildTestCase(unittest.TestCase):
         obj = base.stub(TestObject, three=3)
         self.assertEqual(obj.three, 3)
         self.assertFalse(hasattr(obj, 'two'))
+
+    def test_make_factory(self):
+        fact = base.make_factory(TestObject, two=2, three=declarations.LazyAttribute(lambda o: o.two + 1))
+
+        obj = fact.build()
+        self.assertEqual(obj.one, None)
+        self.assertEqual(obj.two, 2)
+        self.assertEqual(obj.three, 3)
+        self.assertEqual(obj.four, None)
+
+        obj = fact.build(two=4)
+        self.assertEqual(obj.one, None)
+        self.assertEqual(obj.two, 4)
+        self.assertEqual(obj.three, 5)
+        self.assertEqual(obj.four, None)
 
 
 class FactoryTestCase(unittest.TestCase):
