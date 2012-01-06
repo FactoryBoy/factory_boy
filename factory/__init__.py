@@ -28,6 +28,10 @@ from base import (
     StubFactory,
     DjangoModelFactory,
 
+    build,
+    create,
+    stub,
+
     BUILD_STRATEGY,
     CREATE_STRATEGY,
     STUB_STRATEGY,

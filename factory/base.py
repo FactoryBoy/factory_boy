@@ -156,17 +156,18 @@ class FactoryMetaClass(BaseFactoryMetaClass):
         if FACTORY_CLASS_DECLARATION in attrs:
             return attrs[FACTORY_CLASS_DECLARATION]
 
-        factory_module = sys.modules[attrs['__module__']]
-        if class_name.endswith('Factory'):
-            # Try a module lookup
-            used_auto_discovery = True
-            associated_class_name = class_name[:-len('Factory')]
-            if associated_class_name:
-                # Class name was longer than just 'Factory'.
-                try:
-                    return getattr(factory_module, associated_class_name)
-                except AttributeError:
-                    pass
+        if '__module__' in attrs:
+            factory_module = sys.modules[attrs['__module__']]
+            if class_name.endswith('Factory'):
+                # Try a module lookup
+                used_auto_discovery = True
+                associated_class_name = class_name[:-len('Factory')]
+                if associated_class_name:
+                    # Class name was longer than just 'Factory'.
+                    try:
+                        return getattr(factory_module, associated_class_name)
+                    except AttributeError:
+                        pass
 
         # Unable to guess a good option; return the inherited class.
         if inherited is not None:
@@ -439,3 +440,22 @@ class DjangoModelFactory(Factory):
                 ).order_by('-id')[0]
         except IndexError:
             return 1
+
+
+def _make_factory(klass, **kwargs):
+    factory_name = '%sFactory' % klass.__name__
+    kwargs[FACTORY_CLASS_DECLARATION] = klass
+    factory_class = type(Factory).__new__(type(Factory), factory_name, (Factory,), kwargs)
+    factory_class.__name__ = '%sFactory' % klass.__name__
+    factory_class.__doc__ = 'Auto-generated factory for class %s' % klass
+    return factory_class
+
+
+def build(klass, **kwargs):
+    return _make_factory(klass, **kwargs).build()
+
+def create(klass, **kwargs):
+    return _make_factory(klass, **kwargs).create()
+
+def stub(klass, **kwargs):
+    return _make_factory(klass, **kwargs).stub()

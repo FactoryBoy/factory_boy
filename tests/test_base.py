@@ -55,6 +55,27 @@ class SafetyTestCase(unittest.TestCase):
         self.assertRaises(RuntimeError, base.BaseFactory)
 
 
+class SimpleBuildTestCase(unittest.TestCase):
+    """Tests the minimalist 'factory.build/create' functions."""
+
+    def test_build(self):
+        obj = base.build(TestObject, two=2)
+        self.assertEqual(obj.one, None)
+        self.assertEqual(obj.two, 2)
+        self.assertEqual(obj.three, None)
+        self.assertEqual(obj.four, None)
+
+    def test_create(self):
+        obj = base.create(FakeDjangoModel, foo='bar')
+        self.assertEqual(obj.id, 1)
+        self.assertEqual(obj.foo, 'bar')
+
+    def test_stub(self):
+        obj = base.stub(TestObject, three=3)
+        self.assertEqual(obj.three, 3)
+        self.assertFalse(hasattr(obj, 'two'))
+
+
 class FactoryTestCase(unittest.TestCase):
     def testAttribute(self):
         class TestObjectFactory(base.Factory):
