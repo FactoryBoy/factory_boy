@@ -367,6 +367,28 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertEqual('x0x', test_model.two.one)
         self.assertEqual('x0xx0x', test_model.two.two)
 
+    def testSubFactoryOverriding(self):
+        class TestObject(object):
+            def __init__(self, **kwargs):
+                for k, v in kwargs.iteritems():
+                    setattr(self, k, v)
+
+        class TestObjectFactory(base.Factory):
+            FACTORY_FOR = TestObject
+
+        class WrappingTestObjectFactory(base.Factory):
+            FACTORY_FOR = TestObject
+
+            wrapped = declarations.SubFactory(TestObjectFactory, two=2, four=4)
+            wrapped__two = 4
+            wrapped__three = 3
+
+        wrapping = WrappingTestObjectFactory.build()
+        self.assertEqual(wrapping.wrapped.two, 4)
+        self.assertEqual(wrapping.wrapped.three, 3)
+        self.assertEqual(wrapping.wrapped.four, 4)
+
+
     def testNestedSubFactory(self):
         """Test nested sub-factories."""
 
@@ -420,6 +442,31 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         outer = OuterWrappingTestObjectFactory.build()
         self.assertEqual(outer.wrap.wrapped.two.four, 4)
         self.assertEqual(outer.wrap.friend, 5)
+
+    def testSubFactoryAndInheritance(self):
+        """Test inheriting from a factory with subfactories, overriding."""
+        class TestObject(object):
+            def __init__(self, **kwargs):
+                for k, v in kwargs.iteritems():
+                    setattr(self, k, v)
+
+        class TestObjectFactory(base.Factory):
+            FACTORY_FOR = TestObject
+            two = 'two'
+
+        class WrappingTestObjectFactory(base.Factory):
+            FACTORY_FOR = TestObject
+
+            wrapped = declarations.SubFactory(TestObjectFactory)
+            friend = declarations.LazyAttribute(lambda o: o.wrapped.two + 1)
+
+        class ExtendedWrappingTestObjectFactory(WrappingTestObjectFactory):
+            wrapped__two = 4
+
+        wrapping = ExtendedWrappingTestObjectFactory.build()
+        self.assertEqual(wrapping.wrapped.two, 4)
+        self.assertEqual(wrapping.friend, 5)
+
 
     def testStubStrategy(self):
         base.Factory.default_strategy = base.STUB_STRATEGY
