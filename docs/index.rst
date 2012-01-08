@@ -54,12 +54,11 @@ Once defined, a factory can be instantiated through different methods::
 
 Contents:
 
-:doc:`SubFactory <subfactory>`
-
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   subfactory
+    examples
+    subfactory
 
 Indices and tables
 ==================
