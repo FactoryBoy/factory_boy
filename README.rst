@@ -19,9 +19,9 @@ Download
 
 Github: http://github.com/rbarrois/factory_boy/
 
-easy_install::
+PyPI::
 
-    easy_install factory_boy
+    pip install factory_boy
 
 Source::
 
