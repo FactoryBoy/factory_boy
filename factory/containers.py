@@ -107,13 +107,13 @@ class DeclarationDict(dict):
         """Updates the DeclarationDict from a class definition dict.
 
         Takes into account all public attributes and OrderedDeclaration
-        instances; ignores all attributes starting with '_'.
+        instances; ignores all classmethods and attributes starting with '_'.
 
         Returns a dict containing all remaining elements.
         """
         remaining = {}
         for k, v in d.iteritems():
-            if k.startswith('_') and not isinstance(v, declarations.OrderedDeclaration):
+            if isinstance(v, classmethod) or k.startswith('_') and not isinstance(v, declarations.OrderedDeclaration):
                 remaining[k] = v
             else:
                 self[k] = v
