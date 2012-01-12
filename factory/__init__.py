@@ -47,12 +47,12 @@ from declarations import (
     Sequence,
     LazyAttributeSequence,
     SelfAttribute,
-    LazyContainerAttribute,
+    ContainerAttribute,
     SubFactory,
 
     lazy_attribute,
     sequence,
     lazy_attribute_sequence,
-    lazy_container_attribute,
+    container_attribute,
 )
 

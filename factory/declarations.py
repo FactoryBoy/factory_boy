@@ -108,7 +108,7 @@ class LazyAttributeSequence(Sequence):
         return self.function(obj, self.type(sequence))
 
 
-class LazyContainerAttribute(OrderedDeclaration):
+class ContainerAttribute(OrderedDeclaration):
     """Variant of LazyAttribute, also receives the containers of the object.
 
     Attributes:
@@ -118,12 +118,12 @@ class LazyContainerAttribute(OrderedDeclaration):
             not passed in (i.e used outside a SubFactory).
     """
     def __init__(self, function, strict=True, *args, **kwargs):
-        super(LazyContainerAttribute, self).__init__(*args, **kwargs)
+        super(ContainerAttribute, self).__init__(*args, **kwargs)
         self.function = function
         self.strict = strict
 
     def evaluate(self, sequence, obj, containers=()):
-        """Evaluate the current LazyContainerAttribute.
+        """Evaluate the current ContainerAttribute.
 
         Args:
             obj (LazyStub): a lazy stub of the object being constructed, if
@@ -133,7 +133,7 @@ class LazyContainerAttribute(OrderedDeclaration):
         """
         if self.strict and not containers:
             raise TypeError(
-                "A LazyContainerAttribute in 'strict' mode can only be used "
+                "A ContainerAttribute in 'strict' mode can only be used "
                 "within a SubFactory.")
 
         return self.function(obj, containers)
@@ -186,5 +186,5 @@ def sequence(func):
 def lazy_attribute_sequence(func):
     return LazyAttributeSequence(func)
 
-def lazy_container_attribute(func):
-    return LazyContainerAttribute(func, strict=False)
+def container_attribute(func):
+    return ContainerAttribute(func, strict=False)

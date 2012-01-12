@@ -472,9 +472,9 @@ class SubFactoryTestCase(unittest.TestCase):
 
             foo = 30
             side_a = factory.SubFactory(SideAFactory,
-                inner_from_a__a=factory.LazyContainerAttribute(lambda obj, containers: containers[1].foo * 2))
+                inner_from_a__a=factory.ContainerAttribute(lambda obj, containers: containers[1].foo * 2))
             side_b = factory.SubFactory(SideBFactory,
-                inner_from_b=factory.LazyContainerAttribute(lambda obj, containers: containers[0].side_a.inner_from_a))
+                inner_from_b=factory.ContainerAttribute(lambda obj, containers: containers[0].side_a.inner_from_a))
 
         outer = OuterMostFactory.build()
         self.assertEqual(outer.foo, 30)
