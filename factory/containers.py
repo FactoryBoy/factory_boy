@@ -104,6 +104,20 @@ class LazyStub(object):
 class DeclarationDict(dict):
     """Slightly extended dict to work with OrderedDeclaration."""
 
+    def is_declaration(self, name, value):
+        """Determines if a class attribute is a field value declaration.
+
+        Based on the name and value of the class attribute, return ``True`` if
+        it looks like a declaration of a default field value, ``False`` if it
+        is private (name starts with '_') or a classmethod or staticmethod.
+
+        """
+        if isinstance(value, classmethod):
+            return False
+        elif isinstance(value, declarations.OrderedDeclaration):
+            return True
+        return (not name.startswith("_"))
+
     def update_with_public(self, d):
         """Updates the DeclarationDict from a class definition dict.
 
@@ -114,10 +128,10 @@ class DeclarationDict(dict):
         """
         remaining = {}
         for k, v in d.iteritems():
-            if isinstance(v, classmethod) or k.startswith('_') and not isinstance(v, declarations.OrderedDeclaration):
-                remaining[k] = v
-            else:
+            if self.is_declaration(k, v):
                 self[k] = v
+            else:
+                remaining[k] = v
         return remaining
 
     def copy(self, extra=None):
