@@ -32,18 +32,19 @@ Source::
 Defining factories
 ------------------
 
-Factories declare a set of attributes used to instantiate an object. The name of the factory is used to guess the class of the object by default, but it's possible to explicitly specify it::
+Factories declare a set of attributes used to instantiate an object. The class of the object must be defined in the FACTORY_FOR attribute::
 
     import factory
     from models import User
 
-    # This will guess the User class
     class UserFactory(factory.Factory):
+        FACTORY_FOR = User
+
         first_name = 'John'
         last_name = 'Doe'
         admin = False
 
-    # This will use the User class (Admin would have been guessed)
+    # Another, different, factory for the same object
     class AdminFactory(factory.Factory):
         FACTORY_FOR = User
 
