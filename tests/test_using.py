@@ -280,6 +280,22 @@ class FactoryTestCase(unittest.TestCase):
         test_object = TestModelFactory.create()
         self.assertEqual(test_object, "This doesn't even return an instance of TestModel")
 
+    def testClassMethodAccessible(self):
+        class TestObjectFactory(factory.Factory):
+            @classmethod
+            def alt_create(cls, **kwargs):
+                return kwargs
+
+        self.assertEqual(TestObjectFactory.alt_create(foo=1), {"foo": 1})
+
+    def testStaticMethodAccessible(self):
+        class TestObjectFactory(factory.Factory):
+            @staticmethod
+            def alt_create(**kwargs):
+                return kwargs
+
+        self.assertEqual(TestObjectFactory.alt_create(foo=1), {"foo": 1})
+
 
 class SubFactoryTestCase(unittest.TestCase):
     def testSubFactory(self):
