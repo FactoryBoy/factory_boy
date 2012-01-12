@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 import unittest
+import warnings
 
 from factory import base
 from factory import declarations
@@ -152,6 +153,21 @@ class FactoryCreationTestCase(unittest.TestCase):
             pass
 
         self.assertTrue(isinstance(TestObjectFactory.build(), TestObject))
+
+    def testDeprecationWarning(self):
+        """Make sure the 'auto-discovery' deprecation warning is issued."""
+
+        with warnings.catch_warnings(record=True) as w:
+            # Clear the warning registry.
+            if hasattr(base, '__warningregistry__'):
+                base.__warningregistry__.clear()
+
+            warnings.simplefilter('always')
+            class TestObjectFactory(base.Factory):
+                pass
+
+            self.assertEqual(1, len(w))
+            self.assertIn('deprecated', str(w[0].message))
 
     def testStub(self):
         class TestFactory(base.StubFactory):

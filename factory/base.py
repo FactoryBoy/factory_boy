@@ -22,6 +22,7 @@
 
 import re
 import sys
+import warnings
 
 from factory import containers
 
@@ -156,29 +157,36 @@ class FactoryMetaClass(BaseFactoryMetaClass):
         if FACTORY_CLASS_DECLARATION in attrs:
             return attrs[FACTORY_CLASS_DECLARATION]
 
+        # No specific associated calss was given, and one was defined for our
+        # parent, use it.
+        if inherited is not None:
+            return inherited
+
         if '__module__' in attrs:
             factory_module = sys.modules[attrs['__module__']]
             if class_name.endswith('Factory'):
                 # Try a module lookup
                 used_auto_discovery = True
-                associated_class_name = class_name[:-len('Factory')]
-                if associated_class_name:
-                    # Class name was longer than just 'Factory'.
-                    try:
-                        return getattr(factory_module, associated_class_name)
-                    except AttributeError:
-                        pass
+                associated_name = class_name[:-len('Factory')]
+                if associated_name and hasattr(factory_module, associated_name):
+                    warnings.warn(
+                        "Auto-discovery of associated class is deprecated, and "
+                        "will be removed in the future. Please set '%s = %s' "
+                        "in the %s class definition." % (
+                            FACTORY_CLASS_DECLARATION,
+                            associated_name,
+                            class_name,
+                        ), PendingDeprecationWarning)
+
+                    return getattr(factory_module, associated_name)
 
         # Unable to guess a good option; return the inherited class.
-        if inherited is not None:
-            return inherited
-
         # Unable to find an associated class; fail.
         if used_auto_discovery:
             raise Factory.AssociatedClassError(
                 FactoryMetaClass.ERROR_MESSAGE_AUTODISCOVERY.format(
                     FACTORY_CLASS_DECLARATION,
-                    associated_class_name,
+                    associated_name,
                     class_name,
                     factory_module,))
         else:
