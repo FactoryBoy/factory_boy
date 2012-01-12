@@ -43,12 +43,37 @@ class LazyStubTestCase(unittest.TestCase):
 
         self.assertRaises(AttributeError, getattr, stub, 'three')
 
+    def test_accessing_container(self):
+        class LazyAttr(containers.LazyValue):
+            def __init__(self, obj_attr, container_attr):
+                self.obj_attr = obj_attr
+                self.container_attr = container_attr
+
+            def evaluate(self, obj, containers=()):
+                if containers:
+                    add = getattr(containers[0], self.container_attr)
+                else:
+                    add = 0
+                return getattr(obj, self.obj_attr) + add
+
+        class DummyContainer(object):
+            three = 3
+
+        stub = containers.LazyStub({'one': LazyAttr('two', 'three'), 'two': 2, 'three': 42},
+            containers=(DummyContainer(),))
+
+        self.assertEqual(5, stub.one)
+
+        stub = containers.LazyStub({'one': LazyAttr('two', 'three'), 'two': 2, 'three': 42},
+            containers=())
+        self.assertEqual(2, stub.one)
+
     def test_cyclic_definition(self):
         class LazyAttr(containers.LazyValue):
             def __init__(self, attrname):
                 self.attrname = attrname
 
-            def evaluate(self, obj):
+            def evaluate(self, obj, container=None):
                 return 1 + getattr(obj, self.attrname)
 
         stub = containers.LazyStub({'one': LazyAttr('two'), 'two': LazyAttr('one')})
