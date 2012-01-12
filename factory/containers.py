@@ -49,10 +49,11 @@ class LazyStub(object):
 
     __initialized = False
 
-    def __init__(self, attrs):
+    def __init__(self, attrs, containers=()):
         self.__attrs = attrs
         self.__values = {}
         self.__pending = []
+        self.__containers = containers
         self.__initialized = True
 
     def __fill__(self):
@@ -82,7 +83,7 @@ class LazyStub(object):
             val = self.__attrs[name]
             if isinstance(val, LazyValue):
                 self.__pending.append(name)
-                val = val.evaluate(self)
+                val = val.evaluate(self, self.__containers)
                 assert name == self.__pending.pop()
             self.__values[name] = val
             return val
@@ -135,7 +136,7 @@ class DeclarationDict(dict):
 class LazyValue(object):
     """Some kind of "lazy evaluating" object."""
 
-    def evaluate(self, obj):
+    def evaluate(self, obj, containers=()):
         """Compute the value, using the given object."""
         raise NotImplementedError("This is an abstract method.")
 
@@ -156,8 +157,12 @@ class SubFactoryWrapper(LazyValue):
         self.subfields = subfields
         self.create = create
 
-    def evaluate(self, obj):
-        return self.subfactory.evaluate(self.create, self.subfields)
+    def evaluate(self, obj, containers=()):
+        expanded_containers = (obj,)
+        if containers:
+            expanded_containers += tuple(containers)
+        return self.subfactory.evaluate(self.create, self.subfields,
+            expanded_containers)
 
 
 class OrderedDeclarationWrapper(LazyValue):
@@ -175,8 +180,15 @@ class OrderedDeclarationWrapper(LazyValue):
         self.declaration = declaration
         self.sequence = sequence
 
-    def evaluate(self, obj):
-        return self.declaration.evaluate(self.sequence, obj)
+    def evaluate(self, obj, containers=()):
+        """Lazily evaluate the attached OrderedDeclaration.
+
+        Args:
+            obj (LazyStub): the object being built
+            containers (object list): the chain of containers of the object
+                being built, its immediate holder being first.
+        """
+        return self.declaration.evaluate(self.sequence, obj, containers)
 
 
 class AttributeBuilder(object):
@@ -195,7 +207,9 @@ class AttributeBuilder(object):
 
         if not extra:
             extra = {}
+
         self.factory = factory
+        self._containers = extra.pop('__containers', None)
         self._attrs = factory.declarations(extra)
         self._subfields = self._extract_subfields()
 
@@ -229,7 +243,7 @@ class AttributeBuilder(object):
                 v = OrderedDeclarationWrapper(v, self.factory.sequence)
             wrapped_attrs[k] = v
 
-        return LazyStub(wrapped_attrs).__fill__()
+        return LazyStub(wrapped_attrs, containers=self._containers).__fill__()
 
 
 class StubObject(object):

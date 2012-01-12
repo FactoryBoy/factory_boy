@@ -467,6 +467,60 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertEqual(wrapping.wrapped.two, 4)
         self.assertEqual(wrapping.friend, 5)
 
+    def testDiamondSubFactory(self):
+        """Tests the case where an object has two fields with a common field."""
+        class InnerMost(object):
+            def __init__(self, a, b):
+                self.a = a
+                self.b = b
+
+        class SideA(object):
+            def __init__(self, inner_from_a):
+                self.inner_from_a = inner_from_a
+
+        class SideB(object):
+            def __init__(self, inner_from_b):
+                self.inner_from_b = inner_from_b
+
+        class OuterMost(object):
+            def __init__(self, foo, side_a, side_b):
+                self.foo = foo
+                self.side_a = side_a
+                self.side_b = side_b
+
+        class InnerMostFactory(base.Factory):
+            FACTORY_FOR = InnerMost
+            a = 15
+            b = 20
+
+        class SideAFactory(base.Factory):
+            FACTORY_FOR = SideA
+            inner_from_a = declarations.SubFactory(InnerMostFactory, a=20)
+
+        class SideBFactory(base.Factory):
+            FACTORY_FOR = SideB
+            inner_from_b = declarations.SubFactory(InnerMostFactory, b=15)
+
+        class OuterMostFactory(base.Factory):
+            FACTORY_FOR = OuterMost
+
+            foo = 30
+            side_a = declarations.SubFactory(SideAFactory,
+                inner_from_a__a=declarations.LazyContainerAttribute(lambda obj, containers: containers[1].foo * 2))
+            side_b = declarations.SubFactory(SideBFactory,
+                inner_from_b=declarations.LazyContainerAttribute(lambda obj, containers: containers[0].side_a.inner_from_a))
+
+        outer = OuterMostFactory.build()
+        self.assertEqual(outer.foo, 30)
+        self.assertEqual(outer.side_a.inner_from_a, outer.side_b.inner_from_b)
+        self.assertEqual(outer.side_a.inner_from_a.a, outer.foo * 2)
+        self.assertEqual(outer.side_a.inner_from_a.b, 20)
+
+        outer = OuterMostFactory.build(side_a__inner_from_a__b = 4)
+        self.assertEqual(outer.foo, 30)
+        self.assertEqual(outer.side_a.inner_from_a, outer.side_b.inner_from_b)
+        self.assertEqual(outer.side_a.inner_from_a.a, outer.foo * 2)
+        self.assertEqual(outer.side_a.inner_from_a.b, 4)
 
     def testStubStrategy(self):
         base.Factory.default_strategy = base.STUB_STRATEGY
