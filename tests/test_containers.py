@@ -80,6 +80,15 @@ class LazyStubTestCase(unittest.TestCase):
 
         self.assertRaises(containers.CyclicDefinitionError, getattr, stub, 'one')
 
+    def test_representation(self):
+        class RandomObj(object):
+            pass
+
+        stub = containers.LazyStub({'one': 1, 'two': 2}, target_class=RandomObj)
+        self.assertIn('RandomObj', repr(stub))
+        self.assertIn('RandomObj', str(stub))
+        self.assertIn('one', str(stub))
+
 
 class OrderedDeclarationMock(declarations.OrderedDeclaration):
     pass

@@ -56,6 +56,13 @@ class SafetyTestCase(unittest.TestCase):
 
 
 class FactoryTestCase(unittest.TestCase):
+    def testDisplay(self):
+        class TestObjectFactory(base.Factory):
+            FACTORY_FOR = FakeDjangoModel
+
+        self.assertIn('TestObjectFactory', str(TestObjectFactory))
+        self.assertIn('FakeDjangoModel', str(TestObjectFactory))
+
     def testLazyAttributeNonExistentParam(self):
         class TestObjectFactory(base.Factory):
             one = declarations.LazyAttribute(lambda a: a.does_not_exist )

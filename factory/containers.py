@@ -49,12 +49,20 @@ class LazyStub(object):
 
     __initialized = False
 
-    def __init__(self, attrs, containers=()):
+    def __init__(self, attrs, containers=(), target_class=object):
         self.__attrs = attrs
         self.__values = {}
         self.__pending = []
         self.__containers = containers
+        self.__target_class = target_class
         self.__initialized = True
+
+    def __repr__(self):
+        return '<LazyStub for %s>' % self.__target_class.__name__
+
+    def __str__(self):
+        return '<LazyStub for %s with %s>' % (
+            self.__target_class.__name__, self.__attrs.keys())
 
     def __fill__(self):
         """Fill this LazyStub, computing values of all defined attributes.
@@ -258,7 +266,9 @@ class AttributeBuilder(object):
                 v = OrderedDeclarationWrapper(v, self.factory.sequence)
             wrapped_attrs[k] = v
 
-        return LazyStub(wrapped_attrs, containers=self._containers).__fill__()
+        stub = LazyStub(wrapped_attrs, containers=self._containers,
+            target_class=self.factory)
+        return stub.__fill__()
 
 
 class StubObject(object):

@@ -341,6 +341,10 @@ class Factory(BaseFactory):
     # from turning it into an instance method.
     _creation_function = (DJANGO_CREATION,)
 
+    def __str__(self):
+        return '<%s for %s>' % (self.__class__.__name__,
+            getattr(self, CLASS_ATTRIBUTE_ASSOCIATED_CLASS).__name__)
+
     @classmethod
     def set_creation_function(cls, creation_function):
         """Set the creation function for this class.
