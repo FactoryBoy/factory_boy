@@ -159,7 +159,13 @@ class DeclarationDictTestCase(unittest.TestCase):
 
     def test_update_with_public(self):
         d = containers.DeclarationDict()
-        d.update_with_public({'one': 1, '_two': 2, 'three': 3, 'four': classmethod(lambda c: 1)})
+        d.update_with_public({
+                'one': 1,
+                '_two': 2,
+                'three': 3,
+                'classmethod': classmethod(lambda c: 1),
+                'staticmethod': staticmethod(lambda: 1),
+                })
         self.assertEqual(set(['one', 'three']), set(d))
         self.assertEqual(set([1, 3]), set(d.values()))
 

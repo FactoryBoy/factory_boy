@@ -288,6 +288,14 @@ class FactoryTestCase(unittest.TestCase):
 
         self.assertEqual(TestObjectFactory.alt_create(foo=1), {"foo": 1})
 
+    def testStaticMethodAccessible(self):
+        class TestObjectFactory(factory.Factory):
+            @staticmethod
+            def alt_create(**kwargs):
+                return kwargs
+
+        self.assertEqual(TestObjectFactory.alt_create(foo=1), {"foo": 1})
+
 
 class SubFactoryTestCase(unittest.TestCase):
     def testSubFactory(self):

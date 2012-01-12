@@ -112,7 +112,7 @@ class DeclarationDict(dict):
         is private (name starts with '_') or a classmethod or staticmethod.
 
         """
-        if isinstance(value, classmethod):
+        if isinstance(value, (classmethod, staticmethod)):
             return False
         elif isinstance(value, declarations.OrderedDeclaration):
             return True
