@@ -122,7 +122,8 @@ class DeclarationDict(dict):
         """Updates the DeclarationDict from a class definition dict.
 
         Takes into account all public attributes and OrderedDeclaration
-        instances; ignores all classmethods and attributes starting with '_'.
+        instances; ignores all class/staticmethods and private attributes
+        (starting with '_').
 
         Returns a dict containing all remaining elements.
         """
