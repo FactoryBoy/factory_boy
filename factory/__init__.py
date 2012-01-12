@@ -46,10 +46,13 @@ from declarations import (
     LazyAttribute,
     Sequence,
     LazyAttributeSequence,
+    SelfAttribute,
+    LazyContainerAttribute,
     SubFactory,
 
     lazy_attribute,
     sequence,
     lazy_attribute_sequence,
+    lazy_container_attribute,
 )
 
