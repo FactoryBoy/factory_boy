@@ -20,6 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+
+#: String for splitting an attribute name into a
+#: (subfactory_name, subfactory_field) tuple.
+ATTR_SPLITTER = '__'
+
+
 class OrderedDeclaration(object):
     """A factory declaration.
 
@@ -58,6 +64,29 @@ class LazyAttribute(OrderedDeclaration):
         return self.function(obj)
 
 
+def dig(obj, name):
+    """Try to retrieve the given attribute of an object, using ATTR_SPLITTER.
+
+    If ATTR_SPLITTER is '__', dig(foo, 'a__b__c') is equivalent to foo.a.b.c.
+
+    Args:
+        obj (object): the object of which an attribute should be read
+        name (str): the name of an attribute to look up.
+
+    Returns:
+        the attribute pointed to by 'name', according to ATTR_SPLITTER.
+
+    Raises:
+        AttributeError: if obj has no 'name' attribute.
+    """
+    may_split = (ATTR_SPLITTER in name and not name.startswith(ATTR_SPLITTER))
+    if may_split and not hasattr(obj, name):
+        attr, subname = name.split(ATTR_SPLITTER, 1)
+        return dig(getattr(obj, attr), subname)
+    else:
+        return getattr(obj, name)
+
+
 class SelfAttribute(OrderedDeclaration):
     """Specific OrderedDeclaration copying values from other fields.
 
@@ -70,9 +99,7 @@ class SelfAttribute(OrderedDeclaration):
         self.attribute_name = attribute_name
 
     def evaluate(self, sequence, obj, containers=()):
-        # TODO(rbarrois): allow the use of ATTR_SPLITTER to fetch fields of
-        # subfactories.
-        return getattr(obj, self.attribute_name)
+        return dig(obj, self.attribute_name)
 
 
 class Sequence(OrderedDeclaration):
