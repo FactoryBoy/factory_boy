@@ -155,8 +155,9 @@ class ContainerAttribute(OrderedDeclaration):
         Args:
             obj (LazyStub): a lazy stub of the object being constructed, if
                 needed.
-            containers (LazyStub): a lazy stub of a factory being evaluated, with
-                a SubFactory building 'obj'.
+            containers (list of LazyStub): a list of lazy stubs of factories
+                being evaluated in a chain, each item being a future field of
+                next one.
         """
         if self.strict and not containers:
             raise TypeError(
@@ -187,6 +188,14 @@ class SubFactory(OrderedDeclaration):
         - attributes defined in the wrapped factory class
         - values defined when defining the SubFactory
         - additional values defined in attributes
+
+        Args:
+            create (bool): whether the subfactory should call 'build' or
+                'create'
+            extra (containers.DeclarationDict): extra values that should
+                override the wrapped factory's defaults
+            containers (list of LazyStub): List of LazyStub for the chain of
+                factories being evaluated, the calling stub being first.
         """
 
         defaults = dict(self.defaults)

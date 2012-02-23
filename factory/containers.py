@@ -45,6 +45,10 @@ class LazyStub(object):
         __values (dict): maps attribute name to computed value
         __pending (str list): names of the attributes whose value is being
             computed. This allows to detect cyclic lazy attribute definition.
+        __containers (LazyStub list): "parents" of the LazyStub being built.
+            This allows to have the field of a field depend on the value of
+            another field
+        __target_class (type): the target class to build.
     """
 
     __initialized = False
