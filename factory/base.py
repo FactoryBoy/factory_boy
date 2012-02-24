@@ -361,6 +361,72 @@ class BaseFactory(object):
         """
         return [cls.stub(**kwargs) for _ in xrange(size)]
 
+    @classmethod
+    def generate(cls, strategy, **kwargs):
+        """Generate a new instance.
+
+        The instance will be created with the given strategy (one of
+        BUILD_STRATEGY, CREATE_STRATEGY, STUB_STRATEGY).
+
+        Args:
+            strategy (str): the strategy to use for generating the instance.
+
+        Returns:
+            object: the generated instance
+        """
+        assert strategy in (STUB_STRATEGY, BUILD_STRATEGY, CREATE_STRATEGY)
+        action = getattr(cls, strategy)
+        return action(**kwargs)
+
+    @classmethod
+    def generate_batch(cls, strategy, size, **kwargs):
+        """Generate a batch of instances.
+
+        The instances will be created with the given strategy (one of
+        BUILD_STRATEGY, CREATE_STRATEGY, STUB_STRATEGY).
+
+        Args:
+            strategy (str): the strategy to use for generating the instance.
+            size (int): the number of instances to generate
+
+        Returns:
+            object list: the generated instances
+        """
+        assert strategy in (STUB_STRATEGY, BUILD_STRATEGY, CREATE_STRATEGY)
+        batch_action = getattr(cls, '%s_batch' % strategy)
+        return batch_action(size, **kwargs)
+
+    @classmethod
+    def simple_generate(cls, create, **kwargs):
+        """Generate a new instance.
+
+        The instance will be either 'built' or 'created'.
+
+        Args:
+            create (bool): whether to 'build' or 'create' the instance.
+
+        Returns:
+            object: the generated instance
+        """
+        strategy = CREATE_STRATEGY if create else BUILD_STRATEGY
+        return cls.generate(strategy, **kwargs)
+
+    @classmethod
+    def simple_generate_batch(cls, create, size, **kwargs):
+        """Generate a batch of instances.
+
+        These instances will be either 'built' or 'created'.
+
+        Args:
+            size (int): the number of instances to generate
+            create (bool): whether to 'build' or 'create' the instances.
+
+        Returns:
+            object list: the generated instances
+        """
+        strategy = CREATE_STRATEGY if create else BUILD_STRATEGY
+        return cls.generate_batch(strategy, size, **kwargs)
+
 
 class StubFactory(BaseFactory):
     __metaclass__ = BaseFactoryMetaClass
@@ -529,3 +595,22 @@ def stub_batch(klass, size, **kwargs):
     """Create a factory for the given class, and stub a batch of instances."""
     return make_factory(klass, **kwargs).stub_batch(size)
 
+
+def generate(klass, strategy, **kwargs):
+    """Create a factory for the given class, and generate an instance."""
+    return make_factory(klass, **kwargs).generate(strategy)
+
+
+def generate_batch(klass, strategy, size, **kwargs):
+    """Create a factory for the given class, and generate instances."""
+    return make_factory(klass, **kwargs).generate_batch(strategy, size)
+
+
+def simple_generate(klass, create, **kwargs):
+    """Create a factory for the given class, and simple_generate an instance."""
+    return make_factory(klass, **kwargs).simple_generate(create)
+
+
+def simple_generate_batch(klass, create, size, **kwargs):
+    """Create a factory for the given class, and simple_generate instances."""
+    return make_factory(klass, **kwargs).simple_generate_batch(create, size)

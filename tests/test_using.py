@@ -102,6 +102,91 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.three, 3)
         self.assertFalse(hasattr(obj, 'two'))
 
+    def test_stub_batch(self):
+        objs = factory.stub_batch(FakeDjangoModel, 4, foo='bar')
+
+        self.assertEqual(4, len(objs))
+        self.assertEqual(4, len(set(objs)))
+
+        for obj in objs:
+            self.assertFalse(hasattr(obj, 'id'))
+            self.assertEqual(obj.foo, 'bar')
+
+    def test_generate_build(self):
+        obj = factory.generate(FakeDjangoModel, factory.BUILD_STRATEGY, foo='bar')
+        self.assertEqual(obj.id, None)
+        self.assertEqual(obj.foo, 'bar')
+
+    def test_generate_create(self):
+        obj = factory.generate(FakeDjangoModel, factory.CREATE_STRATEGY, foo='bar')
+        self.assertEqual(obj.id, 1)
+        self.assertEqual(obj.foo, 'bar')
+
+    def test_generate_stub(self):
+        obj = factory.generate(FakeDjangoModel, factory.STUB_STRATEGY, foo='bar')
+        self.assertFalse(hasattr(obj, 'id'))
+        self.assertEqual(obj.foo, 'bar')
+
+    def test_generate_batch_build(self):
+        objs = factory.generate_batch(FakeDjangoModel, factory.BUILD_STRATEGY, 20, foo='bar')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for obj in objs:
+            self.assertEqual(obj.id, None)
+            self.assertEqual(obj.foo, 'bar')
+
+    def test_generate_batch_create(self):
+        objs = factory.generate_batch(FakeDjangoModel, factory.CREATE_STRATEGY, 20, foo='bar')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for obj in objs:
+            self.assertEqual(obj.id, 1)
+            self.assertEqual(obj.foo, 'bar')
+
+    def test_generate_batch_stub(self):
+        objs = factory.generate_batch(FakeDjangoModel, factory.STUB_STRATEGY, 20, foo='bar')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for obj in objs:
+            self.assertFalse(hasattr(obj, 'id'))
+            self.assertEqual(obj.foo, 'bar')
+
+    def test_simple_generate_build(self):
+        obj = factory.simple_generate(FakeDjangoModel, False, foo='bar')
+        self.assertEqual(obj.id, None)
+        self.assertEqual(obj.foo, 'bar')
+
+    def test_simple_generate_create(self):
+        obj = factory.simple_generate(FakeDjangoModel, True, foo='bar')
+        self.assertEqual(obj.id, 1)
+        self.assertEqual(obj.foo, 'bar')
+
+    def test_simple_generate_batch_build(self):
+        objs = factory.simple_generate_batch(FakeDjangoModel, False, 20, foo='bar')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for obj in objs:
+            self.assertEqual(obj.id, None)
+            self.assertEqual(obj.foo, 'bar')
+
+    def test_simple_generate_batch_create(self):
+        objs = factory.simple_generate_batch(FakeDjangoModel, True, 20, foo='bar')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for obj in objs:
+            self.assertEqual(obj.id, 1)
+            self.assertEqual(obj.foo, 'bar')
+
     def test_make_factory(self):
         fact = factory.make_factory(TestObject, two=2, three=factory.LazyAttribute(lambda o: o.two + 1))
 
@@ -273,6 +358,116 @@ class FactoryTestCase(unittest.TestCase):
         for i, obj in enumerate(objs):
             self.assertEqual('one', obj.one)
             self.assertEqual(i, obj.two)
+            self.assertTrue(obj.id)
+
+    def test_generate_build(self):
+        class TestModelFactory(factory.Factory):
+            one = 'one'
+
+        test_model = TestModelFactory.generate(factory.BUILD_STRATEGY)
+        self.assertEqual(test_model.one, 'one')
+        self.assertFalse(test_model.id)
+
+    def test_generate_create(self):
+        class TestModelFactory(factory.Factory):
+            one = 'one'
+
+        test_model = TestModelFactory.generate(factory.CREATE_STRATEGY)
+        self.assertEqual(test_model.one, 'one')
+        self.assertTrue(test_model.id)
+
+    def test_generate_stub(self):
+        class TestModelFactory(factory.Factory):
+            one = 'one'
+
+        test_model = TestModelFactory.generate(factory.STUB_STRATEGY)
+        self.assertEqual(test_model.one, 'one')
+        self.assertFalse(hasattr(test_model, 'id'))
+
+    def test_generate_batch_build(self):
+        class TestModelFactory(factory.Factory):
+            one = 'one'
+
+        objs = TestModelFactory.generate_batch(factory.BUILD_STRATEGY, 20, two='two')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for i, obj in enumerate(objs):
+            self.assertEqual('one', obj.one)
+            self.assertEqual('two', obj.two)
+            self.assertFalse(obj.id)
+
+    def test_generate_batch_create(self):
+        class TestModelFactory(factory.Factory):
+            one = 'one'
+
+        objs = TestModelFactory.generate_batch(factory.CREATE_STRATEGY, 20, two='two')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for i, obj in enumerate(objs):
+            self.assertEqual('one', obj.one)
+            self.assertEqual('two', obj.two)
+            self.assertTrue(obj.id)
+
+    def test_generate_batch_stub(self):
+        class TestModelFactory(factory.Factory):
+            one = 'one'
+
+        objs = TestModelFactory.generate_batch(factory.STUB_STRATEGY, 20, two='two')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for i, obj in enumerate(objs):
+            self.assertEqual('one', obj.one)
+            self.assertEqual('two', obj.two)
+            self.assertFalse(hasattr(obj, 'id'))
+
+    def test_simple_generate_build(self):
+        class TestModelFactory(factory.Factory):
+            one = 'one'
+
+        test_model = TestModelFactory.simple_generate(False)
+        self.assertEqual(test_model.one, 'one')
+        self.assertFalse(test_model.id)
+
+    def test_simple_generate_create(self):
+        class TestModelFactory(factory.Factory):
+            one = 'one'
+
+        test_model = TestModelFactory.simple_generate(True)
+        self.assertEqual(test_model.one, 'one')
+        self.assertTrue(test_model.id)
+
+    def test_simple_generate_batch_build(self):
+        class TestModelFactory(factory.Factory):
+            one = 'one'
+
+        objs = TestModelFactory.simple_generate_batch(False, 20, two='two')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for i, obj in enumerate(objs):
+            self.assertEqual('one', obj.one)
+            self.assertEqual('two', obj.two)
+            self.assertFalse(obj.id)
+
+    def test_simple_generate_batch_create(self):
+        class TestModelFactory(factory.Factory):
+            one = 'one'
+
+        objs = TestModelFactory.simple_generate_batch(True, 20, two='two')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for i, obj in enumerate(objs):
+            self.assertEqual('one', obj.one)
+            self.assertEqual('two', obj.two)
             self.assertTrue(obj.id)
 
     def test_stub_batch(self):
