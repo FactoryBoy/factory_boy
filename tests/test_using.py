@@ -27,11 +27,12 @@ import factory
 
 
 class TestObject(object):
-    def __init__(self, one=None, two=None, three=None, four=None):
+    def __init__(self, one=None, two=None, three=None, four=None, five=None):
         self.one = one
         self.two = two
         self.three = three
         self.four = four
+        self.five = five
 
 class FakeDjangoModel(object):
     class FakeDjangoManager(object):
@@ -164,12 +165,21 @@ class FactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object.one, 'one')
 
     def testSelfAttribute(self):
+        class TmpObj(object):
+            n = 3
+
         class TestObjectFactory(factory.Factory):
             one = 'xx'
             two = factory.SelfAttribute('one')
+            three = TmpObj()
+            four = factory.SelfAttribute('three.n')
+            five = factory.SelfAttribute('three.nnn', 5)
 
         test_object = TestObjectFactory.build(one=1)
         self.assertEqual(1, test_object.two)
+        self.assertEqual(3, test_object.three.n)
+        self.assertEqual(3, test_object.four)
+        self.assertEqual(5, test_object.five)
 
     def testSequenceDecorator(self):
         class TestObjectFactory(factory.Factory):

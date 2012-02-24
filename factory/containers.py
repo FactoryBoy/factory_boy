@@ -26,7 +26,7 @@ from factory import declarations
 
 #: String for splitting an attribute name into a
 #: (subfactory_name, subfactory_field) tuple.
-ATTR_SPLITTER = declarations.ATTR_SPLITTER
+ATTR_SPLITTER = '__'
 
 
 class CyclicDefinitionError(Exception):

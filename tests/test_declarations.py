@@ -22,7 +22,7 @@
 
 import unittest
 
-from factory.declarations import dig, OrderedDeclaration, Sequence
+from factory.declarations import deepgetattr, OrderedDeclaration, Sequence
 
 class OrderedDeclarationTestCase(unittest.TestCase):
     def test_errors(self):
@@ -35,36 +35,23 @@ class DigTestCase(unittest.TestCase):
         def __init__(self, n):
             self.n = n
 
-    def test_parentattr(self):
-        obj = self.MyObj(1)
-        obj.a__b__c = self.MyObj(2)
-        obj.a = self.MyObj(3)
-        obj.a.b = self.MyObj(4)
-        obj.a.b.c = self.MyObj(5)
-
-        self.assertEqual(2, dig(obj, 'a__b__c').n)
-
-    def test_private(self):
-        obj = self.MyObj(1)
-        self.assertEqual(obj.__class__, dig(obj, '__class__'))
-
     def test_chaining(self):
         obj = self.MyObj(1)
         obj.a = self.MyObj(2)
-        obj.a__c = self.MyObj(3)
-        obj.a.b = self.MyObj(4)
-        obj.a.b.c = self.MyObj(5)
+        obj.a.b = self.MyObj(3)
+        obj.a.b.c = self.MyObj(4)
 
-        self.assertEqual(2, dig(obj, 'a').n)
-        self.assertRaises(AttributeError, dig, obj, 'b')
-        self.assertEqual(2, dig(obj, 'a__n'))
-        self.assertEqual(3, dig(obj, 'a__c').n)
-        self.assertRaises(AttributeError, dig, obj, 'a__c__n')
-        self.assertRaises(AttributeError, dig, obj, 'a__d')
-        self.assertEqual(4, dig(obj, 'a__b').n)
-        self.assertEqual(4, dig(obj, 'a__b__n'))
-        self.assertEqual(5, dig(obj, 'a__b__c').n)
-        self.assertEqual(5, dig(obj, 'a__b__c__n'))
+        self.assertEqual(2, deepgetattr(obj, 'a').n)
+        self.assertRaises(AttributeError, deepgetattr, obj, 'b')
+        self.assertEqual(2, deepgetattr(obj, 'a.n'))
+        self.assertEqual(3, deepgetattr(obj, 'a.c', 3))
+        self.assertRaises(AttributeError, deepgetattr, obj, 'a.c.n')
+        self.assertRaises(AttributeError, deepgetattr, obj, 'a.d')
+        self.assertEqual(3, deepgetattr(obj, 'a.b').n)
+        self.assertEqual(3, deepgetattr(obj, 'a.b.n'))
+        self.assertEqual(4, deepgetattr(obj, 'a.b.c').n)
+        self.assertEqual(4, deepgetattr(obj, 'a.b.c.n'))
+        self.assertEqual(42, deepgetattr(obj, 'a.b.c.n.x', 42))
 
 
 
