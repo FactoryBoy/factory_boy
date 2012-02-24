@@ -59,6 +59,7 @@ Contents:
 
     examples
     subfactory
+    internals
 
 Indices and tables
 ==================
