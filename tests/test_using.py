@@ -69,10 +69,33 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.three, 3)
         self.assertEqual(obj.four, None)
 
+    def test_build_batch(self):
+        objs = factory.build_batch(TestObject, 4, two=2,
+            three=factory.LazyAttribute(lambda o: o.two + 1))
+
+        self.assertEqual(4, len(objs))
+        self.assertEqual(4, len(set(objs)))
+
+        for obj in objs:
+            self.assertEqual(obj.one, None)
+            self.assertEqual(obj.two, 2)
+            self.assertEqual(obj.three, 3)
+            self.assertEqual(obj.four, None)
+
     def test_create(self):
         obj = factory.create(FakeDjangoModel, foo='bar')
         self.assertEqual(obj.id, 1)
         self.assertEqual(obj.foo, 'bar')
+
+    def test_create_batch(self):
+        objs = factory.create_batch(FakeDjangoModel, 4, foo='bar')
+
+        self.assertEqual(4, len(objs))
+        self.assertEqual(4, len(set(objs)))
+
+        for obj in objs:
+            self.assertEqual(obj.id, 1)
+            self.assertEqual(obj.foo, 'bar')
 
     def test_stub(self):
         obj = factory.stub(TestObject, three=3)
@@ -132,6 +155,19 @@ class FactoryTestCase(unittest.TestCase):
         test_object1 = TestObjectFactory.build()
         self.assertEqual('one43', test_object1.one)
         self.assertEqual('two43', test_object1.two)
+
+    def test_sequence_batch(self):
+        class TestObjectFactory(factory.Factory):
+            one = factory.Sequence(lambda n: 'one' + n)
+            two = factory.Sequence(lambda n: 'two' + n)
+
+        objs = TestObjectFactory.build_batch(20)
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+        for i, obj in enumerate(objs):
+            self.assertEqual('one%d' % i, obj.one)
+            self.assertEqual('two%d' % i, obj.two)
 
     def testLazyAttribute(self):
         class TestObjectFactory(factory.Factory):
@@ -224,6 +260,37 @@ class FactoryTestCase(unittest.TestCase):
         test_model = TestModelFactory.create()
         self.assertEqual(test_model.one, 'one')
         self.assertTrue(test_model.id)
+
+    def test_create_batch(self):
+        class TestModelFactory(factory.Factory):
+            one = 'one'
+
+        objs = TestModelFactory.create_batch(20, two=factory.Sequence(int))
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for i, obj in enumerate(objs):
+            self.assertEqual('one', obj.one)
+            self.assertEqual(i, obj.two)
+            self.assertTrue(obj.id)
+
+    def test_stub_batch(self):
+        class TestObjectFactory(factory.Factory):
+            one = 'one'
+            two = factory.LazyAttribute(lambda a: a.one + ' two')
+            three = factory.Sequence(lambda n: int(n))
+
+        objs = TestObjectFactory.stub_batch(20,
+            one=factory.Sequence(lambda n: n))
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for i, obj in enumerate(objs):
+            self.assertEqual(str(i), obj.one)
+            self.assertEqual('%d two' % i, obj.two)
+            self.assertEqual(i, obj.three)
 
     def testInheritance(self):
         class TestObjectFactory(factory.Factory):
@@ -363,7 +430,6 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(wrapping.wrapped.two, 4)
         self.assertEqual(wrapping.wrapped.three, 3)
         self.assertEqual(wrapping.wrapped.four, 4)
-
 
     def testNestedSubFactory(self):
         """Test nested sub-factories."""

@@ -33,6 +33,10 @@ from base import (
     stub,
     make_factory,
 
+    build_batch,
+    create_batch,
+    stub_batch,
+
     BUILD_STRATEGY,
     CREATE_STRATEGY,
     STUB_STRATEGY,

@@ -309,9 +309,33 @@ class BaseFactory(object):
         raise cls.UnsupportedStrategy()
 
     @classmethod
+    def build_batch(cls, size, **kwargs):
+        """Build a batch of instances of the given class, with overriden attrs.
+
+        Args:
+            size (int): the number of instances to build
+        
+        Returns:
+            object list: the built instances
+        """
+        return [cls.build(**kwargs) for _ in xrange(size)]
+
+    @classmethod
     def create(cls, **kwargs):
         """Create an instance of the associated class, with overriden attrs."""
         raise cls.UnsupportedStrategy()
+
+    @classmethod
+    def create_batch(cls, size, **kwargs):
+        """Create a batch of instances of the given class, with overriden attrs.
+
+        Args:
+            size (int): the number of instances to create
+        
+        Returns:
+            object list: the created instances
+        """
+        return [cls.create(**kwargs) for _ in xrange(size)]
 
     @classmethod
     def stub(cls, **kwargs):
@@ -324,6 +348,18 @@ class BaseFactory(object):
         for name, value in cls.attributes(create=False, extra=kwargs).iteritems():
             setattr(stub_object, name, value)
         return stub_object
+
+    @classmethod
+    def stub_batch(cls, size, **kwargs):
+        """Stub a batch of instances of the given class, with overriden attrs.
+
+        Args:
+            size (int): the number of instances to stub
+        
+        Returns:
+            object list: the stubbed instances
+        """
+        return [cls.stub(**kwargs) for _ in xrange(size)]
 
 
 class StubFactory(BaseFactory):
@@ -468,10 +504,28 @@ def build(klass, **kwargs):
     """Create a factory for the given class, and build an instance."""
     return make_factory(klass, **kwargs).build()
 
+
+def build_batch(klass, size, **kwargs):
+    """Create a factory for the given class, and build a batch of instances."""
+    return make_factory(klass, **kwargs).build_batch(size)
+
+
 def create(klass, **kwargs):
     """Create a factory for the given class, and create an instance."""
     return make_factory(klass, **kwargs).create()
 
+
+def create_batch(klass, size, **kwargs):
+    """Create a factory for the given class, and create a batch of instances."""
+    return make_factory(klass, **kwargs).create_batch(size)
+
+
 def stub(klass, **kwargs):
     """Create a factory for the given class, and stub an instance."""
     return make_factory(klass, **kwargs).stub()
+
+
+def stub_batch(klass, size, **kwargs):
+    """Create a factory for the given class, and stub a batch of instances."""
+    return make_factory(klass, **kwargs).stub_batch(size)
+
