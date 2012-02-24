@@ -5,7 +5,7 @@ from distutils.core import setup
 from distutils import cmd
 
 # Remember to change in factory/__init__.py as well!
-VERSION = '1.1.1'
+VERSION = '1.1.2'
 
 
 class test(cmd.Command):
