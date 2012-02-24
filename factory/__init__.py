@@ -52,6 +52,8 @@ from base import (
 
 from declarations import (
     LazyAttribute,
+    Iterator,
+    InfiniteIterator,
     Sequence,
     LazyAttributeSequence,
     SelfAttribute,
@@ -59,6 +61,8 @@ from declarations import (
     SubFactory,
 
     lazy_attribute,
+    iterator,
+    infinite_iterator,
     sequence,
     lazy_attribute_sequence,
     container_attribute,

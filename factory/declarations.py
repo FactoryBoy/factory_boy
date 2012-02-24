@@ -21,6 +21,9 @@
 # THE SOFTWARE.
 
 
+import itertools
+
+
 class OrderedDeclaration(object):
     """A factory declaration.
 
@@ -108,6 +111,34 @@ class SelfAttribute(OrderedDeclaration):
 
     def evaluate(self, sequence, obj, containers=()):
         return deepgetattr(obj, self.attribute_name, self.default)
+
+
+class Iterator(OrderedDeclaration):
+    """Fill this value using the values returned by an iterator.
+
+    Warning: the iterator should not end !
+
+    Attributes:
+        iterator (iterable): the iterator whose value should be used.
+    """
+
+    def __init__(self, iterator):
+        super(Iterator, self).__init__()
+        self.iterator = iter(iterator)
+
+    def evaluate(self, sequence, obj, containers=()):
+        return self.iterator.next()
+
+
+class InfiniteIterator(Iterator):
+    """Same as Iterator, but make the iterator infinite by cycling at the end.
+
+    Attributes:
+        iterator (iterable): the iterator, once made infinite.
+    """
+
+    def __init__(self, iterator):
+        return super(InfiniteIterator, self).__init__(itertools.cycle(iterator))
 
 
 class Sequence(OrderedDeclaration):
@@ -223,6 +254,14 @@ class SubFactory(OrderedDeclaration):
 
 def lazy_attribute(func):
     return LazyAttribute(func)
+
+def iterator(func):
+    """Turn a generator function into an iterator attribute."""
+    return Iterator(func())
+
+def infinite_iterator(func):
+    """Turn a generator function into an infinite iterator attribute."""
+    return InfiniteIterator(func())
 
 def sequence(func):
     return Sequence(func)

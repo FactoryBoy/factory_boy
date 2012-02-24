@@ -760,5 +760,51 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(outer.side_a.inner_from_a.b, 4)
 
 
+class IteratorTestCase(unittest.TestCase):
+
+    def test_iterator(self):
+        class TestObjectFactory(factory.Factory):
+            one = factory.Iterator(xrange(10, 30))
+
+        objs = TestObjectFactory.build_batch(20)
+
+        for i, obj in enumerate(objs):
+            self.assertEqual(i + 10, obj.one)
+
+    def test_infinite_iterator(self):
+        class TestObjectFactory(factory.Factory):
+            one = factory.InfiniteIterator(xrange(5))
+
+        objs = TestObjectFactory.build_batch(20)
+
+        for i, obj in enumerate(objs):
+            self.assertEqual(i % 5, obj.one)
+
+    def test_iterator_decorator(self):
+        class TestObjectFactory(factory.Factory):
+            @factory.iterator
+            def one():
+                for i in xrange(10, 50):
+                    yield i
+
+        objs = TestObjectFactory.build_batch(20)
+
+        for i, obj in enumerate(objs):
+            self.assertEqual(i + 10, obj.one)
+
+    def test_infinite_iterator_decorator(self):
+        class TestObjectFactory(factory.Factory):
+            @factory.infinite_iterator
+            def one():
+                for i in xrange(5):
+                    yield i
+
+        objs = TestObjectFactory.build_batch(20)
+
+        for i, obj in enumerate(objs):
+            self.assertEqual(i % 5, obj.one)
+
+
+
 if __name__ == '__main__':
     unittest.main()
