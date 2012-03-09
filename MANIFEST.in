@@ -1,0 +1,4 @@
+include README
+include docs/Makefile
+recursive-include docs *.py *.rst
+prune docs/_build
