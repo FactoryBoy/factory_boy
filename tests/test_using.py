@@ -780,6 +780,25 @@ class IteratorTestCase(unittest.TestCase):
         for i, obj in enumerate(objs):
             self.assertEqual(i % 5, obj.one)
 
+    def test_infinite_iterator_list_comprehension(self):
+        class TestObjectFactory(factory.Factory):
+            one = factory.InfiniteIterator([j * 3 for j in xrange(5)])
+
+        # Scope bleeding: j will end up in TestObjectFactory's scope.
+
+        self.assertRaises(TypeError, TestObjectFactory.build)
+
+    def test_infinite_iterator_list_comprehension_protected(self):
+        class TestObjectFactory(factory.Factory):
+            one = factory.InfiniteIterator([_j * 3 for _j in xrange(5)])
+
+        # Scope bleeding : _j will end up in TestObjectFactory's scope.
+        # But factory_boy ignores it, as a protected variable.
+        objs = TestObjectFactory.build_batch(20)
+
+        for i, obj in enumerate(objs):
+            self.assertEqual(3 * (i % 5), obj.one)
+
     def test_iterator_decorator(self):
         class TestObjectFactory(factory.Factory):
             @factory.iterator
