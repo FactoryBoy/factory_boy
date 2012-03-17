@@ -44,6 +44,7 @@ from base import (
     BUILD_STRATEGY,
     CREATE_STRATEGY,
     STUB_STRATEGY,
+    use_strategy,
 
     DJANGO_CREATION,
     NAIVE_BUILD,

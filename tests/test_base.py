@@ -141,6 +141,14 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         TestModelFactory.default_strategy = base.BUILD_STRATEGY
         self.assertRaises(base.StubFactory.UnsupportedStrategy, TestModelFactory)
 
+    def test_change_strategy(self):
+        @base.use_strategy(base.CREATE_STRATEGY)
+        class TestModelFactory(base.StubFactory):
+            one = 'one'
+
+        self.assertEqual(base.CREATE_STRATEGY, TestModelFactory.default_strategy)
+
+
 class FactoryCreationTestCase(unittest.TestCase):
     def testFactoryFor(self):
         class TestFactory(base.Factory):

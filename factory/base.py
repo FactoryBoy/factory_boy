@@ -614,3 +614,14 @@ def simple_generate(klass, create, **kwargs):
 def simple_generate_batch(klass, create, size, **kwargs):
     """Create a factory for the given class, and simple_generate instances."""
     return make_factory(klass, **kwargs).simple_generate_batch(create, size)
+
+
+def use_strategy(new_strategy):
+    """Force the use of a different strategy.
+
+    This is an alternative to setting default_strategy in the class definition.
+    """
+    def wrapped_class(klass):
+        klass.default_strategy = new_strategy
+        return klass
+    return wrapped_class
