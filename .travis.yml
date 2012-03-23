@@ -1,0 +1,4 @@
+script: "python setup.py test"
+notifications:
+  email: false
+  irc: "irc.freenode.org#factory_boy"
