@@ -227,6 +227,9 @@ class FactoryMetaClass(BaseFactoryMetaClass):
 
         return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs, extra_attrs=extra_attrs)
 
+    def __str__(self):
+        return '<%s for %s>' % (self.__name__,
+            getattr(self, CLASS_ATTRIBUTE_ASSOCIATED_CLASS).__name__)
 
 # Factory base classes
 
@@ -453,10 +456,6 @@ class Factory(BaseFactory):
     # Customizing 'create' strategy, using a tuple to keep the creation function
     # from turning it into an instance method.
     _creation_function = (DJANGO_CREATION,)
-
-    def __str__(self):
-        return '<%s for %s>' % (self.__class__.__name__,
-            getattr(self, CLASS_ATTRIBUTE_ASSOCIATED_CLASS).__name__)
 
     @classmethod
     def set_creation_function(cls, creation_function):
