@@ -203,7 +203,7 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.four, None)
 
 
-class FactoryTestCase(unittest.TestCase):
+class UsingFactoryTestCase(unittest.TestCase):
     def testAttribute(self):
         class TestObjectFactory(factory.Factory):
             one = 'one'
