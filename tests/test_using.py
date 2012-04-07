@@ -211,6 +211,17 @@ class FactoryTestCase(unittest.TestCase):
         test_object = TestObjectFactory.build()
         self.assertEqual(test_object.one, 'one')
 
+    def test_abstract(self):
+        class SomeAbstractFactory(factory.Factory):
+            ABSTRACT_FACTORY = True
+            one = 'one'
+
+        class InheritedFactory(SomeAbstractFactory):
+            FACTORY_FOR = TestObject
+
+        test_object = InheritedFactory.build()
+        self.assertEqual(test_object.one, 'one')
+
     def testSequence(self):
         class TestObjectFactory(factory.Factory):
             one = factory.Sequence(lambda n: 'one' + n)

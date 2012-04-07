@@ -92,9 +92,8 @@ class BaseFactoryMetaClass(type):
         """
 
         parent_factories = get_factory_bases(bases)
-        if not parent_factories or attrs.get('ABSTRACT_FACTORY', False):
-            # If this isn't a subclass of Factory, or specifically declared
-            # abstract, don't do anything special.
+        if not parent_factories:
+            # If this isn't a subclass of Factory, don't do anything special.
             return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
         declarations = containers.DeclarationDict()
@@ -200,7 +199,11 @@ class FactoryMetaClass(BaseFactoryMetaClass):
 
         parent_factories = get_factory_bases(bases)
         if not parent_factories or attrs.get('ABSTRACT_FACTORY', False):
-            # If this isn't a subclass of Factory, don't do anything special.
+            # If this isn't a subclass of Factory, or specifically declared
+            # abstract, don't do anything special.
+            if 'ABSTRACT_FACTORY' in attrs:
+                attrs.pop('ABSTRACT_FACTORY')
+
             return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
         base = parent_factories[0]

@@ -220,4 +220,20 @@ the global factory, using a simple syntax : ``field__attr=42`` will set the attr
     >>> e2.bar
     'baz'
 
+Abstract factories
+------------------
+
+If a ``Factory`` simply defines generic attribute declarations without being bound to a given class,
+it should be marked 'abstract' by declaring ``ABSTRACT_FACTORY = True``.
+Such factories cannot be built/created/....
+
+
+    class AbstractFactory(factory.Factory):
+        ABSTRACT_FACTORY = True
+        foo = 'foo'
+
+    >>> AbstractFactory()
+    Traceback (most recent call last):
+      ...
+    AttributeError: type object 'AbstractFactory' has no attribute '_associated_class'
 
