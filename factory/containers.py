@@ -22,11 +22,7 @@
 
 
 from factory import declarations
-
-
-#: String for splitting an attribute name into a
-#: (subfactory_name, subfactory_field) tuple.
-ATTR_SPLITTER = '__'
+from factory import utils
 
 
 class CyclicDefinitionError(Exception):
@@ -238,18 +234,7 @@ class AttributeBuilder(object):
         self.factory = factory
         self._containers = extra.pop('__containers', None)
         self._attrs = factory.declarations(extra)
-        self._subfields = self._extract_subfields()
-
-    def _extract_subfields(self):
-        """Extract the subfields from the declarations list."""
-        sub_fields = {}
-        for key in list(self._attrs):
-            if ATTR_SPLITTER in key:
-                # Trying to define a default of a subfactory
-                cls_name, attr_name = key.split(ATTR_SPLITTER, 1)
-                if cls_name in self._attrs:
-                    sub_fields.setdefault(cls_name, {})[attr_name] = self._attrs.pop(key)
-        return sub_fields
+        self._subfields = utils.multi_extract_dict(self._attrs.keys(), self._attrs)
 
     def build(self, create):
         """Build a dictionary of attributes.
