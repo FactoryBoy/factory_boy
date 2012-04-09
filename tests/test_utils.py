@@ -68,7 +68,17 @@ class ExtractDictTestCase(unittest.TestCase):
         self.assertEqual({'baz': 42}, utils.extract_dict('foo', d, pop=True))
         self.assertNotIn('foo__baz', d)
 
-    def test_many_key(self):
+    def test_one_key_excluded(self):
+        d = {'foo': 13, 'foo__baz': 42, '__foo': 1}
+        self.assertEqual({},
+            utils.extract_dict('foo', d, pop=False, exclude=('foo__baz',)))
+        self.assertEqual(42, d['foo__baz'])
+
+        self.assertEqual({},
+            utils.extract_dict('foo', d, pop=True, exclude=('foo__baz',)))
+        self.assertIn('foo__baz', d)
+
+    def test_many_keys(self):
         d = {'foo': 13, 'foo__baz': 42, 'foo__foo__bar': 2, 'foo__bar': 3, '__foo': 1}
         self.assertEqual({'foo__bar': 2, 'bar': 3, 'baz': 42},
             utils.extract_dict('foo', d, pop=False))
@@ -80,6 +90,20 @@ class ExtractDictTestCase(unittest.TestCase):
             utils.extract_dict('foo', d, pop=True))
         self.assertNotIn('foo__baz', d)
         self.assertNotIn('foo__bar', d)
+        self.assertNotIn('foo__foo__bar', d)
+
+    def test_many_keys_excluded(self):
+        d = {'foo': 13, 'foo__baz': 42, 'foo__foo__bar': 2, 'foo__bar': 3, '__foo': 1}
+        self.assertEqual({'foo__bar': 2, 'baz': 42},
+            utils.extract_dict('foo', d, pop=False, exclude=('foo__bar', 'bar')))
+        self.assertEqual(42, d['foo__baz'])
+        self.assertEqual(3, d['foo__bar'])
+        self.assertEqual(2, d['foo__foo__bar'])
+
+        self.assertEqual({'foo__bar': 2, 'baz': 42},
+            utils.extract_dict('foo', d, pop=True, exclude=('foo__bar', 'bar')))
+        self.assertNotIn('foo__baz', d)
+        self.assertIn('foo__bar', d)
         self.assertNotIn('foo__foo__bar', d)
 
 class MultiExtractDictTestCase(unittest.TestCase):
@@ -182,9 +206,9 @@ class MultiExtractDictTestCase(unittest.TestCase):
         self.assertEqual(
             {
                 'foo__foo': {'bar': 2},
-                'foo': {'bar': 3, 'baz': 42, 'foo__bar': 2},
+                'foo': {'bar': 3, 'baz': 42},
                 'bar__bar': {'baz': 4},
-                'bar': {'foo': 1, 'bar__baz': 4},
+                'bar': {'foo': 1},
                 'baz': {}
             },
             utils.multi_extract_dict(

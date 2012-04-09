@@ -25,7 +25,7 @@
 #: (subfactory_name, subfactory_field) tuple.
 ATTR_SPLITTER = '__'
 
-def extract_dict(prefix, kwargs, pop=True):
+def extract_dict(prefix, kwargs, pop=True, exclude=()):
     """Extracts all values beginning with a given prefix from a dict.
 
     Can either 'pop' or 'get' them;
@@ -34,6 +34,7 @@ def extract_dict(prefix, kwargs, pop=True):
         prefix (str): the prefix to use for lookups
         kwargs (dict): the dict from which values should be extracted
         pop (bool): whether to use pop (True) or get (False)
+        exclude (iterable): list of prefixed keys that shouldn't be extracted
 
     Returns:
         A new dict, containing values from kwargs and beginning with
@@ -43,6 +44,9 @@ def extract_dict(prefix, kwargs, pop=True):
     prefix = prefix + ATTR_SPLITTER
     extracted = {}
     for key in kwargs.keys():
+        if key in exclude:
+            continue
+
         if key.startswith(prefix):
             new_key = key[len(prefix):]
             if pop:
@@ -63,10 +67,21 @@ def declength_compare(a, b):
         return cmp(a, b)
 
 
-def multi_extract_dict(prefixes, kwargs, pop=True):
-    """Extracts all values from a given list of prefixes."""
+def multi_extract_dict(prefixes, kwargs, pop=True, exclude=()):
+    """Extracts all values from a given list of prefixes.
+
+    Arguments have the same meaning as for extract_dict.
+
+    Returns:
+        dict(str => dict): a dict mapping each prefix to the dict of extracted
+            key/value.
+    """
     results = {}
+    exclude = list(exclude)
     for prefix in sorted(prefixes, cmp=declength_compare):
-        extracted = extract_dict(prefix, kwargs, pop=pop)
+        extracted = extract_dict(prefix, kwargs, pop=pop, exclude=exclude)
         results[prefix] = extracted
+        exclude.extend(
+            ['%s%s%s' % (prefix, ATTR_SPLITTER, key) for key in extracted])
+
     return results
