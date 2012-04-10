@@ -40,7 +40,7 @@ class test(cmd.Command):
         suite = unittest.TestLoader().loadTestsFromName(self.test_suite)
 
         result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
-        if (not result.wasSuccessful()):
+        if not result.wasSuccessful():
             sys.exit(1)
 
 
