@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import sys
 from distutils.core import setup
 from distutils import cmd
 
@@ -26,7 +27,11 @@ class test(cmd.Command):
 
     def run(self):
         """Run the test suite."""
-        import unittest
+        try:
+            import unittest2 as unittest
+        except ImportError:
+            import unittest
+
         if self.verbose:
             verbosity=1
         else:
@@ -34,7 +39,9 @@ class test(cmd.Command):
 
         suite = unittest.TestLoader().loadTestsFromName(self.test_suite)
 
-        unittest.TextTestRunner(verbosity=verbosity).run(suite)
+        result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
+        if not result.wasSuccessful():
+            sys.exit(1)
 
 
 setup(
@@ -45,7 +52,7 @@ setup(
     author_email='mark@deliciouslynerdy.com',
     maintainer='Raphaël Barrois',
     maintainer_email='raphael.barrois@polytechnique.org',
-    url='http://github.com/rbarrois/factory_boy',
+    url='https://github.com/rbarrois/factory_boy',
     keywords=['factory_boy', 'factory', 'fixtures'],
     packages=['factory'],
     license='MIT',
@@ -56,6 +63,9 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
         'Topic :: Software Development :: Testing',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
