@@ -789,7 +789,7 @@ class IteratorTestCase(unittest.TestCase):
         for i, obj in enumerate(objs):
             self.assertEqual(i % 5, obj.one)
 
-    @unittest.skipIf(PY3, "python3 doesn't has scope bleeding bug")
+    @unittest.skipIf(PY3, "python3 doesn't have scope bleeding bug")
     def test_infinite_iterator_list_comprehension(self):
         class TestObjectFactory(factory.Factory):
             one = factory.InfiniteIterator([j * 3 for j in _xrange(5)])
