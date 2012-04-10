@@ -20,13 +20,8 @@
 # THE SOFTWARE.
 """Tests using factory."""
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 import factory
-
+from factory.compat import PY3, _xrange, unittest
 
 
 class TestObject(object):
@@ -47,7 +42,7 @@ class FakeDjangoModel(object):
     objects = FakeDjangoManager()
 
     def __init__(self, **kwargs):
-        for name, value in kwargs.iteritems():
+        for name, value in kwargs.items():
             setattr(self, name, value)
             self.id = None
 
@@ -622,7 +617,7 @@ class SubFactoryTestCase(unittest.TestCase):
     def testSubFactoryOverriding(self):
         class TestObject(object):
             def __init__(self, **kwargs):
-                for k, v in kwargs.iteritems():
+                for k, v in kwargs.items():
                     setattr(self, k, v)
 
         class TestObjectFactory(factory.Factory):
@@ -645,7 +640,7 @@ class SubFactoryTestCase(unittest.TestCase):
 
         class TestObject(object):
             def __init__(self, **kwargs):
-                for k, v in kwargs.iteritems():
+                for k, v in kwargs.items():
                     setattr(self, k, v)
 
         class TestObjectFactory(factory.Factory):
@@ -671,7 +666,7 @@ class SubFactoryTestCase(unittest.TestCase):
 
         class TestObject(object):
             def __init__(self, **kwargs):
-                for k, v in kwargs.iteritems():
+                for k, v in kwargs.items():
                     setattr(self, k, v)
 
         class TestObjectFactory(factory.Factory):
@@ -698,7 +693,7 @@ class SubFactoryTestCase(unittest.TestCase):
         """Test inheriting from a factory with subfactories, overriding."""
         class TestObject(object):
             def __init__(self, **kwargs):
-                for k, v in kwargs.iteritems():
+                for k, v in kwargs.items():
                     setattr(self, k, v)
 
         class TestObjectFactory(factory.Factory):
@@ -778,7 +773,7 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_iterator(self):
         class TestObjectFactory(factory.Factory):
-            one = factory.Iterator(xrange(10, 30))
+            one = factory.Iterator(_xrange(10, 30))
 
         objs = TestObjectFactory.build_batch(20)
 
@@ -787,16 +782,17 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_infinite_iterator(self):
         class TestObjectFactory(factory.Factory):
-            one = factory.InfiniteIterator(xrange(5))
+            one = factory.InfiniteIterator(_xrange(5))
 
         objs = TestObjectFactory.build_batch(20)
 
         for i, obj in enumerate(objs):
             self.assertEqual(i % 5, obj.one)
 
+    @unittest.skipIf(PY3, "python3 doesn't have scope bleeding bug")
     def test_infinite_iterator_list_comprehension(self):
         class TestObjectFactory(factory.Factory):
-            one = factory.InfiniteIterator([j * 3 for j in xrange(5)])
+            one = factory.InfiniteIterator([j * 3 for j in _xrange(5)])
 
         # Scope bleeding: j will end up in TestObjectFactory's scope.
 
@@ -804,7 +800,7 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_infinite_iterator_list_comprehension_protected(self):
         class TestObjectFactory(factory.Factory):
-            one = factory.InfiniteIterator([_j * 3 for _j in xrange(5)])
+            one = factory.InfiniteIterator([_j * 3 for _j in _xrange(5)])
 
         # Scope bleeding : _j will end up in TestObjectFactory's scope.
         # But factory_boy ignores it, as a protected variable.
@@ -817,7 +813,7 @@ class IteratorTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             @factory.iterator
             def one():
-                for i in xrange(10, 50):
+                for i in _xrange(10, 50):
                     yield i
 
         objs = TestObjectFactory.build_batch(20)
@@ -829,7 +825,7 @@ class IteratorTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             @factory.infinite_iterator
             def one():
-                for i in xrange(5):
+                for i in _xrange(5):
                     yield i
 
         objs = TestObjectFactory.build_batch(20)

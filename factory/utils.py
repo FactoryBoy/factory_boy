@@ -20,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-
 #: String for splitting an attribute name into a
 #: (subfactory_name, subfactory_field) tuple.
 ATTR_SPLITTER = '__'
@@ -42,7 +41,7 @@ def extract_dict(prefix, kwargs, pop=True):
     """
     prefix = prefix + ATTR_SPLITTER
     extracted = {}
-    for key in kwargs.keys():
+    for key in list(kwargs.keys()):
         if key.startswith(prefix):
             new_key = key[len(prefix):]
             if pop:
@@ -53,20 +52,13 @@ def extract_dict(prefix, kwargs, pop=True):
     return extracted
 
 
-def declength_compare(a, b):
-    """Compare objects, choosing longest first."""
-    if len(a) > len(b):
-        return -1
-    elif len(a) < len(b):
-        return 1
-    else:
-        return cmp(a, b)
-
-
 def multi_extract_dict(prefixes, kwargs, pop=True):
     """Extracts all values from a given list of prefixes."""
     results = {}
-    for prefix in sorted(prefixes, cmp=declength_compare):
+
+    # Prefixes are sorted by length (longest first);
+    # prefixes with the same length are sorted alphabetically.
+    for prefix in sorted(prefixes, key=lambda prefix: (-len(prefix), prefix)):
         extracted = extract_dict(prefix, kwargs, pop=pop)
         results[prefix] = extracted
     return results

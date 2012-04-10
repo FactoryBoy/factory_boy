@@ -19,11 +19,13 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+from __future__ import absolute_import
 
 __version__ = '1.1.2'  # Remember to change in setup.py as well!
 __author__ = 'Raphaël Barrois <raphael.barrois@polytechnique.org>'
 
-from base import (
+
+from .base import (
     Factory,
     StubFactory,
     DjangoModelFactory,
@@ -51,7 +53,7 @@ from base import (
     MOGO_BUILD,
 )
 
-from declarations import (
+from .declarations import (
     LazyAttribute,
     Iterator,
     InfiniteIterator,

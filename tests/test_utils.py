@@ -21,30 +21,8 @@
 # THE SOFTWARE.
 
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 from factory import utils
-
-
-class DecLengthCompareTestCase(unittest.TestCase):
-    def test_reciprocity(self):
-        self.assertEqual(1, utils.declength_compare('a', 'bb'))
-        self.assertEqual(-1, utils.declength_compare('aa', 'b'))
-
-    def test_not_lexical(self):
-        self.assertEqual(1, utils.declength_compare('abc', 'aaaa'))
-        self.assertEqual(-1, utils.declength_compare('aaaa', 'abc'))
-
-    def test_same_length(self):
-        self.assertEqual(-1, utils.declength_compare('abc', 'abd'))
-        self.assertEqual(1, utils.declength_compare('abe', 'abd'))
-
-    def test_equality(self):
-        self.assertEqual(0, utils.declength_compare('abc', 'abc'))
-        self.assertEqual(0, utils.declength_compare([1, 2, 3], [1, 2, 3]))
+from factory.compat import unittest
 
 
 class ExtractDictTestCase(unittest.TestCase):

@@ -20,15 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 import warnings
 
 from factory import base
 from factory import declarations
+from factory.compat import unittest
 
 class TestObject(object):
     def __init__(self, one=None, two=None, three=None, four=None):
@@ -47,7 +43,7 @@ class FakeDjangoModel(object):
     objects = FakeDjangoManager()
 
     def __init__(self, **kwargs):
-        for name, value in kwargs.iteritems():
+        for name, value in kwargs.items():
             setattr(self, name, value)
             self.id = None
 

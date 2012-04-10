@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import absolute_import, division
+
 import re
 import sys
 import warnings
@@ -320,11 +322,11 @@ class BaseFactory(object):
 
         Args:
             size (int): the number of instances to build
-        
+
         Returns:
             object list: the built instances
         """
-        return [cls.build(**kwargs) for _ in xrange(size)]
+        return [cls.build(**kwargs) for _ in range(size)]
 
     @classmethod
     def create(cls, **kwargs):
@@ -337,11 +339,11 @@ class BaseFactory(object):
 
         Args:
             size (int): the number of instances to create
-        
+
         Returns:
             object list: the created instances
         """
-        return [cls.create(**kwargs) for _ in xrange(size)]
+        return [cls.create(**kwargs) for _ in range(size)]
 
     @classmethod
     def stub(cls, **kwargs):
@@ -351,7 +353,7 @@ class BaseFactory(object):
         factory's declarations or in the extra kwargs.
         """
         stub_object = containers.StubObject()
-        for name, value in cls.attributes(create=False, extra=kwargs).iteritems():
+        for name, value in cls.attributes(create=False, extra=kwargs).items():
             setattr(stub_object, name, value)
         return stub_object
 
@@ -361,11 +363,11 @@ class BaseFactory(object):
 
         Args:
             size (int): the number of instances to stub
-        
+
         Returns:
             object list: the stubbed instances
         """
-        return [cls.stub(**kwargs) for _ in xrange(size)]
+        return [cls.stub(**kwargs) for _ in range(size)]
 
     @classmethod
     def generate(cls, strategy, **kwargs):
@@ -435,9 +437,10 @@ class BaseFactory(object):
 
 
 class StubFactory(BaseFactory):
-    __metaclass__ = BaseFactoryMetaClass
-
     default_strategy = STUB_STRATEGY
+
+StubFactory = BaseFactoryMetaClass("StubFactory", (StubFactory,), {})
+
 
 
 class Factory(BaseFactory):
@@ -446,7 +449,8 @@ class Factory(BaseFactory):
     This class has the ability to support multiple ORMs by using custom creation
     functions.
     """
-    __metaclass__ = FactoryMetaClass
+
+    # XXX: metaclass is applied later
 
     default_strategy = CREATE_STRATEGY
 
@@ -535,6 +539,8 @@ class Factory(BaseFactory):
     @classmethod
     def create(cls, **kwargs):
         return cls._create(**cls.attributes(create=True, extra=kwargs))
+
+Factory = FactoryMetaClass("Factory", (Factory,), {})
 
 
 class DjangoModelFactory(Factory):
