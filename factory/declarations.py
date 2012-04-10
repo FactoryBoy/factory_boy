@@ -22,6 +22,7 @@
 
 
 import itertools
+from .compat import next
 
 
 class OrderedDeclaration(object):
@@ -127,7 +128,7 @@ class Iterator(OrderedDeclaration):
         self.iterator = iter(iterator)
 
     def evaluate(self, sequence, obj, containers=()):
-        return self.iterator.next()
+        return next(self.iterator)
 
 
 class InfiniteIterator(Iterator):

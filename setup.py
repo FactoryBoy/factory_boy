@@ -40,7 +40,7 @@ class test(cmd.Command):
         suite = unittest.TestLoader().loadTestsFromName(self.test_suite)
 
         result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
-        if (not result.wasSuccessful()):
+        if not result.wasSuccessful():
             sys.exit(1)
 
 
@@ -66,6 +66,8 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
         'Topic :: Software Development :: Testing',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],

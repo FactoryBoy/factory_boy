@@ -353,7 +353,7 @@ class BaseFactory(object):
         factory's declarations or in the extra kwargs.
         """
         stub_object = containers.StubObject()
-        for name, value in cls.attributes(create=False, extra=kwargs).iteritems():
+        for name, value in cls.attributes(create=False, extra=kwargs).items():
             setattr(stub_object, name, value)
         return stub_object
 
@@ -437,9 +437,10 @@ class BaseFactory(object):
 
 
 class StubFactory(BaseFactory):
-    __metaclass__ = BaseFactoryMetaClass
-
     default_strategy = STUB_STRATEGY
+
+StubFactory = BaseFactoryMetaClass("StubFactory", (StubFactory,), {})
+
 
 
 class Factory(BaseFactory):
@@ -448,7 +449,8 @@ class Factory(BaseFactory):
     This class has the ability to support multiple ORMs by using custom creation
     functions.
     """
-    __metaclass__ = FactoryMetaClass
+
+    # XXX: metaclass is applied later
 
     default_strategy = CREATE_STRATEGY
 
@@ -537,6 +539,8 @@ class Factory(BaseFactory):
     @classmethod
     def create(cls, **kwargs):
         return cls._create(**cls.attributes(create=True, extra=kwargs))
+
+Factory = FactoryMetaClass("Factory", (Factory,), {})
 
 
 class DjangoModelFactory(Factory):
