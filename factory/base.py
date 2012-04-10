@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import absolute_import, division
+
 import re
 import sys
 import warnings
@@ -320,11 +322,11 @@ class BaseFactory(object):
 
         Args:
             size (int): the number of instances to build
-        
+
         Returns:
             object list: the built instances
         """
-        return [cls.build(**kwargs) for _ in xrange(size)]
+        return [cls.build(**kwargs) for _ in range(size)]
 
     @classmethod
     def create(cls, **kwargs):
@@ -337,11 +339,11 @@ class BaseFactory(object):
 
         Args:
             size (int): the number of instances to create
-        
+
         Returns:
             object list: the created instances
         """
-        return [cls.create(**kwargs) for _ in xrange(size)]
+        return [cls.create(**kwargs) for _ in range(size)]
 
     @classmethod
     def stub(cls, **kwargs):
@@ -361,11 +363,11 @@ class BaseFactory(object):
 
         Args:
             size (int): the number of instances to stub
-        
+
         Returns:
             object list: the stubbed instances
         """
-        return [cls.stub(**kwargs) for _ in xrange(size)]
+        return [cls.stub(**kwargs) for _ in range(size)]
 
     @classmethod
     def generate(cls, strategy, **kwargs):

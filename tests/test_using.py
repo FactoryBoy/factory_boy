@@ -25,6 +25,11 @@ try:
 except ImportError:
     import unittest
 
+try:
+    _xrange = xrange
+except NameError: # python 3
+    _xrange = range
+
 import factory
 
 
@@ -778,7 +783,7 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_iterator(self):
         class TestObjectFactory(factory.Factory):
-            one = factory.Iterator(xrange(10, 30))
+            one = factory.Iterator(_xrange(10, 30))
 
         objs = TestObjectFactory.build_batch(20)
 
@@ -787,7 +792,7 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_infinite_iterator(self):
         class TestObjectFactory(factory.Factory):
-            one = factory.InfiniteIterator(xrange(5))
+            one = factory.InfiniteIterator(_xrange(5))
 
         objs = TestObjectFactory.build_batch(20)
 
@@ -796,7 +801,7 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_infinite_iterator_list_comprehension(self):
         class TestObjectFactory(factory.Factory):
-            one = factory.InfiniteIterator([j * 3 for j in xrange(5)])
+            one = factory.InfiniteIterator([j * 3 for j in _xrange(5)])
 
         # Scope bleeding: j will end up in TestObjectFactory's scope.
 
@@ -804,7 +809,7 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_infinite_iterator_list_comprehension_protected(self):
         class TestObjectFactory(factory.Factory):
-            one = factory.InfiniteIterator([_j * 3 for _j in xrange(5)])
+            one = factory.InfiniteIterator([_j * 3 for _j in _xrange(5)])
 
         # Scope bleeding : _j will end up in TestObjectFactory's scope.
         # But factory_boy ignores it, as a protected variable.
@@ -817,7 +822,7 @@ class IteratorTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             @factory.iterator
             def one():
-                for i in xrange(10, 50):
+                for i in _xrange(10, 50):
                     yield i
 
         objs = TestObjectFactory.build_batch(20)
@@ -829,7 +834,7 @@ class IteratorTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             @factory.infinite_iterator
             def one():
-                for i in xrange(5):
+                for i in _xrange(5):
                     yield i
 
         objs = TestObjectFactory.build_batch(20)
