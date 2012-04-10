@@ -55,6 +55,9 @@ def extract_dict(prefix, kwargs, pop=True):
 def multi_extract_dict(prefixes, kwargs, pop=True):
     """Extracts all values from a given list of prefixes."""
     results = {}
+
+    # Prefixes are sorted by length (longest first);
+    # prefixes with the same length are sorted alphabetically.
     for prefix in sorted(prefixes, key=lambda prefix: (-len(prefix), prefix)):
         extracted = extract_dict(prefix, kwargs, pop=pop)
         results[prefix] = extracted
