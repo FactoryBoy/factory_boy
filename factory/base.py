@@ -44,6 +44,7 @@ FACTORY_CLASS_DECLARATION = 'FACTORY_FOR'
 
 # Factory class attributes
 CLASS_ATTRIBUTE_DECLARATIONS = '_declarations'
+CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS = '_postgen_declarations'
 CLASS_ATTRIBUTE_ASSOCIATED_CLASS = '_associated_class'
 
 
@@ -97,18 +98,24 @@ class BaseFactoryMetaClass(type):
             return super(BaseFactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
         declarations = containers.DeclarationDict()
+        postgen_declarations = containers.PostGenerationDeclarationDict()
 
         # Add parent declarations in reverse order.
         for base in reversed(parent_factories):
+            # Import parent PostGenerationDeclaration
+            postgen_declarations.update_with_public(
+                getattr(base, CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS, {}))
             # Import all 'public' attributes (avoid those starting with _)
             declarations.update_with_public(getattr(base, CLASS_ATTRIBUTE_DECLARATIONS, {}))
 
-        # Import attributes from the class definition, storing protected/private
-        # attributes in 'non_factory_attrs'.
-        non_factory_attrs = declarations.update_with_public(attrs)
+        # Import attributes from the class definition
+        non_postgen_attrs = postgen_declarations.update_with_public(attrs)
+        # Store protected/private attributes in 'non_factory_attrs'.
+        non_factory_attrs = declarations.update_with_public(non_postgen_attrs)
 
         # Store the DeclarationDict in the attributes of the newly created class
         non_factory_attrs[CLASS_ATTRIBUTE_DECLARATIONS] = declarations
+        non_factory_attrs[CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS] = postgen_declarations
 
         # Add extra args if provided.
         if extra_attrs:
@@ -521,20 +528,37 @@ class Factory(BaseFactory):
             return cls.get_building_function()(getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS), **kwargs)
 
     @classmethod
-    def _build(cls, **kwargs):
-        return cls._prepare(create=False, **kwargs)
+    def _generate(cls, create, attrs):
+        """generate the object.
 
-    @classmethod
-    def _create(cls, **kwargs):
-        return cls._prepare(create=True, **kwargs)
+        Args:
+            create (bool): whether to 'build' or 'create' the object
+            attrs (dict): attributes to use for generating the object
+        """
+        # Extract declarations used for post-generation
+        postgen_declarations = getattr(cls, CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS)
+        postgen_attributes = {}
+        for name, decl in sorted(postgen_declarations.items()):
+            postgen_attributes[name] = decl.extract(name, attrs)
+
+        # Generate the object
+        obj = cls._prepare(create, **attrs)
+
+        # Handle post-generation attributes
+        for name, decl in sorted(postgen_declarations.items()):
+            extracted, extracted_kwargs = postgen_attributes[name]
+            decl.call(obj, create, extracted, **extracted_kwargs)
+        return obj
 
     @classmethod
     def build(cls, **kwargs):
-        return cls._build(**cls.attributes(create=False, extra=kwargs))
+        attrs = cls.attributes(create=False, extra=kwargs)
+        return cls._generate(False, attrs)
 
     @classmethod
     def create(cls, **kwargs):
-        return cls._create(**cls.attributes(create=True, extra=kwargs))
+        attrs = cls.attributes(create=True, extra=kwargs)
+        return cls._generate(True, attrs)
 
 
 class DjangoModelFactory(Factory):

@@ -835,6 +835,39 @@ class IteratorTestCase(unittest.TestCase):
             self.assertEqual(i % 5, obj.one)
 
 
+class PostDeclarationHookTestCase(unittest.TestCase):
+    def test_post_declaration(self):
+        class TestObjectFactory(factory.Factory):
+            one = 1
+
+            @factory.post_declaration()
+            def incr_one(self, _create, _increment):
+                self.one += 1
+
+        obj = TestObjectFactory.build()
+        self.assertEqual(2, obj.one)
+        self.assertFalse(hasattr(obj, 'incr_one'))
+
+        obj = TestObjectFactory.build(one=2)
+        self.assertEqual(3, obj.one)
+        self.assertFalse(hasattr(obj, 'incr_one'))
+
+    def test_post_declaration_extraction(self):
+        class TestObjectFactory(factory.Factory):
+            one = 1
+
+            @factory.post_declaration()
+            def incr_one(self, _create, increment=1):
+                self.one += increment
+
+        obj = TestObjectFactory.build(incr_one=2)
+        self.assertEqual(3, obj.one)
+        self.assertFalse(hasattr(obj, 'incr_one'))
+
+        obj = TestObjectFactory.build(one=2, incr_one=2)
+        self.assertEqual(4, obj.one)
+        self.assertFalse(hasattr(obj, 'incr_one'))
+
 
 if __name__ == '__main__':
     unittest.main()

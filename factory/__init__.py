@@ -67,5 +67,6 @@ from declarations import (
     sequence,
     lazy_attribute_sequence,
     container_attribute,
+    post_declaration,
 )
 

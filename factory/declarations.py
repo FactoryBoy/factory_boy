@@ -23,6 +23,8 @@
 
 import itertools
 
+from factory import utils
+
 
 class OrderedDeclaration(object):
     """A factory declaration.
@@ -275,12 +277,12 @@ class PostGenerationDeclaration(object):
             (object, dict): a tuple containing the attribute at 'name' (if
                 provided) and a dict of extracted attributes
         """
-        extracted = attrs.get(name)
+        extracted = attrs.pop(name, None)
         if self.extract_prefix:
             extract_prefix = self.extract_prefix
         else:
             extract_prefix = name
-        kwargs = utils.extract_dict(extract_prefix)
+        kwargs = utils.extract_dict(extract_prefix, attrs)
         return extracted, kwargs
 
     def call(self, obj, create, extracted=None, **kwargs):
