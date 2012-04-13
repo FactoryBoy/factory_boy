@@ -149,11 +149,19 @@ class DeclarationDict(dict):
         Args:
             extra (dict): additional attributes to include in the copy.
         """
-        new = DeclarationDict()
+        new = self.__class__()
         new.update(self)
         if extra:
             new.update(extra)
         return new
+
+
+class PostGenerationDeclarationDict(DeclarationDict):
+    """Alternate DeclarationDict for PostGenerationDeclaration."""
+
+    def is_declaration(self, name, value):
+        """Captures instances of PostGenerationDeclaration."""
+        return isinstance(value, declarations.PostGenerationDeclaration)
 
 
 class LazyValue(object):
