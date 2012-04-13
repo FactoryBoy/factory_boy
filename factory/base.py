@@ -320,7 +320,7 @@ class BaseFactory(object):
 
         Args:
             size (int): the number of instances to build
-        
+
         Returns:
             object list: the built instances
         """
@@ -337,7 +337,7 @@ class BaseFactory(object):
 
         Args:
             size (int): the number of instances to create
-        
+
         Returns:
             object list: the created instances
         """
@@ -361,7 +361,7 @@ class BaseFactory(object):
 
         Args:
             size (int): the number of instances to stub
-        
+
         Returns:
             object list: the stubbed instances
         """
