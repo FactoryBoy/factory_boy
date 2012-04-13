@@ -20,14 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 from factory import base
 from factory import containers
 from factory import declarations
+
+from .compat import unittest
 
 class LazyStubTestCase(unittest.TestCase):
     def test_basic(self):

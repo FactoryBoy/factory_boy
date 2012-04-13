@@ -20,12 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from factory.declarations import deepgetattr, OrderedDeclaration, Sequence
+
+from .compat import unittest
 
 class OrderedDeclarationTestCase(unittest.TestCase):
     def test_errors(self):

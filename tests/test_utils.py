@@ -21,13 +21,9 @@
 # THE SOFTWARE.
 
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 from factory import utils
 
+from .compat import unittest
 
 class DecLengthCompareTestCase(unittest.TestCase):
     def test_reciprocity(self):

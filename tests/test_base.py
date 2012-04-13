@@ -20,15 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 import warnings
 
 from factory import base
 from factory import declarations
+
+from .compat import unittest
 
 class TestObject(object):
     def __init__(self, one=None, two=None, three=None, four=None):

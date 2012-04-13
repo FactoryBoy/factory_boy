@@ -20,13 +20,10 @@
 # THE SOFTWARE.
 """Tests using factory."""
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 import factory
 
+from .compat import unittest
 
 
 class TestObject(object):
