@@ -868,6 +868,50 @@ class PostDeclarationHookTestCase(unittest.TestCase):
         self.assertEqual(4, obj.one)
         self.assertFalse(hasattr(obj, 'incr_one'))
 
+    def test_related_factory(self):
+        class TestRelatedObject(object):
+            def __init__(self, obj=None, one=None, two=None):
+                obj.related = self
+                self.one = one
+                self.two = two
+                self.three = obj
+
+        class TestRelatedObjectFactory(factory.Factory):
+            FACTORY_FOR = TestRelatedObject
+            one = 1
+            two = factory.LazyAttribute(lambda o: o.one + 1)
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = 3
+            two = 2
+            three = factory.RelatedFactory(TestRelatedObjectFactory, name='obj')
+
+        obj = TestObjectFactory.build()
+        # Normal fields
+        self.assertEqual(3, obj.one)
+        self.assertEqual(2, obj.two)
+        # RelatedFactory was built
+        self.assertIsNone(obj.three)
+        self.assertIsNotNone(obj.related)
+        self.assertEqual(1, obj.related.one)
+        self.assertEqual(2, obj.related.two)
+        # RelatedFactory was passed "parent" object
+        self.assertEqual(obj, obj.related.three)
+
+        obj = TestObjectFactory.build(three__one=3)
+        # Normal fields
+        self.assertEqual(3, obj.one)
+        self.assertEqual(2, obj.two)
+        # RelatedFactory was build
+        self.assertIsNone(obj.three)
+        self.assertIsNotNone(obj.related)
+        # three__one was correctly parse
+        self.assertEqual(3, obj.related.one)
+        self.assertEqual(4, obj.related.two)
+        # RelatedFactory received "parent" object
+        self.assertEqual(obj, obj.related.three)
+
 
 if __name__ == '__main__':
     unittest.main()

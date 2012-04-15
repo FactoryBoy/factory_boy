@@ -60,6 +60,7 @@ from declarations import (
     SelfAttribute,
     ContainerAttribute,
     SubFactory,
+    RelatedFactory,
 
     lazy_attribute,
     iterator,
