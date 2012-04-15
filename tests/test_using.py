@@ -835,12 +835,12 @@ class IteratorTestCase(unittest.TestCase):
             self.assertEqual(i % 5, obj.one)
 
 
-class PostDeclarationHookTestCase(unittest.TestCase):
-    def test_post_declaration(self):
+class PostGenerationDeclarationTestCase(unittest.TestCase):
+    def test_post_generation(self):
         class TestObjectFactory(factory.Factory):
             one = 1
 
-            @factory.post_declaration()
+            @factory.post_generation()
             def incr_one(self, _create, _increment):
                 self.one += 1
 
@@ -852,11 +852,11 @@ class PostDeclarationHookTestCase(unittest.TestCase):
         self.assertEqual(3, obj.one)
         self.assertFalse(hasattr(obj, 'incr_one'))
 
-    def test_post_declaration_extraction(self):
+    def test_post_generation_extraction(self):
         class TestObjectFactory(factory.Factory):
             one = 1
 
-            @factory.post_declaration()
+            @factory.post_generation()
             def incr_one(self, _create, increment=1):
                 self.one += increment
 

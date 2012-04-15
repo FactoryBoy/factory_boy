@@ -309,7 +309,7 @@ class PostGeneration(PostGenerationDeclaration):
         self.function(obj, create, extracted, **kwargs)
 
 
-def post_declaration(extract_prefix=None):
+def post_generation(extract_prefix=None):
     def decorator(fun):
         return PostGeneration(fun, extract_prefix=extract_prefix)
     return decorator

@@ -60,6 +60,7 @@ from declarations import (
     SelfAttribute,
     ContainerAttribute,
     SubFactory,
+    PostGeneration,
     RelatedFactory,
 
     lazy_attribute,
@@ -68,6 +69,6 @@ from declarations import (
     sequence,
     lazy_attribute_sequence,
     container_attribute,
-    post_declaration,
+    post_generation,
 )
 
