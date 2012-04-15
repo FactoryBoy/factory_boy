@@ -59,6 +59,7 @@ Contents:
 
     examples
     subfactory
+    post_generation
     internals
 
 Indices and tables
