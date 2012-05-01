@@ -14,7 +14,7 @@ This should be used when defining a :py:class:`~factory.Factory` attribute that 
 
         # Various fields
         first_name = 'John'
-        last_name = factory.Sequence(lambda n: 'D%se' % (o * n))
+        last_name = factory.Sequence(lambda n: 'D%se' % ('o' * n))  # De, Doe, Dooe, Doooe, ...
         email = factory.LazyAttribute(lambda o: '%s.%s@example.org' % (o.first_name.lower(), o.last_name.lower()))
 
     # A factory for an object with a 'User' field
