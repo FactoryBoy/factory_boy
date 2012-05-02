@@ -353,7 +353,7 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
             password = factory.PostGenerationMethodCall('set_password', password='')
     """
     def __init__(self, method_name, extract_prefix=None, *args, **kwargs):
-        super(RelatedFactory, self).__init__(extract_prefix)
+        super(PostGenerationMethodCall, self).__init__(extract_prefix)
         self.method_name = method_name
         self.method_args = args
         self.method_kwargs = kwargs
