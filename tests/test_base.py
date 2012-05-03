@@ -229,5 +229,23 @@ class FactoryCreationTestCase(unittest.TestCase):
             self.assertTrue('autodiscovery' not in str(e))
 
 
+class PostGenerationParsingTestCase(unittest.TestCase):
+
+    def test_extraction(self):
+        class TestObjectFactory(base.Factory):
+            foo = declarations.PostGenerationDeclaration()
+
+        self.assertIn('foo', TestObjectFactory._postgen_declarations)
+
+    def test_classlevel_extraction(self):
+        class TestObjectFactory(base.Factory):
+            foo = declarations.PostGenerationDeclaration()
+            foo__bar = 42
+
+        self.assertIn('foo', TestObjectFactory._postgen_declarations)
+        self.assertIn('foo__bar', TestObjectFactory._declarations)
+
+
+
 if __name__ == '__main__':
     unittest.main()

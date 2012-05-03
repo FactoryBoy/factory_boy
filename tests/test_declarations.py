@@ -21,7 +21,8 @@
 # THE SOFTWARE.
 
 
-from factory.declarations import deepgetattr, OrderedDeclaration, Sequence
+from factory.declarations import deepgetattr, OrderedDeclaration, \
+    PostGenerationDeclaration, Sequence
 
 from .compat import unittest
 
@@ -53,6 +54,23 @@ class DigTestCase(unittest.TestCase):
         self.assertEqual(4, deepgetattr(obj, 'a.b.c').n)
         self.assertEqual(4, deepgetattr(obj, 'a.b.c.n'))
         self.assertEqual(42, deepgetattr(obj, 'a.b.c.n.x', 42))
+
+
+class PostGenerationDeclarationTestCase(unittest.TestCase):
+    def test_extract_no_prefix(self):
+        decl = PostGenerationDeclaration()
+
+        extracted, kwargs = decl.extract('foo', {'foo': 13, 'foo__bar': 42})
+        self.assertEqual(extracted, 13)
+        self.assertEqual(kwargs, {'bar': 42})
+
+    def test_extract_with_prefix(self):
+        decl = PostGenerationDeclaration(extract_prefix='blah')
+
+        extracted, kwargs = decl.extract('foo',
+            {'foo': 13, 'foo__bar': 42, 'blah': 42, 'blah__baz': 1})
+        self.assertEqual(extracted, 42)
+        self.assertEqual(kwargs, {'baz': 1})
 
 
 

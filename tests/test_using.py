@@ -868,6 +868,19 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
         self.assertEqual(4, obj.one)
         self.assertFalse(hasattr(obj, 'incr_one'))
 
+    def test_post_generation_extraction_lambda(self):
+
+        def my_lambda(obj, create, extracted, **kwargs):
+            self.assertTrue(isinstance(obj, TestObject))
+            self.assertFalse(create)
+            self.assertEqual(extracted, 42)
+            self.assertEqual(kwargs, {'foo': 13})
+
+        class TestObjectFactory(factory.Factory):
+            bar = factory.PostGeneration(my_lambda)
+
+        obj = TestObjectFactory.build(bar=42, bar__foo=13)
+
     def test_related_factory(self):
         class TestRelatedObject(object):
             def __init__(self, obj=None, one=None, two=None):

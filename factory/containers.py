@@ -242,7 +242,13 @@ class AttributeBuilder(object):
         self.factory = factory
         self._containers = extra.pop('__containers', None)
         self._attrs = factory.declarations(extra)
-        self._subfields = utils.multi_extract_dict(self._attrs.keys(), self._attrs)
+
+        attrs_with_subfields = [k for k, v in self._attrs.items() if self.has_subfields(v)]
+
+        self._subfields = utils.multi_extract_dict(attrs_with_subfields, self._attrs)
+
+    def has_subfields(self, value):
+        return isinstance(value, declarations.SubFactory)
 
     def build(self, create):
         """Build a dictionary of attributes.
