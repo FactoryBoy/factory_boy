@@ -3,6 +3,7 @@ python:
   - "2.6"
   - "2.7"
 script: "python setup.py test"
+install: "if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then pip install unittest2 --use-mirrors; fi"
 notifications:
   email: false
   irc: "irc.freenode.org#factory_boy"
