@@ -616,6 +616,27 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual('x0x', test_model.two.one)
         self.assertEqual('x0xx0x', test_model.two.two)
 
+    def testSubFactoryAndSequence(self):
+        class TestObject(object):
+            def __init__(self, **kwargs):
+                for k, v in kwargs.iteritems():
+                    setattr(self, k, v)
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
+            one = factory.Sequence(lambda n: int(n))
+
+        class WrappingTestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
+            wrapped = factory.SubFactory(TestObjectFactory)
+
+        wrapping = WrappingTestObjectFactory.build()
+        self.assertEqual(0, wrapping.wrapped.one)
+        wrapping = WrappingTestObjectFactory.build()
+        self.assertEqual(1, wrapping.wrapped.one)
+
     def testSubFactoryOverriding(self):
         class TestObject(object):
             def __init__(self, **kwargs):
@@ -625,8 +646,14 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
+
+        class OtherTestObject(object):
+            def __init__(self, **kwargs):
+                for k, v in kwargs.iteritems():
+                    setattr(self, k, v)
+
         class WrappingTestObjectFactory(factory.Factory):
-            FACTORY_FOR = TestObject
+            FACTORY_FOR = OtherTestObject
 
             wrapped = factory.SubFactory(TestObjectFactory, two=2, four=4)
             wrapped__two = 4

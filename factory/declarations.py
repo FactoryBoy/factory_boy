@@ -244,12 +244,10 @@ class SubFactory(OrderedDeclaration):
             defaults.update(extra)
         defaults['__containers'] = containers
 
-        attrs = self.factory.attributes(create, defaults)
-
         if create:
-            return self.factory.create(**attrs)
+            return self.factory.create(**defaults)
         else:
-            return self.factory.build(**attrs)
+            return self.factory.build(**defaults)
 
 
 class PostGenerationDeclaration(object):
