@@ -1,7 +1,7 @@
 Welcome to Factory Boy's documentation!
 =======================================
 
-factory_boy provides easy replacement for fixtures, based on thouthbot's `factory_girl <http://github.com/thouthbot/factory_girl>`_.
+factory_boy provides easy replacement for fixtures, based on thoughtbot's `factory_girl <http://github.com/thoughtbot/factory_girl>`_.
 
 It allows for an easy definition of factories, various build factories, factory inheritance, ...
 
