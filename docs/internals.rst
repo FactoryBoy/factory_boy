@@ -1,4 +1,4 @@
-Factoy Boy's internals
+Factory Boy's internals
 ======================
 
 
