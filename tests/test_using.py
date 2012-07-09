@@ -862,7 +862,7 @@ class IteratorTestCase(unittest.TestCase):
             self.assertEqual(i % 5, obj.one)
 
 
-class PostGenerationDeclarationTestCase(unittest.TestCase):
+class PostGenerationTestCase(unittest.TestCase):
     def test_post_generation(self):
         class TestObjectFactory(factory.Factory):
             one = 1
