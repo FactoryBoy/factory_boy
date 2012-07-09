@@ -275,11 +275,11 @@ class PostGenerationDeclaration(object):
             (object, dict): a tuple containing the attribute at 'name' (if
                 provided) and a dict of extracted attributes
         """
-        extracted = attrs.pop(name, None)
         if self.extract_prefix:
             extract_prefix = self.extract_prefix
         else:
             extract_prefix = name
+        extracted = attrs.pop(extract_prefix, None)
         kwargs = utils.extract_dict(extract_prefix, attrs)
         return extracted, kwargs
 
