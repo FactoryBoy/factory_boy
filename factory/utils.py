@@ -60,7 +60,13 @@ def extract_dict(prefix, kwargs, pop=True, exclude=()):
 def multi_extract_dict(prefixes, kwargs, pop=True, exclude=()):
     """Extracts all values from a given list of prefixes.
 
-    Arguments have the same meaning as for extract_dict.
+    Extraction will start with longer prefixes.
+
+    Args:
+        prefixes (str list): the prefixes to use for lookups
+        kwargs (dict): the dict from which values should be extracted
+        pop (bool): whether to use pop (True) or get (False)
+        exclude (iterable): list of prefixed keys that shouldn't be extracted
 
     Returns:
         dict(str => dict): a dict mapping each prefix to the dict of extracted
