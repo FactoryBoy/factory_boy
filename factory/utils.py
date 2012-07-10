@@ -57,16 +57,6 @@ def extract_dict(prefix, kwargs, pop=True, exclude=()):
     return extracted
 
 
-def declength_compare(a, b):
-    """Compare objects, choosing longest first."""
-    if len(a) > len(b):
-        return -1
-    elif len(a) < len(b):
-        return 1
-    else:
-        return cmp(a, b)
-
-
 def multi_extract_dict(prefixes, kwargs, pop=True, exclude=()):
     """Extracts all values from a given list of prefixes.
 
@@ -78,7 +68,7 @@ def multi_extract_dict(prefixes, kwargs, pop=True, exclude=()):
     """
     results = {}
     exclude = list(exclude)
-    for prefix in sorted(prefixes, cmp=declength_compare):
+    for prefix in sorted(prefixes, key=lambda x: -len(x)):
         extracted = extract_dict(prefix, kwargs, pop=pop, exclude=exclude)
         results[prefix] = extracted
         exclude.extend(
