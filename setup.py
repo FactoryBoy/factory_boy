@@ -1,47 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-from distutils.core import setup
-from distutils import cmd
+from setuptools import setup, find_packages
 
 # Remember to change in factory/__init__.py as well!
 VERSION = '1.1.5'
-
-
-class test(cmd.Command):
-    """Run the tests for this package."""
-    command_name = 'test'
-    description = 'run the tests associated with the package'
-
-    user_options = [
-        ('test-suite=', None, "A test suite to run (defaults to 'tests')"),
-    ]
-
-    def initialize_options(self):
-        self.test_runner = None
-        self.test_suite = None
-
-    def finalize_options(self):
-        self.ensure_string('test_suite', 'tests')
-
-    def run(self):
-        """Run the test suite."""
-        try:
-            import unittest2 as unittest
-        except ImportError:
-            import unittest
-
-        if self.verbose:
-            verbosity=1
-        else:
-            verbosity=0
-
-        suite = unittest.TestLoader().loadTestsFromName(self.test_suite)
-
-        result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
-        if not result.wasSuccessful():
-            sys.exit(1)
 
 
 setup(
@@ -54,7 +17,7 @@ setup(
     maintainer_email='raphael.barrois@polytechnique.org',
     url='https://github.com/rbarrois/factory_boy',
     keywords=['factory_boy', 'factory', 'fixtures'],
-    packages=['factory'],
+    packages=find_packages(),
     license='MIT',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -69,5 +32,6 @@ setup(
         'Topic :: Software Development :: Testing',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    cmdclass={'test': test},
+    use_2to3=True,
+    test_suite='factory.tests',
 )
