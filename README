@@ -34,7 +34,9 @@ Source::
 Defining factories
 ------------------
 
-Factories declare a set of attributes used to instantiate an object. The class of the object must be defined in the FACTORY_FOR attribute::
+Factories declare a set of attributes used to instantiate an object. The class of the object must be defined in the FACTORY_FOR attribute:
+
+.. code-block:: python
 
     import factory
     from models import User
@@ -57,7 +59,9 @@ Factories declare a set of attributes used to instantiate an object. The class o
 Using factories
 ---------------
 
-factory_boy supports several different build strategies: build, create, attributes and stub::
+factory_boy supports several different build strategies: build, create, attributes and stub:
+
+.. code-block:: python
 
     # Returns a User instance that's not saved
     user = UserFactory.build()
@@ -71,22 +75,30 @@ factory_boy supports several different build strategies: build, create, attribut
     # Returns an object with all defined attributes stubbed out:
     stub = UserFactory.stub()
 
-You can use the Factory class as a shortcut for the default build strategy::
+You can use the Factory class as a shortcut for the default build strategy:
+
+.. code-block:: python
 
     # Same as UserFactory.create()
     user = UserFactory()
 
-The default strategy can be overridden::
+The default strategy can be overridden:
+
+.. code-block:: python
 
     UserFactory.default_strategy = factory.BUILD_STRATEGY
     user = UserFactory()
 
-The default strategy can also be overridden for all factories::
+The default strategy can also be overridden for all factories:
+
+.. code-block:: python
 
     # This will set the default strategy for all factories that don't define a default build strategy
     factory.Factory.default_strategy = factory.BUILD_STRATEGY
 
-No matter which strategy is used, it's possible to override the defined attributes by passing keyword arguments::
+No matter which strategy is used, it's possible to override the defined attributes by passing keyword arguments:
+
+.. code-block:: python
 
     # Build a User instance and override first_name
     user = UserFactory.build(first_name='Joe')
@@ -96,7 +108,9 @@ No matter which strategy is used, it's possible to override the defined attribut
 Lazy Attributes
 ---------------
 
-Most factory attributes can be added using static values that are evaluated when the factory is defined, but some attributes (such as associations and other attributes that must be dynamically generated) will need values assigned each time an instance is generated. These "lazy" attributes can be added as follows::
+Most factory attributes can be added using static values that are evaluated when the factory is defined, but some attributes (such as associations and other attributes that must be dynamically generated) will need values assigned each time an instance is generated. These "lazy" attributes can be added as follows:
+
+.. code-block:: python
 
     class UserFactory(factory.Factory):
         first_name = 'Joe'
@@ -106,7 +120,9 @@ Most factory attributes can be added using static values that are evaluated when
     UserFactory().email
     # => 'joe.blow@example.com'
 
-The function passed to ``LazyAttribute`` is given the attributes defined for the factory up to the point of the LazyAttribute declaration. If a lambda won't cut it, the ``lazy_attribute`` decorator can be used to wrap a function::
+The function passed to ``LazyAttribute`` is given the attributes defined for the factory up to the point of the LazyAttribute declaration. If a lambda won't cut it, the ``lazy_attribute`` decorator can be used to wrap a function:
+
+.. code-block:: python
 
     # Stub factories don't have an associated class.
     class SumFactory(factory.StubFactory):
@@ -121,14 +137,18 @@ The function passed to ``LazyAttribute`` is given the attributes defined for the
 Associations
 ------------
 
-Associated instances can also be generated using ``LazyAttribute``::
+Associated instances can also be generated using ``LazyAttribute``:
+
+.. code-block:: python
 
     from models import Post
 
     class PostFactory(factory.Factory):
         author = factory.LazyAttribute(lambda a: UserFactory())
 
-The associated object's default strategy is always used::
+The associated object's default strategy is always used:
+
+.. code-block:: python
 
     # Builds and saves a User and a Post
     post = PostFactory()
@@ -143,7 +163,9 @@ The associated object's default strategy is always used::
 Inheritance
 -----------
 
-You can easily create multiple factories for the same class without repeating common attributes by using inheritance::
+You can easily create multiple factories for the same class without repeating common attributes by using inheritance:
+
+.. code-block:: python
 
     class PostFactory(factory.Factory):
         title = 'A title'
@@ -155,7 +177,9 @@ You can easily create multiple factories for the same class without repeating co
 Sequences
 ---------
 
-Unique values in a specific format (for example, e-mail addresses) can be generated using sequences. Sequences are defined by using ``Sequence`` or the decorator ``sequence``::
+Unique values in a specific format (for example, e-mail addresses) can be generated using sequences. Sequences are defined by using ``Sequence`` or the decorator ``sequence``:
+
+.. code-block:: python
 
     class UserFactory(factory.Factory):
         email = factory.Sequence(lambda n: 'person{0}@example.com'.format(n))
@@ -163,7 +187,9 @@ Unique values in a specific format (for example, e-mail addresses) can be genera
     UserFactory().email  # => 'person0@example.com'
     UserFactory().email  # => 'person1@example.com'
 
-Sequences can be combined with lazy attributes::
+Sequences can be combined with lazy attributes:
+
+.. code-block:: python
 
     class UserFactory(factory.Factory):
         name = 'Mark'
@@ -171,7 +197,9 @@ Sequences can be combined with lazy attributes::
 
     UserFactory().email  # => mark+0@example.com
 
-If you wish to use a custom method to set the initial ID for a sequence, you can override the ``_setup_next_sequence`` class method::
+If you wish to use a custom method to set the initial ID for a sequence, you can override the ``_setup_next_sequence`` class method:
+
+.. code-block:: python
 
     class MyFactory(factory.Factory):
 
@@ -184,7 +212,9 @@ Customizing creation
 
 Sometimes, the default build/create by keyword arguments doesn't allow for enough
 customization of the generated objects. In such cases, you should override the
-Factory._prepare method::
+Factory._prepare method:
+
+.. code-block:: python
 
     class UserFactory(factory.Factory):
         @classmethod
@@ -201,7 +231,9 @@ Subfactories
 ------------
 
 If one of your factories has a field which is another factory, you can declare it as a ``SubFactory``. This allows to define attributes of that field when calling
-the global factory, using a simple syntax : ``field__attr=42`` will set the attribute ``attr`` of the ``SubFactory`` defined in ``field`` to 42::
+the global factory, using a simple syntax : ``field__attr=42`` will set the attribute ``attr`` of the ``SubFactory`` defined in ``field`` to 42:
+
+.. code-block:: python
 
     class InnerFactory(factory.Factory):
         foo = 'foo'
@@ -229,6 +261,7 @@ If a ``Factory`` simply defines generic attribute declarations without being bou
 it should be marked 'abstract' by declaring ``ABSTRACT_FACTORY = True``.
 Such factories cannot be built/created/....
 
+.. code-block:: python
 
     class AbstractFactory(factory.Factory):
         ABSTRACT_FACTORY = True
