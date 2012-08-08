@@ -1,12 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+import re
 import sys
 from distutils.core import setup
 from distutils import cmd
 
-# Remember to change in factory/__init__.py as well!
-VERSION = '1.1.5'
+root = os.path.abspath(os.path.dirname(__file__))
+
+def get_version(*module_dir_components):
+    version_re = re.compile(r"^__version__ = ['\"](.*)['\"]$")
+    module_root = os.path.join(root, *module_dir_components)
+    module_init = os.path.join(module_root, '__init__.py')
+    with open(module_init, 'r') as f:
+        for line in f:
+            match = version_re.match(line[:-1])
+            if match:
+                return match.groups()[0]
+    return '0.1.0'
+
+VERSION = get_version('factory')
 
 
 class test(cmd.Command):
