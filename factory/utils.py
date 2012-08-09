@@ -81,3 +81,15 @@ def multi_extract_dict(prefixes, kwargs, pop=True, exclude=()):
             ['%s%s%s' % (prefix, ATTR_SPLITTER, key) for key in extracted])
 
     return results
+
+
+def import_object(module_name, attribute_name):
+    """Import an object from its absolute path.
+
+    Example:
+        >>> import_object('datetime', 'datetime')
+        <type 'datetime.datetime'>
+    """
+    module = __import__(module_name, {}, {}, [attribute_name], 0)
+    return getattr(module, attribute_name)
+

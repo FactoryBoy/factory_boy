@@ -212,3 +212,18 @@ class MultiExtractDictTestCase(unittest.TestCase):
         self.assertNotIn('foo__foo__bar', d)
         self.assertNotIn('bar__foo', d)
         self.assertNotIn('bar__bar__baz', d)
+
+class ImportObjectTestCase(unittest.TestCase):
+    def test_datetime(self):
+        imported = utils.import_object('datetime', 'date')
+        import datetime
+        d = datetime.date
+        self.assertEqual(d, imported)
+
+    def test_unknown_attribute(self):
+        self.assertRaises(AttributeError, utils.import_object,
+            'datetime', 'foo')
+
+    def test_invalid_module(self):
+        self.assertRaises(ImportError, utils.import_object,
+            'this-is-an-invalid-module', '__name__')

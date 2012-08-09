@@ -54,3 +54,28 @@ Fields of the SubFactory can also be overridden when instantiating the external 
     <User: Henry Jones>
     >>> c.owner.email
     henry.jones@example.org
+
+
+Circular dependencies
+---------------------
+
+In order to solve circular dependency issues, Factory Boy provides the :class:`~factory.CircularSubFactory` class.
+
+This class expects a module name and a factory name to import from that module; the given module will be imported
+(as an absolute import) when the factory is first accessed::
+
+    # foo/factories.py
+    import factory
+
+    from bar import factories
+
+    class FooFactory(factory.Factory):
+        bar = factory.SubFactory(factories.BarFactory)
+
+
+    # bar/factories.py
+    import factory
+
+    class BarFactory(factory.Factory):
+        # Avoid circular import
+        foo = factory.CircularSubFactory('foo.factories', 'FooFactory', bar=None)

@@ -208,7 +208,64 @@ class ContainerAttribute(OrderedDeclaration):
         return self.function(obj, containers)
 
 
-class SubFactory(OrderedDeclaration):
+class ParameteredAttribute(OrderedDeclaration):
+    """Base class for attributes expecting parameters.
+
+    Attributes:
+        defaults (dict): Default values for the paramters.
+            May be overridden by call-time parameters.
+
+    Class attributes:
+        CONTAINERS_FIELD (str): name of the field, if any, where container
+            information (e.g for SubFactory) should be stored. If empty,
+            containers data isn't merged into generate() parameters.
+    """
+
+    CONTAINERS_FIELD = '__containers'
+
+    def __init__(self, **kwargs):
+        super(ParameteredAttribute, self).__init__()
+        self.defaults = kwargs
+
+    def evaluate(self, create, extra, containers):
+        """Evaluate the current definition and fill its attributes.
+
+        Uses attributes definition in the following order:
+        - values defined when defining the ParameteredAttribute
+        - additional values defined when instantiating the containing factory
+
+        Args:
+            create (bool): whether the parent factory is being 'built' or
+                'created'
+            extra (containers.DeclarationDict): extra values that should
+                override the defaults
+            containers (list of LazyStub): List of LazyStub for the chain of
+                factories being evaluated, the calling stub being first.
+        """
+        defaults = dict(self.defaults)
+        if extra:
+            defaults.update(extra)
+        if self.CONTAINERS_FIELD:
+            defaults[self.CONTAINERS_FIELD] = containers
+
+        return self.generate(create, defaults)
+
+    def generate(self, create, params):
+        """Actually generate the related attribute.
+
+        Args:
+            create (bool): whether the calling factory was in 'create' or
+                'build' mode
+            params (dict): parameters inherited from init and evaluation-time
+                overrides.
+
+        Returns:
+            Computed value for the current declaration.
+        """
+        raise NotImplementedError()
+
+
+class SubFactory(ParameteredAttribute):
     """Base class for attributes based upon a sub-factory.
 
     Attributes:
@@ -218,36 +275,48 @@ class SubFactory(OrderedDeclaration):
     """
 
     def __init__(self, factory, **kwargs):
-        super(SubFactory, self).__init__()
-        self.defaults = kwargs
+        super(SubFactory, self).__init__(**kwargs)
         self.factory = factory
 
-    def evaluate(self, create, extra, containers):
-        """Evaluate the current definition and fill its attributes.
+    def get_factory(self):
+        """Retrieve the wrapped factory.Factory subclass."""
+        return self.factory
 
-        Uses attributes definition in the following order:
-        - attributes defined in the wrapped factory class
-        - values defined when defining the SubFactory
-        - additional values defined in attributes
+    def generate(self, create, params):
+        """Evaluate the current definition and fill its attributes.
 
         Args:
             create (bool): whether the subfactory should call 'build' or
                 'create'
-            extra (containers.DeclarationDict): extra values that should
+            params (containers.DeclarationDict): extra values that should
                 override the wrapped factory's defaults
-            containers (list of LazyStub): List of LazyStub for the chain of
-                factories being evaluated, the calling stub being first.
         """
-
-        defaults = dict(self.defaults)
-        if extra:
-            defaults.update(extra)
-        defaults['__containers'] = containers
-
+        subfactory = self.get_factory()
         if create:
-            return self.factory.create(**defaults)
+            return subfactory.create(**params)
         else:
-            return self.factory.build(**defaults)
+            return subfactory.build(**params)
+
+
+class CircularSubFactory(SubFactory):
+    """Use to solve circular dependencies issues."""
+    def __init__(self, module_name, factory_name, **kwargs):
+        super(CircularSubFactory, self).__init__(None, **kwargs)
+        self.module_name = module_name
+        self.factory_name = factory_name
+
+    def get_factory(self):
+        """Retrieve the factory.Factory subclass.
+
+        Its value is cached in the 'factory' attribute, and retrieved through
+        the factory_getter callable.
+        """
+        if self.factory is None:
+            factory_class = utils.import_object(
+                self.module_name, self.factory_name)
+
+            self.factory = factory_class
+        return self.factory
 
 
 class PostGenerationDeclaration(object):

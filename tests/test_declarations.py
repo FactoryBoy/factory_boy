@@ -20,8 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import datetime
 
-from factory.declarations import deepgetattr, OrderedDeclaration, \
+from factory.declarations import deepgetattr, CircularSubFactory, OrderedDeclaration, \
     PostGenerationDeclaration, Sequence
 
 from .compat import unittest
@@ -73,6 +74,34 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
         self.assertEqual(kwargs, {'baz': 1})
 
 
+class CircularSubFactoryTestCase(unittest.TestCase):
+    def test_lazyness(self):
+        f = CircularSubFactory('factory.declarations', 'Sequence', x=3)
+        self.assertEqual(None, f.factory)
+
+        self.assertEqual({'x': 3}, f.defaults)
+
+        factory_class = f.get_factory()
+        self.assertEqual(Sequence, factory_class)
+
+    def test_cache(self):
+        orig_date = datetime.date
+        f = CircularSubFactory('datetime', 'date')
+        self.assertEqual(None, f.factory)
+
+        factory_class = f.get_factory()
+        self.assertEqual(orig_date, factory_class)
+
+        try:
+            # Modify original value
+            datetime.date = None
+            # Repeat import
+            factory_class = f.get_factory()
+            self.assertEqual(orig_date, factory_class)
+
+        finally:
+            # IMPORTANT: restore attribute.
+            datetime.date = orig_date
 
 if __name__ == '__main__':
     unittest.main()
