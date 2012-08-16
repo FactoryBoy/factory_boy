@@ -208,6 +208,8 @@ class SimpleBuildTestCase(unittest.TestCase):
 class UsingFactoryTestCase(unittest.TestCase):
     def testAttribute(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = 'one'
 
         test_object = TestObjectFactory.build()
@@ -226,6 +228,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testSequence(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = factory.Sequence(lambda n: 'one' + n)
             two = factory.Sequence(lambda n: 'two' + n)
 
@@ -239,6 +243,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testSequenceCustomBegin(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             @classmethod
             def _setup_next_sequence(cls):
                 return 42
@@ -256,6 +262,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_sequence_batch(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = factory.Sequence(lambda n: 'one' + n)
             two = factory.Sequence(lambda n: 'two' + n)
 
@@ -269,6 +277,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testLazyAttribute(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = factory.LazyAttribute(lambda a: 'abc' )
             two = factory.LazyAttribute(lambda a: a.one + ' xyz')
 
@@ -278,6 +288,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testLazyAttributeSequence(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = factory.LazyAttributeSequence(lambda a, n: 'abc' + n)
             two = factory.LazyAttributeSequence(lambda a, n: a.one + ' xyz' + n)
 
@@ -291,6 +303,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testLazyAttributeDecorator(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             @factory.lazy_attribute
             def one(a):
                 return 'one'
@@ -303,6 +317,8 @@ class UsingFactoryTestCase(unittest.TestCase):
             n = 3
 
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = 'xx'
             two = factory.SelfAttribute('one')
             three = TmpObj()
@@ -317,6 +333,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testSequenceDecorator(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             @factory.sequence
             def one(n):
                 return 'one' + n
@@ -326,6 +344,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testLazyAttributeSequenceDecorator(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             @factory.lazy_attribute_sequence
             def one(a, n):
                 return 'one' + n
@@ -339,6 +359,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testBuildWithParameters(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = factory.Sequence(lambda n: 'one' + n)
             two = factory.Sequence(lambda n: 'two' + n)
 
@@ -353,6 +375,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testCreate(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         test_model = TestModelFactory.create()
@@ -361,6 +385,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_create_batch(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         objs = TestModelFactory.create_batch(20, two=factory.Sequence(int))
@@ -375,6 +401,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_generate_build(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         test_model = TestModelFactory.generate(factory.BUILD_STRATEGY)
@@ -383,6 +411,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_generate_create(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         test_model = TestModelFactory.generate(factory.CREATE_STRATEGY)
@@ -391,6 +421,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_generate_stub(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         test_model = TestModelFactory.generate(factory.STUB_STRATEGY)
@@ -399,6 +431,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_generate_batch_build(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         objs = TestModelFactory.generate_batch(factory.BUILD_STRATEGY, 20, two='two')
@@ -413,6 +447,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_generate_batch_create(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         objs = TestModelFactory.generate_batch(factory.CREATE_STRATEGY, 20, two='two')
@@ -427,6 +463,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_generate_batch_stub(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         objs = TestModelFactory.generate_batch(factory.STUB_STRATEGY, 20, two='two')
@@ -441,6 +479,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_simple_generate_build(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         test_model = TestModelFactory.simple_generate(False)
@@ -449,6 +489,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_simple_generate_create(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         test_model = TestModelFactory.simple_generate(True)
@@ -457,6 +499,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_simple_generate_batch_build(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         objs = TestModelFactory.simple_generate_batch(False, 20, two='two')
@@ -471,6 +515,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_simple_generate_batch_create(self):
         class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         objs = TestModelFactory.simple_generate_batch(True, 20, two='two')
@@ -485,6 +531,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_stub_batch(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = 'one'
             two = factory.LazyAttribute(lambda a: a.one + ' two')
             three = factory.Sequence(lambda n: int(n))
@@ -502,6 +550,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testInheritance(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = 'one'
             two = factory.LazyAttribute(lambda a: a.one + ' two')
 
@@ -522,6 +572,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testInheritanceWithInheritedClass(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = 'one'
             two = factory.LazyAttribute(lambda a: a.one + ' two')
 
@@ -537,6 +589,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testDualInheritance(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = 'one'
 
         class TestOtherFactory(factory.Factory):
@@ -558,7 +612,7 @@ class UsingFactoryTestCase(unittest.TestCase):
             return "This doesn't even return an instance of {0}".format(class_to_create.__name__)
 
         class TestModelFactory(factory.Factory):
-            pass
+            FACTORY_FOR = TestModel
 
         TestModelFactory.set_creation_function(creation_function)
 
@@ -567,6 +621,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testClassMethodAccessible(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             @classmethod
             def alt_create(cls, **kwargs):
                 return kwargs
@@ -575,6 +631,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def testStaticMethodAccessible(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             @staticmethod
             def alt_create(**kwargs):
                 return kwargs
@@ -804,6 +862,8 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_iterator(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = factory.Iterator(xrange(10, 30))
 
         objs = TestObjectFactory.build_batch(20)
@@ -813,6 +873,8 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_infinite_iterator(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = factory.InfiniteIterator(xrange(5))
 
         objs = TestObjectFactory.build_batch(20)
@@ -822,6 +884,8 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_infinite_iterator_list_comprehension(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = factory.InfiniteIterator([j * 3 for j in xrange(5)])
 
         # Scope bleeding: j will end up in TestObjectFactory's scope.
@@ -830,6 +894,8 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_infinite_iterator_list_comprehension_protected(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = factory.InfiniteIterator([_j * 3 for _j in xrange(5)])
 
         # Scope bleeding : _j will end up in TestObjectFactory's scope.
@@ -841,6 +907,8 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_iterator_decorator(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             @factory.iterator
             def one():
                 for i in xrange(10, 50):
@@ -853,6 +921,8 @@ class IteratorTestCase(unittest.TestCase):
 
     def test_infinite_iterator_decorator(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             @factory.infinite_iterator
             def one():
                 for i in xrange(5):
@@ -867,6 +937,8 @@ class IteratorTestCase(unittest.TestCase):
 class PostGenerationTestCase(unittest.TestCase):
     def test_post_generation(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = 1
 
             @factory.post_generation()
@@ -883,6 +955,8 @@ class PostGenerationTestCase(unittest.TestCase):
 
     def test_post_generation_extraction(self):
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             one = 1
 
             @factory.post_generation()
@@ -906,6 +980,8 @@ class PostGenerationTestCase(unittest.TestCase):
             self.assertEqual(kwargs, {'foo': 13})
 
         class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
             bar = factory.PostGeneration(my_lambda)
 
         obj = TestObjectFactory.build(bar=42, bar__foo=13)

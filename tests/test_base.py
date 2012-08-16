@@ -67,6 +67,8 @@ class FactoryTestCase(unittest.TestCase):
 
     def testLazyAttributeNonExistentParam(self):
         class TestObjectFactory(base.Factory):
+            FACTORY_FOR = TestObject
+
             one = declarations.LazyAttribute(lambda a: a.does_not_exist )
 
         self.assertRaises(AttributeError, TestObjectFactory)
@@ -74,9 +76,13 @@ class FactoryTestCase(unittest.TestCase):
     def testInheritanceWithSequence(self):
         """Tests that sequence IDs are shared between parent and son."""
         class TestObjectFactory(base.Factory):
+            FACTORY_FOR = TestObject
+
             one = declarations.Sequence(lambda a: a)
 
         class TestSubFactory(TestObjectFactory):
+            FACTORY_FOR = TestObject
+
             pass
 
         parent = TestObjectFactory.build()
@@ -97,6 +103,8 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         base.Factory.default_strategy = base.BUILD_STRATEGY
 
         class TestModelFactory(base.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         test_model = TestModelFactory()
@@ -107,6 +115,8 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         # Default default_strategy
 
         class TestModelFactory(base.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         test_model = TestModelFactory()
@@ -117,6 +127,8 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         base.Factory.default_strategy = base.STUB_STRATEGY
 
         class TestModelFactory(base.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         test_model = TestModelFactory()
@@ -127,12 +139,16 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         base.Factory.default_strategy = 'unknown'
 
         class TestModelFactory(base.Factory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         self.assertRaises(base.Factory.UnknownStrategy, TestModelFactory)
 
     def testStubWithNonStubStrategy(self):
         class TestModelFactory(base.StubFactory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         TestModelFactory.default_strategy = base.CREATE_STRATEGY
@@ -145,6 +161,8 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
     def test_change_strategy(self):
         @base.use_strategy(base.CREATE_STRATEGY)
         class TestModelFactory(base.StubFactory):
+            FACTORY_FOR = TestModel
+
             one = 'one'
 
         self.assertEqual(base.CREATE_STRATEGY, TestModelFactory.default_strategy)
@@ -186,6 +204,8 @@ class FactoryCreationTestCase(unittest.TestCase):
 
     def testInheritanceWithStub(self):
         class TestObjectFactory(base.StubFactory):
+            FACTORY_FOR = TestObject
+
             pass
 
         class TestFactory(TestObjectFactory):
@@ -195,6 +215,8 @@ class FactoryCreationTestCase(unittest.TestCase):
 
     def testCustomCreation(self):
         class TestModelFactory(base.Factory):
+            FACTORY_FOR = TestModel
+
             @classmethod
             def _prepare(cls, create, **kwargs):
                 kwargs['four'] = 4
@@ -233,12 +255,16 @@ class PostGenerationParsingTestCase(unittest.TestCase):
 
     def test_extraction(self):
         class TestObjectFactory(base.Factory):
+            FACTORY_FOR = TestObject
+
             foo = declarations.PostGenerationDeclaration()
 
         self.assertIn('foo', TestObjectFactory._postgen_declarations)
 
     def test_classlevel_extraction(self):
         class TestObjectFactory(base.Factory):
+            FACTORY_FOR = TestObject
+
             foo = declarations.PostGenerationDeclaration()
             foo__bar = 42
 
