@@ -32,7 +32,12 @@ CREATE_STRATEGY = 'create'
 STUB_STRATEGY = 'stub'
 
 # Creation functions. Use Factory.set_creation_function() to set a creation function appropriate for your ORM.
-DJANGO_CREATION = lambda class_to_create, **kwargs: class_to_create.objects.create(**kwargs)
+def DJANGO_CREATION(class_to_create, **kwargs):
+    warnings.warn(
+        "Factories defaulting to Django's Foo.objects.create() is deprecated, "
+        "and will be removed in the future. Please inherit from "
+        "factory.DjangoModelFactory instead.", PendingDeprecationWarning, 6)
+    return class_to_create.objects.create(**kwargs)
 
 # Building functions. Use Factory.set_building_function() to set a building functions appropriate for your ORM.
 NAIVE_BUILD = lambda class_to_build, **kwargs: class_to_build(**kwargs)
@@ -505,6 +510,10 @@ class Factory(BaseFactory):
                 which an instance will be created. The value of the various
                 fields are passed as keyword arguments.
         """
+        warnings.warn(
+            "Use of factory.set_creation_function is deprecated, and will be "
+            "removed in the future. Please override Factory._create() instead.",
+            PendingDeprecationWarning, 2)
         cls._creation_function = (creation_function,)
 
     @classmethod
@@ -543,6 +552,10 @@ class Factory(BaseFactory):
                 which an instance will be built. The value of the various
                 fields are passed as keyword arguments.
         """
+        warnings.warn(
+            "Use of factory.set_building_function is deprecated, and will be "
+            "removed in the future. Please override Factory._build() instead.",
+            PendingDeprecationWarning, 2)
         cls._building_function = (building_function,)
 
     @classmethod
