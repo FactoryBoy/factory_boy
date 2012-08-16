@@ -1,10 +1,31 @@
 ChangeLog
 =========
 
+2.0.0 (future)
+--------------
+
+.. note:: This section lists features planned for v2 of factory_boy. Changes announced here may not have been committed to the repository.
+
+*New:*
+
+    - Add support for Python3
+    - Clean up documentation
+    - Document extension points
+    - Add support for ``get_or_create`` in :class:`~factory.DjangoModelFactory`
+
+*Deprecation:*
+
+    - Remove associated class discovery
+    - Stop defaulting to Django's ``Foo.objects.create()`` when "creating" instances
+    - Remove STRATEGY_*
+    - Remove :meth:`~factory.Factory.set_building_function` / :meth:`~factory.Factory.set_creation_function`
+
+
 1.2.0 (current)
 ---------------
 
 *New:*
+
     - Add :class:`~factory.CircularSubFactory` to solve circular dependencies between factories
     - Better creation/building customization hooks at :meth:`factory.Factory._build` and :meth:`factory.Factory.create`.
     - Add support for passing non-kwarg parameters to a :class:`~factory.Factory` wrapped class.
