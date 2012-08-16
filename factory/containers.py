@@ -167,7 +167,7 @@ class PostGenerationDeclarationDict(DeclarationDict):
 class LazyValue(object):
     """Some kind of "lazy evaluating" object."""
 
-    def evaluate(self, obj, containers=()):
+    def evaluate(self, obj, containers=()):  # pragma: no cover
         """Compute the value, using the given object."""
         raise NotImplementedError("This is an abstract method.")
 

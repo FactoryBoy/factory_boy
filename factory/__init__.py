@@ -62,6 +62,7 @@ from declarations import (
     SubFactory,
     CircularSubFactory,
     PostGeneration,
+    PostGenerationMethodCall,
     RelatedFactory,
 
     lazy_attribute,

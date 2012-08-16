@@ -250,7 +250,7 @@ class ParameteredAttribute(OrderedDeclaration):
 
         return self.generate(create, defaults)
 
-    def generate(self, create, params):
+    def generate(self, create, params):  # pragma: no cover
         """Actually generate the related attribute.
 
         Args:
@@ -352,7 +352,7 @@ class PostGenerationDeclaration(object):
         kwargs = utils.extract_dict(extract_prefix, attrs)
         return extracted, kwargs
 
-    def call(self, obj, create, extracted=None, **kwargs):
+    def call(self, obj, create, extracted=None, **kwargs):  # pragma: no cover
         """Call this hook; no return value is expected.
 
         Args:

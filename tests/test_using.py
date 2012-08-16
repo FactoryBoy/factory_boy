@@ -892,6 +892,78 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(outer.side_a.inner_from_a.a, outer.foo * 2)
         self.assertEqual(outer.side_a.inner_from_a.b, 4)
 
+    def test_nonstrict_container_attribute(self):
+        class TestModel2(FakeModel):
+            pass
+
+        class TestModelFactory(FakeModelFactory):
+            FACTORY_FOR = TestModel
+            one = 3
+            two = factory.ContainerAttribute(lambda obj, containers: len(containers or []), strict=False)
+
+        class TestModel2Factory(FakeModelFactory):
+            FACTORY_FOR = TestModel2
+            one = 1
+            two = factory.SubFactory(TestModelFactory, one=1)
+
+        obj = TestModel2Factory.build()
+        self.assertEqual(1, obj.one)
+        self.assertEqual(1, obj.two.one)
+        self.assertEqual(1, obj.two.two)
+
+        obj = TestModelFactory()
+        self.assertEqual(3, obj.one)
+        self.assertEqual(0, obj.two)
+
+    def test_strict_container_attribute(self):
+        class TestModel2(FakeModel):
+            pass
+
+        class TestModelFactory(FakeModelFactory):
+            FACTORY_FOR = TestModel
+            one = 3
+            two = factory.ContainerAttribute(lambda obj, containers: len(containers or []), strict=True)
+
+        class TestModel2Factory(FakeModelFactory):
+            FACTORY_FOR = TestModel2
+            one = 1
+            two = factory.SubFactory(TestModelFactory, one=1)
+
+        obj = TestModel2Factory.build()
+        self.assertEqual(1, obj.one)
+        self.assertEqual(1, obj.two.one)
+        self.assertEqual(1, obj.two.two)
+
+        self.assertRaises(TypeError, TestModelFactory.build)
+
+    def test_function_container_attribute(self):
+        class TestModel2(FakeModel):
+            pass
+
+        class TestModelFactory(FakeModelFactory):
+            FACTORY_FOR = TestModel
+            one = 3
+
+            @factory.container_attribute
+            def two(self, containers):
+                if containers:
+                    return len(containers)
+                return 42
+
+        class TestModel2Factory(FakeModelFactory):
+            FACTORY_FOR = TestModel2
+            one = 1
+            two = factory.SubFactory(TestModelFactory, one=1)
+
+        obj = TestModel2Factory.build()
+        self.assertEqual(1, obj.one)
+        self.assertEqual(1, obj.two.one)
+        self.assertEqual(1, obj.two.two)
+
+        obj = TestModelFactory()
+        self.assertEqual(3, obj.one)
+        self.assertEqual(42, obj.two)
+
 
 class IteratorTestCase(unittest.TestCase):
 
@@ -1020,6 +1092,34 @@ class PostGenerationTestCase(unittest.TestCase):
             bar = factory.PostGeneration(my_lambda)
 
         obj = TestObjectFactory.build(bar=42, bar__foo=13)
+
+    def test_post_generation_method_call(self):
+        calls = []
+
+        class TestObject(object):
+            def __init__(self, one=None, two=None):
+                self.one = one
+                self.two = two
+                self.extra = None
+
+            def call(self, *args, **kwargs):
+                self.extra = (args, kwargs)
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = 3
+            two = 2
+            post_call = factory.PostGenerationMethodCall('call', one=1)
+
+        obj = TestObjectFactory.build()
+        self.assertEqual(3, obj.one)
+        self.assertEqual(2, obj.two)
+        self.assertEqual(((), {'one': 1}), obj.extra)
+
+        obj = TestObjectFactory.build(post_call__one=2, post_call__two=3)
+        self.assertEqual(3, obj.one)
+        self.assertEqual(2, obj.two)
+        self.assertEqual(((), {'one': 2, 'two': 3}), obj.extra)
 
     def test_related_factory(self):
         class TestRelatedObject(object):
