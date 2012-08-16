@@ -176,8 +176,10 @@ class FactoryCreationTestCase(unittest.TestCase):
         self.assertTrue(isinstance(TestFactory.build(), TestObject))
 
     def testAutomaticAssociatedClassDiscovery(self):
-        class TestObjectFactory(base.Factory):
-            pass
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            class TestObjectFactory(base.Factory):
+                pass
 
         self.assertTrue(isinstance(TestObjectFactory.build(), TestObject))
 
@@ -186,8 +188,7 @@ class FactoryCreationTestCase(unittest.TestCase):
 
         with warnings.catch_warnings(record=True) as w:
             # Clear the warning registry.
-            if hasattr(base, '__warningregistry__'):
-                base.__warningregistry__.clear()
+            __warningregistry__.clear()
 
             warnings.simplefilter('always')
             class TestObjectFactory(base.Factory):

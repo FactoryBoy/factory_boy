@@ -182,7 +182,7 @@ class FactoryMetaClass(BaseFactoryMetaClass):
                             FACTORY_CLASS_DECLARATION,
                             associated_name,
                             class_name,
-                        ), PendingDeprecationWarning)
+                        ), DeprecationWarning, 3)
 
                     return getattr(factory_module, associated_name)
 
