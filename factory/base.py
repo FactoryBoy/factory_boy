@@ -317,6 +317,37 @@ class BaseFactory(object):
         return getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS).copy(extra_defs)
 
     @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        """Actually build an instance of the target_class.
+
+        Customization point, will be called once the full set of args and kwargs
+        has been computed.
+
+        Args:
+            target_class (type): the class for which an instance should be
+                built
+            args (tuple): arguments to use when building the class
+            kwargs (dict): keyword arguments to use when building the class
+        """
+
+        return target_class(*args, **kwargs)
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        """Actually create an instance of the target_class.
+
+        Customization point, will be called once the full set of args and kwargs
+        has been computed.
+
+        Args:
+            target_class (type): the class for which an instance should be
+                created
+            args (tuple): arguments to use when creating the class
+            kwargs (dict): keyword arguments to use when creating the class
+        """
+        return target_class(*args, **kwargs)
+
+    @classmethod
     def build(cls, **kwargs):
         """Build an instance of the associated class, with overriden attrs."""
         raise cls.UnsupportedStrategy()
@@ -462,7 +493,7 @@ class Factory(BaseFactory):
 
     # Customizing 'create' strategy, using a tuple to keep the creation function
     # from turning it into an instance method.
-    _creation_function = (DJANGO_CREATION,)
+    _creation_function = (None,)
 
     @classmethod
     def set_creation_function(cls, creation_function):
@@ -485,11 +516,22 @@ class Factory(BaseFactory):
                 an instance will be created, and keyword arguments for the value
                 of the fields of the instance.
         """
-        return cls._creation_function[0]
+        creation_function = cls._creation_function[0]
+        if creation_function:
+            return creation_function
+        elif cls._create.__func__ == Factory._create.__func__:
+            # Backwards compatibility.
+            # Default creation_function and default _create() behavior.
+            # The best "Vanilla" _create detection algorithm I found is relying
+            # on actual method implementation (otherwise, make_factory isn't
+            # detected as 'default').
+            return DJANGO_CREATION
+        else:
+            return creation_function
 
     # Customizing 'build' strategy, using a tuple to keep the creation function
     # from turning it into an instance method.
-    _building_function = (NAIVE_BUILD,)
+    _building_function = (None,)
 
     @classmethod
     def set_building_function(cls, building_function):
@@ -522,10 +564,19 @@ class Factory(BaseFactory):
             create: bool, whether to create or to build the object
             **kwargs: arguments to pass to the creation function
         """
+        target_class = getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)
         if create:
-            return cls.get_creation_function()(getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS), **kwargs)
+            # Backwards compatibility
+            creation_function = cls.get_creation_function()
+            if creation_function:
+                return creation_function(target_class, **kwargs)
+            return cls._create(target_class, **kwargs)
         else:
-            return cls.get_building_function()(getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS), **kwargs)
+            # Backwards compatibility
+            building_function = cls.get_building_function()
+            if building_function:
+                return building_function(target_class, **kwargs)
+            return cls._build(target_class, **kwargs)
 
     @classmethod
     def _generate(cls, create, attrs):
@@ -580,6 +631,10 @@ class DjangoModelFactory(Factory):
                 ).order_by('-id')[0]
         except IndexError:
             return 1
+
+    def _create(cls, target_class, *args, **kwargs):
+        """Create an instance of the model, and save it to the database."""
+        return target_class._default_manager.create(*args, **kwargs)
 
 
 def make_factory(klass, **kwargs):

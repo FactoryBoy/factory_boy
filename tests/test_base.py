@@ -35,18 +35,24 @@ class TestObject(object):
         self.four = four
 
 class FakeDjangoModel(object):
-    class FakeDjangoManager(object):
-        def create(self, **kwargs):
-            fake_model = FakeDjangoModel(**kwargs)
-            fake_model.id = 1
-            return fake_model
-
-    objects = FakeDjangoManager()
+    @classmethod
+    def create(cls, **kwargs):
+        instance = cls(**kwargs)
+        instance.id = 1
+        return instance
 
     def __init__(self, **kwargs):
         for name, value in kwargs.iteritems():
             setattr(self, name, value)
             self.id = None
+
+class FakeModelFactory(base.Factory):
+    ABSTRACT_FACTORY = True
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        return target_class.create(**kwargs)
+
 
 class TestModel(FakeDjangoModel):
     pass
@@ -114,7 +120,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
     def testCreateStrategy(self):
         # Default default_strategy
 
-        class TestModelFactory(base.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -215,7 +221,7 @@ class FactoryCreationTestCase(unittest.TestCase):
         self.assertEqual(TestFactory.default_strategy, base.STUB_STRATEGY)
 
     def testCustomCreation(self):
-        class TestModelFactory(base.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             @classmethod

@@ -36,21 +36,37 @@ class TestObject(object):
         self.four = four
         self.five = five
 
-class FakeDjangoModel(object):
-    class FakeDjangoManager(object):
-        def create(self, **kwargs):
-            fake_model = FakeDjangoModel(**kwargs)
-            fake_model.id = 1
-            return fake_model
 
-    objects = FakeDjangoManager()
+class FakeModel(object):
+    @classmethod
+    def create(cls, **kwargs):
+        instance = cls(**kwargs)
+        instance.id = 1
+        return instance
+
+    class FakeModelManager(object):
+        def create(self, **kwargs):
+            instance = FakeModel.create(**kwargs)
+            instance.id = 2
+            return instance
+
+    objects = FakeModelManager()
 
     def __init__(self, **kwargs):
         for name, value in kwargs.iteritems():
             setattr(self, name, value)
             self.id = None
 
-class TestModel(FakeDjangoModel):
+
+class FakeModelFactory(factory.Factory):
+    ABSTRACT_FACTORY = True
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        return target_class.create(**kwargs)
+
+
+class TestModel(FakeModel):
     pass
 
 
@@ -85,18 +101,18 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.four, None)
 
     def test_create(self):
-        obj = factory.create(FakeDjangoModel, foo='bar')
-        self.assertEqual(obj.id, 1)
+        obj = factory.create(FakeModel, foo='bar')
+        self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
     def test_create_batch(self):
-        objs = factory.create_batch(FakeDjangoModel, 4, foo='bar')
+        objs = factory.create_batch(FakeModel, 4, foo='bar')
 
         self.assertEqual(4, len(objs))
         self.assertEqual(4, len(set(objs)))
 
         for obj in objs:
-            self.assertEqual(obj.id, 1)
+            self.assertEqual(obj.id, 2)
             self.assertEqual(obj.foo, 'bar')
 
     def test_stub(self):
@@ -105,7 +121,7 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertFalse(hasattr(obj, 'two'))
 
     def test_stub_batch(self):
-        objs = factory.stub_batch(FakeDjangoModel, 4, foo='bar')
+        objs = factory.stub_batch(FakeModel, 4, foo='bar')
 
         self.assertEqual(4, len(objs))
         self.assertEqual(4, len(set(objs)))
@@ -115,22 +131,22 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.foo, 'bar')
 
     def test_generate_build(self):
-        obj = factory.generate(FakeDjangoModel, factory.BUILD_STRATEGY, foo='bar')
+        obj = factory.generate(FakeModel, factory.BUILD_STRATEGY, foo='bar')
         self.assertEqual(obj.id, None)
         self.assertEqual(obj.foo, 'bar')
 
     def test_generate_create(self):
-        obj = factory.generate(FakeDjangoModel, factory.CREATE_STRATEGY, foo='bar')
-        self.assertEqual(obj.id, 1)
+        obj = factory.generate(FakeModel, factory.CREATE_STRATEGY, foo='bar')
+        self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
     def test_generate_stub(self):
-        obj = factory.generate(FakeDjangoModel, factory.STUB_STRATEGY, foo='bar')
+        obj = factory.generate(FakeModel, factory.STUB_STRATEGY, foo='bar')
         self.assertFalse(hasattr(obj, 'id'))
         self.assertEqual(obj.foo, 'bar')
 
     def test_generate_batch_build(self):
-        objs = factory.generate_batch(FakeDjangoModel, factory.BUILD_STRATEGY, 20, foo='bar')
+        objs = factory.generate_batch(FakeModel, factory.BUILD_STRATEGY, 20, foo='bar')
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
@@ -140,17 +156,17 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.foo, 'bar')
 
     def test_generate_batch_create(self):
-        objs = factory.generate_batch(FakeDjangoModel, factory.CREATE_STRATEGY, 20, foo='bar')
+        objs = factory.generate_batch(FakeModel, factory.CREATE_STRATEGY, 20, foo='bar')
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
 
         for obj in objs:
-            self.assertEqual(obj.id, 1)
+            self.assertEqual(obj.id, 2)
             self.assertEqual(obj.foo, 'bar')
 
     def test_generate_batch_stub(self):
-        objs = factory.generate_batch(FakeDjangoModel, factory.STUB_STRATEGY, 20, foo='bar')
+        objs = factory.generate_batch(FakeModel, factory.STUB_STRATEGY, 20, foo='bar')
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
@@ -160,17 +176,17 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.foo, 'bar')
 
     def test_simple_generate_build(self):
-        obj = factory.simple_generate(FakeDjangoModel, False, foo='bar')
+        obj = factory.simple_generate(FakeModel, False, foo='bar')
         self.assertEqual(obj.id, None)
         self.assertEqual(obj.foo, 'bar')
 
     def test_simple_generate_create(self):
-        obj = factory.simple_generate(FakeDjangoModel, True, foo='bar')
-        self.assertEqual(obj.id, 1)
+        obj = factory.simple_generate(FakeModel, True, foo='bar')
+        self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
     def test_simple_generate_batch_build(self):
-        objs = factory.simple_generate_batch(FakeDjangoModel, False, 20, foo='bar')
+        objs = factory.simple_generate_batch(FakeModel, False, 20, foo='bar')
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
@@ -180,13 +196,13 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.foo, 'bar')
 
     def test_simple_generate_batch_create(self):
-        objs = factory.simple_generate_batch(FakeDjangoModel, True, 20, foo='bar')
+        objs = factory.simple_generate_batch(FakeModel, True, 20, foo='bar')
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
 
         for obj in objs:
-            self.assertEqual(obj.id, 1)
+            self.assertEqual(obj.id, 2)
             self.assertEqual(obj.foo, 'bar')
 
     def test_make_factory(self):
@@ -374,7 +390,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object1.two, 'two1')
 
     def testCreate(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -384,7 +400,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertTrue(test_model.id)
 
     def test_create_batch(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -400,7 +416,7 @@ class UsingFactoryTestCase(unittest.TestCase):
             self.assertTrue(obj.id)
 
     def test_generate_build(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -410,7 +426,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertFalse(test_model.id)
 
     def test_generate_create(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -420,7 +436,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertTrue(test_model.id)
 
     def test_generate_stub(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -430,7 +446,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertFalse(hasattr(test_model, 'id'))
 
     def test_generate_batch_build(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -446,7 +462,7 @@ class UsingFactoryTestCase(unittest.TestCase):
             self.assertFalse(obj.id)
 
     def test_generate_batch_create(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -462,7 +478,7 @@ class UsingFactoryTestCase(unittest.TestCase):
             self.assertTrue(obj.id)
 
     def test_generate_batch_stub(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -478,7 +494,7 @@ class UsingFactoryTestCase(unittest.TestCase):
             self.assertFalse(hasattr(obj, 'id'))
 
     def test_simple_generate_build(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -488,7 +504,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertFalse(test_model.id)
 
     def test_simple_generate_create(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -498,7 +514,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertTrue(test_model.id)
 
     def test_simple_generate_batch_build(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -514,7 +530,7 @@ class UsingFactoryTestCase(unittest.TestCase):
             self.assertFalse(obj.id)
 
     def test_simple_generate_batch_create(self):
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
             one = 'one'
@@ -611,7 +627,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         def creation_function(class_to_create, **kwargs):
             return "This doesn't even return an instance of {0}".format(class_to_create.__name__)
 
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
         TestModelFactory.set_creation_function(creation_function)
@@ -642,14 +658,14 @@ class UsingFactoryTestCase(unittest.TestCase):
 
 class SubFactoryTestCase(unittest.TestCase):
     def testSubFactory(self):
-        class TestModel2(FakeDjangoModel):
+        class TestModel2(FakeModel):
             pass
 
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
             one = 3
 
-        class TestModel2Factory(factory.Factory):
+        class TestModel2Factory(FakeModelFactory):
             FACTORY_FOR = TestModel2
             two = factory.SubFactory(TestModelFactory, one=1)
 
@@ -659,13 +675,13 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(1, test_model.two.id)
 
     def testSubFactoryWithLazyFields(self):
-        class TestModel2(FakeDjangoModel):
+        class TestModel2(FakeModel):
             pass
 
-        class TestModelFactory(factory.Factory):
+        class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
-        class TestModel2Factory(factory.Factory):
+        class TestModel2Factory(FakeModelFactory):
             FACTORY_FOR = TestModel2
             two = factory.SubFactory(TestModelFactory,
                                           one=factory.Sequence(lambda n: 'x%sx' % n),
