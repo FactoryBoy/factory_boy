@@ -25,6 +25,7 @@ from factory import utils
 
 from .compat import unittest
 
+
 class ExtractDictTestCase(unittest.TestCase):
     def test_empty_dict(self):
         self.assertEqual({}, utils.extract_dict('foo', {}))
@@ -83,6 +84,7 @@ class ExtractDictTestCase(unittest.TestCase):
         self.assertNotIn('foo__baz', d)
         self.assertIn('foo__bar', d)
         self.assertNotIn('foo__foo__bar', d)
+
 
 class MultiExtractDictTestCase(unittest.TestCase):
     def test_empty_dict(self):
@@ -212,6 +214,7 @@ class MultiExtractDictTestCase(unittest.TestCase):
         self.assertNotIn('foo__foo__bar', d)
         self.assertNotIn('bar__foo', d)
         self.assertNotIn('bar__bar__baz', d)
+
 
 class ImportObjectTestCase(unittest.TestCase):
     def test_datetime(self):

@@ -22,6 +22,8 @@
 
 
 import factory
+import os
+import sys
 
 from .compat import unittest
 
@@ -951,6 +953,26 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(4, obj.related.two)
         # RelatedFactory received "parent" object
         self.assertEqual(obj, obj.related.three)
+
+
+class CircularTestCase(unittest.TestCase):
+    def test_example(self):
+        sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+        from cyclic import foo
+        f = foo.FooFactory.build(bar__foo=None)
+        self.assertEqual(42, f.x)
+        self.assertEqual(13, f.bar.y)
+        self.assertIsNone(f.bar.foo)
+
+        from cyclic import bar
+        b = bar.BarFactory.build(foo__bar__foo__bar=None)
+        self.assertEqual(13, b.y)
+        self.assertEqual(42, b.foo.x)
+        self.assertEqual(13, b.foo.bar.y)
+        self.assertEqual(42, b.foo.bar.foo.x)
+        self.assertIsNone(b.foo.bar.foo.bar)
+
 
 
 if __name__ == '__main__':
