@@ -61,6 +61,7 @@ Contents:
     subfactory
     post_generation
     internals
+    changelog
 
 Indices and tables
 ==================
