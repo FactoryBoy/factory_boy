@@ -7,6 +7,7 @@ ChangeLog
 *New:*
     - Add :class:`~factory.CircularSubFactory` to solve circular dependencies between factories
     - Better creation/building customization hooks at :meth:`factory.Factory._build` and :meth:`factory.Factory.create`.
+    - Add support for passing non-kwarg parameters to a :class:`~factory.Factory` wrapped class.
 
 1.1.5 (09/07/2012)
 ------------------

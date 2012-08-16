@@ -675,6 +675,55 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(TestObjectFactory.alt_create(foo=1), {"foo": 1})
 
 
+class NonKwargParametersTestCase(unittest.TestCase):
+    def test_build(self):
+        class TestObject(object):
+            def __init__(self, *args, **kwargs):
+                self.args = args
+                self.kwargs = kwargs
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            FACTORY_ARG_PARAMETERS = ('one', 'two',)
+
+            one = 1
+            two = 2
+            three = 3
+
+        obj = TestObjectFactory.build()
+        self.assertEqual((1, 2), obj.args)
+        self.assertEqual({'three': 3}, obj.kwargs)
+
+    def test_create(self):
+        class TestObject(object):
+            def __init__(self, *args, **kwargs):
+                self.args = None
+                self.kwargs = None
+
+            @classmethod
+            def create(cls, *args, **kwargs):
+                inst = cls()
+                inst.args = args
+                inst.kwargs = kwargs
+                return inst
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            FACTORY_ARG_PARAMETERS = ('one', 'two')
+
+            one = 1
+            two = 2
+            three = 3
+
+            @classmethod
+            def _create(cls, target_class, *args, **kwargs):
+                return target_class.create(*args, **kwargs)
+
+        obj = TestObjectFactory.create()
+        self.assertEqual((1, 2), obj.args)
+        self.assertEqual({'three': 3}, obj.kwargs)
+
+
 class SubFactoryTestCase(unittest.TestCase):
     def testSubFactory(self):
         class TestModel2(FakeModel):

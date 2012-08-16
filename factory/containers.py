@@ -124,7 +124,7 @@ class DeclarationDict(dict):
             return False
         elif isinstance(value, declarations.OrderedDeclaration):
             return True
-        return (not name.startswith("_"))
+        return (not name.startswith("_") and not name.startswith("FACTORY_"))
 
     def update_with_public(self, d):
         """Updates the DeclarationDict from a class definition dict.

@@ -266,6 +266,9 @@ class BaseFactory(object):
     # class.
     _base_factory = None
 
+    # List of arguments that should be passed as *args instead of **kwargs
+    FACTORY_ARG_PARAMETERS = ()
+
     @classmethod
     def _setup_next_sequence(cls):
         """Set up an initial sequence value for Sequence attributes.
@@ -334,7 +337,6 @@ class BaseFactory(object):
             args (tuple): arguments to use when building the class
             kwargs (dict): keyword arguments to use when building the class
         """
-
         return target_class(*args, **kwargs)
 
     @classmethod
@@ -578,18 +580,22 @@ class Factory(BaseFactory):
             **kwargs: arguments to pass to the creation function
         """
         target_class = getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)
+
+        # Extract *args from **kwargs
+        args = tuple(kwargs.pop(key) for key in cls.FACTORY_ARG_PARAMETERS)
+
         if create:
             # Backwards compatibility
             creation_function = cls.get_creation_function()
             if creation_function:
-                return creation_function(target_class, **kwargs)
-            return cls._create(target_class, **kwargs)
+                return creation_function(target_class, *args, **kwargs)
+            return cls._create(target_class, *args, **kwargs)
         else:
             # Backwards compatibility
             building_function = cls.get_building_function()
             if building_function:
-                return building_function(target_class, **kwargs)
-            return cls._build(target_class, **kwargs)
+                return building_function(target_class, *args, **kwargs)
+            return cls._build(target_class, *args, **kwargs)
 
     @classmethod
     def _generate(cls, create, attrs):
