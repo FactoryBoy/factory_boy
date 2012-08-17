@@ -28,7 +28,7 @@ import warnings
 
 import factory
 
-from .compat import unittest
+from .compat import is_python2, unittest
 
 
 class TestObject(object):
@@ -1038,7 +1038,8 @@ class IteratorTestCase(unittest.TestCase):
         for i, obj in enumerate(objs):
             self.assertEqual(i % 5, obj.one)
 
-    def test_infinite_iterator_list_comprehension(self):
+    @unittest.skipUnless(is_python2, "Scope bleeding fixed in Python3+")
+    def test_infinite_iterator_list_comprehension_scope_bleeding(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 

@@ -21,6 +21,10 @@
 
 """Compatibility tools for tests"""
 
+import sys
+
+is_python2 = (sys.version_info[0] == 2)
+
 try:
     import unittest2 as unittest
 except ImportError:
