@@ -62,7 +62,7 @@ class LazyStub(object):
 
     def __str__(self):
         return '<LazyStub for %s with %s>' % (
-            self.__target_class.__name__, self.__attrs.keys())
+            self.__target_class.__name__, list(self.__attrs.keys()))
 
     def __fill__(self):
         """Fill this LazyStub, computing values of all defined attributes.

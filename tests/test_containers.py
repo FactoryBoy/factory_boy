@@ -342,7 +342,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
 
         ab = containers.AttributeBuilder(FakeFactory, {'one__blah': 1, 'two__bar': 2})
         self.assertTrue(ab.has_subfields(sf))
-        self.assertEqual(['one'], ab._subfields.keys())
+        self.assertEqual(['one'], list(ab._subfields.keys()))
         self.assertEqual(2, ab._attrs['two__bar'])
 
     def test_sub_factory(self):

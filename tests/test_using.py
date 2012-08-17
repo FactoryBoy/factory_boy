@@ -1220,13 +1220,13 @@ class CircularTestCase(unittest.TestCase):
     def test_example(self):
         sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-        from cyclic import foo
+        from .cyclic import foo
         f = foo.FooFactory.build(bar__foo=None)
         self.assertEqual(42, f.x)
         self.assertEqual(13, f.bar.y)
         self.assertIsNone(f.bar.foo)
 
-        from cyclic import bar
+        from .cyclic import bar
         b = bar.BarFactory.build(foo__bar__foo__bar=None)
         self.assertEqual(13, b.y)
         self.assertEqual(42, b.foo.x)
