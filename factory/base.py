@@ -396,7 +396,7 @@ class BaseFactory(object):
         factory's declarations or in the extra kwargs.
         """
         stub_object = containers.StubObject()
-        for name, value in cls.attributes(create=False, extra=kwargs).iteritems():
+        for name, value in cls.attributes(create=False, extra=kwargs).items():
             setattr(stub_object, name, value)
         return stub_object
 

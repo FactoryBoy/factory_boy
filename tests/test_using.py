@@ -56,7 +56,7 @@ class FakeModel(object):
     objects = FakeModelManager()
 
     def __init__(self, **kwargs):
-        for name, value in kwargs.iteritems():
+        for name, value in kwargs.items():
             setattr(self, name, value)
             self.id = None
 
@@ -763,7 +763,7 @@ class SubFactoryTestCase(unittest.TestCase):
     def testSubFactoryAndSequence(self):
         class TestObject(object):
             def __init__(self, **kwargs):
-                for k, v in kwargs.iteritems():
+                for k, v in kwargs.items():
                     setattr(self, k, v)
 
         class TestObjectFactory(factory.Factory):
@@ -784,7 +784,7 @@ class SubFactoryTestCase(unittest.TestCase):
     def testSubFactoryOverriding(self):
         class TestObject(object):
             def __init__(self, **kwargs):
-                for k, v in kwargs.iteritems():
+                for k, v in kwargs.items():
                     setattr(self, k, v)
 
         class TestObjectFactory(factory.Factory):
@@ -793,7 +793,7 @@ class SubFactoryTestCase(unittest.TestCase):
 
         class OtherTestObject(object):
             def __init__(self, **kwargs):
-                for k, v in kwargs.iteritems():
+                for k, v in kwargs.items():
                     setattr(self, k, v)
 
         class WrappingTestObjectFactory(factory.Factory):
@@ -813,7 +813,7 @@ class SubFactoryTestCase(unittest.TestCase):
 
         class TestObject(object):
             def __init__(self, **kwargs):
-                for k, v in kwargs.iteritems():
+                for k, v in kwargs.items():
                     setattr(self, k, v)
 
         class TestObjectFactory(factory.Factory):
@@ -839,7 +839,7 @@ class SubFactoryTestCase(unittest.TestCase):
 
         class TestObject(object):
             def __init__(self, **kwargs):
-                for k, v in kwargs.iteritems():
+                for k, v in kwargs.items():
                     setattr(self, k, v)
 
         class TestObjectFactory(factory.Factory):
@@ -866,7 +866,7 @@ class SubFactoryTestCase(unittest.TestCase):
         """Test inheriting from a factory with subfactories, overriding."""
         class TestObject(object):
             def __init__(self, **kwargs):
-                for k, v in kwargs.iteritems():
+                for k, v in kwargs.items():
                     setattr(self, k, v)
 
         class TestObjectFactory(factory.Factory):

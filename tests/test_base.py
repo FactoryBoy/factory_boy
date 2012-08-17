@@ -42,7 +42,7 @@ class FakeDjangoModel(object):
         return instance
 
     def __init__(self, **kwargs):
-        for name, value in kwargs.iteritems():
+        for name, value in kwargs.items():
             setattr(self, name, value)
             self.id = None
 

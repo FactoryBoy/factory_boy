@@ -136,7 +136,7 @@ class DeclarationDict(dict):
         Returns a dict containing all remaining elements.
         """
         remaining = {}
-        for k, v in d.iteritems():
+        for k, v in d.items():
             if self.is_declaration(k, v):
                 self[k] = v
             else:
@@ -262,7 +262,7 @@ class AttributeBuilder(object):
         # Parse attribute declarations, wrapping SubFactory and
         # OrderedDeclaration.
         wrapped_attrs = {}
-        for k, v in self._attrs.iteritems():
+        for k, v in self._attrs.items():
             if isinstance(v, declarations.SubFactory):
                 v = SubFactoryWrapper(v, self._subfields.get(k, {}), create)
             elif isinstance(v, declarations.OrderedDeclaration):
