@@ -369,7 +369,7 @@ class BaseFactory(object):
         Returns:
             object list: the built instances
         """
-        return [cls.build(**kwargs) for _ in xrange(size)]
+        return [cls.build(**kwargs) for _ in range(size)]
 
     @classmethod
     def create(cls, **kwargs):
@@ -386,7 +386,7 @@ class BaseFactory(object):
         Returns:
             object list: the created instances
         """
-        return [cls.create(**kwargs) for _ in xrange(size)]
+        return [cls.create(**kwargs) for _ in range(size)]
 
     @classmethod
     def stub(cls, **kwargs):
@@ -410,7 +410,7 @@ class BaseFactory(object):
         Returns:
             object list: the stubbed instances
         """
-        return [cls.stub(**kwargs) for _ in xrange(size)]
+        return [cls.stub(**kwargs) for _ in range(size)]
 
     @classmethod
     def generate(cls, strategy, **kwargs):
