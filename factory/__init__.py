@@ -23,7 +23,7 @@
 __version__ = '1.2.0'
 __author__ = 'Raphaël Barrois <raphael.barrois@polytechnique.org>'
 
-from base import (
+from .base import (
     Factory,
     StubFactory,
     DjangoModelFactory,
@@ -51,7 +51,7 @@ from base import (
     MOGO_BUILD,
 )
 
-from declarations import (
+from .declarations import (
     LazyAttribute,
     Iterator,
     InfiniteIterator,
