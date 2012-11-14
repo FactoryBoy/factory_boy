@@ -498,10 +498,6 @@ class Factory(BaseFactory):
     class AssociatedClassError(RuntimeError):
         pass
 
-    # Customizing 'create' strategy, using a tuple to keep the creation function
-    # from turning it into an instance method.
-    _creation_function = (None,)
-
     @classmethod
     def set_creation_function(cls, creation_function):
         """Set the creation function for this class.
@@ -516,6 +512,8 @@ class Factory(BaseFactory):
             "Use of factory.set_creation_function is deprecated, and will be "
             "removed in the future. Please override Factory._create() instead.",
             PendingDeprecationWarning, 2)
+        # Customizing 'create' strategy, using a tuple to keep the creation function
+        # from turning it into an instance method.
         cls._creation_function = (creation_function,)
 
     @classmethod
@@ -527,9 +525,9 @@ class Factory(BaseFactory):
                 an instance will be created, and keyword arguments for the value
                 of the fields of the instance.
         """
-        creation_function = cls._creation_function[0]
-        if creation_function:
-            return creation_function
+        creation_function = getattr(cls, '_creation_function', ())
+        if creation_function and creation_function[0]:
+            return creation_function[0]
         elif cls._create.__func__ == Factory._create.__func__:
             # Backwards compatibility.
             # Default creation_function and default _create() behavior.
@@ -537,12 +535,6 @@ class Factory(BaseFactory):
             # on actual method implementation (otherwise, make_factory isn't
             # detected as 'default').
             return DJANGO_CREATION
-        else:
-            return creation_function
-
-    # Customizing 'build' strategy, using a tuple to keep the creation function
-    # from turning it into an instance method.
-    _building_function = (None,)
 
     @classmethod
     def set_building_function(cls, building_function):
@@ -558,6 +550,8 @@ class Factory(BaseFactory):
             "Use of factory.set_building_function is deprecated, and will be "
             "removed in the future. Please override Factory._build() instead.",
             PendingDeprecationWarning, 2)
+        # Customizing 'build' strategy, using a tuple to keep the creation function
+        # from turning it into an instance method.
         cls._building_function = (building_function,)
 
     @classmethod
@@ -569,7 +563,9 @@ class Factory(BaseFactory):
                 an instance will be created, and keyword arguments for the value
                 of the fields of the instance.
         """
-        return cls._building_function[0]
+        building_function = getattr(cls, '_building_function', ())
+        if building_function and building_function[0]:
+            return building_function[0]
 
     @classmethod
     def _prepare(cls, create, **kwargs):
