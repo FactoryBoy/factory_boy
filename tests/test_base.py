@@ -47,7 +47,7 @@ class FakeDjangoModel(object):
             self.id = None
 
 class FakeModelFactory(base.Factory):
-    ABSTRACT_FACTORY = True
+    FACTORY_ABSTRACT = True
 
     @classmethod
     def _create(cls, target_class, *args, **kwargs):

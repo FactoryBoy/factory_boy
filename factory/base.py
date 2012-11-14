@@ -170,7 +170,7 @@ class FactoryMetaClass(BaseFactoryMetaClass):
         if FACTORY_CLASS_DECLARATION in attrs:
             return attrs[FACTORY_CLASS_DECLARATION]
 
-        # No specific associated calss was given, and one was defined for our
+        # No specific associated class was given, and one was defined for our
         # parent, use it.
         if inherited is not None:
             return inherited
@@ -212,11 +212,20 @@ class FactoryMetaClass(BaseFactoryMetaClass):
         for construction of an associated class instance at a later time."""
 
         parent_factories = get_factory_bases(bases)
-        if not parent_factories or attrs.get('ABSTRACT_FACTORY', False):
+        if not parent_factories or attrs.get('ABSTRACT_FACTORY', False) \
+                or attrs.get('FACTORY_ABSTRACT', False):
             # If this isn't a subclass of Factory, or specifically declared
             # abstract, don't do anything special.
             if 'ABSTRACT_FACTORY' in attrs:
+                warnings.warn(
+                    "The 'ABSTRACT_FACTORY' class attribute has been renamed "
+                    "to 'FACTORY_ABSTRACT' for naming consistency, and will "
+                    "be ignored in the future. Please upgrade class %s." %
+                    class_name, DeprecationWarning, 2)
                 attrs.pop('ABSTRACT_FACTORY')
+
+            if 'FACTORY_ABSTRACT' in attrs:
+                attrs.pop('FACTORY_ABSTRACT')
 
             return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
@@ -644,7 +653,7 @@ class DjangoModelFactory(Factory):
     handle those for non-numerical primary keys.
     """
 
-    ABSTRACT_FACTORY = True
+    FACTORY_ABSTRACT = True
 
     @classmethod
     def _setup_next_sequence(cls):
@@ -662,7 +671,7 @@ class DjangoModelFactory(Factory):
 
 class MogoFactory(Factory):
     """Factory for mogo objects."""
-    ABSTRACT_FACTORY = True
+    FACTORY_ABSTRACT = True
 
     def _build(cls, target_class, *args, **kwargs):
         return target_class.new(*args, **kwargs)
