@@ -660,6 +660,14 @@ class DjangoModelFactory(Factory):
         return target_class._default_manager.create(*args, **kwargs)
 
 
+class MogoFactory(Factory):
+    """Factory for mogo objects."""
+    ABSTRACT_FACTORY = True
+
+    def _build(cls, target_class, *args, **kwargs):
+        return target_class.new(*args, **kwargs)
+
+
 def make_factory(klass, **kwargs):
     """Create a new, simple factory for the given class."""
     factory_name = '%sFactory' % klass.__name__
