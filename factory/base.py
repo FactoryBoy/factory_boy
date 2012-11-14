@@ -31,7 +31,8 @@ BUILD_STRATEGY = 'build'
 CREATE_STRATEGY = 'create'
 STUB_STRATEGY = 'stub'
 
-# Creation functions. Use Factory.set_creation_function() to set a creation function appropriate for your ORM.
+# Creation functions. Deprecated.
+# Override Factory._create instead.
 def DJANGO_CREATION(class_to_create, **kwargs):
     warnings.warn(
         "Factories defaulting to Django's Foo.objects.create() is deprecated, "
@@ -39,7 +40,8 @@ def DJANGO_CREATION(class_to_create, **kwargs):
         "factory.DjangoModelFactory instead.", PendingDeprecationWarning, 6)
     return class_to_create.objects.create(**kwargs)
 
-# Building functions. Use Factory.set_building_function() to set a building functions appropriate for your ORM.
+# Building functions. Deprecated.
+# Override Factory._build instead.
 NAIVE_BUILD = lambda class_to_build, **kwargs: class_to_build(**kwargs)
 MOGO_BUILD = lambda class_to_build, **kwargs: class_to_build.new(**kwargs)
 
