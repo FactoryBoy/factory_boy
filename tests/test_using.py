@@ -365,6 +365,23 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(3, test_object.four)
         self.assertEqual(5, test_object.five)
 
+    def testSelfAttributeParent(self):
+        class TestModel2(FakeModel):
+            pass
+
+        class TestModelFactory(FakeModelFactory):
+            FACTORY_FOR = TestModel
+            one = 3
+            three = factory.SelfAttribute('..bar')
+
+        class TestModel2Factory(FakeModelFactory):
+            FACTORY_FOR = TestModel2
+            bar = 4
+            two = factory.SubFactory(TestModelFactory, one=1)
+
+        test_model = TestModel2Factory()
+        self.assertEqual(4, test_model.two.three)
+
     def testSequenceDecorator(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject

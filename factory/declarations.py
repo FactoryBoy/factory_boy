@@ -100,7 +100,11 @@ def deepgetattr(obj, name, default=_UNSPECIFIED):
 class SelfAttribute(OrderedDeclaration):
     """Specific OrderedDeclaration copying values from other fields.
 
+    If the field name starts with two dots or more, the lookup will be anchored
+    in the related 'parent'.
+
     Attributes:
+        depth (int): the number of steps to go up in the containers chain
         attribute_name (str): the name of the attribute to copy.
         default (object): the default value to use if the attribute doesn't
             exist.
@@ -108,11 +112,20 @@ class SelfAttribute(OrderedDeclaration):
 
     def __init__(self, attribute_name, default=_UNSPECIFIED, *args, **kwargs):
         super(SelfAttribute, self).__init__(*args, **kwargs)
+        depth = len(attribute_name) -  len(attribute_name.lstrip('.'))
+        attribute_name = attribute_name[depth:]
+
+        self.depth = depth
         self.attribute_name = attribute_name
         self.default = default
 
     def evaluate(self, sequence, obj, containers=()):
-        return deepgetattr(obj, self.attribute_name, self.default)
+        if self.depth > 1:
+            # Fetching from a parent
+            target = containers[self.depth - 2]
+        else:
+            target = obj
+        return deepgetattr(target, self.attribute_name, self.default)
 
 
 class Iterator(OrderedDeclaration):

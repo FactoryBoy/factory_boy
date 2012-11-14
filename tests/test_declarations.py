@@ -22,14 +22,13 @@
 
 import datetime
 
-from factory.declarations import deepgetattr, CircularSubFactory, OrderedDeclaration, \
-    PostGenerationDeclaration, Sequence
+from factory import declarations
 
 from .compat import unittest
 
 class OrderedDeclarationTestCase(unittest.TestCase):
     def test_errors(self):
-        decl = OrderedDeclaration()
+        decl = declarations.OrderedDeclaration()
         self.assertRaises(NotImplementedError, decl.evaluate, None, {})
 
 
@@ -44,29 +43,61 @@ class DigTestCase(unittest.TestCase):
         obj.a.b = self.MyObj(3)
         obj.a.b.c = self.MyObj(4)
 
-        self.assertEqual(2, deepgetattr(obj, 'a').n)
-        self.assertRaises(AttributeError, deepgetattr, obj, 'b')
-        self.assertEqual(2, deepgetattr(obj, 'a.n'))
-        self.assertEqual(3, deepgetattr(obj, 'a.c', 3))
-        self.assertRaises(AttributeError, deepgetattr, obj, 'a.c.n')
-        self.assertRaises(AttributeError, deepgetattr, obj, 'a.d')
-        self.assertEqual(3, deepgetattr(obj, 'a.b').n)
-        self.assertEqual(3, deepgetattr(obj, 'a.b.n'))
-        self.assertEqual(4, deepgetattr(obj, 'a.b.c').n)
-        self.assertEqual(4, deepgetattr(obj, 'a.b.c.n'))
-        self.assertEqual(42, deepgetattr(obj, 'a.b.c.n.x', 42))
+        self.assertEqual(2, declarations.deepgetattr(obj, 'a').n)
+        self.assertRaises(AttributeError, declarations.deepgetattr, obj, 'b')
+        self.assertEqual(2, declarations.deepgetattr(obj, 'a.n'))
+        self.assertEqual(3, declarations.deepgetattr(obj, 'a.c', 3))
+        self.assertRaises(AttributeError, declarations.deepgetattr, obj, 'a.c.n')
+        self.assertRaises(AttributeError, declarations.deepgetattr, obj, 'a.d')
+        self.assertEqual(3, declarations.deepgetattr(obj, 'a.b').n)
+        self.assertEqual(3, declarations.deepgetattr(obj, 'a.b.n'))
+        self.assertEqual(4, declarations.deepgetattr(obj, 'a.b.c').n)
+        self.assertEqual(4, declarations.deepgetattr(obj, 'a.b.c.n'))
+        self.assertEqual(42, declarations.deepgetattr(obj, 'a.b.c.n.x', 42))
+
+
+class SelfAttributeTestCase(unittest.TestCase):
+    def test_standard(self):
+        a = declarations.SelfAttribute('foo.bar.baz')
+        self.assertEqual(0, a.depth)
+        self.assertEqual('foo.bar.baz', a.attribute_name)
+        self.assertEqual(declarations._UNSPECIFIED, a.default)
+
+    def test_dot(self):
+        a = declarations.SelfAttribute('.bar.baz')
+        self.assertEqual(1, a.depth)
+        self.assertEqual('bar.baz', a.attribute_name)
+        self.assertEqual(declarations._UNSPECIFIED, a.default)
+
+    def test_default(self):
+        a = declarations.SelfAttribute('bar.baz', 42)
+        self.assertEqual(0, a.depth)
+        self.assertEqual('bar.baz', a.attribute_name)
+        self.assertEqual(42, a.default)
+
+    def test_parent(self):
+        a = declarations.SelfAttribute('..bar.baz')
+        self.assertEqual(2, a.depth)
+        self.assertEqual('bar.baz', a.attribute_name)
+        self.assertEqual(declarations._UNSPECIFIED, a.default)
+
+    def test_grandparent(self):
+        a = declarations.SelfAttribute('...bar.baz')
+        self.assertEqual(3, a.depth)
+        self.assertEqual('bar.baz', a.attribute_name)
+        self.assertEqual(declarations._UNSPECIFIED, a.default)
 
 
 class PostGenerationDeclarationTestCase(unittest.TestCase):
     def test_extract_no_prefix(self):
-        decl = PostGenerationDeclaration()
+        decl = declarations.PostGenerationDeclaration()
 
         extracted, kwargs = decl.extract('foo', {'foo': 13, 'foo__bar': 42})
         self.assertEqual(extracted, 13)
         self.assertEqual(kwargs, {'bar': 42})
 
     def test_extract_with_prefix(self):
-        decl = PostGenerationDeclaration(extract_prefix='blah')
+        decl = declarations.PostGenerationDeclaration(extract_prefix='blah')
 
         extracted, kwargs = decl.extract('foo',
             {'foo': 13, 'foo__bar': 42, 'blah': 42, 'blah__baz': 1})
@@ -76,17 +107,17 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
 
 class CircularSubFactoryTestCase(unittest.TestCase):
     def test_lazyness(self):
-        f = CircularSubFactory('factory.declarations', 'Sequence', x=3)
+        f = declarations.CircularSubFactory('factory.declarations', 'Sequence', x=3)
         self.assertEqual(None, f.factory)
 
         self.assertEqual({'x': 3}, f.defaults)
 
         factory_class = f.get_factory()
-        self.assertEqual(Sequence, factory_class)
+        self.assertEqual(declarations.Sequence, factory_class)
 
     def test_cache(self):
         orig_date = datetime.date
-        f = CircularSubFactory('datetime', 'date')
+        f = declarations.CircularSubFactory('datetime', 'date')
         self.assertEqual(None, f.factory)
 
         factory_class = f.get_factory()
