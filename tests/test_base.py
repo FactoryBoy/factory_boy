@@ -64,6 +64,14 @@ class SafetyTestCase(unittest.TestCase):
 
 
 class FactoryTestCase(unittest.TestCase):
+    def test_factory_for(self):
+        class TestObjectFactory(base.Factory):
+            FACTORY_FOR = TestObject
+
+        self.assertEqual(TestObject, TestObjectFactory.FACTORY_FOR)
+        obj = TestObjectFactory.build()
+        self.assertFalse(hasattr(obj, 'FACTORY_FOR'))
+
     def testDisplay(self):
         class TestObjectFactory(base.Factory):
             FACTORY_FOR = FakeDjangoModel

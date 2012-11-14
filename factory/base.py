@@ -236,9 +236,6 @@ class FactoryMetaClass(BaseFactoryMetaClass):
         associated_class = cls._discover_associated_class(class_name, attrs,
                 inherited_associated_class)
 
-        # Remove the FACTORY_CLASS_DECLARATION attribute from attrs, if present.
-        attrs.pop(FACTORY_CLASS_DECLARATION, None)
-
         # If inheriting the factory from a parent, keep a link to it.
         # This allows to use the sequence counters from the parents.
         if associated_class == inherited_associated_class:
