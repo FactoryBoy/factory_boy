@@ -27,8 +27,22 @@ ChangeLog
 *New:*
 
     - Add :class:`~factory.CircularSubFactory` to solve circular dependencies between factories
-    - Better creation/building customization hooks at :meth:`factory.Factory._build` and :meth:`factory.Factory.create`.
-    - Add support for passing non-kwarg parameters to a :class:`~factory.Factory` wrapped class.
+    - Better creation/building customization hooks at :meth:`factory.Factory._build` and :meth:`factory.Factory.create`
+    - Add support for passing non-kwarg parameters to a :class:`~factory.Factory` wrapped class
+    - Enhance :class:`~factory.SelfAttribute` to handle "container" attribute fetching
+    - Keep the :attr:`~factory.Factory.FACTORY_FOR` attribute in :class:`~factory.Factory` classes
+    - Provide a dedicated :class:`~factory.MogoFactory` subclass of :class:`~factory.Factory`
+
+*Pending deprecation:*
+
+The following features have been deprecated and will be removed in an upcoming release.
+
+    - Usage of :meth:`~factory.Factory.set_creation_function` and :meth:`~factory.Factory.set_building_function`
+      are now deprecated
+    - The :attr:`~factory.Factory.ABSTRACT_FACTORY` attribute has been renamed to
+      :attr:`~factory.Factory.FACTORY_ABSTRACT`.
+    - Implicit associated class discovery is no longer supported, you must set the :attr:`~factory.Factory.FACTORY_FOR`
+      attribute on all :class:`~factory.Factory` subclasses
 
 1.1.5 (09/07/2012)
 ------------------
@@ -99,7 +113,7 @@ ChangeLog
   - Allow custom build functions
   - Introduce :data:`~factory.MOGO_BUILD` build function
   - Add support for inheriting from multiple :class:`~factory.Factory`
-  - Base :class:`~factory.Factory` classes can now be declared :attr:`abstract <factory.Factory.ABSTRACT_FACTORY`.
+  - Base :class:`~factory.Factory` classes can now be declared :attr:`abstract <factory.Factory.ABSTRACT_FACTORY>`.
   - Provide :class:`~factory.DjangoModelFactory`, whose :class:`~factory.Sequence` counter starts at the next free database id
   - Introduce :class:`~factory.SelfAttribute`, a shortcut for ``factory.LazyAttribute(lambda o: o.foo.bar.baz``.
 
