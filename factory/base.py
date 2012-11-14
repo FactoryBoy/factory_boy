@@ -570,6 +570,11 @@ class Factory(BaseFactory):
             return building_function[0]
 
     @classmethod
+    def _adjust_kwargs(cls, **kwargs):
+        """Extension point for custom kwargs adjustment."""
+        return kwargs
+
+    @classmethod
     def _prepare(cls, create, **kwargs):
         """Prepare an object for this factory.
 
@@ -578,6 +583,7 @@ class Factory(BaseFactory):
             **kwargs: arguments to pass to the creation function
         """
         target_class = getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)
+        kwargs = cls._adjust_kwargs(**kwargs)
 
         # Extract *args from **kwargs
         args = tuple(kwargs.pop(key) for key in cls.FACTORY_ARG_PARAMETERS)

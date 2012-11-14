@@ -741,6 +741,28 @@ class NonKwargParametersTestCase(unittest.TestCase):
         self.assertEqual({'three': 3}, obj.kwargs)
 
 
+class KwargAdjustTestCase(unittest.TestCase):
+    """Tests for the _adjust_kwargs method."""
+
+    def test_build(self):
+        class TestObject(object):
+            def __init__(self, *args, **kwargs):
+                self.args = args
+                self.kwargs = kwargs
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
+            @classmethod
+            def _adjust_kwargs(cls, **kwargs):
+                kwargs['foo'] = len(kwargs)
+                return kwargs
+
+        obj = TestObjectFactory.build(x=1, y=2, z=3)
+        self.assertEqual({'x': 1, 'y': 2, 'z': 3, 'foo': 3}, obj.kwargs)
+        self.assertEqual((), obj.args)
+
+
 class SubFactoryTestCase(unittest.TestCase):
     def testSubFactory(self):
         class TestModel2(FakeModel):
