@@ -4,32 +4,39 @@ factory_boy
 .. image:: https://secure.travis-ci.org/rbarrois/factory_boy.png?branch=master
     :target: http://travis-ci.org/rbarrois/factory_boy/
 
-factory_boy is a fixtures replacement based on thoughtbot's `factory_girl <http://github.com/thoughtbot/factory_girl>`_ . Like factory_girl it has a straightforward definition syntax, support for multiple build strategies (saved instances, unsaved instances, attribute dicts, and stubbed objects), and support for multiple factories for the same class, including factory inheritance. Django support is included, and support for other ORMs can be easily added.
+factory_boy is a fixtures replacement based on thoughtbot's `factory_girl <http://github.com/thoughtbot/factory_girl>`_.
+
+Its features include:
+
+- Straightforward syntax
+- Support for multiple build strategies (saved/unsaved instances, attribute dicts, stubbed objects)
+- Powerful helpers for common cases (sequences, sub-factories, reverse dependencies, circular factories, ...)
+- Multiple factories per class support, including inheritance
+- Support for various ORMs (currently Django, Mogo)
 
 The official repository is at http://github.com/rbarrois/factory_boy; the documentation at http://readthedocs.org/docs/factoryboy/.
 
-Credits
--------
+factory_boy supports Python 2.6 and 2.7 (Python 3 is in the works), and requires only the standard Python library.
 
-This README parallels the factory_girl README as much as possible; text and examples are reproduced for comparison purposes. Ruby users of factory_girl should feel right at home with factory_boy in Python.
-
-factory_boy was originally written by Mark Sandstrom, and improved by Raphaël Barrois.
-
-Thank you Joe Ferris and thoughtbot for creating factory_girl.
 
 Download
 --------
 
 Github: http://github.com/rbarrois/factory_boy/
 
-PyPI::
+PyPI:
 
-    pip install factory_boy
+.. code-block:: sh
 
-Source::
+    $ pip install factory_boy
 
-    # Download the source and run
-    python setup.py install
+Source:
+
+.. code-block:: sh
+
+    $ git clone git://github.com/rbarrois/factory_boy/
+    $ python setup.py install
+
 
 Defining factories
 ------------------
@@ -56,6 +63,7 @@ Factories declare a set of attributes used to instantiate an object. The class o
         last_name = 'User'
         admin = True
 
+
 Using factories
 ---------------
 
@@ -72,8 +80,6 @@ factory_boy supports several different build strategies: build, create, attribut
     # Returns a dict of attributes that can be used to build a User instance
     attributes = UserFactory.attributes()
 
-    # Returns an object with all defined attributes stubbed out:
-    stub = UserFactory.stub()
 
 You can use the Factory class as a shortcut for the default build strategy:
 
@@ -82,28 +88,16 @@ You can use the Factory class as a shortcut for the default build strategy:
     # Same as UserFactory.create()
     user = UserFactory()
 
-The default strategy can be overridden:
-
-.. code-block:: python
-
-    UserFactory.default_strategy = factory.BUILD_STRATEGY
-    user = UserFactory()
-
-The default strategy can also be overridden for all factories:
-
-.. code-block:: python
-
-    # This will set the default strategy for all factories that don't define a default build strategy
-    factory.Factory.default_strategy = factory.BUILD_STRATEGY
 
 No matter which strategy is used, it's possible to override the defined attributes by passing keyword arguments:
 
-.. code-block:: python
+.. code-block:: pycon
 
     # Build a User instance and override first_name
-    user = UserFactory.build(first_name='Joe')
-    user.first_name
-    # => 'Joe'
+    >>> user = UserFactory.build(first_name='Joe')
+    >>> user.first_name
+    "Joe"
+
 
 Lazy Attributes
 ---------------
@@ -117,8 +111,11 @@ Most factory attributes can be added using static values that are evaluated when
         last_name = 'Blow'
         email = factory.LazyAttribute(lambda a: '{0}.{1}@example.com'.format(a.first_name, a.last_name).lower())
 
-    UserFactory().email
-    # => 'joe.blow@example.com'
+.. code-block:: pycon
+
+    >>> UserFactory().email
+    "joe.blow@example.com"
+
 
 The function passed to ``LazyAttribute`` is given the attributes defined for the factory up to the point of the LazyAttribute declaration. If a lambda won't cut it, the ``lazy_attribute`` decorator can be used to wrap a function:
 
@@ -134,19 +131,22 @@ The function passed to ``LazyAttribute`` is given the attributes defined for the
             result = a.lhs + a.rhs  # Or some other fancy calculation
             return result
 
+
 Associations
 ------------
 
-Associated instances can also be generated using ``LazyAttribute``:
+Associated instances can also be generated using ``SubFactory``:
 
 .. code-block:: python
 
     from models import Post
 
     class PostFactory(factory.Factory):
-        author = factory.LazyAttribute(lambda a: UserFactory())
+        author = factory.SubFactory(UserFactory)
 
-The associated object's default strategy is always used:
+
+The associated object's strategy will be used:
+
 
 .. code-block:: python
 
@@ -155,10 +155,11 @@ The associated object's default strategy is always used:
     post.id == None           # => False
     post.author.id == None    # => False
 
-    # Builds and saves a User, and then builds but does not save a Post
+    # Builds but does not save a User, and then builds but does not save a Post
     post = PostFactory.build()
     post.id == None           # => True
-    post.author.id == None    # => False
+    post.author.id == None    # => True
+
 
 Inheritance
 -----------
@@ -172,7 +173,8 @@ You can easily create multiple factories for the same class without repeating co
 
     class ApprovedPost(PostFactory):
         approved = True
-        approver = factory.LazyAttribute(lambda a: UserFactory())
+        approver = factory.SubFactory(UserFactory)
+
 
 Sequences
 ---------
@@ -205,7 +207,7 @@ If you wish to use a custom method to set the initial ID for a sequence, you can
 
         @classmethod
         def _setup_next_sequence(cls):
-            return cls._associated_class.objects.values_list('id').order_by('-id')[0] + 1
+            return cls.FACTORY_FOR.objects.values_list('id').order_by('-id')[0] + 1
 
 Customizing creation
 --------------------
@@ -226,6 +228,8 @@ Factory._prepare method:
                 if create:
                     user.save()
             return user
+
+.. OHAI VIM**
 
 Subfactories
 ------------
@@ -258,17 +262,55 @@ Abstract factories
 ------------------
 
 If a ``Factory`` simply defines generic attribute declarations without being bound to a given class,
-it should be marked 'abstract' by declaring ``ABSTRACT_FACTORY = True``.
+it should be marked 'abstract' by declaring ``FACTORY_ABSTRACT = True``.
 Such factories cannot be built/created/....
 
 .. code-block:: python
 
     class AbstractFactory(factory.Factory):
-        ABSTRACT_FACTORY = True
+        FACTORY_ABSTRACT = True
         foo = 'foo'
 
     >>> AbstractFactory()
     Traceback (most recent call last):
       ...
     AttributeError: type object 'AbstractFactory' has no attribute '_associated_class'
+
+
+Contributing
+============
+
+factory_boy is distributed under the MIT License.
+
+Issues should be opened through `GitHub Issues <http://github.com/rbarrois/factory_boy/issues/>`_; whenever possible, a pull request should be included.
+
+All pull request should pass the test suite, which can be launched simply with:
+
+.. code-block:: sh
+
+    $ python setup.py test
+
+
+In order to test coverage, please use:
+
+.. code-block:: sh
+
+    $ pip install coverage
+    $ coverage erase; coverage run --branch setup.py test; coverage report
+
+
+Contents, indices and tables
+============================
+
+.. toctree::
+    :maxdepth: 2
+
+    examples
+    subfactory
+    post_generation
+    changelog
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
 
