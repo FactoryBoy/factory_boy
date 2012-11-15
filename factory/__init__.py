@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 
 __version__ = '1.2.0'
-__author__ = 'Raphaël Barrois <raphael.barrois@polytechnique.org>'
+__author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
 
 from .base import (
     Factory,
