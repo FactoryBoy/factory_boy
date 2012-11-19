@@ -654,10 +654,10 @@ class DjangoModelFactory(Factory):
 
     @classmethod
     def _setup_next_sequence(cls):
-        """Compute the next available ID, based on the 'id' database field."""
+        """Compute the next available PK, based on the 'pk' database field."""
         try:
-            return 1 + cls._associated_class._default_manager.values_list('id', flat=True
-                ).order_by('-id')[0]
+            return 1 + cls._associated_class._default_manager.values_list('pk', flat=True
+                ).order_by('-pk')[0]
         except IndexError:
             return 1
 
