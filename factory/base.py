@@ -661,6 +661,7 @@ class DjangoModelFactory(Factory):
         except IndexError:
             return 1
 
+    @classmethod
     def _create(cls, target_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
         return target_class._default_manager.create(*args, **kwargs)
@@ -670,6 +671,7 @@ class MogoFactory(Factory):
     """Factory for mogo objects."""
     FACTORY_ABSTRACT = True
 
+    @classmethod
     def _build(cls, target_class, *args, **kwargs):
         return target_class.new(*args, **kwargs)
 
