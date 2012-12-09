@@ -21,7 +21,7 @@ ChangeLog
     - Remove :meth:`~factory.Factory.set_building_function` / :meth:`~factory.Factory.set_creation_function`
 
 
-1.2.0 (current)
+1.3.0 (current)
 ---------------
 
 *New:*
@@ -43,6 +43,13 @@ The following features have been deprecated and will be removed in an upcoming r
       :attr:`~factory.Factory.FACTORY_ABSTRACT`.
     - Implicit associated class discovery is no longer supported, you must set the :attr:`~factory.Factory.FACTORY_FOR`
       attribute on all :class:`~factory.Factory` subclasses
+
+1.2.0 (09/08/2012)
+------------------
+
+*New:*
+
+    - Add :class:`~factory.CircularSubFactory` to solve circular dependencies between factories
 
 1.1.5 (09/07/2012)
 ------------------

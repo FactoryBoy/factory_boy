@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__version__ = '1.2.0'
+__version__ = '1.3.0-dev'
 __author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
 
 from .base import (
