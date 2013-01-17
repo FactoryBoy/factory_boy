@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 
+import collections
 import itertools
 import warnings
 
@@ -498,10 +499,17 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
         self.method_kwargs = kwargs
 
     def call(self, obj, create, extracted=None, **kwargs):
+        if extracted is not None:
+            passed_args = extracted
+            if isinstance(passed_args, basestring) or (
+                    not isinstance(passed_args, collections.Iterable)):
+                passed_args = (passed_args,)
+        else:
+            passed_args = self.method_args
         passed_kwargs = dict(self.method_kwargs)
         passed_kwargs.update(kwargs)
         method = getattr(obj, self.method_name)
-        method(*self.method_args, **passed_kwargs)
+        method(*passed_args, **passed_kwargs)
 
 
 # Decorators... in case lambdas don't cut it
