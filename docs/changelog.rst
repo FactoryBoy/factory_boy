@@ -32,6 +32,12 @@ ChangeLog
     - Enhance :class:`~factory.SelfAttribute` to handle "container" attribute fetching
     - Keep the :attr:`~factory.Factory.FACTORY_FOR` attribute in :class:`~factory.Factory` classes
     - Provide a dedicated :class:`~factory.MogoFactory` subclass of :class:`~factory.Factory`
+    - Allows overriding default arguments in
+      :class:`~factory.PostGenerationMethodCall` when creating a new
+      instance of a factory.
+    - Add :class:`~factory.DjangoPostGenerationMethodCall` that
+      automatically saves the object to the database after calling the
+      specified object's method during post-generation.
 
 *Pending deprecation:*
 
