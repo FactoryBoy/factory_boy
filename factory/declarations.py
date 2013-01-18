@@ -454,6 +454,27 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
         method(*passed_args, **passed_kwargs)
 
 
+class DjangoPostGenerationMethodCall(PostGenerationMethodCall):
+    """Similar to PostGenerationMethodCall, but calls the save method on
+    the object if create is True.
+
+    Attributes:
+        method_name (str): the method to call
+        method_args (list): arguments to pass to the method
+        method_kwargs (dict): keyword arguments to pass to the method
+
+    Example:
+        class UserFactory(factory.Factory):
+            ...
+            password = factory.DjangoPostGenerationMethodCall(
+                    'set_password', None, 'defaultpassword')
+    """
+    def call(self, obj, create, extracted=None, **kwargs):
+        super(DjangoPostGenerationMethodCall, self).call(
+                obj, create, extracted=None, **kwargs)
+        if create:
+            obj.save()
+
 # Decorators... in case lambdas don't cut it
 
 def lazy_attribute(func):

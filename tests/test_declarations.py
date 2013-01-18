@@ -150,6 +150,13 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
         self.obj.method.assert_called_once_with(data='other')
 
 
+class DjangoPostGenerationMethodCallTestCase(
+        PostGenerationMethodCallTestCase):
+    def test_save_is_called(self):
+        decl = declarations.DjangoPostGenerationMethodCall(
+                'method')
+        decl.call(self.obj, True)
+        self.obj.save.assert_called_once_with()
 
 
 class CircularSubFactoryTestCase(unittest.TestCase):
