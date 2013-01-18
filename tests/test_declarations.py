@@ -24,11 +24,9 @@ import datetime
 import itertools
 import warnings
 
-from mock import MagicMock
-
 from factory import declarations
 
-from .compat import unittest
+from .compat import mock, unittest
 from . import tools
 
 
@@ -299,7 +297,7 @@ class RelatedFactoryTestCase(unittest.TestCase):
 
 class PostGenerationMethodCallTestCase(unittest.TestCase):
     def setUp(self):
-        self.obj = MagicMock()
+        self.obj = mock.MagicMock()
 
     def test_simplest_setup_and_call(self):
         decl = declarations.PostGenerationMethodCall('method')
