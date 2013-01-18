@@ -136,8 +136,8 @@ as an argument to :py:class:`DjangoPostGenerationMethodCall`. ::
 With this new ``PasswordSavingUserFactory`` class, we don't have to
 remember to save back to the database during ``create()``. ::
 
-    >>> u = UserFactory.build()   # nothing will be saved to the database as usual
-    >>> other_u = UserFactory.create()  # no need to call other_u.save() after; the password has already been committed to the DB
+    >>> u = PasswordSavingUserFactory.build()   # nothing will be saved to the database as usual
+    >>> other_u = PasswordSavingUserFactory.create()  # no need to call other_u.save() after; the password has already been committed to the DB
 
 RelatedFactory
 --------------
