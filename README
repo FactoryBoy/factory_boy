@@ -23,15 +23,12 @@ Download
 --------
 
 PyPI: http://pypi.python.org/pypi/factory_boy/
-Github: http://github.com/rbarrois/factory_boy/
-
-PyPI:
 
 .. code-block:: sh
 
     $ pip install factory_boy
 
-Source:
+Source: http://github.com/rbarrois/factory_boy/
 
 .. code-block:: sh
 
