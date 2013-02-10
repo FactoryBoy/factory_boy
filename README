@@ -22,6 +22,7 @@ factory_boy supports Python 2.6 and 2.7 (Python 3 is in the works), and requires
 Download
 --------
 
+PyPI: http://pypi.python.org/pypi/factory_boy/
 Github: http://github.com/rbarrois/factory_boy/
 
 PyPI:
@@ -46,10 +47,10 @@ Factories declare a set of attributes used to instantiate an object. The class o
 .. code-block:: python
 
     import factory
-    from models import User
+    from . import models
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
+        FACTORY_FOR = models.User
 
         first_name = 'John'
         last_name = 'Doe'
@@ -57,7 +58,7 @@ Factories declare a set of attributes used to instantiate an object. The class o
 
     # Another, different, factory for the same object
     class AdminFactory(factory.Factory):
-        FACTORY_FOR = User
+        FACTORY_FOR = models.User
 
         first_name = 'Admin'
         last_name = 'User'
@@ -107,6 +108,7 @@ Most factory attributes can be added using static values that are evaluated when
 .. code-block:: python
 
     class UserFactory(factory.Factory):
+        FACTORY_FOR = models.User
         first_name = 'Joe'
         last_name = 'Blow'
         email = factory.LazyAttribute(lambda a: '{0}.{1}@example.com'.format(a.first_name, a.last_name).lower())
@@ -139,9 +141,8 @@ Associated instances can also be generated using ``SubFactory``:
 
 .. code-block:: python
 
-    from models import Post
-
     class PostFactory(factory.Factory):
+        FACTORY_FOR = models.Post
         author = factory.SubFactory(UserFactory)
 
 
@@ -151,14 +152,18 @@ The associated object's strategy will be used:
 .. code-block:: python
 
     # Builds and saves a User and a Post
-    post = PostFactory()
-    post.id == None           # => False
-    post.author.id == None    # => False
+    >>> post = PostFactory()
+    >>> post.id is None  # Post has been 'saved'
+    False
+    >>> post.author.id is None  # post.author has been saved
+    False
 
     # Builds but does not save a User, and then builds but does not save a Post
-    post = PostFactory.build()
-    post.id == None           # => True
-    post.author.id == None    # => True
+    >>> post = PostFactory.build()
+    >>> post.id is None
+    True
+    >>> post.author.id is None
+    True
 
 
 Inheritance
@@ -169,9 +174,11 @@ You can easily create multiple factories for the same class without repeating co
 .. code-block:: python
 
     class PostFactory(factory.Factory):
+        FACTORY_FOR = models.Post
         title = 'A title'
 
     class ApprovedPost(PostFactory):
+        # No need to replicate the FACTORY_FOR attribute
         approved = True
         approver = factory.SubFactory(UserFactory)
 
@@ -184,30 +191,38 @@ Unique values in a specific format (for example, e-mail addresses) can be genera
 .. code-block:: python
 
     class UserFactory(factory.Factory):
+        FACTORY_FOR = models.User
         email = factory.Sequence(lambda n: 'person{0}@example.com'.format(n))
 
-    UserFactory().email  # => 'person0@example.com'
-    UserFactory().email  # => 'person1@example.com'
+    >>> UserFactory().email
+    'person0@example.com'
+    >>> UserFactory().email
+    'person1@example.com'
 
 Sequences can be combined with lazy attributes:
 
 .. code-block:: python
 
     class UserFactory(factory.Factory):
+        FACTORY_FOR = models.User
+
         name = 'Mark'
         email = factory.LazyAttributeSequence(lambda a, n: '{0}+{1}@example.com'.format(a.name, n).lower())
 
-    UserFactory().email  # => mark+0@example.com
+    >>> UserFactory().email
+    'mark+0@example.com'
 
 If you wish to use a custom method to set the initial ID for a sequence, you can override the ``_setup_next_sequence`` class method:
 
 .. code-block:: python
 
     class MyFactory(factory.Factory):
+        FACTORY_FOR = MyClass
 
         @classmethod
         def _setup_next_sequence(cls):
             return cls.FACTORY_FOR.objects.values_list('id').order_by('-id')[0] + 1
+
 
 Customizing creation
 --------------------
@@ -231,6 +246,7 @@ Factory._prepare method:
 
 .. OHAI VIM**
 
+
 Subfactories
 ------------
 
@@ -240,10 +256,12 @@ the global factory, using a simple syntax : ``field__attr=42`` will set the attr
 .. code-block:: python
 
     class InnerFactory(factory.Factory):
+        FACTORY_FOR = InnerClass
         foo = 'foo'
         bar = factory.LazyAttribute(lambda o: foo * 2)
 
     class ExternalFactory(factory.Factory):
+        FACTORY_FOR = OuterClass
         inner = factory.SubFactory(InnerFactory, foo='bar')
 
     >>> e = ExternalFactory()
