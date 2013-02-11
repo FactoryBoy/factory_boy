@@ -36,8 +36,16 @@ Source: http://github.com/rbarrois/factory_boy/
     $ python setup.py install
 
 
+Usage
+-----
+
+
+.. note:: This section provides a quick summary of factory_boy features.
+          A more detailed listing is available in the full documentation.
+
+
 Defining factories
-------------------
+""""""""""""""""""
 
 Factories declare a set of attributes used to instantiate an object. The class of the object must be defined in the FACTORY_FOR attribute:
 
@@ -63,7 +71,7 @@ Factories declare a set of attributes used to instantiate an object. The class o
 
 
 Using factories
----------------
+"""""""""""""""
 
 factory_boy supports several different build strategies: build, create, attributes and stub:
 
@@ -98,9 +106,13 @@ No matter which strategy is used, it's possible to override the defined attribut
 
 
 Lazy Attributes
----------------
+"""""""""""""""
 
-Most factory attributes can be added using static values that are evaluated when the factory is defined, but some attributes (such as associations and other attributes that must be dynamically generated) will need values assigned each time an instance is generated. These "lazy" attributes can be added as follows:
+Most factory attributes can be added using static values that are evaluated when the factory is defined,
+but some attributes (such as fields whose value is computed from other elements)
+will need values assigned each time an instance is generated.
+
+These "lazy" attributes can be added as follows:
 
 .. code-block:: python
 
@@ -116,25 +128,28 @@ Most factory attributes can be added using static values that are evaluated when
     "joe.blow@example.com"
 
 
-The function passed to ``LazyAttribute`` is given the attributes defined for the factory up to the point of the LazyAttribute declaration. If a lambda won't cut it, the ``lazy_attribute`` decorator can be used to wrap a function:
+Sequences
+"""""""""
+
+Unique values in a specific format (for example, e-mail addresses) can be generated using sequences. Sequences are defined by using ``Sequence`` or the decorator ``sequence``:
 
 .. code-block:: python
 
-    # Stub factories don't have an associated class.
-    class SumFactory(factory.StubFactory):
-        lhs = 1
-        rhs = 1
+    class UserFactory(factory.Factory):
+        FACTORY_FOR = models.User
+        email = factory.Sequence(lambda n: 'person{0}@example.com'.format(n))
 
-        @lazy_attribute
-        def sum(a):
-            result = a.lhs + a.rhs  # Or some other fancy calculation
-            return result
+    >>> UserFactory().email
+    'person0@example.com'
+    >>> UserFactory().email
+    'person1@example.com'
 
 
 Associations
-------------
+""""""""""""
 
-Associated instances can also be generated using ``SubFactory``:
+Some objects have a complex field, that should itself be defined from a dedicated factories.
+This is handled by the ``SubFactory`` helper:
 
 .. code-block:: python
 
@@ -163,137 +178,8 @@ The associated object's strategy will be used:
     True
 
 
-Inheritance
------------
-
-You can easily create multiple factories for the same class without repeating common attributes by using inheritance:
-
-.. code-block:: python
-
-    class PostFactory(factory.Factory):
-        FACTORY_FOR = models.Post
-        title = 'A title'
-
-    class ApprovedPost(PostFactory):
-        # No need to replicate the FACTORY_FOR attribute
-        approved = True
-        approver = factory.SubFactory(UserFactory)
-
-
-Sequences
----------
-
-Unique values in a specific format (for example, e-mail addresses) can be generated using sequences. Sequences are defined by using ``Sequence`` or the decorator ``sequence``:
-
-.. code-block:: python
-
-    class UserFactory(factory.Factory):
-        FACTORY_FOR = models.User
-        email = factory.Sequence(lambda n: 'person{0}@example.com'.format(n))
-
-    >>> UserFactory().email
-    'person0@example.com'
-    >>> UserFactory().email
-    'person1@example.com'
-
-Sequences can be combined with lazy attributes:
-
-.. code-block:: python
-
-    class UserFactory(factory.Factory):
-        FACTORY_FOR = models.User
-
-        name = 'Mark'
-        email = factory.LazyAttributeSequence(lambda a, n: '{0}+{1}@example.com'.format(a.name, n).lower())
-
-    >>> UserFactory().email
-    'mark+0@example.com'
-
-If you wish to use a custom method to set the initial ID for a sequence, you can override the ``_setup_next_sequence`` class method:
-
-.. code-block:: python
-
-    class MyFactory(factory.Factory):
-        FACTORY_FOR = MyClass
-
-        @classmethod
-        def _setup_next_sequence(cls):
-            return cls.FACTORY_FOR.objects.values_list('id').order_by('-id')[0] + 1
-
-
-Customizing creation
---------------------
-
-Sometimes, the default build/create by keyword arguments doesn't allow for enough
-customization of the generated objects. In such cases, you should override the
-Factory._prepare method:
-
-.. code-block:: python
-
-    class UserFactory(factory.Factory):
-        @classmethod
-        def _prepare(cls, create, **kwargs):
-            password = kwargs.pop('password', None)
-            user = super(UserFactory, cls)._prepare(create, **kwargs)
-            if password:
-                user.set_password(password)
-                if create:
-                    user.save()
-            return user
-
-.. OHAI VIM**
-
-
-Subfactories
-------------
-
-If one of your factories has a field which is another factory, you can declare it as a ``SubFactory``. This allows to define attributes of that field when calling
-the global factory, using a simple syntax : ``field__attr=42`` will set the attribute ``attr`` of the ``SubFactory`` defined in ``field`` to 42:
-
-.. code-block:: python
-
-    class InnerFactory(factory.Factory):
-        FACTORY_FOR = InnerClass
-        foo = 'foo'
-        bar = factory.LazyAttribute(lambda o: foo * 2)
-
-    class ExternalFactory(factory.Factory):
-        FACTORY_FOR = OuterClass
-        inner = factory.SubFactory(InnerFactory, foo='bar')
-
-    >>> e = ExternalFactory()
-    >>> e.foo
-    'bar'
-    >>> e.bar
-    'barbar'
-
-    >>> e2 : ExternalFactory(inner__bar='baz')
-    >>> e2.foo
-    'bar'
-    >>> e2.bar
-    'baz'
-
-Abstract factories
-------------------
-
-If a ``Factory`` simply defines generic attribute declarations without being bound to a given class,
-it should be marked 'abstract' by declaring ``FACTORY_ABSTRACT = True``.
-Such factories cannot be built/created/....
-
-.. code-block:: python
-
-    class AbstractFactory(factory.Factory):
-        FACTORY_ABSTRACT = True
-        foo = 'foo'
-
-    >>> AbstractFactory()
-    Traceback (most recent call last):
-      ...
-    AttributeError: type object 'AbstractFactory' has no attribute '_associated_class'
-
-
 Contributing
-============
+------------
 
 factory_boy is distributed under the MIT License.
 
@@ -315,15 +201,19 @@ In order to test coverage, please use:
 
 
 Contents, indices and tables
-============================
+----------------------------
 
 .. toctree::
     :maxdepth: 2
 
+    introduction
+    reference
+    orms
+    recipes
     examples
-    subfactory
-    post_generation
+    internals
     changelog
+    ideas
 
 * :ref:`genindex`
 * :ref:`modindex`

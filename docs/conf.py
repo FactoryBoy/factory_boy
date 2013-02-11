@@ -42,7 +42,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Factory Boy'
-copyright = u'2011, Raphaël Barrois, Mark Sandstrom'
+copyright = u'2011-2013, Raphaël Barrois, Mark Sandstrom'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -231,4 +231,10 @@ man_pages = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/': None}
+intersphinx_mapping = {
+    'http://docs.python.org/': None,
+    'django': (
+        'http://docs.djangoproject.com/en/dev/',
+        'http://docs.djangoproject.com/en/dev/_objects/',
+    ),
+}

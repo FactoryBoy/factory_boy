@@ -157,4 +157,11 @@ The following features have been deprecated and will be removed in an upcoming r
   - First version of factory_boy
 
 
+Credits
+-------
+
+* Initial version by Mark Sandstrom (2010)
+* Developed by Raphaël Barrois since 2011
+
+
 .. vim:et:ts=4:sw=4:tw=119:ft=rst:
