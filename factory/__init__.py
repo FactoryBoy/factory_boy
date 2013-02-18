@@ -53,6 +53,7 @@ from .base import (
 
 from .declarations import (
     LazyAttribute,
+    FuzzyAttribute,
     Iterator,
     InfiniteIterator,
     Sequence,

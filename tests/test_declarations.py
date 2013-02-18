@@ -134,5 +134,19 @@ class CircularSubFactoryTestCase(unittest.TestCase):
             # IMPORTANT: restore attribute.
             datetime.date = orig_date
 
+
+class FuzzyAttributeTestCase(unittest.TestCase):
+    def test_lookup_by_name(self):
+        choices = ('Bill', 'Jim', 'Tom',)
+        f = declarations.FuzzyAttribute('choice', choices)
+        self.assertIn(f.evaluate(0, None), choices)
+
+    def test_pass_in_callable(self):
+        import random
+        value_range = (1, 10,)
+        f = declarations.FuzzyAttribute(random.randint, *value_range)
+        self.assertIn(f.evaluate(0, None), range(11))
+
+
 if __name__ == '__main__':
     unittest.main()
