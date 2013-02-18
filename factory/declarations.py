@@ -64,6 +64,23 @@ class LazyAttribute(OrderedDeclaration):
         return self.function(obj)
 
 
+class FuzzyAttribute(OrderedDeclaration):
+    """Class used to generate randomized values for fuzz testing.
+    """
+
+    def __init__(self, func, *args, **kwargs):
+        if callable(func):
+            self._func = func
+        else:
+            import random
+            self._func = getattr(random, func)
+        self._args = args
+        self._kwargs = kwargs
+
+    def evaluate(self, sequence, obj, containers=()):
+        return self._func(*self._args, **self._kwargs)
+
+
 class _UNSPECIFIED(object):
     pass
 
