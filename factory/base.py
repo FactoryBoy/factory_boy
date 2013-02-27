@@ -20,9 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import with_statement
+
 import re
 import sys
 import warnings
+from functools import wraps
 
 from factory import containers
 
@@ -745,3 +748,26 @@ def use_strategy(new_strategy):
         klass.default_strategy = new_strategy
         return klass
     return wrapped_class
+
+
+class override_strategy(object):
+    """
+    Temporarily overrides the default_strategy for initializing
+    factories. Acts as either a decorator or a context manager.
+    """
+    def __init__(self, strategy):
+        self.strategy = strategy
+
+    def __call__(self, func):
+        @wraps(func)
+        def wrap(*args, **kwargs):
+            with self:
+                return func(*args, **kwargs)
+        return wrap
+
+    def __enter__(self):
+        self._original_strategy = Factory.default_strategy
+        Factory.default_strategy = self.strategy
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        Factory.default_strategy = self._original_strategy

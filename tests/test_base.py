@@ -181,6 +181,24 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
         self.assertEqual(base.CREATE_STRATEGY, TestModelFactory.default_strategy)
 
+    def test_override_strategy_context_manager(self):
+        before = base.Factory.default_strategy
+
+        with base.override_strategy(base.BUILD_STRATEGY):
+            self.assertEqual(base.BUILD_STRATEGY, base.Factory.default_strategy)
+
+        self.assertEqual(before, base.Factory.default_strategy)
+
+    def test_override_strategy_decorator(self):
+        before = base.Factory.default_strategy
+
+        @base.override_strategy(base.BUILD_STRATEGY)
+        def inner_test():
+            self.assertEqual(base.BUILD_STRATEGY, base.Factory.default_strategy)
+        inner_test()
+
+        self.assertEqual(before, base.Factory.default_strategy)
+
 
 class FactoryCreationTestCase(unittest.TestCase):
     def testFactoryFor(self):
