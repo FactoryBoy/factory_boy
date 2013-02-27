@@ -249,6 +249,16 @@ class UsingFactoryTestCase(unittest.TestCase):
         test_object = TestObjectFactory.build()
         self.assertEqual(test_object.one, 'one')
 
+    def test_inheritance(self):
+        @factory.use_strategy(factory.BUILD_STRATEGY)
+        class TestObjectFactory(factory.Factory, TestObject):
+            FACTORY_FOR = TestObject
+
+            one = 'one'
+
+        test_object = TestObjectFactory()
+        self.assertEqual(test_object.one, 'one')
+
     def test_abstract(self):
         class SomeAbstractFactory(factory.Factory):
             FACTORY_ABSTRACT = True
