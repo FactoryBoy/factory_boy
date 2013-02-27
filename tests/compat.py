@@ -29,3 +29,9 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest
+
+if is_python2:
+    import mock
+else:
+    from unittest import mock
+

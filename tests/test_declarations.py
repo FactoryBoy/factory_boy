@@ -24,7 +24,7 @@ import datetime
 
 from factory import declarations
 
-from .compat import unittest
+from .compat import mock, unittest
 
 class OrderedDeclarationTestCase(unittest.TestCase):
     def test_errors(self):
@@ -103,6 +103,58 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
             {'foo': 13, 'foo__bar': 42, 'blah': 42, 'blah__baz': 1})
         self.assertEqual(extracted, 42)
         self.assertEqual(kwargs, {'baz': 1})
+
+
+class PostGenerationMethodCallTestCase(unittest.TestCase):
+    def setUp(self):
+        self.obj = mock.MagicMock()
+
+    def test_simplest_setup_and_call(self):
+        decl = declarations.PostGenerationMethodCall('method')
+        decl.call(self.obj, False)
+        self.obj.method.assert_called_once_with()
+
+    def test_call_with_method_args(self):
+        decl = declarations.PostGenerationMethodCall(
+                'method', None, 'data')
+        decl.call(self.obj, False)
+        self.obj.method.assert_called_once_with('data')
+
+    def test_call_with_passed_extracted_string(self):
+        decl = declarations.PostGenerationMethodCall(
+                'method', None)
+        decl.call(self.obj, False, 'data')
+        self.obj.method.assert_called_once_with('data')
+
+    def test_call_with_passed_extracted_int(self):
+        decl = declarations.PostGenerationMethodCall('method')
+        decl.call(self.obj, False, 1)
+        self.obj.method.assert_called_once_with(1)
+
+    def test_call_with_passed_extracted_iterable(self):
+        decl = declarations.PostGenerationMethodCall('method')
+        decl.call(self.obj, False, (1, 2, 3))
+        self.obj.method.assert_called_once_with(1, 2, 3)
+
+    def test_call_with_method_kwargs(self):
+        decl = declarations.PostGenerationMethodCall(
+                'method', None, data='data')
+        decl.call(self.obj, False)
+        self.obj.method.assert_called_once_with(data='data')
+
+    def test_call_with_passed_kwargs(self):
+        decl = declarations.PostGenerationMethodCall('method')
+        decl.call(self.obj, False, data='other')
+        self.obj.method.assert_called_once_with(data='other')
+
+
+class DjangoPostGenerationMethodCallTestCase(
+        PostGenerationMethodCallTestCase):
+    def test_save_is_called(self):
+        decl = declarations.DjangoPostGenerationMethodCall(
+                'method')
+        decl.call(self.obj, True)
+        self.obj.save.assert_called_once_with()
 
 
 class CircularSubFactoryTestCase(unittest.TestCase):

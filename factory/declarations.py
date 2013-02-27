@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 
+import collections
 import itertools
 
 from factory import utils
@@ -430,7 +431,8 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
     Example:
         class UserFactory(factory.Factory):
             ...
-            password = factory.PostGenerationMethodCall('set_password', password='')
+            password = factory.PostGenerationMethodCall(
+                    'set_password', None, 'defaultpassword')
     """
     def __init__(self, method_name, extract_prefix=None, *args, **kwargs):
         super(PostGenerationMethodCall, self).__init__(extract_prefix)
@@ -439,11 +441,39 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
         self.method_kwargs = kwargs
 
     def call(self, obj, create, extracted=None, **kwargs):
+        if extracted is not None:
+            passed_args = extracted
+            if isinstance(passed_args, basestring) or (
+                    not isinstance(passed_args, collections.Iterable)):
+                passed_args = (passed_args,)
+        else:
+            passed_args = self.method_args
         passed_kwargs = dict(self.method_kwargs)
         passed_kwargs.update(kwargs)
         method = getattr(obj, self.method_name)
-        method(*self.method_args, **passed_kwargs)
+        method(*passed_args, **passed_kwargs)
 
+
+class DjangoPostGenerationMethodCall(PostGenerationMethodCall):
+    """Similar to PostGenerationMethodCall, but calls the save method on
+    the object if create is True.
+
+    Attributes:
+        method_name (str): the method to call
+        method_args (list): arguments to pass to the method
+        method_kwargs (dict): keyword arguments to pass to the method
+
+    Example:
+        class UserFactory(factory.Factory):
+            ...
+            password = factory.DjangoPostGenerationMethodCall(
+                    'set_password', None, 'defaultpassword')
+    """
+    def call(self, obj, create, extracted=None, **kwargs):
+        super(DjangoPostGenerationMethodCall, self).call(
+                obj, create, extracted=None, **kwargs)
+        if create:
+            obj.save()
 
 # Decorators... in case lambdas don't cut it
 
