@@ -33,5 +33,5 @@ class BarFactory(factory.Factory):
     FACTORY_FOR = Bar
 
     y = 13
-    foo = factory.CircularSubFactory('cyclic.foo', 'FooFactory')
+    foo = factory.SubFactory('cyclic.foo.FooFactory')
 

@@ -21,10 +21,14 @@
 # THE SOFTWARE.
 
 import datetime
+import itertools
+import warnings
 
 from factory import declarations
 
 from .compat import unittest
+from . import tools
+
 
 class OrderedDeclarationTestCase(unittest.TestCase):
     def test_errors(self):
@@ -88,6 +92,28 @@ class SelfAttributeTestCase(unittest.TestCase):
         self.assertEqual(declarations._UNSPECIFIED, a.default)
 
 
+class IteratorTestCase(unittest.TestCase):
+    def test_cycle(self):
+        it = declarations.Iterator([1, 2])
+        self.assertEqual(1, it.evaluate(0, None))
+        self.assertEqual(2, it.evaluate(1, None))
+        self.assertEqual(1, it.evaluate(2, None))
+        self.assertEqual(2, it.evaluate(3, None))
+
+    def test_no_cycling(self):
+        it = declarations.Iterator([1, 2], cycle=False)
+        self.assertEqual(1, it.evaluate(0, None))
+        self.assertEqual(2, it.evaluate(1, None))
+        self.assertRaises(StopIteration, it.evaluate, 2, None)
+
+    def test_getter(self):
+        it = declarations.Iterator([(1, 2), (1, 3)], getter=lambda p: p[1])
+        self.assertEqual(2, it.evaluate(0, None))
+        self.assertEqual(3, it.evaluate(1, None))
+        self.assertEqual(2, it.evaluate(2, None))
+        self.assertEqual(3, it.evaluate(3, None))
+
+
 class PostGenerationDeclarationTestCase(unittest.TestCase):
     def test_extract_no_prefix(self):
         decl = declarations.PostGenerationDeclaration()
@@ -105,7 +131,51 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
         self.assertEqual(kwargs, {'baz': 1})
 
 
+class SubFactoryTestCase(unittest.TestCase):
+    def test_lazyness(self):
+        f = declarations.SubFactory('factory.declarations.Sequence', x=3)
+        self.assertEqual(None, f.factory)
+
+        self.assertEqual({'x': 3}, f.defaults)
+
+        factory_class = f.get_factory()
+        self.assertEqual(declarations.Sequence, factory_class)
+
+    def test_cache(self):
+        orig_date = datetime.date
+        f = declarations.SubFactory('datetime.date')
+        self.assertEqual(None, f.factory)
+
+        factory_class = f.get_factory()
+        self.assertEqual(orig_date, factory_class)
+
+        try:
+            # Modify original value
+            datetime.date = None
+            # Repeat import
+            factory_class = f.get_factory()
+            self.assertEqual(orig_date, factory_class)
+
+        finally:
+            # IMPORTANT: restore attribute.
+            datetime.date = orig_date
+
+
 class CircularSubFactoryTestCase(unittest.TestCase):
+
+    def test_circularsubfactory_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            __warningregistry__.clear()
+
+            warnings.simplefilter('always')
+            declarations.CircularSubFactory('datetime', 'date')
+
+            self.assertEqual(1, len(w))
+            self.assertIn('CircularSubFactory', str(w[0].message))
+            self.assertIn('deprecated', str(w[0].message))
+
+
+    @tools.disable_warnings
     def test_lazyness(self):
         f = declarations.CircularSubFactory('factory.declarations', 'Sequence', x=3)
         self.assertEqual(None, f.factory)
@@ -115,6 +185,7 @@ class CircularSubFactoryTestCase(unittest.TestCase):
         factory_class = f.get_factory()
         self.assertEqual(declarations.Sequence, factory_class)
 
+    @tools.disable_warnings
     def test_cache(self):
         orig_date = datetime.date
         f = declarations.CircularSubFactory('datetime', 'date')
@@ -133,6 +204,7 @@ class CircularSubFactoryTestCase(unittest.TestCase):
         finally:
             # IMPORTANT: restore attribute.
             datetime.date = orig_date
+
 
 if __name__ == '__main__':
     unittest.main()

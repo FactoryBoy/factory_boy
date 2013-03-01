@@ -22,6 +22,7 @@
 
 
 import itertools
+import warnings
 
 from factory import utils
 
@@ -135,14 +136,23 @@ class Iterator(OrderedDeclaration):
 
     Attributes:
         iterator (iterable): the iterator whose value should be used.
+        getter (callable or None): a function to parse returned values
     """
 
-    def __init__(self, iterator):
+    def __init__(self, iterator, cycle=True, getter=None):
         super(Iterator, self).__init__()
-        self.iterator = iter(iterator)
+        self.getter = getter
+
+        if cycle:
+            self.iterator = itertools.cycle(iterator)
+        else:
+            self.iterator = iter(iterator)
 
     def evaluate(self, sequence, obj, containers=()):
-        return next(self.iterator)
+        value = next(self.iterator)
+        if self.getter is None:
+            return value
+        return self.getter(value)
 
 
 class InfiniteIterator(Iterator):
@@ -153,7 +163,11 @@ class InfiniteIterator(Iterator):
     """
 
     def __init__(self, iterator):
-        return super(InfiniteIterator, self).__init__(itertools.cycle(iterator))
+        warnings.warn(
+            "factory.InfiniteIterator is deprecated, and will be removed in the "
+            "future. Please use factory.Iterator instead.",
+            PendingDeprecationWarning, 2)
+        return super(InfiniteIterator, self).__init__(iterator, cycle=True)
 
 
 class Sequence(OrderedDeclaration):
@@ -289,10 +303,24 @@ class SubFactory(ParameteredAttribute):
 
     def __init__(self, factory, **kwargs):
         super(SubFactory, self).__init__(**kwargs)
-        self.factory = factory
+        if isinstance(factory, type):
+            self.factory = factory
+            self.factory_module = self.factory_name = ''
+        else:
+            # Must be a string
+            if not isinstance(factory, basestring) or '.' not in factory:
+                raise ValueError(
+                        "The argument of a SubFactory must be either a class "
+                        "or the fully qualified path to a Factory class; got "
+                        "%r instead." % factory)
+            self.factory = None
+            self.factory_module, self.factory_name = factory.rsplit('.', 1)
 
     def get_factory(self):
         """Retrieve the wrapped factory.Factory subclass."""
+        if self.factory is None:
+            # Must be a module path
+            self.factory = utils.import_object(self.factory_module, self.factory_name)
         return self.factory
 
     def generate(self, create, params):
@@ -314,22 +342,15 @@ class SubFactory(ParameteredAttribute):
 class CircularSubFactory(SubFactory):
     """Use to solve circular dependencies issues."""
     def __init__(self, module_name, factory_name, **kwargs):
-        super(CircularSubFactory, self).__init__(None, **kwargs)
-        self.module_name = module_name
-        self.factory_name = factory_name
+        factory = '%s.%s' % (module_name, factory_name)
+        warnings.warn(
+            "factory.CircularSubFactory is deprecated and will be removed in "
+            "the future. "
+            "Please replace factory.CircularSubFactory('module', 'symbol') "
+            "with factory.SubFactory('module.symbol').",
+            PendingDeprecationWarning, 2)
 
-    def get_factory(self):
-        """Retrieve the factory.Factory subclass.
-
-        Its value is cached in the 'factory' attribute, and retrieved through
-        the factory_getter callable.
-        """
-        if self.factory is None:
-            factory_class = utils.import_object(
-                self.module_name, self.factory_name)
-
-            self.factory = factory_class
-        return self.factory
+        super(CircularSubFactory, self).__init__(factory, **kwargs)
 
 
 class PostGenerationDeclaration(object):
@@ -456,6 +477,10 @@ def iterator(func):
 
 def infinite_iterator(func):
     """Turn a generator function into an infinite iterator attribute."""
+    warnings.warn(
+        "@factory.infinite_iterator is deprecated and will be removed in the "
+        "future. Please use @factory.iterator instead.",
+        PendingDeprecationWarning, 2)
     return InfiniteIterator(func())
 
 def sequence(func):

@@ -1076,6 +1076,21 @@ class IteratorTestCase(unittest.TestCase):
         for i, obj in enumerate(objs):
             self.assertEqual(i + 10, obj.one)
 
+    def test_infinite_iterator_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            __warningregistry__.clear()
+
+            warnings.simplefilter('always')
+            class TestObjectFactory(factory.Factory):
+                FACTORY_FOR = TestObject
+
+                foo = factory.InfiniteIterator(range(5))
+
+            self.assertEqual(1, len(w))
+            self.assertIn('InfiniteIterator', str(w[0].message))
+            self.assertIn('deprecated', str(w[0].message))
+
+    @disable_warnings
     def test_infinite_iterator(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
@@ -1088,6 +1103,7 @@ class IteratorTestCase(unittest.TestCase):
             self.assertEqual(i % 5, obj.one)
 
     @unittest.skipUnless(is_python2, "Scope bleeding fixed in Python3+")
+    @disable_warnings
     def test_infinite_iterator_list_comprehension_scope_bleeding(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
@@ -1098,6 +1114,7 @@ class IteratorTestCase(unittest.TestCase):
 
         self.assertRaises(TypeError, TestObjectFactory.build)
 
+    @disable_warnings
     def test_infinite_iterator_list_comprehension_protected(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
@@ -1125,6 +1142,23 @@ class IteratorTestCase(unittest.TestCase):
         for i, obj in enumerate(objs):
             self.assertEqual(i + 10, obj.one)
 
+    def test_infinite_iterator_decorator_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            __warningregistry__.clear()
+
+            warnings.simplefilter('always')
+            class TestObjectFactory(factory.Factory):
+                FACTORY_FOR = TestObject
+
+                @factory.infinite_iterator
+                def one():
+                    return range(5)
+
+            self.assertEqual(1, len(w))
+            self.assertIn('infinite_iterator', str(w[0].message))
+            self.assertIn('deprecated', str(w[0].message))
+
+    @disable_warnings
     def test_infinite_iterator_decorator(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject

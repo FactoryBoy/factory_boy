@@ -607,7 +607,9 @@ Circular imports
 
 Some factories may rely on each other in a circular manner.
 This issue can be handled by passing the absolute import path to the target
-:class:`Factory` to the :class:`SubFactory`:
+:class:`Factory` to the :class:`SubFactory`.
+
+.. versionadded:: 1.3.0
 
 .. code-block:: python
 
@@ -631,6 +633,19 @@ Obviously, such circular relationships require careful handling of loops:
     >>> owner = UserFactory(main_group=None)
     >>> UserFactory(main_group__owner=owner)
     <john (group: MyGroup)>
+
+
+.. class:: CircularSubFactory(module_name, symbol_name, **kwargs)
+
+    .. OHAI_VIM**
+
+    Lazily imports ``module_name.symbol_name`` at the first call.
+
+.. deprecated:: 1.3.0
+    Merged into :class:`SubFactory`; will be removed in 2.0.0.
+
+    Replace ``factory.CircularSubFactory('some.module', 'Symbol', **kwargs)``
+    with ``factory.SubFactory('some.module.Symbol', **kwargs)``
 
 
 SelfAttribute
@@ -708,13 +723,12 @@ Iterator
 The :class:`Iterator` declaration takes succesive values from the given
 iterable. When it is exhausted, it starts again from zero (unless ``cycle=False``).
 
-.. note:: Versions prior to 1.3.0 declared both :class:`Iterator` (for ``cycle=False``)
-          and :class:`InfiniteIterator` (for ``cycle=True``).
-
-          :class:`InfiniteIterator` is deprecated as of 1.3.0 and will be removed in 2.0.0
-
 The ``cycle`` argument is only useful for advanced cases, where the provided
 iterable has no end (as wishing to cycle it means storing values in memory...).
+
+.. versionadded:: 1.3.0
+    The ``cycle`` argument is available as of v1.3.0; previous versions
+    had a behaviour equivalent to ``cycle=False``.
 
 Each call to the factory will receive the next value from the iterable:
 
@@ -750,6 +764,8 @@ This is handled by the :attr:`~Iterator.getter` attribute: this is a function
 that accepts as sole parameter a value from the iterable, and returns an
 adequate value.
 
+.. versionadded:: 1.3.0
+
 .. code-block:: python
 
     class UserFactory(factory.Factory):
@@ -757,6 +773,56 @@ adequate value.
 
         # CATEGORY_CHOICES is a list of (key, title) tuples
         category = factory.Iterator(User.CATEGORY_CHOICES, getter=lambda c: c[0])
+
+
+Decorator
+~~~~~~~~~
+
+.. function:: iterator(func)
+
+
+When generating items of the iterator gets too complex for a simple list comprehension,
+use the :func:`iterator` decorator:
+
+.. warning:: The decorated function takes **no** argument,
+             notably no ``self`` parameter.
+
+.. code-block:: python
+
+    class UserFactory(factory.Factory):
+        FACTORY_FOR = User
+
+        @factory.iterator
+        def name():
+            with open('test/data/names.dat', 'r') as f:
+                for line in f:
+                    yield line
+
+
+InfiniteIterator
+~~~~~~~~~~~~~~~~
+
+.. class:: InfiniteIterator(iterable)
+
+    Equivalent to ``factory.Iterator(iterable)``.
+
+.. deprecated:: 1.3.0
+    Merged into :class:`Iterator`; will be removed in v2.0.0.
+
+    Replace ``factory.InfiniteIterator(iterable)``
+    with ``factory.Iterator(iterable)``.
+
+
+.. function:: infinite_iterator(function)
+
+    Equivalent to ``factory.iterator(func)``.
+
+
+.. deprecated:: 1.3.0
+    Merged into :func:`iterator`; will be removed in v2.0.0.
+
+    Replace ``@factory.infinite_iterator`` with ``@factory.iterator``.
+
 
 
 post-building hooks
