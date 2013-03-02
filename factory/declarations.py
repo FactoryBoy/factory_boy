@@ -363,6 +363,11 @@ class PostGenerationDeclaration(object):
     """
 
     def __init__(self, extract_prefix=None):
+        if extract_prefix:
+            warnings.warn(
+                "The extract_prefix argument to PostGeneration declarations "
+                "is deprecated and will be removed in the future.",
+                PendingDeprecationWarning, 3)
         self.extract_prefix = extract_prefix
 
     def extract(self, name, attrs):
@@ -410,10 +415,22 @@ class PostGeneration(PostGenerationDeclaration):
         self.function(obj, create, extracted, **kwargs)
 
 
-def post_generation(extract_prefix=None):
-    def decorator(fun):
-        return PostGeneration(fun, extract_prefix=extract_prefix)
-    return decorator
+def post_generation(*args, **kwargs):
+    assert len(args) + len(kwargs) <= 1, "post_generation takes at most one argument."
+    if args and callable(args[0]):
+        # Called as @post_generation applied to a function
+        return PostGeneration(args[0])
+    else:
+        warnings.warn(
+            "The @post_generation should now be applied directly to the "
+            "function, without parameters. The @post_generation() and "
+            "@post_generation(extract_prefix='xxx') syntaxes are deprecated "
+            "and will be removed in the future; use @post_generation instead.",
+            PendingDeprecationWarning, 2)
+        extract_prefix = kwargs.get('extract_prefix')
+        def decorator(fun):
+            return PostGeneration(fun, extract_prefix=extract_prefix)
+        return decorator
 
 
 class RelatedFactory(PostGenerationDeclaration):

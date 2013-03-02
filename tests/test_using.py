@@ -1173,6 +1173,25 @@ class PostGenerationTestCase(unittest.TestCase):
 
             one = 1
 
+            @factory.post_generation
+            def incr_one(self, _create, _increment):
+                self.one += 1
+
+        obj = TestObjectFactory.build()
+        self.assertEqual(2, obj.one)
+        self.assertFalse(hasattr(obj, 'incr_one'))
+
+        obj = TestObjectFactory.build(one=2)
+        self.assertEqual(3, obj.one)
+        self.assertFalse(hasattr(obj, 'incr_one'))
+
+    @tools.disable_warnings
+    def test_post_generation_calling(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
+            one = 1
+
             @factory.post_generation()
             def incr_one(self, _create, _increment):
                 self.one += 1
@@ -1191,7 +1210,7 @@ class PostGenerationTestCase(unittest.TestCase):
 
             one = 1
 
-            @factory.post_generation()
+            @factory.post_generation
             def incr_one(self, _create, increment=1):
                 self.one += increment
 
