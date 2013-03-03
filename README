@@ -14,7 +14,13 @@ Its features include:
 - Multiple factories per class support, including inheritance
 - Support for various ORMs (currently Django, Mogo)
 
-The official repository is at http://github.com/rbarrois/factory_boy; the documentation at http://readthedocs.org/docs/factoryboy/.
+
+Links
+-----
+
+* Documentation: http://factoryboy.readthedocs.org/
+* Official repository: https://github.com/rbarrois/factory_boy
+* Package: https://pypi.python.org/pypi/factory_boy/
 
 factory_boy supports Python 2.6 and 2.7 (Python 3 is in the works), and requires only the standard Python library.
 
@@ -22,13 +28,13 @@ factory_boy supports Python 2.6 and 2.7 (Python 3 is in the works), and requires
 Download
 --------
 
-PyPI: http://pypi.python.org/pypi/factory_boy/
+PyPI: https://pypi.python.org/pypi/factory_boy/
 
 .. code-block:: sh
 
     $ pip install factory_boy
 
-Source: http://github.com/rbarrois/factory_boy/
+Source: https://github.com/rbarrois/factory_boy/
 
 .. code-block:: sh
 
