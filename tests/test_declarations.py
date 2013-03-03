@@ -227,6 +227,10 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
 
 
 class SubFactoryTestCase(unittest.TestCase):
+
+    def test_arg(self):
+        self.assertRaises(ValueError, declarations.SubFactory, 'UnqualifiedSymbol')
+
     def test_lazyness(self):
         f = declarations.SubFactory('factory.declarations.Sequence', x=3)
         self.assertEqual(None, f.factory)

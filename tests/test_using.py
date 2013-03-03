@@ -296,6 +296,24 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual('one43', test_object1.one)
         self.assertEqual('two43', test_object1.two)
 
+    def test_custom_create(self):
+        class TestModelFactory(factory.Factory):
+            FACTORY_FOR = TestModel
+
+            two = 2
+
+            @classmethod
+            def _create(cls, target_class, *args, **kwargs):
+                obj = target_class.create(**kwargs)
+                obj.properly_created = True
+                return obj
+
+        obj = TestModelFactory.create(one=1)
+        self.assertEqual(1, obj.one)
+        self.assertEqual(2, obj.two)
+        self.assertEqual(1, obj.id)
+        self.assertTrue(obj.properly_created)
+
     def test_sequence_batch(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
@@ -659,6 +677,19 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(2, obj.two)
         self.assertEqual('three', obj.three)
         self.assertEqual('four', obj.four)
+
+    @tools.disable_warnings
+    def test_set_building_function(self):
+        def building_function(class_to_create, **kwargs):
+            return "This doesn't even return an instance of {0}".format(class_to_create.__name__)
+
+        class TestModelFactory(FakeModelFactory):
+            FACTORY_FOR = TestModel
+
+        TestModelFactory.set_building_function(building_function)
+
+        test_object = TestModelFactory.build()
+        self.assertEqual(test_object, "This doesn't even return an instance of TestModel")
 
     @tools.disable_warnings
     def testSetCreationFunction(self):
@@ -1308,6 +1339,50 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(4, obj.related.two)
         # RelatedFactory received "parent" object
         self.assertEqual(obj, obj.related.three)
+
+    def test_related_factory_no_name(self):
+        relateds = []
+        class TestRelatedObject(object):
+            def __init__(self, obj=None, one=None, two=None):
+                relateds.append(self)
+                self.one = one
+                self.two = two
+                self.three = obj
+
+        class TestRelatedObjectFactory(factory.Factory):
+            FACTORY_FOR = TestRelatedObject
+            one = 1
+            two = factory.LazyAttribute(lambda o: o.one + 1)
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = 3
+            two = 2
+            three = factory.RelatedFactory(TestRelatedObjectFactory)
+
+        obj = TestObjectFactory.build()
+        # Normal fields
+        self.assertEqual(3, obj.one)
+        self.assertEqual(2, obj.two)
+        # RelatedFactory was built
+        self.assertIsNone(obj.three)
+        self.assertEqual(1, len(relateds))
+        related = relateds[0]
+        self.assertEqual(1, related.one)
+        self.assertEqual(2, related.two)
+        self.assertIsNone(related.three)
+
+        obj = TestObjectFactory.build(three__one=3)
+        # Normal fields
+        self.assertEqual(3, obj.one)
+        self.assertEqual(2, obj.two)
+        # RelatedFactory was build
+        self.assertIsNone(obj.three)
+        self.assertEqual(2, len(relateds))
+
+        related = relateds[1]
+        self.assertEqual(3, related.one)
+        self.assertEqual(4, related.two)
 
 
 class CircularTestCase(unittest.TestCase):
