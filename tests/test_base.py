@@ -209,6 +209,7 @@ class FactoryCreationTestCase(unittest.TestCase):
                 pass
 
             self.assertEqual(1, len(w))
+            self.assertIn('discovery', str(w[0].message))
             self.assertIn('deprecated', str(w[0].message))
 
     def testStub(self):
