@@ -260,6 +260,41 @@ class SubFactoryTestCase(unittest.TestCase):
             datetime.date = orig_date
 
 
+class RelatedFactoryTestCase(unittest.TestCase):
+
+    def test_arg(self):
+        self.assertRaises(ValueError, declarations.RelatedFactory, 'UnqualifiedSymbol')
+
+    def test_lazyness(self):
+        f = declarations.RelatedFactory('factory.declarations.Sequence', x=3)
+        self.assertEqual(None, f.factory)
+
+        self.assertEqual({'x': 3}, f.defaults)
+
+        factory_class = f.get_factory()
+        self.assertEqual(declarations.Sequence, factory_class)
+
+    def test_cache(self):
+        """Ensure that RelatedFactory tries to import only once."""
+        orig_date = datetime.date
+        f = declarations.RelatedFactory('datetime.date')
+        self.assertEqual(None, f.factory)
+
+        factory_class = f.get_factory()
+        self.assertEqual(orig_date, factory_class)
+
+        try:
+            # Modify original value
+            datetime.date = None
+            # Repeat import
+            factory_class = f.get_factory()
+            self.assertEqual(orig_date, factory_class)
+
+        finally:
+            # IMPORTANT: restore attribute.
+            datetime.date = orig_date
+
+
 class CircularSubFactoryTestCase(unittest.TestCase):
 
     def test_circularsubfactory_deprecated(self):

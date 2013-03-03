@@ -215,7 +215,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
     object, then save it:
 
     .. code-block:: pycon
-    
+
         >>> obj = self._associated_class(*args, **kwargs)
         >>> obj.save()
         >>> return obj
@@ -849,18 +849,32 @@ To support this pattern, factory_boy provides the following tools:
 RelatedFactory
 """"""""""""""
 
-.. class:: RelatedFactory(some_factory, related_field, **kwargs)
+.. class:: RelatedFactory(factory, name='', **kwargs)
 
     .. OHAI_VIM**
 
-A :class:`RelatedFactory` behaves mostly like a :class:`SubFactory`,
-with the main difference that it should be provided with a ``related_field`` name
-as second argument.
+    A :class:`RelatedFactory` behaves mostly like a :class:`SubFactory`,
+    with the main difference that the related :class:`Factory` will be generated
+    *after* the base :class:`Factory`.
 
-Once the base object has been built (or created), the :class:`RelatedFactory` will
-build the :class:`Factory` passed as first argument (with the same strategy),
-passing in the base object as a keyword argument whose name is passed in the
-``related_field`` argument:
+
+    .. attribute:: factory
+
+        As for :class:`SubFactory`, the :attr:`factory` argument can be:
+
+        - A :class:`Factory` subclass
+        - Or the fully qualified path to a :class:`Factory` subclass
+          (see :ref:`subfactory-circular` for details)
+
+    .. attribute:: name
+
+        The generated object (where the :class:`RelatedFactory` attribute will
+        set) may be passed to the related factory if the :attr:`name` parameter
+        is set.
+
+        It will be passed as a keyword argument, using the :attr:`name` value as
+        keyword:
+
 
 .. code-block:: python
 
@@ -881,6 +895,7 @@ passing in the base object as a keyword argument whose name is passed in the
     >>> france = CountryFactory()
     >>> City.objects.get(capital_of=france)
     <City: Paris>
+
 
 Extra kwargs may be passed to the related factory, through the usual ``ATTR__SUBATTR`` syntax:
 
