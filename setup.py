@@ -51,7 +51,14 @@ class test(cmd.Command):
         else:
             verbosity=0
 
-        suite = unittest.TestLoader().loadTestsFromName(self.test_suite)
+        loader = unittest.TestLoader()
+        suite = unittest.TestSuite()
+
+        if self.test_suite == 'tests':
+            for test_module in loader.discover('.'):
+                suite.addTest(test_module)
+        else:
+            suite.addTest(loader.loadTestsFromName(self.test_suite))
 
         result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
         if not result.wasSuccessful():

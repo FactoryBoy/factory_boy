@@ -17,7 +17,6 @@ coverage:
 	coverage report "--include=factory/*.py,tests/*.py"
 	coverage html "--include=factory/*.py,tests/*.py"
 
-
 doc:
 	$(MAKE) -C docs html
 
