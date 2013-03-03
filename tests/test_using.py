@@ -29,6 +29,7 @@ import warnings
 import factory
 
 from .compat import is_python2, unittest
+from . import tools
 
 
 class TestObject(object):
@@ -73,15 +74,6 @@ class TestModel(FakeModel):
     pass
 
 
-def disable_warnings(fun):
-    @functools.wraps(fun)
-    def decorated(*args, **kwargs):
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore')
-            return fun(*args, **kwargs)
-    return decorated
-
-
 class SimpleBuildTestCase(unittest.TestCase):
     """Tests the minimalist 'factory.build/create' functions."""
 
@@ -112,13 +104,13 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.three, 3)
             self.assertEqual(obj.four, None)
 
-    @disable_warnings
+    @tools.disable_warnings
     def test_create(self):
         obj = factory.create(FakeModel, foo='bar')
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
-    @disable_warnings
+    @tools.disable_warnings
     def test_create_batch(self):
         objs = factory.create_batch(FakeModel, 4, foo='bar')
 
@@ -149,7 +141,7 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.id, None)
         self.assertEqual(obj.foo, 'bar')
 
-    @disable_warnings
+    @tools.disable_warnings
     def test_generate_create(self):
         obj = factory.generate(FakeModel, factory.CREATE_STRATEGY, foo='bar')
         self.assertEqual(obj.id, 2)
@@ -170,7 +162,7 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.id, None)
             self.assertEqual(obj.foo, 'bar')
 
-    @disable_warnings
+    @tools.disable_warnings
     def test_generate_batch_create(self):
         objs = factory.generate_batch(FakeModel, factory.CREATE_STRATEGY, 20, foo='bar')
 
@@ -196,7 +188,7 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.id, None)
         self.assertEqual(obj.foo, 'bar')
 
-    @disable_warnings
+    @tools.disable_warnings
     def test_simple_generate_create(self):
         obj = factory.simple_generate(FakeModel, True, foo='bar')
         self.assertEqual(obj.id, 2)
@@ -212,7 +204,7 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.id, None)
             self.assertEqual(obj.foo, 'bar')
 
-    @disable_warnings
+    @tools.disable_warnings
     def test_simple_generate_batch_create(self):
         objs = factory.simple_generate_batch(FakeModel, True, 20, foo='bar')
 
@@ -668,7 +660,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual('three', obj.three)
         self.assertEqual('four', obj.four)
 
-    @disable_warnings
+    @tools.disable_warnings
     def testSetCreationFunction(self):
         def creation_function(class_to_create, **kwargs):
             return "This doesn't even return an instance of {0}".format(class_to_create.__name__)
@@ -1090,7 +1082,7 @@ class IteratorTestCase(unittest.TestCase):
             self.assertIn('InfiniteIterator', str(w[0].message))
             self.assertIn('deprecated', str(w[0].message))
 
-    @disable_warnings
+    @tools.disable_warnings
     def test_infinite_iterator(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
@@ -1103,7 +1095,7 @@ class IteratorTestCase(unittest.TestCase):
             self.assertEqual(i % 5, obj.one)
 
     @unittest.skipUnless(is_python2, "Scope bleeding fixed in Python3+")
-    @disable_warnings
+    @tools.disable_warnings
     def test_infinite_iterator_list_comprehension_scope_bleeding(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
@@ -1114,7 +1106,7 @@ class IteratorTestCase(unittest.TestCase):
 
         self.assertRaises(TypeError, TestObjectFactory.build)
 
-    @disable_warnings
+    @tools.disable_warnings
     def test_infinite_iterator_list_comprehension_protected(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
@@ -1158,7 +1150,7 @@ class IteratorTestCase(unittest.TestCase):
             self.assertIn('infinite_iterator', str(w[0].message))
             self.assertIn('deprecated', str(w[0].message))
 
-    @disable_warnings
+    @tools.disable_warnings
     def test_infinite_iterator_decorator(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
