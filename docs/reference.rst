@@ -720,15 +720,24 @@ Iterator
 
 .. class:: Iterator(iterable, cycle=True, getter=None)
 
-The :class:`Iterator` declaration takes succesive values from the given
-iterable. When it is exhausted, it starts again from zero (unless ``cycle=False``).
+    The :class:`Iterator` declaration takes succesive values from the given
+    iterable. When it is exhausted, it starts again from zero (unless ``cycle=False``).
 
-The ``cycle`` argument is only useful for advanced cases, where the provided
-iterable has no end (as wishing to cycle it means storing values in memory...).
+    .. attribute:: cycle
 
-.. versionadded:: 1.3.0
-    The ``cycle`` argument is available as of v1.3.0; previous versions
-    had a behaviour equivalent to ``cycle=False``.
+        The ``cycle`` argument is only useful for advanced cases, where the provided
+        iterable has no end (as wishing to cycle it means storing values in memory...).
+
+        .. versionadded:: 1.3.0
+            The ``cycle`` argument is available as of v1.3.0; previous versions
+            had a behaviour equivalent to ``cycle=False``.
+
+    .. attribute:: getter
+
+        A custom function called on each value returned by the iterable.
+        See the :ref:`iterator-getter` section for details.
+
+        .. versionadded:: 1.3.0
 
 Each call to the factory will receive the next value from the iterable:
 
@@ -756,6 +765,8 @@ When a value is passed in for the argument, the iterator will *not* be advanced:
     >>> UserFactory().lang
     'fr'
 
+.. _iterator-getter:
+
 Getter
 ~~~~~~
 
@@ -763,8 +774,6 @@ Some situations may reuse an existing iterable, using only some component.
 This is handled by the :attr:`~Iterator.getter` attribute: this is a function
 that accepts as sole parameter a value from the iterable, and returns an
 adequate value.
-
-.. versionadded:: 1.3.0
 
 .. code-block:: python
 

@@ -24,23 +24,76 @@ ChangeLog
 1.3.0 (current)
 ---------------
 
-*New:*
+.. warning:: This version deprecates many magic or unexplicit features that will be
+             removed in v2.0.0.
 
-    - Add :class:`~factory.CircularSubFactory` to solve circular dependencies between factories
-    - Better creation/building customization hooks at :meth:`factory.Factory._build` and :meth:`factory.Factory.create`
-    - Add support for passing non-kwarg parameters to a :class:`~factory.Factory` wrapped class
-    - Enhance :class:`~factory.SelfAttribute` to handle "container" attribute fetching
-    - Keep the :attr:`~factory.Factory.FACTORY_FOR` attribute in :class:`~factory.Factory` classes
+             Please read the :ref:`changelog-1-3-0-upgrading` section, then run your
+             tests with ``python -W default`` to see all remaining warnings.
+
+New
+"""
+
+- **Global:**
+    - Rewrite the whole documentation
     - Provide a dedicated :class:`~factory.MogoFactory` subclass of :class:`~factory.Factory`
 
-*Pending deprecation:*
+- **The Factory class:**
+    - Better creation/building customization hooks at :meth:`factory.Factory._build` and :meth:`factory.Factory.create`
+    - Add support for passing non-kwarg parameters to a :class:`~factory.Factory`
+      wrapped class through :attr:`~factory.Factory.FACTORY_ARG_PARAMETERS`.
+    - Keep the :attr:`~factory.Factory.FACTORY_FOR` attribute in :class:`~factory.Factory` classes
+
+- **Declarations:**
+    - Allow :class:`~factory.SubFactory` to solve circular dependencies between factories
+    - Enhance :class:`~factory.SelfAttribute` to handle "container" attribute fetching
+    - Add a :attr:`~factory.Iterator.getter` to :class:`~factory.Iterator`
+      declarations
+    - A :class:`~factory.Iterator` may be prevented from cycling by setting
+      its :attr:`~factory.Iterator.cycle` argument to ``False``
+
+
+Pending deprecation
+"""""""""""""""""""
 
 The following features have been deprecated and will be removed in an upcoming release.
 
+- **Declarations:**
+    - :class:`~factory.InfiniteIterator` is deprecated in favor of :class:`~factory.Iterator`
+    - :class:`~factory.CircularSubFactory` is deprecated in favor of :class:`~factory.SubFactory`
+    - The ``extract_prefix`` argument to :meth:`~factory.post_generation` is now deprecated
+
+- **Factory:**
     - Usage of :meth:`~factory.Factory.set_creation_function` and :meth:`~factory.Factory.set_building_function`
       are now deprecated
     - Implicit associated class discovery is no longer supported, you must set the :attr:`~factory.Factory.FACTORY_FOR`
       attribute on all :class:`~factory.Factory` subclasses
+
+
+.. _changelog-1-3-0-upgrading:
+
+Upgrading
+"""""""""
+
+This version deprecates a few magic or undocumented features.
+All warnings will turn into errors starting from v2.0.0.
+
+In order to upgrade client code, apply the following rules:
+
+- Add a ``FACTORY_FOR`` attribute pointing to the target class to each
+  :class:`~factory.Factory`, instead of relying on automagic associated class
+  discovery
+- When using factory_boy for Django models, have each factory inherit from
+  :class:`~factory.DjangoModelFactory`
+- Replace ``factory.CircularSubFactory('some.module', 'Symbol')`` with
+  ``factory.SubFactory('some.module.Symbol')``
+- Replace ``factory.InfiniteIterator(iterable)`` with ``factory.Iterator(iterable)``
+- Replace ``@factory.post_generation()`` with ``@factory.post_generation``
+- Replace ``factory.set_building_function(SomeFactory, building_function)`` with
+  an override of the :meth:`~factory.Factory._build` method of ``SomeFactory``
+- Replace ``factory.set_creation_function(SomeFactory, creation_function)`` with
+  an override of the :meth:`~factory.Factory._create` method of ``SomeFactory``
+
+
 
 1.2.0 (09/08/2012)
 ------------------
