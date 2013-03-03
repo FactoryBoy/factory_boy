@@ -39,8 +39,6 @@ The following features have been deprecated and will be removed in an upcoming r
 
     - Usage of :meth:`~factory.Factory.set_creation_function` and :meth:`~factory.Factory.set_building_function`
       are now deprecated
-    - The :attr:`~factory.Factory.ABSTRACT_FACTORY` attribute has been renamed to
-      :attr:`~factory.Factory.FACTORY_ABSTRACT`.
     - Implicit associated class discovery is no longer supported, you must set the :attr:`~factory.Factory.FACTORY_FOR`
       attribute on all :class:`~factory.Factory` subclasses
 

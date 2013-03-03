@@ -212,20 +212,11 @@ class FactoryMetaClass(BaseFactoryMetaClass):
         for construction of an associated class instance at a later time."""
 
         parent_factories = get_factory_bases(bases)
-        if not parent_factories or attrs.get('ABSTRACT_FACTORY', False) \
-                or attrs.get('FACTORY_ABSTRACT', False):
+        if not parent_factories or attrs.get('ABSTRACT_FACTORY', False):
             # If this isn't a subclass of Factory, or specifically declared
             # abstract, don't do anything special.
             if 'ABSTRACT_FACTORY' in attrs:
-                warnings.warn(
-                    "The 'ABSTRACT_FACTORY' class attribute has been renamed "
-                    "to 'FACTORY_ABSTRACT' for naming consistency, and will "
-                    "be ignored in the future. Please upgrade class %s." %
-                    class_name, DeprecationWarning, 2)
                 attrs.pop('ABSTRACT_FACTORY')
-
-            if 'FACTORY_ABSTRACT' in attrs:
-                attrs.pop('FACTORY_ABSTRACT')
 
             return super(FactoryMetaClass, cls).__new__(cls, class_name, bases, attrs)
 
@@ -650,7 +641,7 @@ class DjangoModelFactory(Factory):
     handle those for non-numerical primary keys.
     """
 
-    FACTORY_ABSTRACT = True
+    ABSTRACT_FACTORY = True
 
     @classmethod
     def _setup_next_sequence(cls):
@@ -669,7 +660,7 @@ class DjangoModelFactory(Factory):
 
 class MogoFactory(Factory):
     """Factory for mogo objects."""
-    FACTORY_ABSTRACT = True
+    ABSTRACT_FACTORY = True
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
