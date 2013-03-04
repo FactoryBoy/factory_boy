@@ -32,5 +32,6 @@ All factories for a Django :class:`~django.db.models.Model` should use the
 
     * :func:`~Factory.create()` uses :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>`
     * :func:`~Factory._setup_next_sequence()` selects the next unused primary key value
-    * When using :class:`~factory.RelatedFactory` attributes, the base object will be
-      :meth:`saved <django.db.models.Model.save>` once all post-generation hooks have run.
+    * When using :class:`~factory.RelatedFactory` or :class:`~factory.PostGeneration`
+      attributes, the base object will be :meth:`saved <django.db.models.Model.save>`
+      once all post-generation hooks have run.

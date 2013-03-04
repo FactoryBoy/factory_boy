@@ -189,6 +189,19 @@ The :class:`Factory` class
 
         .. OHAI_VIM*
 
+    .. classmethod:: _after_postgeneration(cls, obj, create, results=None)
+
+        :arg object obj: The object just generated
+        :arg bool create: Whether the object was 'built' or 'created'
+        :arg dict results: Map of post-generation declaration name to call
+                           result
+
+        The :meth:`_after_postgeneration` is called once post-generation
+        declarations have been handled.
+
+        Its arguments allow to handle specifically some post-generation return
+        values, for instance.
+
 
 .. _strategies:
 

@@ -1216,6 +1216,27 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(3, obj.one)
         self.assertFalse(hasattr(obj, 'incr_one'))
 
+    def test_post_generation_hook(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
+            one = 1
+
+            @factory.post_generation
+            def incr_one(self, _create, _increment):
+                self.one += 1
+                return 42
+
+            @classmethod
+            def _after_postgeneration(cls, obj, create, results):
+                obj.create = create
+                obj.results = results
+
+        obj = TestObjectFactory.build()
+        self.assertEqual(2, obj.one)
+        self.assertFalse(obj.create)
+        self.assertEqual({'incr_one': 42}, obj.results)
+
     @tools.disable_warnings
     def test_post_generation_calling(self):
         class TestObjectFactory(factory.Factory):

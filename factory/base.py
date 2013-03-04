@@ -616,10 +616,25 @@ class Factory(BaseFactory):
         obj = cls._prepare(create, **attrs)
 
         # Handle post-generation attributes
+        results = {}
         for name, decl in sorted(postgen_declarations.items()):
             extracted, extracted_kwargs = postgen_attributes[name]
-            decl.call(obj, create, extracted, **extracted_kwargs)
+            results[name] = decl.call(obj, create, extracted, **extracted_kwargs)
+
+        cls._after_postgeneration(obj, create, results)
+
         return obj
+
+    @classmethod
+    def _after_postgeneration(cls, obj, create, results=None):
+        """Hook called after post-generation declarations have been handled.
+
+        Args:
+            obj (object): the generated object
+            create (bool): whether the strategy was 'build' or 'create'
+            results (dict or None): result of post-generation declarations
+        """
+        pass
 
     @classmethod
     def build(cls, **kwargs):
@@ -656,6 +671,13 @@ class DjangoModelFactory(Factory):
     def _create(cls, target_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
         return target_class._default_manager.create(*args, **kwargs)
+
+    @classmethod
+    def _after_postgeneration(cls, obj, create, results=None):
+        """Save again the instance if creating and at least one hook ran."""
+        if create and results:
+            # Some post-generation hooks ran, and may have modified us.
+            obj.save()
 
 
 class MogoFactory(Factory):

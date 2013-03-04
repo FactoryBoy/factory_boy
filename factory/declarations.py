@@ -412,7 +412,7 @@ class PostGeneration(PostGenerationDeclaration):
         self.function = function
 
     def call(self, obj, create, extracted=None, **kwargs):
-        self.function(obj, create, extracted, **kwargs)
+        return self.function(obj, create, extracted, **kwargs)
 
 
 def post_generation(*args, **kwargs):
