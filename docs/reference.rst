@@ -1003,10 +1003,22 @@ generated object just after it being called.
 Its sole argument is the name of the method to call.
 Extra arguments and keyword arguments for the target method may also be provided.
 
-Once the object has been generated, the method will be called, with the arguments
-provided in the :class:`PostGenerationMethodCall` declaration, and keyword
-arguments taken from the combination of :class:`PostGenerationMethodCall`
-declaration and prefix-based values:
+Once the object has been generated, the method will be called, with arguments
+taken from either the :class:`PostGenerationMethodCall` or prefix-based values:
+
+- If a value was extracted from kwargs (i.e an argument for the name the
+  :class:`PostGenerationMethodCall` was declared under):
+
+  - If the declaration mentionned zero or one argument, the value is passed
+    directly to the method
+  - If the declaration used two or more arguments, the value is passed as
+    ``*args`` to the method
+
+- Otherwise, the arguments used when declaring the :class:`PostGenerationMethodCall`
+  are used
+
+- Keywords extracted from the factory arguments are merged into the defaults
+  present in the :class:`PostGenerationMethodCall` declaration.
 
 .. code-block:: python
 
@@ -1018,8 +1030,38 @@ declaration and prefix-based values:
 .. code-block:: pycon
 
     >>> UserFactory()                           # Calls user.set_password(password='')
-    >>> UserFactory(password='test')            # Calls user.set_password(password='test')
+    >>> UserFactory(password='test')            # Calls user.set_password('test')
     >>> UserFactory(password__disabled=True)    # Calls user.set_password(password='', disabled=True)
+
+
+When the :class:`PostGenerationMethodCall` declaration uses two or more arguments,
+the extracted value must be iterable:
+
+.. code-block:: python
+
+    class UserFactory(factory.Factory):
+        FACTORY_FOR = User
+
+        password = factory.PostGenerationMethodCall('set_password', '', 'sha1')
+
+.. code-block:: pycon
+
+    >>> UserFactory()                           # Calls user.set_password('', 'sha1')
+    >>> UserFactory(password=('test', 'md5'))   # Calls user.set_password('test', 'md5')
+
+    >>> # Always pass in a good iterable:
+    >>> UserFactory(password=('test',))         # Calls user.set_password('test')
+    >>> UserFactory(password='test')            # Calls user.set_password('t', 'e', 's', 't')
+
+
+.. note:: While this setup provides sane and intuitive defaults for most users,
+          it prevents passing more than one argument when the declaration used
+          zero or one.
+
+          In such cases, users are advised to either resort to the more powerful
+          :class:`PostGeneration` or to add the second expected argument default
+          value to the :class:`PostGenerationMethodCall` declaration
+          (``PostGenerationMethodCall('method', 'x', 'y_that_is_the_default')``)
 
 
 Module-level functions

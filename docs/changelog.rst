@@ -50,6 +50,10 @@ New
       declarations
     - A :class:`~factory.Iterator` may be prevented from cycling by setting
       its :attr:`~factory.Iterator.cycle` argument to ``False``
+    - Allow overriding default arguments in a :class:`~factory.PostGenerationMethodCall`
+      when generating an instance of the factory
+    - An object created by a :class:`~factory.DjangoModelFactory` will be saved
+      again after :class:`~factory.PostGeneration` hooks execution
 
 
 Pending deprecation

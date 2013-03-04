@@ -306,13 +306,13 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
 
     def test_call_with_method_args(self):
         decl = declarations.PostGenerationMethodCall(
-                'method', None, 'data')
+                'method', 'data')
         decl.call(self.obj, False)
         self.obj.method.assert_called_once_with('data')
 
     def test_call_with_passed_extracted_string(self):
         decl = declarations.PostGenerationMethodCall(
-                'method', None)
+                'method')
         decl.call(self.obj, False, 'data')
         self.obj.method.assert_called_once_with('data')
 
@@ -324,11 +324,11 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
     def test_call_with_passed_extracted_iterable(self):
         decl = declarations.PostGenerationMethodCall('method')
         decl.call(self.obj, False, (1, 2, 3))
-        self.obj.method.assert_called_once_with(1, 2, 3)
+        self.obj.method.assert_called_once_with((1, 2, 3))
 
     def test_call_with_method_kwargs(self):
         decl = declarations.PostGenerationMethodCall(
-                'method', None, data='data')
+                'method', data='data')
         decl.call(self.obj, False)
         self.obj.method.assert_called_once_with(data='data')
 
@@ -337,7 +337,23 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
         decl.call(self.obj, False, data='other')
         self.obj.method.assert_called_once_with(data='other')
 
+    def test_multi_call_with_multi_method_args(self):
+        decl = declarations.PostGenerationMethodCall(
+                'method', 'arg1', 'arg2')
+        decl.call(self.obj, False)
+        self.obj.method.assert_called_once_with('arg1', 'arg2')
 
+    def test_multi_call_with_passed_multiple_args(self):
+        decl = declarations.PostGenerationMethodCall(
+                'method', 'arg1', 'arg2')
+        decl.call(self.obj, False, ('param1', 'param2', 'param3'))
+        self.obj.method.assert_called_once_with('param1', 'param2', 'param3')
+
+    def test_multi_call_with_passed_tuple(self):
+        decl = declarations.PostGenerationMethodCall(
+                'method', 'arg1', 'arg2')
+        decl.call(self.obj, False, (('param1', 'param2'),))
+        self.obj.method.assert_called_once_with(('param1', 'param2'))
 
 
 class CircularSubFactoryTestCase(unittest.TestCase):
