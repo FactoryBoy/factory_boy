@@ -314,6 +314,21 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(1, obj.id)
         self.assertTrue(obj.properly_created)
 
+    def test_non_django_create(self):
+        class NonDjango(object):
+            def __init__(self, x, y=2):
+                self.x = x
+                self.y = y
+
+        class NonDjangoFactory(factory.Factory):
+            FACTORY_FOR = NonDjango
+
+            x = 3
+
+        obj = NonDjangoFactory.create()
+        self.assertEqual(3, obj.x)
+        self.assertEqual(2, obj.y)
+
     def test_sequence_batch(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject

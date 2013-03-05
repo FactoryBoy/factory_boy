@@ -527,7 +527,8 @@ class Factory(BaseFactory):
         creation_function = getattr(cls, '_creation_function', ())
         if creation_function and creation_function[0]:
             return creation_function[0]
-        elif cls._create.__func__ == Factory._create.__func__:
+        elif cls._create.__func__ == Factory._create.__func__ and \
+                hasattr(cls._associated_class, 'objects'):
             # Backwards compatibility.
             # Default creation_function and default _create() behavior.
             # The best "Vanilla" _create detection algorithm I found is relying
