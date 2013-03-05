@@ -62,6 +62,125 @@ When a :class:`UserFactory` is instantiated, factory_boy will call
 ``UserLogFactory(user=that_user, action=...)`` just before returning the created ``User``.
 
 
+Simple ManyToMany
+-----------------
+
+Building the adequate link between two models depends heavily on the use case;
+factory_boy doesn't provide a "all in one tools" as for :class:`~factory.SubFactory`
+or :class:`~factory.RelatedFactory`, users will have to craft their own depending
+on the model.
+
+The base building block for this feature is the :class:`~factory.post_generation`
+hook:
+
+.. code-block:: python
+
+    # models.py
+    class Group(models.Model):
+        name = models.CharField()
+
+    class User(models.Model):
+        name = models.CharField()
+        groups = models.ManyToMany(Group)
+
+
+    # factories.py
+    class GroupFactory(factory.DjangoModelFactory):
+        FACTORY_FOR = models.Group
+
+        name = factory.Sequence(lambda n: "Group #%s" % n)
+
+    class UserFactory(factory.DjangoModelFactory):
+        FACTORY_FOR = models.User
+
+        name = "John Doe"
+
+        @factory.post_generation
+        def groups(self, create, extracted, **kwargs):
+            if not create:
+                # Simple build, do nothing.
+                return
+
+            if extracted:
+                # A list of groups were passed in, use them
+                for group in extracted:
+                    self.groups.add(group)
+
+.. OHAI_VIM**
+
+When calling ``UserFactory()`` or ``UserFactory.build()``, no group binding
+will be created.
+
+But when ``UserFactory.create(groups=(group1, group2, group3))`` is called,
+the ``groups`` declaration will add passed in groups to the set of groups for the
+user.
+
+
+ManyToMany with a 'through'
+---------------------------
+
+
+If only one link is required, this can be simply performed with a :class:`RelatedFactory`.
+If more links are needed, simply add more :class:`RelatedFactory` declarations:
+
+.. code-block:: python
+
+    # models.py
+    class User(models.Model):
+        name = models.CharField()
+
+    class Group(models.Model):
+        name = models.CharField()
+        members = models.ManyToMany(User, through='GroupLevel')
+
+    class GroupLevel(models.Model):
+        user = models.ForeignKey(User)
+        group = models.ForeignKey(Group)
+        rank = models.IntegerField()
+
+
+    # factories.py
+    class UserFactory(factory.DjangoModelFactory):
+        FACTORY_FOR = models.User
+
+        name = "John Doe"
+
+    class GroupFactory(factory.DjangoModelFactory):
+        FACTORY_FOR = models.Group
+
+        name = "Admins"
+
+    class GroupLevelFactory(factory.DjangoModelFactory):
+        FACTORY_FOR = models.GroupLevel
+
+        user = factory.SubFactory(UserFactory)
+        group = factory.SubFactory(GroupFactory)
+        rank = 1
+
+    class UserWithGroupFactory(UserFactory):
+        membership = factory.RelatedFactory(GroupLevelFactory, 'user')
+
+    class UserWith2GroupsFactory(UserFactory):
+        membership1 = factory.RelatedFactory(GroupLevelFactory, 'user', group__name='Group1')
+        membership2 = factory.RelatedFactory(GroupLevelFactory, 'user', group__name='Group2')
+
+
+Whenever the ``UserWithGroupFactory`` is called, it will, as a post-generation hook,
+call the ``GroupLevelFactory``, passing the generated user as a ``user`` field:
+
+1. ``UserWithGroupFactory()`` generates a ``User`` instance, ``obj``
+2. It calls ``GroupLevelFactory(user=obj)``
+3. It returns ``obj``
+
+
+When using the ``UserWith2GroupsFactory``, that behavior becomes:
+
+1. ``UserWith2GroupsFactory()`` generates a ``User`` instance, ``obj``
+2. It calls ``GroupLevelFactory(user=obj, group__name='Group1')``
+3. It calls ``GroupLevelFactory(user=obj, group__name='Group2')``
+4. It returns ``obj``
+
+
 Copying fields to a SubFactory
 ------------------------------
 
@@ -112,4 +231,4 @@ Here, we want:
 
         name = "ACME, Inc."
         country = factory.SubFactory(CountryFactory)
-        owner = factory.SubFactory(UserFactory, country=factory.SelfAttribute('..country))
+        owner = factory.SubFactory(UserFactory, country=factory.SelfAttribute('..country'))

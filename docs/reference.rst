@@ -848,7 +848,7 @@ InfiniteIterator
 
 
 Post-generation hooks
-"""""""""""""""""""
+"""""""""""""""""""""
 
 Some objects expect additional method calls or complex processing for proper definition.
 For instance, a ``User`` may need to have a related ``Profile``, where the ``Profile`` is built from the ``User`` object.
