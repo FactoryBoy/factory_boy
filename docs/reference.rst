@@ -847,7 +847,7 @@ InfiniteIterator
 
 
 
-post-building hooks
+Post-generation hooks
 """""""""""""""""""
 
 Some objects expect additional method calls or complex processing for proper definition.
@@ -857,6 +857,49 @@ To support this pattern, factory_boy provides the following tools:
   - :class:`PostGeneration`: this class allows calling a given function with the generated object as argument
   - :func:`post_generation`: decorator performing the same functions as :class:`PostGeneration`
   - :class:`RelatedFactory`: this builds or creates a given factory *after* building/creating the first Factory.
+
+
+Extracting parameters
+"""""""""""""""""""""
+
+All post-building hooks share a common base for picking parameters from the
+set of attributes passed to the :class:`Factory`.
+
+For instance, a :class:`PostGeneration` hook is declared as ``post``:
+
+.. code-block:: python
+
+    class SomeFactory(factory.Factory):
+        FACTORY_FOR = SomeObject
+
+        @post_generation
+        def post(self, create, extracted, **kwargs):
+            obj.set_origin(create)
+
+.. OHAI_VIM**
+
+
+When calling the factory, some arguments will be extracted for this method:
+
+- If a ``post`` argument is passed, it will be passed as the ``extracted`` field
+- Any argument starting with ``post__XYZ`` will be extracted, its ``post__`` prefix
+  removed, and added to the kwargs passed to the post-generation hook.
+
+Extracted arguments won't be passed to the :attr:`~Factory.FACTORY_FOR` class.
+
+Thus, in the following call:
+
+.. code-block:: pycon
+
+    >>> SomeFactory(
+        post=1,
+        post_x=2,
+        post__y=3,
+        post__z__t=42,
+    )
+
+The ``post`` hook will receive ``1`` as ``extracted`` and ``{'y': 3, 'z__t': 42}``
+as keyword arguments; ``{'post_x': 2}`` will be passed to ``SomeFactory.FACTORY_FOR``.
 
 
 RelatedFactory
@@ -1048,6 +1091,7 @@ the extracted value must be iterable:
 
     >>> UserFactory()                           # Calls user.set_password('', 'sha1')
     >>> UserFactory(password=('test', 'md5'))   # Calls user.set_password('test', 'md5')
+    >>> UserFactory(password__disabled=True)    # Calls user.set_password('', 'sha1', disabled=True)
 
     >>> # Always pass in a good iterable:
     >>> UserFactory(password=('test',))         # Calls user.set_password('test')

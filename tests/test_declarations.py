@@ -355,6 +355,13 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
         decl.call(self.obj, False, (('param1', 'param2'),))
         self.obj.method.assert_called_once_with(('param1', 'param2'))
 
+    def test_multi_call_with_kwargs(self):
+        decl = declarations.PostGenerationMethodCall(
+                'method', 'arg1', 'arg2')
+        decl.call(self.obj, False, x=2)
+        self.obj.method.assert_called_once_with('arg1', 'arg2', x=2)
+
+
 
 class CircularSubFactoryTestCase(unittest.TestCase):
 
