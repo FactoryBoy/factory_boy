@@ -863,6 +863,8 @@ Some objects expect additional method calls or complex processing for proper def
 For instance, a ``User`` may need to have a related ``Profile``, where the ``Profile`` is built from the ``User`` object.
 
 To support this pattern, factory_boy provides the following tools:
+  - :py:class:`factory.PostGenerationMethodCall`: allows you to hook a
+    particular attribute to a function call
   - :class:`PostGeneration`: this class allows calling a given function with the generated object as argument
   - :func:`post_generation`: decorator performing the same functions as :class:`PostGeneration`
   - :class:`RelatedFactory`: this builds or creates a given factory *after* building/creating the first Factory.
@@ -1049,58 +1051,106 @@ PostGenerationMethodCall
 
 .. OHAI_VIM*
 
-The :class:`PostGenerationMethodCall` declaration will call a method on the
-generated object just after it being called.
+The :class:`PostGenerationMethodCall` declaration will call a method on
+the generated object just after instantiation. This declaration class
+provides a friendly means of generating attributes of a factory instance
+during. The declaration is created using the following arguments:
 
-Its sole argument is the name of the method to call.
-Extra arguments and keyword arguments for the target method may also be provided.
+- ``method_name``: the name of the method to call on the
+  ``FACTORY_FOR`` object
+- ``extract_prefix``: if a string, the keyword argument prefix by
+  which the field will get its overriding arguments, otherwise if
+  ``None``, defaults to the name of the attribute
+- ``*args``: the default set of unnamed arguments to pass to the method
+  given in ``method_name``
+- ``**kwargs``: the default set of keyword arguments to pass to the
+  method gien in ``method_name``
 
-Once the object has been generated, the method will be called, with arguments
-taken from either the :class:`PostGenerationMethodCall` or prefix-based values:
-
-- If a value was extracted from kwargs (i.e an argument for the name the
-  :class:`PostGenerationMethodCall` was declared under):
-
-  - If the declaration mentionned zero or one argument, the value is passed
-    directly to the method
-  - If the declaration used two or more arguments, the value is passed as
-    ``*args`` to the method
-
-- Otherwise, the arguments used when declaring the :class:`PostGenerationMethodCall`
-  are used
-
-- Keywords extracted from the factory arguments are merged into the defaults
-  present in the :class:`PostGenerationMethodCall` declaration.
+Once the factory instance has been generated, the method specified in
+``method_name`` will be called on the generated object with any arguments
+specified in the :class:`PostGenerationMethodCall` declaration, by
+default. For example, to set a default password on a generated User instance
+during instantiation, we could make a declaration for a ``password``
+attribute like below:
 
 .. code-block:: python
 
     class UserFactory(factory.Factory):
         FACTORY_FOR = User
 
-        password = factory.PostGenerationMethodCall('set_password', password='')
+        username = 'user'
+        password = factory.PostGenerationMethodCall('set_password',
+                                                    'defaultpassword')
+
+Now when we instantiate a user from the ``UserFactory``, the factory
+will create a password attribute by calling ``User.set_password('defaultpassword')``. Thus, by default, our users will have a password
+set to ``'defaultpassword'``.
 
 .. code-block:: pycon
 
-    >>> UserFactory()                           # Calls user.set_password(password='')
-    >>> UserFactory(password='test')            # Calls user.set_password('test')
-    >>> UserFactory(password__disabled=True)    # Calls user.set_password(password='', disabled=True)
+    >>> u = UserFactory()                             # Calls user.set_password('defaultpassword')
+    >>> u.check_password('defaultpassword')
+    True
+
+If the :class:`PostGenerationMethodCall` declaration contained no
+arguments or one argument, an overriding the value can be passed
+directly to the method through a keyword argument matching
+``extract_prefix`` (the attribute name, by default). For example we can
+override the default password specified in the declaration above by
+simply passing in the desired password as a keyword argument to the
+factory during instantiation.
+
+.. code-block:: pycon
+
+    >>> other_u = UserFactory(password='different')   # Calls user.set_password('different')
+    >>> other_u.check_password('defaultpassword')
+    False
+    >>> other_u.check_password('different')
+    True
+
+.. note:: For Django models, unless the object method called by
+   :py:class:`PostGenerationMethodCall` saves the object back to the
+   database, we will have to explicitly remember to save the object back
+   if we performed a ``create()``.
+
+   .. code-block:: pycon
+
+        >>> u = UserFactory.create()  # u.password has not been saved back to the database
+        >>> u.save()                  # we must remember to do it ourselves
 
 
-When the :class:`PostGenerationMethodCall` declaration uses two or more arguments,
-the extracted value must be iterable:
+   We can avoid this by subclassing from :class:`DjangoModelFactory`,
+   instead, e.g.,
+
+   .. code-block:: python
+
+        class UserFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = User
+
+            username = 'user'
+            password = factory.PostGenerationMethodCall('set_password',
+                                                        'defaultpassword')
+
+
+If instead the :class:`PostGenerationMethodCall` declaration uses two or
+more positional arguments, the overriding value must be an iterable. For
+example, if we declared the ``password`` attribute like the following,
 
 .. code-block:: python
 
     class UserFactory(factory.Factory):
         FACTORY_FOR = User
 
+        username = 'user'
         password = factory.PostGenerationMethodCall('set_password', '', 'sha1')
+
+then we must be cautious to pass in an iterable for the ``password``
+keyword argument when creating an instance from the factory:
 
 .. code-block:: pycon
 
     >>> UserFactory()                           # Calls user.set_password('', 'sha1')
     >>> UserFactory(password=('test', 'md5'))   # Calls user.set_password('test', 'md5')
-    >>> UserFactory(password__disabled=True)    # Calls user.set_password('', 'sha1', disabled=True)
 
     >>> # Always pass in a good iterable:
     >>> UserFactory(password=('test',))         # Calls user.set_password('test')
@@ -1115,6 +1165,13 @@ the extracted value must be iterable:
           :class:`PostGeneration` or to add the second expected argument default
           value to the :class:`PostGenerationMethodCall` declaration
           (``PostGenerationMethodCall('method', 'x', 'y_that_is_the_default')``)
+
+Keywords extracted from the factory arguments are merged into the
+defaults present in the :class:`PostGenerationMethodCall` declaration.
+
+.. code-block:: pycon
+
+    >>> UserFactory(password__disabled=True)    # Calls user.set_password('', 'sha1', disabled=True)
 
 
 Module-level functions
