@@ -1240,6 +1240,9 @@ Lightweight factory declaration
             login = 'john'
             email = factory.LazyAttribute(lambda u: '%s@example.com' % u.login)
 
+    .. versionadded:: 2.0.0
+        The ``FACTORY_CLASS`` kwarg was added in 2.0.0.
+
 
 Instance building
 """""""""""""""""
