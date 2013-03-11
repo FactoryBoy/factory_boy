@@ -151,7 +151,6 @@ class FactoryMetaClass(BaseFactoryMetaClass):
                 to a class.
         """
         own_associated_class = None
-        used_auto_discovery = False
 
         if FACTORY_CLASS_DECLARATION in attrs:
             return attrs[FACTORY_CLASS_DECLARATION]
@@ -161,37 +160,10 @@ class FactoryMetaClass(BaseFactoryMetaClass):
         if inherited is not None:
             return inherited
 
-        if '__module__' in attrs:
-            factory_module = sys.modules[attrs['__module__']]
-            if class_name.endswith('Factory'):
-                # Try a module lookup
-                used_auto_discovery = True
-                associated_name = class_name[:-len('Factory')]
-                if associated_name and hasattr(factory_module, associated_name):
-                    warnings.warn(
-                        "Auto-discovery of associated class is deprecated, and "
-                        "will be removed in the future. Please set '%s = %s' "
-                        "in the %s class definition." % (
-                            FACTORY_CLASS_DECLARATION,
-                            associated_name,
-                            class_name,
-                        ), DeprecationWarning, 3)
-
-                    return getattr(factory_module, associated_name)
-
-        # Unable to guess a good option; return the inherited class.
-        # Unable to find an associated class; fail.
-        if used_auto_discovery:
-            raise Factory.AssociatedClassError(
-                FactoryMetaClass.ERROR_MESSAGE_AUTODISCOVERY.format(
-                    FACTORY_CLASS_DECLARATION,
-                    associated_name,
-                    class_name,
-                    factory_module,))
-        else:
-            raise Factory.AssociatedClassError(
-                FactoryMetaClass.ERROR_MESSAGE.format(
-                    FACTORY_CLASS_DECLARATION))
+        raise Factory.AssociatedClassError(
+            "Could not determine the class associated with %s. "
+            "Use the FACTORY_FOR attribute to specify an associated class." %
+            class_name)
 
     def __new__(cls, class_name, bases, attrs):
         """Determine the associated class based on the factory class name. Record the associated class

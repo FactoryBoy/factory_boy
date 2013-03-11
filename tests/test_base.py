@@ -189,29 +189,6 @@ class FactoryCreationTestCase(unittest.TestCase):
 
         self.assertTrue(isinstance(TestFactory.build(), TestObject))
 
-    def testAutomaticAssociatedClassDiscovery(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore')
-            class TestObjectFactory(base.Factory):
-                pass
-
-        self.assertTrue(isinstance(TestObjectFactory.build(), TestObject))
-
-    def testDeprecationWarning(self):
-        """Make sure the 'auto-discovery' deprecation warning is issued."""
-
-        with warnings.catch_warnings(record=True) as w:
-            # Clear the warning registry.
-            __warningregistry__.clear()
-
-            warnings.simplefilter('always')
-            class TestObjectFactory(base.Factory):
-                pass
-
-            self.assertEqual(1, len(w))
-            self.assertIn('discovery', str(w[0].message))
-            self.assertIn('deprecated', str(w[0].message))
-
     def testStub(self):
         class TestFactory(base.StubFactory):
             pass
@@ -250,15 +227,7 @@ class FactoryCreationTestCase(unittest.TestCase):
 
     # Errors
 
-    def testNoAssociatedClassWithAutodiscovery(self):
-        try:
-            class TestFactory(base.Factory):
-                pass
-            self.fail()
-        except base.Factory.AssociatedClassError as e:
-            self.assertTrue('autodiscovery' in str(e))
-
-    def testNoAssociatedClassWithoutAutodiscovery(self):
+    def test_no_associated_class(self):
         try:
             class Test(base.Factory):
                 pass
