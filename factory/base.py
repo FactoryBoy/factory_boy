@@ -660,10 +660,20 @@ class DjangoModelFactory(Factory):
     ABSTRACT_FACTORY = True
 
     @classmethod
+    def _get_manager(cls, target_class):
+        try:
+            return target_class._default_manager
+        except AttributeError:
+            return target_class.objects
+
+    @classmethod
     def _setup_next_sequence(cls):
         """Compute the next available PK, based on the 'pk' database field."""
+
+        manager = cls._get_manager(cls._associated_class)
+
         try:
-            return 1 + cls._associated_class._default_manager.values_list('pk', flat=True
+            return 1 + manager.values_list('pk', flat=True
                 ).order_by('-pk')[0]
         except IndexError:
             return 1
@@ -671,7 +681,8 @@ class DjangoModelFactory(Factory):
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
-        return target_class._default_manager.create(*args, **kwargs)
+        manager = cls._get_manager(target_class)
+        return manager.create(*args, **kwargs)
 
     @classmethod
     def _after_postgeneration(cls, obj, create, results=None):
