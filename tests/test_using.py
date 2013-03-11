@@ -1137,50 +1137,24 @@ class IteratorTestCase(unittest.TestCase):
         for i, obj in enumerate(objs):
             self.assertEqual(i + 10, obj.one)
 
-    def test_infinite_iterator_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            __warningregistry__.clear()
-
-            warnings.simplefilter('always')
-            class TestObjectFactory(factory.Factory):
-                FACTORY_FOR = TestObject
-
-                foo = factory.InfiniteIterator(range(5))
-
-            self.assertEqual(1, len(w))
-            self.assertIn('InfiniteIterator', str(w[0].message))
-            self.assertIn('deprecated', str(w[0].message))
-
-    @tools.disable_warnings
-    def test_infinite_iterator(self):
-        class TestObjectFactory(factory.Factory):
-            FACTORY_FOR = TestObject
-
-            one = factory.InfiniteIterator(range(5))
-
-        objs = TestObjectFactory.build_batch(20)
-
-        for i, obj in enumerate(objs):
-            self.assertEqual(i % 5, obj.one)
-
     @unittest.skipUnless(is_python2, "Scope bleeding fixed in Python3+")
     @tools.disable_warnings
-    def test_infinite_iterator_list_comprehension_scope_bleeding(self):
+    def test_iterator_list_comprehension_scope_bleeding(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
-            one = factory.InfiniteIterator([j * 3 for j in range(5)])
+            one = factory.Iterator([j * 3 for j in range(5)])
 
         # Scope bleeding: j will end up in TestObjectFactory's scope.
 
         self.assertRaises(TypeError, TestObjectFactory.build)
 
     @tools.disable_warnings
-    def test_infinite_iterator_list_comprehension_protected(self):
+    def test_iterator_list_comprehension_protected(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
-            one = factory.InfiniteIterator([_j * 3 for _j in range(5)])
+            one = factory.Iterator([_j * 3 for _j in range(5)])
 
         # Scope bleeding : _j will end up in TestObjectFactory's scope.
         # But factory_boy ignores it, as a protected variable.
@@ -1202,37 +1176,6 @@ class IteratorTestCase(unittest.TestCase):
 
         for i, obj in enumerate(objs):
             self.assertEqual(i + 10, obj.one)
-
-    def test_infinite_iterator_decorator_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            __warningregistry__.clear()
-
-            warnings.simplefilter('always')
-            class TestObjectFactory(factory.Factory):
-                FACTORY_FOR = TestObject
-
-                @factory.infinite_iterator
-                def one():
-                    return range(5)
-
-            self.assertEqual(1, len(w))
-            self.assertIn('infinite_iterator', str(w[0].message))
-            self.assertIn('deprecated', str(w[0].message))
-
-    @tools.disable_warnings
-    def test_infinite_iterator_decorator(self):
-        class TestObjectFactory(factory.Factory):
-            FACTORY_FOR = TestObject
-
-            @factory.infinite_iterator
-            def one():
-                for i in range(5):
-                    yield i
-
-        objs = TestObjectFactory.build_batch(20)
-
-        for i, obj in enumerate(objs):
-            self.assertEqual(i % 5, obj.one)
 
 
 class PostGenerationTestCase(unittest.TestCase):

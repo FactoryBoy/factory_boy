@@ -15,6 +15,7 @@ ChangeLog
 *Removed:*
 
     - Remove associated class discovery
+    - Remove :class:`~factory.InfiniteIterator` and :func:`~factory.infinite_iterator`
     - Stop defaulting to Django's ``Foo.objects.create()`` when "creating" instances
     - Remove STRATEGY_*
     - Remove :meth:`~factory.Factory.set_building_function` / :meth:`~factory.Factory.set_creation_function`

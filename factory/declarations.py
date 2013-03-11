@@ -156,21 +156,6 @@ class Iterator(OrderedDeclaration):
         return self.getter(value)
 
 
-class InfiniteIterator(Iterator):
-    """Same as Iterator, but make the iterator infinite by cycling at the end.
-
-    Attributes:
-        iterator (iterable): the iterator, once made infinite.
-    """
-
-    def __init__(self, iterator):
-        warnings.warn(
-            "factory.InfiniteIterator is deprecated, and will be removed in the "
-            "future. Please use factory.Iterator instead.",
-            PendingDeprecationWarning, 2)
-        return super(InfiniteIterator, self).__init__(iterator, cycle=True)
-
-
 class Sequence(OrderedDeclaration):
     """Specific OrderedDeclaration to use for 'sequenced' fields.
 
@@ -523,14 +508,6 @@ def lazy_attribute(func):
 def iterator(func):
     """Turn a generator function into an iterator attribute."""
     return Iterator(func())
-
-def infinite_iterator(func):
-    """Turn a generator function into an infinite iterator attribute."""
-    warnings.warn(
-        "@factory.infinite_iterator is deprecated and will be removed in the "
-        "future. Please use @factory.iterator instead.",
-        PendingDeprecationWarning, 2)
-    return InfiniteIterator(func())
 
 def sequence(func):
     return Sequence(func)

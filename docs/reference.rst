@@ -830,32 +830,6 @@ use the :func:`iterator` decorator:
                     yield line
 
 
-InfiniteIterator
-~~~~~~~~~~~~~~~~
-
-.. class:: InfiniteIterator(iterable)
-
-    Equivalent to ``factory.Iterator(iterable)``.
-
-.. deprecated:: 1.3.0
-    Merged into :class:`Iterator`; will be removed in v2.0.0.
-
-    Replace ``factory.InfiniteIterator(iterable)``
-    with ``factory.Iterator(iterable)``.
-
-
-.. function:: infinite_iterator(function)
-
-    Equivalent to ``factory.iterator(func)``.
-
-
-.. deprecated:: 1.3.0
-    Merged into :func:`iterator`; will be removed in v2.0.0.
-
-    Replace ``@factory.infinite_iterator`` with ``@factory.iterator``.
-
-
-
 Post-generation hooks
 """""""""""""""""""""
 
