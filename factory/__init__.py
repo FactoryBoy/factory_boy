@@ -55,7 +55,6 @@ from .declarations import (
     SelfAttribute,
     ContainerAttribute,
     SubFactory,
-    CircularSubFactory,
     PostGeneration,
     PostGenerationMethodCall,
     RelatedFactory,

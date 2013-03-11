@@ -657,19 +657,6 @@ Obviously, such circular relationships require careful handling of loops:
     <john (group: MyGroup)>
 
 
-.. class:: CircularSubFactory(module_name, symbol_name, **kwargs)
-
-    .. OHAI_VIM**
-
-    Lazily imports ``module_name.symbol_name`` at the first call.
-
-.. deprecated:: 1.3.0
-    Merged into :class:`SubFactory`; will be removed in 2.0.0.
-
-    Replace ``factory.CircularSubFactory('some.module', 'Symbol', **kwargs)``
-    with ``factory.SubFactory('some.module.Symbol', **kwargs)``
-
-
 SelfAttribute
 """""""""""""
 

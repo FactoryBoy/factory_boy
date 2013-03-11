@@ -325,20 +325,6 @@ class SubFactory(ParameteredAttribute):
             return subfactory.build(**params)
 
 
-class CircularSubFactory(SubFactory):
-    """Use to solve circular dependencies issues."""
-    def __init__(self, module_name, factory_name, **kwargs):
-        factory = '%s.%s' % (module_name, factory_name)
-        warnings.warn(
-            "factory.CircularSubFactory is deprecated and will be removed in "
-            "the future. "
-            "Please replace factory.CircularSubFactory('module', 'symbol') "
-            "with factory.SubFactory('module.symbol').",
-            PendingDeprecationWarning, 2)
-
-        super(CircularSubFactory, self).__init__(factory, **kwargs)
-
-
 class PostGenerationDeclaration(object):
     """Declarations to be called once the target object has been generated.
 
