@@ -1072,7 +1072,7 @@ PostGenerationMethodCall
         The default set of unnamed arguments to pass to the method given in
         :attr:`method_name`
 
-    .. attrinbute:: kwargs
+    .. attribute:: kwargs
 
         The default set of keyword arguments to pass to the method given in
         :attr:`method_name`
@@ -1120,21 +1120,23 @@ factory during instantiation.
     >>> other_u.check_password('different')
     True
 
-.. note:: For Django models, unless the object method called by
-   :class:`PostGenerationMethodCall` saves the object back to the
-   database, we will have to explicitly remember to save the object back
-   if we performed a ``create()``.
+.. note::
 
-   .. code-block:: pycon
+    For Django models, unless the object method called by
+    :class:`PostGenerationMethodCall` saves the object back to the
+    database, we will have to explicitly remember to save the object back
+    if we performed a ``create()``.
+
+    .. code-block:: pycon
 
         >>> u = UserFactory.create()  # u.password has not been saved back to the database
         >>> u.save()                  # we must remember to do it ourselves
 
 
-   We can avoid this by subclassing from :class:`DjangoModelFactory`,
-   instead, e.g.,
+    We can avoid this by subclassing from :class:`DjangoModelFactory`,
+    instead, e.g.,
 
-   .. code-block:: python
+    .. code-block:: python
 
         class UserFactory(factory.DjangoModelFactory):
             FACTORY_FOR = User
