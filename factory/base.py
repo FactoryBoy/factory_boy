@@ -705,7 +705,9 @@ def make_factory(klass, **kwargs):
     """Create a new, simple factory for the given class."""
     factory_name = '%sFactory' % klass.__name__
     kwargs[FACTORY_CLASS_DECLARATION] = klass
-    factory_class = type(Factory).__new__(type(Factory), factory_name, (Factory,), kwargs)
+    base_class = kwargs.pop('FACTORY_CLASS', Factory)
+
+    factory_class = type(Factory).__new__(type(Factory), factory_name, (base_class,), kwargs)
     factory_class.__name__ = '%sFactory' % klass.__name__
     factory_class.__doc__ = 'Auto-generated factory for class %s' % klass
     return factory_class

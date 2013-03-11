@@ -1219,6 +1219,25 @@ Lightweight factory declaration
             login = 'john'
             email = factory.LazyAttribute(lambda u: '%s@example.com' % u.login)
 
+    An alternate base class to :class:`Factory` can be specified in the
+    ``FACTORY_CLASS`` argument:
+
+    .. code-block:: python
+
+        UserFactory = make_factory(models.User,
+            login='john',
+            email=factory.LazyAttribute(lambda u: '%s@example.com' % u.login),
+            FACTORY_CLASS=factory.DjangoModelFactory,
+        )
+
+        # This is equivalent to:
+
+        class UserFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = models.User
+
+            login = 'john'
+            email = factory.LazyAttribute(lambda u: '%s@example.com' % u.login)
+
 
 Instance building
 """""""""""""""""
@@ -1226,8 +1245,8 @@ Instance building
 The :mod:`factory` module provides a bunch of shortcuts for creating a factory and
 extracting instances from them:
 
-.. function:: build(klass, **kwargs)
-.. function:: build_batch(klass, size, **kwargs)
+.. function:: build(klass, FACTORY_CLASS=None, **kwargs)
+.. function:: build_batch(klass, size, FACTORY_CLASS=None, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
     return an instance built from that factory,
@@ -1236,11 +1255,12 @@ extracting instances from them:
     :param class klass: Class of the instance to build
     :param int size: Number of instances to build
     :param kwargs: Declarations to use for the generated factory
+    :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
 
 
 
-.. function:: create(klass, **kwargs)
-.. function:: create_batch(klass, size, **kwargs)
+.. function:: create(klass, FACTORY_CLASS=None, **kwargs)
+.. function:: create_batch(klass, size, FACTORY_CLASS=None, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
     return an instance created from that factory,
@@ -1249,11 +1269,12 @@ extracting instances from them:
     :param class klass: Class of the instance to create
     :param int size: Number of instances to create
     :param kwargs: Declarations to use for the generated factory
+    :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
 
 
 
-.. function:: stub(klass, **kwargs)
-.. function:: stub_batch(klass, size, **kwargs)
+.. function:: stub(klass, FACTORY_CLASS=None, **kwargs)
+.. function:: stub_batch(klass, size, FACTORY_CLASS=None, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
     return an instance stubbed from that factory,
@@ -1262,11 +1283,12 @@ extracting instances from them:
     :param class klass: Class of the instance to stub
     :param int size: Number of instances to stub
     :param kwargs: Declarations to use for the generated factory
+    :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
 
 
 
-.. function:: generate(klass, strategy, **kwargs)
-.. function:: generate_batch(klass, strategy, size, **kwargs)
+.. function:: generate(klass, strategy, FACTORY_CLASS=None, **kwargs)
+.. function:: generate_batch(klass, strategy, size, FACTORY_CLASS=None, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
     return an instance generated from that factory with the :obj:`strategy` strategy,
@@ -1276,11 +1298,12 @@ extracting instances from them:
     :param str strategy: The strategy to use
     :param int size: Number of instances to generate
     :param kwargs: Declarations to use for the generated factory
+    :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
 
 
 
-.. function:: simple_generate(klass, create, **kwargs)
-.. function:: simple_generate_batch(klass, create, size, **kwargs)
+.. function:: simple_generate(klass, create, FACTORY_CLASS=None, **kwargs)
+.. function:: simple_generate_batch(klass, create, size, FACTORY_CLASS=None, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
     return an instance generated from that factory according to the :obj:`create` flag,
@@ -1290,5 +1313,6 @@ extracting instances from them:
     :param bool create: Whether to build (``False``) or create (``True``) instances
     :param int size: Number of instances to generate
     :param kwargs: Declarations to use for the generated factory
+    :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
 
 

@@ -1,19 +1,18 @@
 ChangeLog
 =========
 
-2.0.0 (future)
---------------
+2.0.0 (current)
+---------------
 
 .. note:: This section lists features planned for v2 of factory_boy. Changes announced here may not have been committed to the repository.
 
 *New:*
 
+    - Allow overriding the base factory class for :func:`~factory.make_factory` and friends.
     - Add support for Python3
-    - Clean up documentation
-    - Document extension points
     - Add support for ``get_or_create`` in :class:`~factory.DjangoModelFactory`
 
-*Deprecation:*
+*Removed:*
 
     - Remove associated class discovery
     - Stop defaulting to Django's ``Foo.objects.create()`` when "creating" instances
