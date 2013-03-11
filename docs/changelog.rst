@@ -21,8 +21,8 @@ ChangeLog
     - Remove :meth:`~factory.Factory.set_building_function` / :meth:`~factory.Factory.set_creation_function`
 
 
-1.3.0 (current)
----------------
+1.3.0 (2013-03-11)
+------------------
 
 .. warning:: This version deprecates many magic or unexplicit features that will be
              removed in v2.0.0.
@@ -99,21 +99,21 @@ In order to upgrade client code, apply the following rules:
 
 
 
-1.2.0 (09/08/2012)
+1.2.0 (2012-09-08)
 ------------------
 
 *New:*
 
     - Add :class:`~factory.CircularSubFactory` to solve circular dependencies between factories
 
-1.1.5 (09/07/2012)
+1.1.5 (2012-07-09)
 ------------------
 
 *Bugfix:*
 
     - Fix :class:`~factory.PostGenerationDeclaration` and derived classes.
 
-1.1.4 (19/06/2012)
+1.1.4 (2012-06-19)
 ------------------
 
 *New:*
@@ -124,14 +124,14 @@ In order to upgrade client code, apply the following rules:
     - Introduce :class:`~factory.PostGeneration` and
       :class:`~factory.RelatedFactory`
 
-1.1.3 (9/03/2012)
------------------
+1.1.3 (2012-03-09)
+------------------
 
 *Bugfix:*
 
   - Fix packaging rules
 
-1.1.2 (25/02/2012)
+1.1.2 (2012-02-25)
 ------------------
 
 *New:*
@@ -140,14 +140,14 @@ In order to upgrade client code, apply the following rules:
   - Provide :func:`~factory.Factory.generate` and :func:`~factory.Factory.simple_generate`, that allow specifying the instantiation strategy directly.
     Also provides :func:`~factory.Factory.generate_batch` and :func:`~factory.Factory.simple_generate_batch`.
 
-1.1.1 (24/02/2012)
+1.1.1 (2012-02-24)
 ------------------
 
 *New:*
 
   - Add :func:`~factory.Factory.build_batch`, :func:`~factory.Factory.create_batch` and :func:`~factory.Factory.stub_batch`, to instantiate factories in batch
 
-1.1.0 (24/02/2012)
+1.1.0 (2012-02-24)
 ------------------
 
 *New:*
@@ -165,7 +165,7 @@ In order to upgrade client code, apply the following rules:
 
   - Auto-discovery of :attr:`~factory.Factory.FACTORY_FOR` based on class name is now deprecated
 
-1.0.4 (21/12/2011)
+1.0.4 (2011-12-21)
 ------------------
 
 *New:*
@@ -185,14 +185,14 @@ In order to upgrade client code, apply the following rules:
   - Share sequence counter between parent and subclasses
   - Fix :class:`~factory.SubFactory` / :class:`~factory.Sequence` interferences
 
-1.0.2 (16/05/2011)
+1.0.2 (2011-05-16)
 ------------------
 
 *New:*
 
   - Introduce :class:`~factory.SubFactory`
 
-1.0.1 (13/05/2011)
+1.0.1 (2011-05-13)
 ------------------
 
 *New:*
@@ -204,7 +204,7 @@ In order to upgrade client code, apply the following rules:
 
   - Fix concurrency between :class:`~factory.LazyAttribute` and :class:`~factory.Sequence`
 
-1.0.0 (22/08/2010)
+1.0.0 (2010-08-22)
 ------------------
 
 *New:*
