@@ -31,20 +31,6 @@ BUILD_STRATEGY = 'build'
 CREATE_STRATEGY = 'create'
 STUB_STRATEGY = 'stub'
 
-# Creation functions. Deprecated.
-# Override Factory._create instead.
-def DJANGO_CREATION(class_to_create, **kwargs):
-    warnings.warn(
-        "Factories defaulting to Django's Foo.objects.create() is deprecated, "
-        "and will be removed in the future. Please inherit from "
-        "factory.DjangoModelFactory instead.", PendingDeprecationWarning, 6)
-    return class_to_create.objects.create(**kwargs)
-
-# Building functions. Deprecated.
-# Override Factory._build instead.
-NAIVE_BUILD = lambda class_to_build, **kwargs: class_to_build(**kwargs)
-MOGO_BUILD = lambda class_to_build, **kwargs: class_to_build.new(**kwargs)
-
 
 # Special declarations
 FACTORY_CLASS_DECLARATION = 'FACTORY_FOR'
@@ -498,76 +484,6 @@ class Factory(BaseFactory):
         pass
 
     @classmethod
-    def set_creation_function(cls, creation_function):
-        """Set the creation function for this class.
-
-        Args:
-            creation_function (function): the new creation function. That
-                function should take one non-keyword argument, the 'class' for
-                which an instance will be created. The value of the various
-                fields are passed as keyword arguments.
-        """
-        warnings.warn(
-            "Use of factory.set_creation_function is deprecated, and will be "
-            "removed in the future. Please override Factory._create() instead.",
-            PendingDeprecationWarning, 2)
-        # Customizing 'create' strategy, using a tuple to keep the creation function
-        # from turning it into an instance method.
-        cls._creation_function = (creation_function,)
-
-    @classmethod
-    def get_creation_function(cls):
-        """Retrieve the creation function for this class.
-
-        Returns:
-            function: A function that takes one parameter, the class for which
-                an instance will be created, and keyword arguments for the value
-                of the fields of the instance.
-        """
-        creation_function = getattr(cls, '_creation_function', ())
-        if creation_function and creation_function[0]:
-            return creation_function[0]
-        elif cls._create.__func__ == Factory._create.__func__ and \
-                hasattr(cls._associated_class, 'objects'):
-            # Backwards compatibility.
-            # Default creation_function and default _create() behavior.
-            # The best "Vanilla" _create detection algorithm I found is relying
-            # on actual method implementation (otherwise, make_factory isn't
-            # detected as 'default').
-            return DJANGO_CREATION
-
-    @classmethod
-    def set_building_function(cls, building_function):
-        """Set the building function for this class.
-
-        Args:
-            building_function (function): the new building function. That
-                function should take one non-keyword argument, the 'class' for
-                which an instance will be built. The value of the various
-                fields are passed as keyword arguments.
-        """
-        warnings.warn(
-            "Use of factory.set_building_function is deprecated, and will be "
-            "removed in the future. Please override Factory._build() instead.",
-            PendingDeprecationWarning, 2)
-        # Customizing 'build' strategy, using a tuple to keep the creation function
-        # from turning it into an instance method.
-        cls._building_function = (building_function,)
-
-    @classmethod
-    def get_building_function(cls):
-        """Retrieve the building function for this class.
-
-        Returns:
-            function: A function that takes one parameter, the class for which
-                an instance will be created, and keyword arguments for the value
-                of the fields of the instance.
-        """
-        building_function = getattr(cls, '_building_function', ())
-        if building_function and building_function[0]:
-            return building_function[0]
-
-    @classmethod
     def _adjust_kwargs(cls, **kwargs):
         """Extension point for custom kwargs adjustment."""
         return kwargs
@@ -587,16 +503,8 @@ class Factory(BaseFactory):
         args = tuple(kwargs.pop(key) for key in cls.FACTORY_ARG_PARAMETERS)
 
         if create:
-            # Backwards compatibility
-            creation_function = cls.get_creation_function()
-            if creation_function:
-                return creation_function(target_class, *args, **kwargs)
             return cls._create(target_class, *args, **kwargs)
         else:
-            # Backwards compatibility
-            building_function = cls.get_building_function()
-            if building_function:
-                return building_function(target_class, *args, **kwargs)
             return cls._build(target_class, *args, **kwargs)
 
     @classmethod

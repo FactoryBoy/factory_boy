@@ -45,10 +45,6 @@ from .base import (
     CREATE_STRATEGY,
     STUB_STRATEGY,
     use_strategy,
-
-    DJANGO_CREATION,
-    NAIVE_BUILD,
-    MOGO_BUILD,
 )
 
 from .declarations import (

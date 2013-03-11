@@ -54,6 +54,12 @@ class FakeModel(object):
             instance.id = 2
             return instance
 
+        def values_list(self, *args, **kwargs):
+            return self
+
+        def order_by(self, *args, **kwargs):
+            return [1]
+
     objects = FakeModelManager()
 
     def __init__(self, **kwargs):
@@ -104,15 +110,29 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.three, 3)
             self.assertEqual(obj.four, None)
 
-    @tools.disable_warnings
     def test_create(self):
         obj = factory.create(FakeModel, foo='bar')
+        self.assertEqual(obj.id, None)
+        self.assertEqual(obj.foo, 'bar')
+
+    def test_create_custom_base(self):
+        obj = factory.create(FakeModel, foo='bar', FACTORY_CLASS=factory.DjangoModelFactory)
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
-    @tools.disable_warnings
     def test_create_batch(self):
         objs = factory.create_batch(FakeModel, 4, foo='bar')
+
+        self.assertEqual(4, len(objs))
+        self.assertEqual(4, len(set(objs)))
+
+        for obj in objs:
+            self.assertEqual(obj.id, None)
+            self.assertEqual(obj.foo, 'bar')
+
+    def test_create_batch_custom_base(self):
+        objs = factory.create_batch(FakeModel, 4, foo='bar',
+                FACTORY_CLASS=factory.DjangoModelFactory)
 
         self.assertEqual(4, len(objs))
         self.assertEqual(4, len(set(objs)))
@@ -141,9 +161,14 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.id, None)
         self.assertEqual(obj.foo, 'bar')
 
-    @tools.disable_warnings
     def test_generate_create(self):
         obj = factory.generate(FakeModel, factory.CREATE_STRATEGY, foo='bar')
+        self.assertEqual(obj.id, None)
+        self.assertEqual(obj.foo, 'bar')
+
+    def test_generate_create_custom_base(self):
+        obj = factory.generate(FakeModel, factory.CREATE_STRATEGY, foo='bar',
+                FACTORY_CLASS=factory.DjangoModelFactory)
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
@@ -162,9 +187,19 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.id, None)
             self.assertEqual(obj.foo, 'bar')
 
-    @tools.disable_warnings
     def test_generate_batch_create(self):
         objs = factory.generate_batch(FakeModel, factory.CREATE_STRATEGY, 20, foo='bar')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for obj in objs:
+            self.assertEqual(obj.id, None)
+            self.assertEqual(obj.foo, 'bar')
+
+    def test_generate_batch_create_custom_base(self):
+        objs = factory.generate_batch(FakeModel, factory.CREATE_STRATEGY, 20, foo='bar',
+                FACTORY_CLASS=factory.DjangoModelFactory)
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
@@ -188,9 +223,13 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.id, None)
         self.assertEqual(obj.foo, 'bar')
 
-    @tools.disable_warnings
     def test_simple_generate_create(self):
         obj = factory.simple_generate(FakeModel, True, foo='bar')
+        self.assertEqual(obj.id, None)
+        self.assertEqual(obj.foo, 'bar')
+
+    def test_simple_generate_create_custom_base(self):
+        obj = factory.simple_generate(FakeModel, True, foo='bar', FACTORY_CLASS=factory.DjangoModelFactory)
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
@@ -204,9 +243,19 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.id, None)
             self.assertEqual(obj.foo, 'bar')
 
-    @tools.disable_warnings
     def test_simple_generate_batch_create(self):
         objs = factory.simple_generate_batch(FakeModel, True, 20, foo='bar')
+
+        self.assertEqual(20, len(objs))
+        self.assertEqual(20, len(set(objs)))
+
+        for obj in objs:
+            self.assertEqual(obj.id, None)
+            self.assertEqual(obj.foo, 'bar')
+
+    def test_simple_generate_batch_create_custom_base(self):
+        objs = factory.simple_generate_batch(FakeModel, True, 20, foo='bar',
+                FACTORY_CLASS=factory.DjangoModelFactory)
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
@@ -692,32 +741,6 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(2, obj.two)
         self.assertEqual('three', obj.three)
         self.assertEqual('four', obj.four)
-
-    @tools.disable_warnings
-    def test_set_building_function(self):
-        def building_function(class_to_create, **kwargs):
-            return "This doesn't even return an instance of {0}".format(class_to_create.__name__)
-
-        class TestModelFactory(FakeModelFactory):
-            FACTORY_FOR = TestModel
-
-        TestModelFactory.set_building_function(building_function)
-
-        test_object = TestModelFactory.build()
-        self.assertEqual(test_object, "This doesn't even return an instance of TestModel")
-
-    @tools.disable_warnings
-    def testSetCreationFunction(self):
-        def creation_function(class_to_create, **kwargs):
-            return "This doesn't even return an instance of {0}".format(class_to_create.__name__)
-
-        class TestModelFactory(FakeModelFactory):
-            FACTORY_FOR = TestModel
-
-        TestModelFactory.set_creation_function(creation_function)
-
-        test_object = TestModelFactory.create()
-        self.assertEqual(test_object, "This doesn't even return an instance of TestModel")
 
     def testClassMethodAccessible(self):
         class TestObjectFactory(factory.Factory):
