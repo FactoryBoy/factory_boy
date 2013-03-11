@@ -944,10 +944,6 @@ has been generated.
 Its sole argument is a callable, that will be called once the base object has
   been generated.
 
-.. note:: Previous versions of factory_boy supported an extra ``extract_prefix``
-          argument, to use an alternate argument prefix.
-          This feature is deprecated in 1.3.0 and will be removed in 2.0.0.
-
 Once the base object has been generated, the provided callable will be called
 as ``callable(obj, create, extracted, **kwargs)``, where:
 
@@ -973,7 +969,7 @@ as ``callable(obj, create, extracted, **kwargs)``, where:
 Decorator
 ~~~~~~~~~
 
-.. function:: post_generation(extract_prefix=None)
+.. function:: post_generation
 
 A decorator is also provided, decorating a single method accepting the same
 ``obj``, ``created``, ``extracted`` and keyword arguments as :class:`PostGeneration`.
@@ -1007,7 +1003,7 @@ A decorator is also provided, decorating a single method accepting the same
 PostGenerationMethodCall
 """"""""""""""""""""""""
 
-.. class:: PostGenerationMethodCall(method_name, extract_prefix=None, *args, **kwargs)
+.. class:: PostGenerationMethodCall(method_name, *args, **kwargs)
 
     .. OHAI_VIM*
 
@@ -1019,14 +1015,6 @@ PostGenerationMethodCall
     .. attribute:: method_name
 
         The name of the method to call on the :attr:`~Factory.FACTORY_FOR` object
-
-    .. attribute:: extract_prefix
-
-        If a string, the keyword argument prefix by which the field will get its
-        overriding arguments. If ``None``, defaults to the name of the attribute.
-
-        .. deprecated:: 1.3.0
-            Will be removed in 2.0.0
 
     .. attribute:: args
 

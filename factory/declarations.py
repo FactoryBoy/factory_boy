@@ -326,21 +326,7 @@ class SubFactory(ParameteredAttribute):
 
 
 class PostGenerationDeclaration(object):
-    """Declarations to be called once the target object has been generated.
-
-    Attributes:
-        extract_prefix (str): prefix to use when extracting attributes from
-            the factory's declaration for this declaration. If empty, uses
-            the attribute name of the PostGenerationDeclaration.
-    """
-
-    def __init__(self, extract_prefix=None):
-        if extract_prefix:
-            warnings.warn(
-                "The extract_prefix argument to PostGeneration declarations "
-                "is deprecated and will be removed in the future.",
-                PendingDeprecationWarning, 3)
-        self.extract_prefix = extract_prefix
+    """Declarations to be called once the target object has been generated."""
 
     def extract(self, name, attrs):
         """Extract relevant attributes from a dict.
@@ -355,12 +341,8 @@ class PostGenerationDeclaration(object):
             (object, dict): a tuple containing the attribute at 'name' (if
                 provided) and a dict of extracted attributes
         """
-        if self.extract_prefix:
-            extract_prefix = self.extract_prefix
-        else:
-            extract_prefix = name
-        extracted = attrs.pop(extract_prefix, None)
-        kwargs = utils.extract_dict(extract_prefix, attrs)
+        extracted = attrs.pop(name, None)
+        kwargs = utils.extract_dict(name, attrs)
         return extracted, kwargs
 
     def call(self, obj, create, extracted=None, **kwargs):  # pragma: no cover
@@ -369,7 +351,7 @@ class PostGenerationDeclaration(object):
         Args:
             obj (object): the newly generated object
             create (bool): whether the object was 'built' or 'created'
-            extracted (object): the value given for <extract_prefix> in the
+            extracted (object): the value given for <name> in the
                 object definition, or None if not provided.
             kwargs (dict): declarations extracted from the object
                 definition for this hook
@@ -379,30 +361,16 @@ class PostGenerationDeclaration(object):
 
 class PostGeneration(PostGenerationDeclaration):
     """Calls a given function once the object has been generated."""
-    def __init__(self, function, extract_prefix=None):
-        super(PostGeneration, self).__init__(extract_prefix)
+    def __init__(self, function):
+        super(PostGeneration, self).__init__()
         self.function = function
 
     def call(self, obj, create, extracted=None, **kwargs):
         return self.function(obj, create, extracted, **kwargs)
 
 
-def post_generation(*args, **kwargs):
-    assert len(args) + len(kwargs) <= 1, "post_generation takes at most one argument."
-    if args and callable(args[0]):
-        # Called as @post_generation applied to a function
-        return PostGeneration(args[0])
-    else:
-        warnings.warn(
-            "The @post_generation should now be applied directly to the "
-            "function, without parameters. The @post_generation() and "
-            "@post_generation(extract_prefix='xxx') syntaxes are deprecated "
-            "and will be removed in the future; use @post_generation instead.",
-            PendingDeprecationWarning, 2)
-        extract_prefix = kwargs.get('extract_prefix')
-        def decorator(fun):
-            return PostGeneration(fun, extract_prefix=extract_prefix)
-        return decorator
+def post_generation(fun):
+    return PostGeneration(fun)
 
 
 class RelatedFactory(PostGenerationDeclaration):
@@ -416,7 +384,7 @@ class RelatedFactory(PostGenerationDeclaration):
     """
 
     def __init__(self, factory, name='', **defaults):
-        super(RelatedFactory, self).__init__(extract_prefix=None)
+        super(RelatedFactory, self).__init__()
         self.name = name
         self.defaults = defaults
 
@@ -464,8 +432,7 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
             password = factory.PostGenerationMethodCall('set_password', password='')
     """
     def __init__(self, method_name, *args, **kwargs):
-        extract_prefix = kwargs.pop('extract_prefix', None)
-        super(PostGenerationMethodCall, self).__init__(extract_prefix)
+        super(PostGenerationMethodCall, self).__init__()
         self.method_name = method_name
         self.method_args = args
         self.method_kwargs = kwargs

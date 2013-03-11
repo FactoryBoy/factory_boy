@@ -122,26 +122,6 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
         self.assertEqual(extracted, 13)
         self.assertEqual(kwargs, {'bar': 42})
 
-    @tools.disable_warnings
-    def test_extract_with_prefix(self):
-        decl = declarations.PostGenerationDeclaration(extract_prefix='blah')
-
-        extracted, kwargs = decl.extract('foo',
-            {'foo': 13, 'foo__bar': 42, 'blah': 42, 'blah__baz': 1})
-        self.assertEqual(extracted, 42)
-        self.assertEqual(kwargs, {'baz': 1})
-
-    def test_extract_prefix_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            __warningregistry__.clear()
-
-            warnings.simplefilter('always')
-            declarations.PostGenerationDeclaration(extract_prefix='blah')
-
-            self.assertEqual(1, len(w))
-            self.assertIn('extract_prefix', str(w[0].message))
-            self.assertIn('deprecated', str(w[0].message))
-
     def test_decorator_simple(self):
         call_params = []
         @declarations.post_generation
@@ -159,71 +139,6 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
         self.assertEqual(2, len(call_params))
         self.assertEqual((None, False, 13), call_params[0])
         self.assertEqual({'bar': 42}, call_params[1])
-
-    @tools.disable_warnings
-    def test_decorator_call_no_prefix(self):
-        call_params = []
-        @declarations.post_generation()
-        def foo(*args, **kwargs):
-            call_params.append(args)
-            call_params.append(kwargs)
-
-        extracted, kwargs = foo.extract('foo',
-            {'foo': 13, 'foo__bar': 42, 'blah': 42, 'blah__baz': 1})
-        self.assertEqual(13, extracted)
-        self.assertEqual({'bar': 42}, kwargs)
-
-        # No value returned.
-        foo.call(None, False, extracted, **kwargs)
-        self.assertEqual(2, len(call_params))
-        self.assertEqual((None, False, 13), call_params[0])
-        self.assertEqual({'bar': 42}, call_params[1])
-
-    @tools.disable_warnings
-    def test_decorator_extract_prefix(self):
-        call_params = []
-        @declarations.post_generation(extract_prefix='blah')
-        def foo(*args, **kwargs):
-            call_params.append(args)
-            call_params.append(kwargs)
-
-        extracted, kwargs = foo.extract('foo',
-            {'foo': 13, 'foo__bar': 42, 'blah': 42, 'blah__baz': 1})
-        self.assertEqual(42, extracted)
-        self.assertEqual({'baz': 1}, kwargs)
-
-        # No value returned.
-        foo.call(None, False, extracted, **kwargs)
-        self.assertEqual(2, len(call_params))
-        self.assertEqual((None, False, 42), call_params[0])
-        self.assertEqual({'baz': 1}, call_params[1])
-
-    def test_decorator_call_no_prefix_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            __warningregistry__.clear()
-
-            warnings.simplefilter('always')
-            @declarations.post_generation()
-            def foo(*args, **kwargs):
-                pass
-
-            self.assertEqual(1, len(w))
-            self.assertIn('post_generation', str(w[0].message))
-            self.assertIn('deprecated', str(w[0].message))
-
-    def test_decorator_call_with_prefix_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            __warningregistry__.clear()
-
-            warnings.simplefilter('always')
-            @declarations.post_generation(extract_prefix='blah')
-            def foo(*args, **kwargs):
-                pass
-
-            # 2 warnings: decorator with brackets, and extract_prefix.
-            self.assertEqual(2, len(w))
-            self.assertIn('post_generation', str(w[0].message))
-            self.assertIn('deprecated', str(w[0].message))
 
 
 class SubFactoryTestCase(unittest.TestCase):
