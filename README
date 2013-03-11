@@ -198,6 +198,11 @@ All pull request should pass the test suite, which can be launched simply with:
     $ python setup.py test
 
 
+.. note::
+
+    Running test requires the unittest2 (standard in Python 2.7+) and mock libraries.
+
+
 In order to test coverage, please use:
 
 .. code-block:: sh
