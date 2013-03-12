@@ -43,7 +43,8 @@ def extract_dict(prefix, kwargs, pop=True, exclude=()):
     """
     prefix = prefix + ATTR_SPLITTER
     extracted = {}
-    for key in kwargs.keys():
+
+    for key in list(kwargs):
         if key in exclude:
             continue
 

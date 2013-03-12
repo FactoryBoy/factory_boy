@@ -25,7 +25,8 @@ import collections
 import itertools
 import warnings
 
-from factory import utils
+from . import compat
+from . import utils
 
 
 class OrderedDeclaration(object):
@@ -294,7 +295,7 @@ class SubFactory(ParameteredAttribute):
             self.factory_module = self.factory_name = ''
         else:
             # Must be a string
-            if not isinstance(factory, basestring) or '.' not in factory:
+            if not isinstance(factory, compat.string_types) or '.' not in factory:
                 raise ValueError(
                         "The argument of a SubFactory must be either a class "
                         "or the fully qualified path to a Factory class; got "
@@ -393,7 +394,7 @@ class RelatedFactory(PostGenerationDeclaration):
             self.factory_module = self.factory_name = ''
         else:
             # Must be a string
-            if not isinstance(factory, basestring) or '.' not in factory:
+            if not isinstance(factory, compat.string_types) or '.' not in factory:
                 raise ValueError(
                         "The argument of a SubFactory must be either a class "
                         "or the fully qualified path to a Factory class; got "

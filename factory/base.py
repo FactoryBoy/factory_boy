@@ -24,7 +24,7 @@ import re
 import sys
 import warnings
 
-from factory import containers
+from . import containers
 
 # Strategies
 BUILD_STRATEGY = 'build'

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Copyright (c) 2010 Mark Sandstrom
 # Copyright (c) 2011-2013 Raphaël Barrois
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,19 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Compatibility tools for tests"""
+
+"""Compatibility tools"""
 
 import sys
 
 is_python2 = (sys.version_info[0] == 2)
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
-if sys.version_info[0:2] < (3, 3):
-    import mock
+if is_python2:
+    string_types = (str, unicode)
 else:
-    from unittest import mock
-
+    string_types = (str,)

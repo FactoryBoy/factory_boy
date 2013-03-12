@@ -21,8 +21,8 @@
 # THE SOFTWARE.
 
 
-from factory import declarations
-from factory import utils
+from . import declarations
+from . import utils
 
 
 class CyclicDefinitionError(Exception):

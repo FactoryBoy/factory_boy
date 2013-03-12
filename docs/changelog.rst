@@ -9,7 +9,7 @@ ChangeLog
 *New:*
 
     - Allow overriding the base factory class for :func:`~factory.make_factory` and friends.
-    - Add support for Python3
+    - Add support for Python3 (Thanks to `kmike <https://github.com/kmike>`_ and `nkryptic <https://github.com/nkryptic>`_)
     - Add support for ``get_or_create`` in :class:`~factory.DjangoModelFactory`
 
 *Removed:*
