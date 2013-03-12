@@ -30,7 +30,7 @@ try:
 except ImportError:
     import unittest
 
-if is_python2:
+if sys.version_info[0:2] < (3, 3):
     import mock
 else:
     from unittest import mock
