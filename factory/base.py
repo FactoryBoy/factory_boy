@@ -23,7 +23,7 @@
 import re
 import sys
 import warnings
-
+import six
 from factory import containers
 
 # Strategies
@@ -45,7 +45,11 @@ CLASS_ATTRIBUTE_ASSOCIATED_CLASS = '_associated_class'
 
 def get_factory_bases(bases):
     """Retrieve all BaseFactoryMetaClass-derived bases from a list."""
-    return [b for b in bases if isinstance(b, BaseFactoryMetaClass)]
+    try:
+        return [b for b in bases if issubclass(b, Factory)]
+    except NameError:
+        # We are defining Factory itself here
+        return None
 
 
 class BaseFactoryMetaClass(type):
@@ -436,19 +440,17 @@ class BaseFactory(object):
         return cls.generate_batch(strategy, size, **kwargs)
 
 
-class StubFactory(BaseFactory):
-    __metaclass__ = BaseFactoryMetaClass
+class StubFactory(six.with_metaclass(BaseFactoryMetaClass, BaseFactory)):
 
     default_strategy = STUB_STRATEGY
 
 
-class Factory(BaseFactory):
+class Factory(six.with_metaclass(FactoryMetaClass, BaseFactory)):
     """Factory base with build and create support.
 
     This class has the ability to support multiple ORMs by using custom creation
     functions.
     """
-    __metaclass__ = FactoryMetaClass
 
     default_strategy = CREATE_STRATEGY
 
