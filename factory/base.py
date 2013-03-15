@@ -290,6 +290,68 @@ class BaseFactory(object):
         return getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS).copy(extra_defs)
 
     @classmethod
+    def _adjust_kwargs(cls, **kwargs):
+        """Extension point for custom kwargs adjustment."""
+        return kwargs
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        """Prepare an object for this factory.
+
+        Args:
+            create: bool, whether to create or to build the object
+            **kwargs: arguments to pass to the creation function
+        """
+        target_class = getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)
+        kwargs = cls._adjust_kwargs(**kwargs)
+
+        # Extract *args from **kwargs
+        args = tuple(kwargs.pop(key) for key in cls.FACTORY_ARG_PARAMETERS)
+
+        if create:
+            return cls._create(target_class, *args, **kwargs)
+        else:
+            return cls._build(target_class, *args, **kwargs)
+
+    @classmethod
+    def _generate(cls, create, attrs):
+        """generate the object.
+
+        Args:
+            create (bool): whether to 'build' or 'create' the object
+            attrs (dict): attributes to use for generating the object
+        """
+        # Extract declarations used for post-generation
+        postgen_declarations = getattr(cls, CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS)
+        postgen_attributes = {}
+        for name, decl in sorted(postgen_declarations.items()):
+            postgen_attributes[name] = decl.extract(name, attrs)
+
+        # Generate the object
+        obj = cls._prepare(create, **attrs)
+
+        # Handle post-generation attributes
+        results = {}
+        for name, decl in sorted(postgen_declarations.items()):
+            extracted, extracted_kwargs = postgen_attributes[name]
+            results[name] = decl.call(obj, create, extracted, **extracted_kwargs)
+
+        cls._after_postgeneration(obj, create, results)
+
+        return obj
+
+    @classmethod
+    def _after_postgeneration(cls, obj, create, results=None):
+        """Hook called after post-generation declarations have been handled.
+
+        Args:
+            obj (object): the generated object
+            create (bool): whether the strategy was 'build' or 'create'
+            results (dict or None): result of post-generation declarations
+        """
+        pass
+
+    @classmethod
     def _build(cls, target_class, *args, **kwargs):
         """Actually build an instance of the target_class.
 
@@ -322,7 +384,8 @@ class BaseFactory(object):
     @classmethod
     def build(cls, **kwargs):
         """Build an instance of the associated class, with overriden attrs."""
-        raise cls.UnsupportedStrategy()
+        attrs = cls.attributes(create=False, extra=kwargs)
+        return cls._generate(False, attrs)
 
     @classmethod
     def build_batch(cls, size, **kwargs):
@@ -339,7 +402,8 @@ class BaseFactory(object):
     @classmethod
     def create(cls, **kwargs):
         """Create an instance of the associated class, with overriden attrs."""
-        raise cls.UnsupportedStrategy()
+        attrs = cls.attributes(create=True, extra=kwargs)
+        return cls._generate(True, attrs)
 
     @classmethod
     def create_batch(cls, size, **kwargs):
@@ -455,90 +519,22 @@ class Factory(BaseFactory):
     ABSTRACT_FACTORY = True
     FACTORY_STRATEGY = CREATE_STRATEGY
 
-    @classmethod
-    def _adjust_kwargs(cls, **kwargs):
-        """Extension point for custom kwargs adjustment."""
-        return kwargs
-
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        """Prepare an object for this factory.
-
-        Args:
-            create: bool, whether to create or to build the object
-            **kwargs: arguments to pass to the creation function
-        """
-        target_class = getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)
-        kwargs = cls._adjust_kwargs(**kwargs)
-
-        # Extract *args from **kwargs
-        args = tuple(kwargs.pop(key) for key in cls.FACTORY_ARG_PARAMETERS)
-
-        if create:
-            return cls._create(target_class, *args, **kwargs)
-        else:
-            return cls._build(target_class, *args, **kwargs)
-
-    @classmethod
-    def _generate(cls, create, attrs):
-        """generate the object.
-
-        Args:
-            create (bool): whether to 'build' or 'create' the object
-            attrs (dict): attributes to use for generating the object
-        """
-        # Extract declarations used for post-generation
-        postgen_declarations = getattr(cls, CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS)
-        postgen_attributes = {}
-        for name, decl in sorted(postgen_declarations.items()):
-            postgen_attributes[name] = decl.extract(name, attrs)
-
-        # Generate the object
-        obj = cls._prepare(create, **attrs)
-
-        # Handle post-generation attributes
-        results = {}
-        for name, decl in sorted(postgen_declarations.items()):
-            extracted, extracted_kwargs = postgen_attributes[name]
-            results[name] = decl.call(obj, create, extracted, **extracted_kwargs)
-
-        cls._after_postgeneration(obj, create, results)
-
-        return obj
-
-    @classmethod
-    def _after_postgeneration(cls, obj, create, results=None):
-        """Hook called after post-generation declarations have been handled.
-
-        Args:
-            obj (object): the generated object
-            create (bool): whether the strategy was 'build' or 'create'
-            results (dict or None): result of post-generation declarations
-        """
-        pass
-
-    @classmethod
-    def build(cls, **kwargs):
-        attrs = cls.attributes(create=False, extra=kwargs)
-        return cls._generate(False, attrs)
-
-    @classmethod
-    def create(cls, **kwargs):
-        attrs = cls.attributes(create=True, extra=kwargs)
-        return cls._generate(True, attrs)
-
 
 Factory.AssociatedClassError = AssociatedClassError
 
 
-class StubFactory(BaseFactory):
-    __metaclass__ = FactoryMetaClass
+class StubFactory(Factory):
 
     FACTORY_STRATEGY = STUB_STRATEGY
-
     FACTORY_FOR = containers.StubObject
 
-print StubFactory._associated_class
+    @classmethod
+    def build(cls, **kwargs):
+        raise UnsupportedStrategy()
+
+    @classmethod
+    def create(cls, **kwargs):
+        raise UnsupportedStrategy()
 
 
 class DjangoModelFactory(Factory):
