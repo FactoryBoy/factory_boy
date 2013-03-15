@@ -120,12 +120,6 @@ class BaseFactoryMetaClass(type):
 class FactoryMetaClass(BaseFactoryMetaClass):
     """Factory metaclass for handling class association and ordered declarations."""
 
-    ERROR_MESSAGE = """Could not determine what class this factory is for.
-    Use the {0} attribute to specify a class."""
-    ERROR_MESSAGE_AUTODISCOVERY = ERROR_MESSAGE + """
-    Also, autodiscovery failed using the name '{1}'
-    based on the Factory name '{2}' in {3}."""
-
     @classmethod
     def _discover_associated_class(cls, class_name, attrs, inherited=None):
         """Try to find the class associated with this factory.
