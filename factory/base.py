@@ -41,6 +41,22 @@ CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS = '_postgen_declarations'
 CLASS_ATTRIBUTE_ASSOCIATED_CLASS = '_associated_class'
 
 
+class FactoryError(Exception):
+    """Any exception raised by factory_boy."""
+
+
+class AssociatedClassError(FactoryError):
+    """Exception for Factory subclasses lacking FACTORY_FOR."""
+
+
+class UnknownStrategy(FactoryError):
+    """Raised when a factory uses an unknown strategy."""
+
+
+class UnsupportedStrategy(FactoryError):
+    """Raised when trying to use a strategy on an incompatible Factory."""
+
+
 # Factory metaclasses
 
 def get_factory_bases(bases):
@@ -64,7 +80,7 @@ class FactoryMetaClass(type):
         elif cls.FACTORY_STRATEGY == STUB_STRATEGY:
             return cls.stub(**kwargs)
         else:
-            raise BaseFactory.UnknownStrategy('Unknown FACTORY_STRATEGY: {0}'.format(cls.FACTORY_STRATEGY))
+            raise UnknownStrategy('Unknown FACTORY_STRATEGY: {0}'.format(cls.FACTORY_STRATEGY))
 
     @classmethod
     def _discover_associated_class(cls, class_name, attrs, inherited=None):
@@ -200,15 +216,12 @@ class FactoryMetaClass(type):
 class BaseFactory(object):
     """Factory base support for sequences, attributes and stubs."""
 
-    class UnknownStrategy(RuntimeError):
-        pass
-
-    class UnsupportedStrategy(RuntimeError):
-        pass
+    UnknownStrategy = UnknownStrategy
+    UnsupportedStrategy = UnsupportedStrategy
 
     def __new__(cls, *args, **kwargs):
         """Would be called if trying to instantiate the class."""
-        raise RuntimeError('You cannot instantiate BaseFactory')
+        raise FactoryError('You cannot instantiate BaseFactory')
 
     # ID to use for the next 'declarations.Sequence' attribute.
     _next_sequence = None
@@ -429,10 +442,6 @@ class BaseFactory(object):
         """
         strategy = CREATE_STRATEGY if create else BUILD_STRATEGY
         return cls.generate_batch(strategy, size, **kwargs)
-
-
-class AssociatedClassError(RuntimeError):
-    pass
 
 
 class Factory(BaseFactory):

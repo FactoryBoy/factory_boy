@@ -60,7 +60,7 @@ class TestModel(FakeDjangoModel):
 
 class SafetyTestCase(unittest.TestCase):
     def testBaseFactory(self):
-        self.assertRaises(RuntimeError, base.BaseFactory)
+        self.assertRaises(base.FactoryError, base.BaseFactory)
 
 
 class FactoryTestCase(unittest.TestCase):
