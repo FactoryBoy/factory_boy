@@ -508,18 +508,18 @@ class BaseFactory(object):
         return cls.generate_batch(strategy, size, **kwargs)
 
 
-class Factory(BaseFactory):
-    """Factory base with build and create support.
+Factory = FactoryMetaClass('Factory', (BaseFactory,), {
+    'ABSTRACT_FACTORY': True,
+    'FACTORY_STRATEGY': CREATE_STRATEGY,
+    '__doc__': """Factory base with build and create support.
 
     This class has the ability to support multiple ORMs by using custom creation
     functions.
-    """
-    __metaclass__ = FactoryMetaClass
-
-    ABSTRACT_FACTORY = True
-    FACTORY_STRATEGY = CREATE_STRATEGY
+    """,
+    })
 
 
+# Backwards compatibility
 Factory.AssociatedClassError = AssociatedClassError
 
 
