@@ -108,13 +108,13 @@ class FactoryTestCase(unittest.TestCase):
 
 class FactoryDefaultStrategyTestCase(unittest.TestCase):
     def setUp(self):
-        self.default_strategy = base.Factory.default_strategy
+        self.default_strategy = base.Factory.FACTORY_STRATEGY
 
     def tearDown(self):
-        base.Factory.default_strategy = self.default_strategy
+        base.Factory.FACTORY_STRATEGY = self.default_strategy
 
     def testBuildStrategy(self):
-        base.Factory.default_strategy = base.BUILD_STRATEGY
+        base.Factory.FACTORY_STRATEGY = base.BUILD_STRATEGY
 
         class TestModelFactory(base.Factory):
             FACTORY_FOR = TestModel
@@ -126,7 +126,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertFalse(test_model.id)
 
     def testCreateStrategy(self):
-        # Default default_strategy
+        # Default FACTORY_STRATEGY
 
         class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
@@ -138,7 +138,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertTrue(test_model.id)
 
     def testStubStrategy(self):
-        base.Factory.default_strategy = base.STUB_STRATEGY
+        base.Factory.FACTORY_STRATEGY = base.STUB_STRATEGY
 
         class TestModelFactory(base.Factory):
             FACTORY_FOR = TestModel
@@ -150,7 +150,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertFalse(hasattr(test_model, 'id'))  # We should have a plain old object
 
     def testUnknownStrategy(self):
-        base.Factory.default_strategy = 'unknown'
+        base.Factory.FACTORY_STRATEGY = 'unknown'
 
         class TestModelFactory(base.Factory):
             FACTORY_FOR = TestModel
@@ -165,11 +165,11 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
             one = 'one'
 
-        TestModelFactory.default_strategy = base.CREATE_STRATEGY
+        TestModelFactory.FACTORY_STRATEGY = base.CREATE_STRATEGY
 
         self.assertRaises(base.StubFactory.UnsupportedStrategy, TestModelFactory)
 
-        TestModelFactory.default_strategy = base.BUILD_STRATEGY
+        TestModelFactory.FACTORY_STRATEGY = base.BUILD_STRATEGY
         self.assertRaises(base.StubFactory.UnsupportedStrategy, TestModelFactory)
 
     def test_change_strategy(self):
@@ -179,7 +179,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
             one = 'one'
 
-        self.assertEqual(base.CREATE_STRATEGY, TestModelFactory.default_strategy)
+        self.assertEqual(base.CREATE_STRATEGY, TestModelFactory.FACTORY_STRATEGY)
 
 
 class FactoryCreationTestCase(unittest.TestCase):
@@ -193,7 +193,7 @@ class FactoryCreationTestCase(unittest.TestCase):
         class TestFactory(base.StubFactory):
             pass
 
-        self.assertEqual(TestFactory.default_strategy, base.STUB_STRATEGY)
+        self.assertEqual(TestFactory.FACTORY_STRATEGY, base.STUB_STRATEGY)
 
     def testInheritanceWithStub(self):
         class TestObjectFactory(base.StubFactory):
@@ -204,7 +204,7 @@ class FactoryCreationTestCase(unittest.TestCase):
         class TestFactory(TestObjectFactory):
             pass
 
-        self.assertEqual(TestFactory.default_strategy, base.STUB_STRATEGY)
+        self.assertEqual(TestFactory.FACTORY_STRATEGY, base.STUB_STRATEGY)
 
     def testCustomCreation(self):
         class TestModelFactory(FakeModelFactory):

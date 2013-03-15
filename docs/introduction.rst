@@ -253,6 +253,6 @@ Calling a :class:`~factory.Factory` subclass will provide an object through the 
     <MyClass: X (saved)>
 
 
-The default strategy can ba changed by setting the class-level :attr:`~factory.Factory.default_strategy` attribute.
+The default strategy can ba changed by setting the class-level :attr:`~factory.Factory.FACTROY_STRATEGY` attribute.
 
 
