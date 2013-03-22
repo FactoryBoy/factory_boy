@@ -672,7 +672,7 @@ That declaration takes a single argument, a dot-delimited path to the attribute 
     class UserFactory(factory.Factory)
         FACTORY_FOR = User
 
-        birthdate = factory.Sequence(lambda n: datetime.date(2000, 1, 1) + datetime.timedelta(days=n))
+        birthdate = factory.Sequence(lambda n: datetime.date(2000, 1, 1) + datetime.timedelta(days=int(n)))
         birthmonth = factory.SelfAttribute('birthdate.month')
 
 .. code-block:: pycon
