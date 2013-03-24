@@ -315,8 +315,8 @@ class UsingFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
-            one = factory.Sequence(lambda n: 'one' + n)
-            two = factory.Sequence(lambda n: 'two' + n)
+            one = factory.Sequence(lambda n: 'one%d' % n)
+            two = factory.Sequence(lambda n: 'two%d' % n)
 
         test_object0 = TestObjectFactory.build()
         self.assertEqual(test_object0.one, 'one0')
@@ -334,8 +334,8 @@ class UsingFactoryTestCase(unittest.TestCase):
             def _setup_next_sequence(cls):
                 return 42
 
-            one = factory.Sequence(lambda n: 'one' + n)
-            two = factory.Sequence(lambda n: 'two' + n)
+            one = factory.Sequence(lambda n: 'one%d' % n)
+            two = factory.Sequence(lambda n: 'two%d' % n)
 
         test_object0 = TestObjectFactory.build()
         self.assertEqual('one42', test_object0.one)
@@ -382,8 +382,8 @@ class UsingFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
-            one = factory.Sequence(lambda n: 'one' + n)
-            two = factory.Sequence(lambda n: 'two' + n)
+            one = factory.Sequence(lambda n: 'one%d' % n)
+            two = factory.Sequence(lambda n: 'two%d' % n)
 
         objs = TestObjectFactory.build_batch(20)
 
@@ -408,8 +408,8 @@ class UsingFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
-            one = factory.LazyAttributeSequence(lambda a, n: 'abc' + n)
-            two = factory.LazyAttributeSequence(lambda a, n: a.one + ' xyz' + n)
+            one = factory.LazyAttributeSequence(lambda a, n: 'abc%d' % n)
+            two = factory.LazyAttributeSequence(lambda a, n: a.one + ' xyz%d' % n)
 
         test_object0 = TestObjectFactory.build()
         self.assertEqual(test_object0.one, 'abc0')
@@ -472,7 +472,7 @@ class UsingFactoryTestCase(unittest.TestCase):
 
             @factory.sequence
             def one(n):
-                return 'one' + n
+                return 'one%d' % n
 
         test_object = TestObjectFactory.build()
         self.assertEqual(test_object.one, 'one0')
@@ -483,10 +483,10 @@ class UsingFactoryTestCase(unittest.TestCase):
 
             @factory.lazy_attribute_sequence
             def one(a, n):
-                return 'one' + n
+                return 'one%d' % n
             @factory.lazy_attribute_sequence
             def two(a, n):
-                return a.one + ' two' + n
+                return a.one + ' two%d' % n
 
         test_object = TestObjectFactory.build()
         self.assertEqual(test_object.one, 'one0')
@@ -496,8 +496,8 @@ class UsingFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
-            one = factory.Sequence(lambda n: 'one' + n)
-            two = factory.Sequence(lambda n: 'two' + n)
+            one = factory.Sequence(lambda n: 'one%d' % n)
+            two = factory.Sequence(lambda n: 'two%d' % n)
 
         test_object0 = TestObjectFactory.build(three='three')
         self.assertEqual(test_object0.one, 'one0')
@@ -673,7 +673,7 @@ class UsingFactoryTestCase(unittest.TestCase):
             three = factory.Sequence(lambda n: int(n))
 
         objs = TestObjectFactory.stub_batch(20,
-            one=factory.Sequence(lambda n: n))
+            one=factory.Sequence(lambda n: str(n)))
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
@@ -862,7 +862,7 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModel2Factory(FakeModelFactory):
             FACTORY_FOR = TestModel2
             two = factory.SubFactory(TestModelFactory,
-                                          one=factory.Sequence(lambda n: 'x%sx' % n),
+                                          one=factory.Sequence(lambda n: 'x%dx' % n),
                                           two=factory.LazyAttribute(
                                               lambda o: '%s%s' % (o.one, o.one)))
 

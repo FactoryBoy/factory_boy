@@ -253,7 +253,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
         self.assertEqual({'one': 2}, ab.build(create=False))
 
     def test_factory_defined_sequence(self):
-        seq = declarations.Sequence(lambda n: 'xx' + n)
+        seq = declarations.Sequence(lambda n: 'xx%d' % n)
 
         class FakeFactory(object):
             @classmethod
@@ -270,7 +270,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
         self.assertEqual({'one': 'xx1'}, ab.build(create=False))
 
     def test_additionnal_sequence(self):
-        seq = declarations.Sequence(lambda n: 'xx' + n)
+        seq = declarations.Sequence(lambda n: 'xx%d' % n)
 
         class FakeFactory(object):
             @classmethod
@@ -287,8 +287,8 @@ class AttributeBuilderTestCase(unittest.TestCase):
         self.assertEqual({'one': 1, 'two': 'xx1'}, ab.build(create=False))
 
     def test_replaced_sequence(self):
-        seq = declarations.Sequence(lambda n: 'xx' + n)
-        seq2 = declarations.Sequence(lambda n: 'yy' + n)
+        seq = declarations.Sequence(lambda n: 'xx%d' % n)
+        seq2 = declarations.Sequence(lambda n: 'yy%d' % n)
 
         class FakeFactory(object):
             @classmethod

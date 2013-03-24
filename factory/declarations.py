@@ -168,7 +168,7 @@ class Sequence(OrderedDeclaration):
         type (function): A function converting an integer into the expected kind
             of counter for the 'function' attribute.
     """
-    def __init__(self, function, type=str):
+    def __init__(self, function, type=int):
         super(Sequence, self).__init__()
         self.function = function
         self.type = type
