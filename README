@@ -22,7 +22,7 @@ Links
 * Official repository: https://github.com/rbarrois/factory_boy
 * Package: https://pypi.python.org/pypi/factory_boy/
 
-factory_boy supports Python 2.6, 2.7, 3.2 and 3.3; and requires only the standard Python library.
+factory_boy supports Python 2.6, 2.7, 3.2 and 3.3, as well as PyPy; it requires only the standard Python library.
 
 
 Download
