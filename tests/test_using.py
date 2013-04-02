@@ -49,10 +49,11 @@ class FakeModel(object):
         return instance
 
     class FakeModelManager(object):
-        def create(self, **kwargs):
+        def get_or_create(self, **kwargs):
+            kwargs.update(kwargs.pop('defaults', {}))
             instance = FakeModel.create(**kwargs)
             instance.id = 2
-            return instance
+            return instance, True
 
         def values_list(self, *args, **kwargs):
             return self
@@ -1235,6 +1236,134 @@ class IteratorTestCase(unittest.TestCase):
 
         for i, obj in enumerate(objs):
             self.assertEqual(i + 10, obj.one)
+
+
+class BetterFakeModelManager(object):
+    def __init__(self, keys, instance):
+        self.keys = keys
+        self.instance = instance
+
+    def get_or_create(self, **kwargs):
+        defaults = kwargs.pop('defaults', {})
+        if kwargs == self.keys:
+            return self.instance, False
+        kwargs.update(defaults)
+        instance = FakeModel.create(**kwargs)
+        instance.id = 2
+        return instance, True
+
+    def values_list(self, *args, **kwargs):
+        return self
+
+    def order_by(self, *args, **kwargs):
+        return [1]
+
+
+class BetterFakeModel(object):
+    @classmethod
+    def create(cls, **kwargs):
+        instance = cls(**kwargs)
+        instance.id = 1
+        return instance
+
+    def __init__(self, **kwargs):
+        for name, value in kwargs.items():
+            setattr(self, name, value)
+            self.id = None
+
+
+class DjangoModelFactoryTestCase(unittest.TestCase):
+    def test_simple(self):
+        class FakeModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = FakeModel
+
+        obj = FakeModelFactory(one=1)
+        self.assertEqual(1, obj.one)
+        self.assertEqual(2, obj.id)
+
+    def test_existing_instance(self):
+        prev = BetterFakeModel.create(x=1, y=2, z=3)
+        prev.id = 42
+
+        class MyFakeModel(BetterFakeModel):
+            objects = BetterFakeModelManager({'x': 1}, prev)
+
+        class MyFakeModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = MyFakeModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('x',)
+            x = 1
+            y = 4
+            z = 6
+
+        obj = MyFakeModelFactory()
+        self.assertEqual(prev, obj)
+        self.assertEqual(1, obj.x)
+        self.assertEqual(2, obj.y)
+        self.assertEqual(3, obj.z)
+        self.assertEqual(42, obj.id)
+
+    def test_existing_instance_complex_key(self):
+        prev = BetterFakeModel.create(x=1, y=2, z=3)
+        prev.id = 42
+
+        class MyFakeModel(BetterFakeModel):
+            objects = BetterFakeModelManager({'x': 1, 'y': 2, 'z': 3}, prev)
+
+        class MyFakeModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = MyFakeModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('x', 'y', 'z')
+            x = 1
+            y = 4
+            z = 6
+
+        obj = MyFakeModelFactory(y=2, z=3)
+        self.assertEqual(prev, obj)
+        self.assertEqual(1, obj.x)
+        self.assertEqual(2, obj.y)
+        self.assertEqual(3, obj.z)
+        self.assertEqual(42, obj.id)
+
+    def test_new_instance(self):
+        prev = BetterFakeModel.create(x=1, y=2, z=3)
+        prev.id = 42
+
+        class MyFakeModel(BetterFakeModel):
+            objects = BetterFakeModelManager({'x': 1}, prev)
+
+        class MyFakeModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = MyFakeModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('x',)
+            x = 1
+            y = 4
+            z = 6
+
+        obj = MyFakeModelFactory(x=2)
+        self.assertNotEqual(prev, obj)
+        self.assertEqual(2, obj.x)
+        self.assertEqual(4, obj.y)
+        self.assertEqual(6, obj.z)
+        self.assertEqual(2, obj.id)
+
+    def test_new_instance_complex_key(self):
+        prev = BetterFakeModel.create(x=1, y=2, z=3)
+        prev.id = 42
+
+        class MyFakeModel(BetterFakeModel):
+            objects = BetterFakeModelManager({'x': 1, 'y': 2, 'z': 3}, prev)
+
+        class MyFakeModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = MyFakeModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('x', 'y', 'z')
+            x = 1
+            y = 4
+            z = 6
+
+        obj = MyFakeModelFactory(y=2, z=4)
+        self.assertNotEqual(prev, obj)
+        self.assertEqual(1, obj.x)
+        self.assertEqual(2, obj.y)
+        self.assertEqual(4, obj.z)
+        self.assertEqual(2, obj.id)
 
 
 class PostGenerationTestCase(unittest.TestCase):

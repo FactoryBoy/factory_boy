@@ -35,3 +35,36 @@ All factories for a Django :class:`~django.db.models.Model` should use the
     * When using :class:`~factory.RelatedFactory` or :class:`~factory.PostGeneration`
       attributes, the base object will be :meth:`saved <django.db.models.Model.save>`
       once all post-generation hooks have run.
+
+    .. attribute:: FACTORY_DJANGO_GET_OR_CREATE
+
+        Fields whose name are passed in this list will be used to perform a
+        :meth:`Model.objects.get_or_create() <django.db.models.query.QuerySet.get_or_create>`
+        instead of the usual :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>`:
+
+        .. code-block:: python
+
+            class UserFactory(factory.DjangoModelFactory):
+                FACTORY_FOR = models.User
+                FACTORY_DJANGO_GET_OR_CREATE = ('username',)
+
+                username = 'john'
+
+        .. code-block:: pycon
+
+            >>> User.objects.all()
+            []
+            >>> UserFactory()                   # Creates a new user
+            <User: john>
+            >>> User.objects.all()
+            [<User: john>]
+
+            >>> UserFactory()                   # Fetches the existing user
+            <User: john>
+            >>> User.objects.all()              # No new user!
+            [<User: john>]
+
+            >>> UserFactory(username='jack')    # Creates another user
+            <User: jack>
+            >>> User.objects.all()
+            [<User: john>, <User: jack>]

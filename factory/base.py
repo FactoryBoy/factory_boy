@@ -554,6 +554,7 @@ class DjangoModelFactory(Factory):
     """
 
     ABSTRACT_FACTORY = True
+    FACTORY_DJANGO_GET_OR_CREATE = ()
 
     @classmethod
     def _get_manager(cls, target_class):
@@ -578,7 +579,19 @@ class DjangoModelFactory(Factory):
     def _create(cls, target_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
         manager = cls._get_manager(target_class)
-        return manager.create(*args, **kwargs)
+
+        assert 'defaults' not in cls.FACTORY_DJANGO_GET_OR_CREATE, (
+            "'defaults' is a reserved keyword for get_or_create "
+            "(in %s.FACTORY_DJANGO_GET_OR_CREATE=%r)"
+            % (cls, cls.FACTORY_DJANGO_GET_OR_CREATE))
+
+        key_fields = {}
+        for field in cls.FACTORY_DJANGO_GET_OR_CREATE:
+            key_fields[field] = kwargs.pop(field)
+        key_fields['defaults'] = kwargs
+
+        obj, created = manager.get_or_create(*args, **key_fields)
+        return obj
 
     @classmethod
     def _after_postgeneration(cls, obj, create, results=None):

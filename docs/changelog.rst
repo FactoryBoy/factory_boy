@@ -13,8 +13,8 @@ ChangeLog
     - The default :attr:`~factory.Sequence.type` for :class:`~factory.Sequence` is now :obj:`int`
     - Fields listed in :attr:`~factory.Factory.FACTORY_HIDDEN_ARGS` won't be passed to
       the associated class' constructor
-
-    - Add support for ``get_or_create`` in :class:`~factory.DjangoModelFactory`
+    - Add support for ``get_or_create`` in :class:`~factory.DjangoModelFactory`,
+      through :attr:`~factory.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE`.
 
 *Removed:*
 
