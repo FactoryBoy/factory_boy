@@ -59,7 +59,7 @@ class TestModel(FakeDjangoModel):
 
 
 class SafetyTestCase(unittest.TestCase):
-    def testBaseFactory(self):
+    def test_base_factory(self):
         self.assertRaises(base.FactoryError, base.BaseFactory)
 
 
@@ -72,14 +72,14 @@ class FactoryTestCase(unittest.TestCase):
         obj = TestObjectFactory.build()
         self.assertFalse(hasattr(obj, 'FACTORY_FOR'))
 
-    def testDisplay(self):
+    def test_display(self):
         class TestObjectFactory(base.Factory):
             FACTORY_FOR = FakeDjangoModel
 
         self.assertIn('TestObjectFactory', str(TestObjectFactory))
         self.assertIn('FakeDjangoModel', str(TestObjectFactory))
 
-    def testLazyAttributeNonExistentParam(self):
+    def test_lazy_attribute_non_existent_param(self):
         class TestObjectFactory(base.Factory):
             FACTORY_FOR = TestObject
 
@@ -87,7 +87,7 @@ class FactoryTestCase(unittest.TestCase):
 
         self.assertRaises(AttributeError, TestObjectFactory)
 
-    def testInheritanceWithSequence(self):
+    def test_inheritance_with_sequence(self):
         """Tests that sequence IDs are shared between parent and son."""
         class TestObjectFactory(base.Factory):
             FACTORY_FOR = TestObject
@@ -113,7 +113,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
     def tearDown(self):
         base.Factory.FACTORY_STRATEGY = self.default_strategy
 
-    def testBuildStrategy(self):
+    def test_build_strategy(self):
         base.Factory.FACTORY_STRATEGY = base.BUILD_STRATEGY
 
         class TestModelFactory(base.Factory):
@@ -125,7 +125,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertEqual(test_model.one, 'one')
         self.assertFalse(test_model.id)
 
-    def testCreateStrategy(self):
+    def test_create_strategy(self):
         # Default FACTORY_STRATEGY
 
         class TestModelFactory(FakeModelFactory):
@@ -137,7 +137,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertEqual(test_model.one, 'one')
         self.assertTrue(test_model.id)
 
-    def testStubStrategy(self):
+    def test_stub_strategy(self):
         base.Factory.FACTORY_STRATEGY = base.STUB_STRATEGY
 
         class TestModelFactory(base.Factory):
@@ -149,7 +149,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertEqual(test_model.one, 'one')
         self.assertFalse(hasattr(test_model, 'id'))  # We should have a plain old object
 
-    def testUnknownStrategy(self):
+    def test_unknown_strategy(self):
         base.Factory.FACTORY_STRATEGY = 'unknown'
 
         class TestModelFactory(base.Factory):
@@ -159,7 +159,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
         self.assertRaises(base.Factory.UnknownStrategy, TestModelFactory)
 
-    def testStubWithNonStubStrategy(self):
+    def test_stub_with_non_stub_strategy(self):
         class TestModelFactory(base.StubFactory):
             FACTORY_FOR = TestModel
 
@@ -183,19 +183,19 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
 
 class FactoryCreationTestCase(unittest.TestCase):
-    def testFactoryFor(self):
+    def test_factory_for(self):
         class TestFactory(base.Factory):
             FACTORY_FOR = TestObject
 
         self.assertTrue(isinstance(TestFactory.build(), TestObject))
 
-    def testStub(self):
+    def test_stub(self):
         class TestFactory(base.StubFactory):
             pass
 
         self.assertEqual(TestFactory.FACTORY_STRATEGY, base.STUB_STRATEGY)
 
-    def testInheritanceWithStub(self):
+    def test_inheritance_with_stub(self):
         class TestObjectFactory(base.StubFactory):
             FACTORY_FOR = TestObject
 
@@ -206,7 +206,7 @@ class FactoryCreationTestCase(unittest.TestCase):
 
         self.assertEqual(TestFactory.FACTORY_STRATEGY, base.STUB_STRATEGY)
 
-    def testCustomCreation(self):
+    def test_custom_creation(self):
         class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 

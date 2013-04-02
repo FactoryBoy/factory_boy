@@ -282,7 +282,7 @@ class SimpleBuildTestCase(unittest.TestCase):
 
 
 class UsingFactoryTestCase(unittest.TestCase):
-    def testAttribute(self):
+    def test_attribute(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -312,7 +312,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         test_object = InheritedFactory.build()
         self.assertEqual(test_object.one, 'one')
 
-    def testSequence(self):
+    def test_sequence(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -327,7 +327,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object1.one, 'one1')
         self.assertEqual(test_object1.two, 'two1')
 
-    def testSequenceCustomBegin(self):
+    def test_sequence_custom_begin(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -394,7 +394,7 @@ class UsingFactoryTestCase(unittest.TestCase):
             self.assertEqual('one%d' % i, obj.one)
             self.assertEqual('two%d' % i, obj.two)
 
-    def testLazyAttribute(self):
+    def test_lazy_attribute(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -405,7 +405,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object.one, 'abc')
         self.assertEqual(test_object.two, 'abc xyz')
 
-    def testLazyAttributeSequence(self):
+    def test_lazy_attribute_sequence(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -420,7 +420,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object1.one, 'abc1')
         self.assertEqual(test_object1.two, 'abc1 xyz1')
 
-    def testLazyAttributeDecorator(self):
+    def test_lazy_attribute_decorator(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -431,7 +431,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         test_object = TestObjectFactory.build()
         self.assertEqual(test_object.one, 'one')
 
-    def testSelfAttribute(self):
+    def test_self_attribute(self):
         class TmpObj(object):
             n = 3
 
@@ -450,7 +450,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(3, test_object.four)
         self.assertEqual(5, test_object.five)
 
-    def testSelfAttributeParent(self):
+    def test_self_attribute_parent(self):
         class TestModel2(FakeModel):
             pass
 
@@ -467,7 +467,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         test_model = TestModel2Factory()
         self.assertEqual(4, test_model.two.three)
 
-    def testSequenceDecorator(self):
+    def test_sequence_decorator(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -478,7 +478,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         test_object = TestObjectFactory.build()
         self.assertEqual(test_object.one, 'one0')
 
-    def testLazyAttributeSequenceDecorator(self):
+    def test_lazy_attribute_sequence_decorator(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -493,7 +493,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object.one, 'one0')
         self.assertEqual(test_object.two, 'one0 two0')
 
-    def testBuildWithParameters(self):
+    def test_build_with_parameters(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -509,7 +509,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object1.one, 'other')
         self.assertEqual(test_object1.two, 'two1')
 
-    def testCreate(self):
+    def test_create(self):
         class TestModelFactory(FakeModelFactory):
             FACTORY_FOR = TestModel
 
@@ -684,7 +684,7 @@ class UsingFactoryTestCase(unittest.TestCase):
             self.assertEqual('%d two' % i, obj.two)
             self.assertEqual(i, obj.three)
 
-    def testInheritance(self):
+    def test_inheritance(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -706,7 +706,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         test_object_alt = TestObjectFactory.build()
         self.assertEqual(None, test_object_alt.three)
 
-    def testInheritanceWithInheritedClass(self):
+    def test_inheritance_with_inherited_class(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -723,7 +723,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object.three, 'three')
         self.assertEqual(test_object.four, 'three four')
 
-    def testDualInheritance(self):
+    def test_dual_inheritance(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -743,7 +743,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual('three', obj.three)
         self.assertEqual('four', obj.four)
 
-    def testClassMethodAccessible(self):
+    def test_class_method_accessible(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -753,7 +753,7 @@ class UsingFactoryTestCase(unittest.TestCase):
 
         self.assertEqual(TestObjectFactory.alt_create(foo=1), {"foo": 1})
 
-    def testStaticMethodAccessible(self):
+    def test_static_method_accessible(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
 
@@ -895,7 +895,7 @@ class KwargAdjustTestCase(unittest.TestCase):
 
 
 class SubFactoryTestCase(unittest.TestCase):
-    def testSubFactory(self):
+    def test_sub_factory(self):
         class TestModel2(FakeModel):
             pass
 
@@ -912,7 +912,7 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(1, test_model.id)
         self.assertEqual(1, test_model.two.id)
 
-    def testSubFactoryWithLazyFields(self):
+    def test_sub_factory_with_lazy_fields(self):
         class TestModel2(FakeModel):
             pass
 
@@ -930,7 +930,7 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual('x0x', test_model.two.one)
         self.assertEqual('x0xx0x', test_model.two.two)
 
-    def testSubFactoryAndSequence(self):
+    def test_sub_factory_and_sequence(self):
         class TestObject(object):
             def __init__(self, **kwargs):
                 for k, v in kwargs.items():
@@ -951,7 +951,7 @@ class SubFactoryTestCase(unittest.TestCase):
         wrapping = WrappingTestObjectFactory.build()
         self.assertEqual(1, wrapping.wrapped.one)
 
-    def testSubFactoryOverriding(self):
+    def test_sub_factory_overriding(self):
         class TestObject(object):
             def __init__(self, **kwargs):
                 for k, v in kwargs.items():
@@ -978,7 +978,7 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(wrapping.wrapped.three, 3)
         self.assertEqual(wrapping.wrapped.four, 4)
 
-    def testNestedSubFactory(self):
+    def test_nested_sub_factory(self):
         """Test nested sub-factories."""
 
         class TestObject(object):
@@ -1004,7 +1004,7 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(outer.wrap.wrapped.two, 2)
         self.assertEqual(outer.wrap.wrapped_bis.one, 1)
 
-    def testNestedSubFactoryWithOverriddenSubFactories(self):
+    def test_nested_sub_factory_with_overridden_sub_factories(self):
         """Test nested sub-factories, with attributes overridden with subfactories."""
 
         class TestObject(object):
@@ -1032,7 +1032,7 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(outer.wrap.wrapped.two.four, 4)
         self.assertEqual(outer.wrap.friend, 5)
 
-    def testSubFactoryAndInheritance(self):
+    def test_sub_factory_and_inheritance(self):
         """Test inheriting from a factory with subfactories, overriding."""
         class TestObject(object):
             def __init__(self, **kwargs):
@@ -1056,7 +1056,7 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(wrapping.wrapped.two, 4)
         self.assertEqual(wrapping.friend, 5)
 
-    def testDiamondSubFactory(self):
+    def test_diamond_sub_factory(self):
         """Tests the case where an object has two fields with a common field."""
         class InnerMost(object):
             def __init__(self, a, b):
