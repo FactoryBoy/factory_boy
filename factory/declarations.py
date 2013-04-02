@@ -21,9 +21,7 @@
 # THE SOFTWARE.
 
 
-import collections
 import itertools
-import warnings
 
 from . import compat
 from . import utils
@@ -179,7 +177,7 @@ class Sequence(OrderedDeclaration):
         type (function): A function converting an integer into the expected kind
             of counter for the 'function' attribute.
     """
-    def __init__(self, function, type=int):
+    def __init__(self, function, type=int):  # pylint: disable=W0622
         super(Sequence, self).__init__()
         self.function = function
         self.type = type
@@ -318,7 +316,7 @@ class SubFactory(ParameteredAttribute):
             self.factory_module = self.factory_name = ''
         else:
             # Must be a string
-            if not isinstance(factory, compat.string_types) or '.' not in factory:
+            if not (compat.is_string(factory) and '.' in factory):
                 raise ValueError(
                         "The argument of a SubFactory must be either a class "
                         "or the fully qualified path to a Factory class; got "
@@ -330,7 +328,8 @@ class SubFactory(ParameteredAttribute):
         """Retrieve the wrapped factory.Factory subclass."""
         if self.factory is None:
             # Must be a module path
-            self.factory = utils.import_object(self.factory_module, self.factory_name)
+            self.factory = utils.import_object(
+                    self.factory_module, self.factory_name)
         return self.factory
 
     def generate(self, create, params):
@@ -390,10 +389,6 @@ class PostGeneration(PostGenerationDeclaration):
         return self.function(obj, create, extracted, **kwargs)
 
 
-def post_generation(fun):
-    return PostGeneration(fun)
-
-
 class RelatedFactory(PostGenerationDeclaration):
     """Calls a factory once the object has been generated.
 
@@ -414,7 +409,7 @@ class RelatedFactory(PostGenerationDeclaration):
             self.factory_module = self.factory_name = ''
         else:
             # Must be a string
-            if not isinstance(factory, compat.string_types) or '.' not in factory:
+            if not (compat.is_string(factory) and '.' in factory):
                 raise ValueError(
                         "The argument of a SubFactory must be either a class "
                         "or the fully qualified path to a Factory class; got "
@@ -426,7 +421,8 @@ class RelatedFactory(PostGenerationDeclaration):
         """Retrieve the wrapped factory.Factory subclass."""
         if self.factory is None:
             # Must be a module path
-            self.factory = utils.import_object(self.factory_module, self.factory_name)
+            self.factory = utils.import_object(
+                    self.factory_module, self.factory_name)
         return self.factory
 
     def call(self, obj, create, extracted=None, **kwargs):
@@ -450,7 +446,7 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
     Example:
         class UserFactory(factory.Factory):
             ...
-            password = factory.PostGenerationMethodCall('set_password', password='')
+            password = factory.PostGenerationMethodCall('set_pass', password='')
     """
     def __init__(self, method_name, *args, **kwargs):
         super(PostGenerationMethodCall, self).__init__()
@@ -472,22 +468,3 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
         passed_kwargs.update(kwargs)
         method = getattr(obj, self.method_name)
         method(*passed_args, **passed_kwargs)
-
-
-# Decorators... in case lambdas don't cut it
-
-def lazy_attribute(func):
-    return LazyAttribute(func)
-
-def iterator(func):
-    """Turn a generator function into an iterator attribute."""
-    return Iterator(func())
-
-def sequence(func):
-    return Sequence(func)
-
-def lazy_attribute_sequence(func):
-    return LazyAttributeSequence(func)
-
-def container_attribute(func):
-    return ContainerAttribute(func, strict=False)

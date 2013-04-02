@@ -28,19 +28,6 @@ from .base import (
     StubFactory,
     DjangoModelFactory,
 
-    build,
-    create,
-    stub,
-    generate,
-    simple_generate,
-    make_factory,
-
-    build_batch,
-    create_batch,
-    stub_batch,
-    generate_batch,
-    simple_generate_batch,
-
     BUILD_STRATEGY,
     CREATE_STRATEGY,
     STUB_STRATEGY,
@@ -58,6 +45,21 @@ from .declarations import (
     PostGeneration,
     PostGenerationMethodCall,
     RelatedFactory,
+)
+
+from .helpers import (
+    build,
+    create,
+    stub,
+    generate,
+    simple_generate,
+    make_factory,
+
+    build_batch,
+    create_batch,
+    stub_batch,
+    generate_batch,
+    simple_generate_batch,
 
     lazy_attribute,
     iterator,

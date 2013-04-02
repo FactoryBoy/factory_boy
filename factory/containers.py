@@ -228,9 +228,12 @@ class AttributeBuilder(object):
         self._containers = extra.pop('__containers', ())
         self._attrs = factory.declarations(extra)
 
-        attrs_with_subfields = [k for k, v in self._attrs.items() if self.has_subfields(v)]
+        attrs_with_subfields = [
+            k for k, v in self._attrs.items()
+            if self.has_subfields(v)]
 
-        self._subfields = utils.multi_extract_dict(attrs_with_subfields, self._attrs)
+        self._subfields = utils.multi_extract_dict(
+                attrs_with_subfields, self._attrs)
 
     def has_subfields(self, value):
         return isinstance(value, declarations.SubFactory)

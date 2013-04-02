@@ -25,9 +25,11 @@
 
 import sys
 
-is_python2 = (sys.version_info[0] == 2)
+PY2 = (sys.version_info[0] == 2)
 
-if is_python2:
-    string_types = (str, unicode)
+if PY2:
+    def is_string(obj):
+        return isinstance(obj, (str, unicode))
 else:
-    string_types = (str,)
+    def is_string(obj):
+        return isinstance(obj, str)

@@ -1,3 +1,8 @@
+PACKAGE=factory
+TESTS_DIR=tests
+DOC_DIR=docs
+
+
 all: default
 
 
@@ -11,14 +16,17 @@ clean:
 test:
 	python -W default setup.py test
 
+pylint:
+	pylint --rcfile=.pylintrc --report=no $(PACKAGE)/
+
 coverage:
 	coverage erase
-	coverage run "--include=factory/*.py,tests/*.py" --branch setup.py test
-	coverage report "--include=factory/*.py,tests/*.py"
-	coverage html "--include=factory/*.py,tests/*.py"
+	coverage run "--include=$(PACKAGE)/*.py,$(TESTS_DIR)/*.py" --branch setup.py test
+	coverage report "--include=$(PACKAGE)/*.py,$(TESTS_DIR)/*.py"
+	coverage html "--include=$(PACKAGE)/*.py,$(TESTS_DIR)/*.py"
 
 doc:
-	$(MAKE) -C docs html
+	$(MAKE) -C $(DOC_DIR) html
 
 
-.PHONY: all default clean coverage doc test
+.PHONY: all default clean coverage doc pylint test

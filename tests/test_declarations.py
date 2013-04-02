@@ -25,6 +25,7 @@ import itertools
 import warnings
 
 from factory import declarations
+from factory import helpers
 
 from .compat import mock, unittest
 from . import tools
@@ -124,7 +125,7 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
 
     def test_decorator_simple(self):
         call_params = []
-        @declarations.post_generation
+        @helpers.post_generation
         def foo(*args, **kwargs):
             call_params.append(args)
             call_params.append(kwargs)
