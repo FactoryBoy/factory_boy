@@ -320,10 +320,7 @@ class SubFactory(ParameteredAttribute):
                 override the wrapped factory's defaults
         """
         subfactory = self.get_factory()
-        if create:
-            return subfactory.create(**params)
-        else:
-            return subfactory.build(**params)
+        return subfactory.simple_generate(create, **params)
 
 
 class PostGenerationDeclaration(object):
