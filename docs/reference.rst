@@ -50,6 +50,37 @@ The :class:`Factory` class
             <User: john>
             >>> User('john', 'john@example.com', firstname="John")  # actual call
 
+    .. attribute:: FACTORY_HIDDEN_ARGS
+
+        While writing a :class:`Factory` for some object, it may be useful to
+        have general fields helping defining others, but that should not be
+        passed to the target class; for instance, a field named 'now' that would
+        hold a reference time used by other objects.
+
+        Factory fields whose name are listed in :attr:`FACTORY_HIDDEN_ARGS` will
+        be removed from the set of args/kwargs passed to the underlying class;
+        they can be any valid factory_boy declaration:
+
+        .. code-block:: python
+
+            class OrderFactory(factory.Factory):
+                FACTORY_FOR = Order
+                FACTORY_HIDDEN_ARGS = ('now',)
+
+                now = factory.LazyAttribute(lambda o: datetime.datetime.utcnow())
+                started_at = factory.LazyAttribute(lambda o: o.now - datetime.timedelta(hours=1))
+                paid_at = factory.LazyAttribute(lambda o: o.now - datetime.timedelta(minutes=50))
+
+        .. code-block:: pycon
+
+            >>> OrderFactory()    # The value of 'now' isn't passed to Order()
+            <Order: started 2013-04-01 12:00:00, paid 2013-04-01 12:10:00>
+
+            >>> # An alternate value may be passed for 'now'
+            >>> OrderFactory(now=datetime.datetime(2013, 4, 1, 10))
+            <Order: started 2013-04-01 09:00:00, paid 2013-04-01 09:10:00>
+
+
     **Base functions:**
 
     The :class:`Factory` class provides a few methods for getting objects;

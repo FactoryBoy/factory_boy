@@ -10,8 +10,11 @@ ChangeLog
 
     - Allow overriding the base factory class for :func:`~factory.make_factory` and friends.
     - Add support for Python3 (Thanks to `kmike <https://github.com/kmike>`_ and `nkryptic <https://github.com/nkryptic>`_)
-    - Add support for ``get_or_create`` in :class:`~factory.DjangoModelFactory`
     - The default :attr:`~factory.Sequence.type` for :class:`~factory.Sequence` is now :obj:`int`
+    - Fields listed in :attr:`~factory.Factory.FACTORY_HIDDEN_ARGS` won't be passed to
+      the associated class' constructor
+
+    - Add support for ``get_or_create`` in :class:`~factory.DjangoModelFactory`
 
 *Removed:*
 

@@ -234,6 +234,9 @@ class BaseFactory(object):
     # List of arguments that should be passed as *args instead of **kwargs
     FACTORY_ARG_PARAMETERS = ()
 
+    # List of attributes that should not be passed to the underlying class
+    FACTORY_HIDDEN_ARGS = ()
+
     @classmethod
     def _setup_next_sequence(cls):
         """Set up an initial sequence value for Sequence attributes.
@@ -304,6 +307,10 @@ class BaseFactory(object):
         """
         target_class = getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)
         kwargs = cls._adjust_kwargs(**kwargs)
+
+        # Remove 'hidden' arguments.
+        for arg in cls.FACTORY_HIDDEN_ARGS:
+            del kwargs[arg]
 
         # Extract *args from **kwargs
         args = tuple(kwargs.pop(key) for key in cls.FACTORY_ARG_PARAMETERS)

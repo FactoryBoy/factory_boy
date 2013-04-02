@@ -762,6 +762,65 @@ class UsingFactoryTestCase(unittest.TestCase):
 
         self.assertEqual(TestObjectFactory.alt_create(foo=1), {"foo": 1})
 
+    def test_arg_parameters(self):
+        class TestObject(object):
+            def __init__(self, *args, **kwargs):
+                self.args = args
+                self.kwargs = kwargs
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            FACTORY_ARG_PARAMETERS = ('x', 'y')
+
+            x = 1
+            y = 2
+            z = 3
+            t = 4
+
+        obj = TestObjectFactory.build(x=42, z=5)
+        self.assertEqual((42, 2), obj.args)
+        self.assertEqual({'z': 5, 't': 4}, obj.kwargs)
+
+    def test_hidden_args(self):
+        class TestObject(object):
+            def __init__(self, *args, **kwargs):
+                self.args = args
+                self.kwargs = kwargs
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            FACTORY_HIDDEN_ARGS = ('x', 'z')
+
+            x = 1
+            y = 2
+            z = 3
+            t = 4
+
+        obj = TestObjectFactory.build(x=42, z=5)
+        self.assertEqual((), obj.args)
+        self.assertEqual({'y': 2, 't': 4}, obj.kwargs)
+
+    def test_hidden_args_and_arg_parameters(self):
+        class TestObject(object):
+            def __init__(self, *args, **kwargs):
+                self.args = args
+                self.kwargs = kwargs
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            FACTORY_HIDDEN_ARGS = ('x', 'z')
+            FACTORY_ARG_PARAMETERS = ('y',)
+
+            x = 1
+            y = 2
+            z = 3
+            t = 4
+
+        obj = TestObjectFactory.build(x=42, z=5)
+        self.assertEqual((2,), obj.args)
+        self.assertEqual({'t': 4}, obj.kwargs)
+
+
 
 class NonKwargParametersTestCase(unittest.TestCase):
     def test_build(self):
