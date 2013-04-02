@@ -1323,6 +1323,28 @@ class PostGenerationTestCase(unittest.TestCase):
         # RelatedFactory received "parent" object
         self.assertEqual(obj, obj.related.three)
 
+    def test_related_factory_containers(self):
+        class TestRelatedObject(object):
+            def __init__(self, obj=None, one=None):
+                obj.related = self
+                self.obj = obj
+                self.one = one
+
+        class TestRelatedObjectFactory(factory.Factory):
+            FACTORY_FOR = TestRelatedObject
+            one = 1
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = 3
+            two = factory.RelatedFactory(TestRelatedObjectFactory, 'obj', one=factory.SelfAttribute('..one'))
+
+        o = TestObjectFactory.build()
+        self.assertEqual(3, obj.one)
+        self.assertIsNone(obj.two)
+        self.assertIsNotNone(obj.related)
+        self.assertEqual(3, obj.related.one)
+
     def test_related_factory_no_name(self):
         relateds = []
         class TestRelatedObject(object):
