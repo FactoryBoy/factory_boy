@@ -37,7 +37,7 @@ class OrderedDeclaration(object):
     in the same factory.
     """
 
-    def evaluate(self, sequence, obj, containers=()):
+    def evaluate(self, sequence, obj, create, extra=None, containers=()):
         """Evaluate this declaration.
 
         Args:
@@ -47,6 +47,10 @@ class OrderedDeclaration(object):
                 attributes
             containers (list of containers.LazyStub): The chain of SubFactory
                 which led to building this object.
+            create (bool): whether the target class should be 'built' or
+                'created'
+            extra (DeclarationDict or None): extracted key/value extracted from
+                the attribute prefix
         """
         raise NotImplementedError('This is an abstract method')
 
@@ -63,7 +67,7 @@ class LazyAttribute(OrderedDeclaration):
         super(LazyAttribute, self).__init__(*args, **kwargs)
         self.function = function
 
-    def evaluate(self, sequence, obj, containers=()):
+    def evaluate(self, sequence, obj, create, extra=None, containers=()):
         return self.function(obj)
 
 
@@ -122,13 +126,20 @@ class SelfAttribute(OrderedDeclaration):
         self.attribute_name = attribute_name
         self.default = default
 
-    def evaluate(self, sequence, obj, containers=()):
+    def evaluate(self, sequence, obj, create, extra=None, containers=()):
         if self.depth > 1:
             # Fetching from a parent
             target = containers[self.depth - 2]
         else:
             target = obj
         return deepgetattr(target, self.attribute_name, self.default)
+
+    def __repr__(self):
+        return '<%s(%r, default=%r)>' % (
+            self.__class__.__name__,
+            self.attribute_name,
+            self.default,
+        )
 
 
 class Iterator(OrderedDeclaration):
@@ -150,7 +161,7 @@ class Iterator(OrderedDeclaration):
         else:
             self.iterator = iter(iterator)
 
-    def evaluate(self, sequence, obj, containers=()):
+    def evaluate(self, sequence, obj, create, extra=None, containers=()):
         value = next(self.iterator)
         if self.getter is None:
             return value
@@ -173,7 +184,7 @@ class Sequence(OrderedDeclaration):
         self.function = function
         self.type = type
 
-    def evaluate(self, sequence, obj, containers=()):
+    def evaluate(self, sequence, obj, create, extra=None, containers=()):
         return self.function(self.type(sequence))
 
 
@@ -186,7 +197,7 @@ class LazyAttributeSequence(Sequence):
         type (function): A function converting an integer into the expected kind
             of counter for the 'function' attribute.
     """
-    def evaluate(self, sequence, obj, containers=()):
+    def evaluate(self, sequence, obj, create, extra=None, containers=()):
         return self.function(obj, self.type(sequence))
 
 
@@ -204,7 +215,7 @@ class ContainerAttribute(OrderedDeclaration):
         self.function = function
         self.strict = strict
 
-    def evaluate(self, sequence, obj, containers=()):
+    def evaluate(self, sequence, obj, create, extra=None, containers=()):
         """Evaluate the current ContainerAttribute.
 
         Args:
@@ -237,11 +248,20 @@ class ParameteredAttribute(OrderedDeclaration):
 
     CONTAINERS_FIELD = '__containers'
 
+    # Whether to add the current object to the stack of containers
+    EXTEND_CONTAINERS = False
+
     def __init__(self, **kwargs):
         super(ParameteredAttribute, self).__init__()
         self.defaults = kwargs
 
-    def evaluate(self, create, extra, containers):
+    def _prepare_containers(self, obj, containers=()):
+        if self.EXTEND_CONTAINERS:
+            return (obj,) + tuple(containers)
+
+        return containers
+
+    def evaluate(self, sequence, obj, create, extra=None, containers=()):
         """Evaluate the current definition and fill its attributes.
 
         Uses attributes definition in the following order:
@@ -260,6 +280,7 @@ class ParameteredAttribute(OrderedDeclaration):
         if extra:
             defaults.update(extra)
         if self.CONTAINERS_FIELD:
+            containers = self._prepare_containers(obj, containers)
             defaults[self.CONTAINERS_FIELD] = containers
 
         return self.generate(create, defaults)
@@ -287,6 +308,8 @@ class SubFactory(ParameteredAttribute):
             factory
         factory (base.Factory): the wrapped factory
     """
+
+    EXTEND_CONTAINERS = True
 
     def __init__(self, factory, **kwargs):
         super(SubFactory, self).__init__(**kwargs)

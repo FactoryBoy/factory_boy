@@ -172,30 +172,6 @@ class LazyValue(object):
         raise NotImplementedError("This is an abstract method.")
 
 
-class SubFactoryWrapper(LazyValue):
-    """Lazy wrapper around a SubFactory.
-
-    Attributes:
-        subfactory (declarations.SubFactory): the SubFactory being wrapped
-        subfields (DeclarationDict): Default values to override when evaluating
-            the SubFactory
-        create (bool): whether to 'create' or 'build' the SubFactory.
-    """
-
-    def __init__(self, subfactory, subfields, create, *args, **kwargs):
-        super(SubFactoryWrapper, self).__init__(*args, **kwargs)
-        self.subfactory = subfactory
-        self.subfields = subfields
-        self.create = create
-
-    def evaluate(self, obj, containers=()):
-        expanded_containers = (obj,)
-        if containers:
-            expanded_containers += tuple(containers)
-        return self.subfactory.evaluate(self.create, self.subfields,
-            expanded_containers)
-
-
 class OrderedDeclarationWrapper(LazyValue):
     """Lazy wrapper around an OrderedDeclaration.
 
@@ -206,10 +182,12 @@ class OrderedDeclarationWrapper(LazyValue):
             declaration
     """
 
-    def __init__(self, declaration, sequence, *args, **kwargs):
-        super(OrderedDeclarationWrapper, self).__init__(*args, **kwargs)
+    def __init__(self, declaration, sequence, create, extra=None, **kwargs):
+        super(OrderedDeclarationWrapper, self).__init__(**kwargs)
         self.declaration = declaration
         self.sequence = sequence
+        self.create = create
+        self.extra = extra
 
     def evaluate(self, obj, containers=()):
         """Lazily evaluate the attached OrderedDeclaration.
@@ -219,7 +197,14 @@ class OrderedDeclarationWrapper(LazyValue):
             containers (object list): the chain of containers of the object
                 being built, its immediate holder being first.
         """
-        return self.declaration.evaluate(self.sequence, obj, containers)
+        return self.declaration.evaluate(self.sequence, obj,
+                create=self.create,
+                extra=self.extra,
+                containers=containers,
+        )
+
+    def __repr__(self):
+        return '<%s for %r>' % (self.__class__.__name__, self.declaration)
 
 
 class AttributeBuilder(object):
@@ -240,7 +225,7 @@ class AttributeBuilder(object):
             extra = {}
 
         self.factory = factory
-        self._containers = extra.pop('__containers', None)
+        self._containers = extra.pop('__containers', ())
         self._attrs = factory.declarations(extra)
 
         attrs_with_subfields = [k for k, v in self._attrs.items() if self.has_subfields(v)]
@@ -263,10 +248,12 @@ class AttributeBuilder(object):
         # OrderedDeclaration.
         wrapped_attrs = {}
         for k, v in self._attrs.items():
-            if isinstance(v, declarations.SubFactory):
-                v = SubFactoryWrapper(v, self._subfields.get(k, {}), create)
-            elif isinstance(v, declarations.OrderedDeclaration):
-                v = OrderedDeclarationWrapper(v, self.factory.sequence)
+            if isinstance(v, declarations.OrderedDeclaration):
+                v = OrderedDeclarationWrapper(v,
+                        sequence=self.factory.sequence,
+                        create=create,
+                        extra=self._subfields.get(k, {}),
+                )
             wrapped_attrs[k] = v
 
         stub = LazyStub(wrapped_attrs, containers=self._containers,

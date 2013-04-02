@@ -33,7 +33,7 @@ from . import tools
 class OrderedDeclarationTestCase(unittest.TestCase):
     def test_errors(self):
         decl = declarations.OrderedDeclaration()
-        self.assertRaises(NotImplementedError, decl.evaluate, None, {})
+        self.assertRaises(NotImplementedError, decl.evaluate, None, {}, False)
 
 
 class DigTestCase(unittest.TestCase):
@@ -95,23 +95,23 @@ class SelfAttributeTestCase(unittest.TestCase):
 class IteratorTestCase(unittest.TestCase):
     def test_cycle(self):
         it = declarations.Iterator([1, 2])
-        self.assertEqual(1, it.evaluate(0, None))
-        self.assertEqual(2, it.evaluate(1, None))
-        self.assertEqual(1, it.evaluate(2, None))
-        self.assertEqual(2, it.evaluate(3, None))
+        self.assertEqual(1, it.evaluate(0, None, False))
+        self.assertEqual(2, it.evaluate(1, None, False))
+        self.assertEqual(1, it.evaluate(2, None, False))
+        self.assertEqual(2, it.evaluate(3, None, False))
 
     def test_no_cycling(self):
         it = declarations.Iterator([1, 2], cycle=False)
-        self.assertEqual(1, it.evaluate(0, None))
-        self.assertEqual(2, it.evaluate(1, None))
-        self.assertRaises(StopIteration, it.evaluate, 2, None)
+        self.assertEqual(1, it.evaluate(0, None, False))
+        self.assertEqual(2, it.evaluate(1, None, False))
+        self.assertRaises(StopIteration, it.evaluate, 2, None, False)
 
     def test_getter(self):
         it = declarations.Iterator([(1, 2), (1, 3)], getter=lambda p: p[1])
-        self.assertEqual(2, it.evaluate(0, None))
-        self.assertEqual(3, it.evaluate(1, None))
-        self.assertEqual(2, it.evaluate(2, None))
-        self.assertEqual(3, it.evaluate(3, None))
+        self.assertEqual(2, it.evaluate(0, None, False))
+        self.assertEqual(3, it.evaluate(1, None, False))
+        self.assertEqual(2, it.evaluate(2, None, False))
+        self.assertEqual(3, it.evaluate(3, None, False))
 
 
 class PostGenerationDeclarationTestCase(unittest.TestCase):
