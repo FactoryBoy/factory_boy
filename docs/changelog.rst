@@ -4,8 +4,6 @@ ChangeLog
 2.0.0 (current)
 ---------------
 
-.. note:: This section lists features planned for v2 of factory_boy. Changes announced here may not have been committed to the repository.
-
 *New:*
 
     - Allow overriding the base factory class for :func:`~factory.make_factory` and friends.
@@ -15,6 +13,7 @@ ChangeLog
       the associated class' constructor
     - Add support for ``get_or_create`` in :class:`~factory.DjangoModelFactory`,
       through :attr:`~factory.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE`.
+    - Add support for :mod:`~factory.fuzzy` attribute definitions.
 
 *Removed:*
 
