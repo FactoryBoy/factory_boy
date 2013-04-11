@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 from . import declarations
 from . import utils
@@ -49,17 +52,18 @@ class LazyStub(object):
 
     __initialized = False
 
-    def __init__(self, attrs, containers=(), target_class=object):
+    def __init__(self, attrs, containers=(), target_class=object, log_ctx=None):
         self.__attrs = attrs
         self.__values = {}
         self.__pending = []
         self.__containers = containers
         self.__target_class = target_class
+        self.__log_ctx = log_ctx or '%s.%s' % (target_class.__module__, target_class.__name__)
         self.factory_parent = containers[0] if containers else None
         self.__initialized = True
 
     def __repr__(self):
-        return '<LazyStub for %s>' % self.__target_class.__name__
+        return '<LazyStub for %s.%s>' % (self.__target_class.__module__, self.__target_class.__name__)
 
     def __str__(self):
         return '<LazyStub for %s with %s>' % (
@@ -72,8 +76,14 @@ class LazyStub(object):
             dict: map of attribute name => computed value
         """
         res = {}
+        logger.debug("LazyStub: Computing values for %s(%s)",
+            self.__log_ctx, utils.log_pprint(kwargs=self.__attrs),
+        )
         for attr in self.__attrs:
             res[attr] = getattr(self, attr)
+        logger.debug("LazyStub: Computed values, got %s(%s)",
+            self.__log_ctx, utils.log_pprint(kwargs=res),
+        )
         return res
 
     def __getattr__(self, name):
@@ -219,8 +229,8 @@ class AttributeBuilder(object):
             overridden default values for the related SubFactory.
     """
 
-    def __init__(self, factory, extra=None, *args, **kwargs):
-        super(AttributeBuilder, self).__init__(*args, **kwargs)
+    def __init__(self, factory, extra=None, log_ctx=None, **kwargs):
+        super(AttributeBuilder, self).__init__(**kwargs)
 
         if not extra:
             extra = {}
@@ -228,6 +238,7 @@ class AttributeBuilder(object):
         self.factory = factory
         self._containers = extra.pop('__containers', ())
         self._attrs = factory.declarations(extra)
+        self._log_ctx = log_ctx
 
         attrs_with_subfields = [
             k for k, v in self._attrs.items()
@@ -266,7 +277,7 @@ class AttributeBuilder(object):
             wrapped_attrs[k] = v
 
         stub = LazyStub(wrapped_attrs, containers=self._containers,
-            target_class=self.factory)
+            target_class=self.factory, log_ctx=self._log_ctx)
         return stub.__fill__()
 
 

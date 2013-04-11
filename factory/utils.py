@@ -94,3 +94,10 @@ def import_object(module_name, attribute_name):
     module = __import__(module_name, {}, {}, [attribute_name], 0)
     return getattr(module, attribute_name)
 
+
+def log_pprint(args=(), kwargs=None):
+    kwargs = kwargs or {}
+    return ', '.join(
+        [str(arg) for arg in args] +
+        ['%s=%r' % item for item in kwargs.items()]
+    )

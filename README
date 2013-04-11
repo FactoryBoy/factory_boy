@@ -184,6 +184,34 @@ The associated object's strategy will be used:
     True
 
 
+Debugging factory_boy
+"""""""""""""""""""""
+
+Debugging factory_boy can be rather complex due to the long chains of calls.
+Detailed logging is available through the ``factory`` logger:
+
+.. code-block:: python
+
+    import logging
+    logger = logging.getLogger('factory')
+    logger.addHandler(logging.StreamHandler())
+    logger.setLevel(logging.DEBUG)
+
+This will yield messages similar to those (artificial indentation):
+
+.. code-block:: ini
+
+    BaseFactory: Preparing tests.test_using.TestModel2Factory(extra={})
+      LazyStub: Computing values for tests.test_using.TestModel2Factory(two=<OrderedDeclarationWrapper for <factory.declarations.SubFactory object at 0x1e15610>>)
+        SubFactory: Instantiating tests.test_using.TestModelFactory(__containers=(<LazyStub for tests.test_using.TestModel2Factory>,), one=4), create=True
+        BaseFactory: Preparing tests.test_using.TestModelFactory(extra={'__containers': (<LazyStub for tests.test_using.TestModel2Factory>,), 'one': 4})
+          LazyStub: Computing values for tests.test_using.TestModelFactory(one=4)
+          LazyStub: Computed values, got tests.test_using.TestModelFactory(one=4)
+        BaseFactory: Generating tests.test_using.TestModelFactory(one=4)
+      LazyStub: Computed values, got tests.test_using.TestModel2Factory(two=<tests.test_using.TestModel object at 0x1e15410>)
+    BaseFactory: Generating tests.test_using.TestModel2Factory(two=<tests.test_using.TestModel object at 0x1e15410>)
+
+
 ORM Support
 """""""""""
 

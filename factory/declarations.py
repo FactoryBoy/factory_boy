@@ -23,9 +23,13 @@
 
 import itertools
 import warnings
+import logging
 
 from . import compat
 from . import utils
+
+
+logger = logging.getLogger('factory.generate')
 
 
 class OrderedDeclaration(object):
@@ -67,6 +71,7 @@ class LazyAttribute(OrderedDeclaration):
         self.function = function
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
+        logger.debug("LazyAttribute: Evaluating %r on %r", self.function, obj)
         return self.function(obj)
 
 
@@ -131,6 +136,8 @@ class SelfAttribute(OrderedDeclaration):
             target = containers[self.depth - 2]
         else:
             target = obj
+
+        logger.debug("SelfAttribute: Picking attribute %r on %r", self.attribute_name, target)
         return deepgetattr(target, self.attribute_name, self.default)
 
     def __repr__(self):
@@ -161,6 +168,7 @@ class Iterator(OrderedDeclaration):
             self.iterator = iter(iterator)
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
+        logger.debug("Iterator: Fetching next value from %r", self.iterator)
         value = next(self.iterator)
         if self.getter is None:
             return value
@@ -184,6 +192,7 @@ class Sequence(OrderedDeclaration):
         self.type = type
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
+        logger.debug("Sequence: Computing next value of %r for seq=%d", self.function, sequence)
         return self.function(self.type(sequence))
 
 
@@ -197,6 +206,8 @@ class LazyAttributeSequence(Sequence):
             of counter for the 'function' attribute.
     """
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
+        logger.debug("LazyAttributeSequence: Computing next value of %r for seq=%d, obj=%r",
+                self.function, sequence, obj)
         return self.function(obj, self.type(sequence))
 
 
@@ -364,6 +375,11 @@ class SubFactory(ParameteredAttribute):
                 override the wrapped factory's defaults
         """
         subfactory = self.get_factory()
+        logger.debug("SubFactory: Instantiating %s.%s(%s), create=%r",
+            subfactory.__module__, subfactory.__name__,
+            utils.log_pprint(kwargs=params),
+            create,
+        )
         return subfactory.simple_generate(create, **params)
 
 
@@ -375,6 +391,7 @@ class Dict(SubFactory):
 
     def generate(self, sequence, obj, create, params):
         dict_factory = self.get_factory()
+        logger.debug("Dict: Building dict(%s)", utils.log_pprint(kwargs=params))
         return dict_factory.simple_generate(create,
             __sequence=sequence,
             **params)
@@ -389,6 +406,9 @@ class List(SubFactory):
 
     def generate(self, sequence, obj, create, params):
         list_factory = self.get_factory()
+        logger.debug('List: Building list(%s)',
+            utils.log_pprint(args=[v for _i, v in sorted(params.items())]),
+        )
         return list_factory.simple_generate(create,
             __sequence=sequence,
             **params)
@@ -435,6 +455,11 @@ class PostGeneration(PostGenerationDeclaration):
         self.function = function
 
     def call(self, obj, create, extracted=None, **kwargs):
+        logger.debug('PostGeneration: Calling %s.%s(%s)',
+            self.function.__module__,
+            self.function.__name__,
+            utils.log_pprint((obj, create, extracted), kwargs),
+        )
         return self.function(obj, create, extracted, **kwargs)
 
 
@@ -474,6 +499,11 @@ class RelatedFactory(PostGenerationDeclaration):
             passed_kwargs[self.name] = obj
 
         factory = self.get_factory()
+        logger.debug('RelatedFactory: Generating %s.%s(%s)',
+            factory.__module__,
+            factory.__name__,
+            utils.log_pprint((create,), passed_kwargs),
+        )
         factory.simple_generate(create, **passed_kwargs)
 
 
@@ -509,4 +539,9 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
         passed_kwargs = dict(self.method_kwargs)
         passed_kwargs.update(kwargs)
         method = getattr(obj, self.method_name)
+        logger.debug('PostGenerationMethodCall: Calling %r.%s(%s)',
+            obj,
+            self.method_name,
+            utils.log_pprint(passed_args, passed_kwargs),
+        )
         method(*passed_args, **passed_kwargs)

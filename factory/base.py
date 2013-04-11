@@ -20,7 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import logging
+
 from . import containers
+from . import utils
+
+logger = logging.getLogger('factory.generate')
 
 # Strategies
 BUILD_STRATEGY = 'build'
@@ -300,7 +305,13 @@ class BaseFactory(object):
         force_sequence = None
         if extra:
             force_sequence = extra.pop('__sequence', None)
-        return containers.AttributeBuilder(cls, extra).build(
+        log_ctx = '%s.%s' % (cls.__module__, cls.__name__)
+        logger.debug('BaseFactory: Preparing %s.%s(extra=%r)',
+            cls.__module__,
+            cls.__name__,
+            extra,
+        )
+        return containers.AttributeBuilder(cls, extra, log_ctx=log_ctx).build(
             create=create,
             force_sequence=force_sequence,
         )
@@ -338,6 +349,11 @@ class BaseFactory(object):
         # Extract *args from **kwargs
         args = tuple(kwargs.pop(key) for key in cls.FACTORY_ARG_PARAMETERS)
 
+        logger.debug('BaseFactory: Generating %s.%s(%s)',
+            cls.__module__,
+            cls.__name__,
+            utils.log_pprint(args, kwargs),
+        )
         if create:
             return cls._create(target_class, *args, **kwargs)
         else:

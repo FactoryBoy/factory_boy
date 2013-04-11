@@ -15,6 +15,7 @@ ChangeLog
       to their own modules (:mod:`factory.django` and :mod:`factory.mogo`)
     - Add the :meth:`~factory.Factory.reset_sequence` classmethod to :class:`~factory.Factory`
       to ease resetting the sequence counter for a given factory.
+    - Add debug messages to ``factory`` logger.
 
 *Bugfix*
 
