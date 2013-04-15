@@ -1591,6 +1591,172 @@ class CircularTestCase(unittest.TestCase):
         self.assertIsNone(b.foo.bar.foo.bar)
 
 
+class DictTestCase(unittest.TestCase):
+    def test_empty_dict(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = factory.Dict({})
+
+        o = TestObjectFactory()
+        self.assertEqual({}, o.one)
+
+    def test_naive_dict(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = factory.Dict({'a': 1})
+
+        o = TestObjectFactory()
+        self.assertEqual({'a': 1}, o.one)
+
+    def test_sequence_dict(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = factory.Dict({'a': factory.Sequence(lambda n: n + 2)})
+
+        o1 = TestObjectFactory()
+        o2 = TestObjectFactory()
+
+        self.assertEqual({'a': 2}, o1.one)
+        self.assertEqual({'a': 3}, o2.one)
+
+    def test_dict_override(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = factory.Dict({'a': 1})
+
+        o = TestObjectFactory(one__a=2)
+        self.assertEqual({'a': 2}, o.one)
+
+    def test_dict_extra_key(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = factory.Dict({'a': 1})
+
+        o = TestObjectFactory(one__b=2)
+        self.assertEqual({'a': 1, 'b': 2}, o.one)
+
+    def test_dict_merged_fields(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            two = 13
+            one = factory.Dict({
+                'one': 1,
+                'two': 2,
+                'three': factory.SelfAttribute('two'),
+            })
+
+        o = TestObjectFactory(one__one=42)
+        self.assertEqual({'one': 42, 'two': 2, 'three': 2}, o.one)
+
+    def test_nested_dicts(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = 1
+            two = factory.Dict({
+                'one': 3,
+                'two': factory.SelfAttribute('one'),
+                'three': factory.Dict({
+                    'one': 5,
+                    'two': factory.SelfAttribute('..one'),
+                    'three': factory.SelfAttribute('...one'),
+                }),
+            })
+
+        o = TestObjectFactory()
+        self.assertEqual(1, o.one)
+        self.assertEqual({
+            'one': 3,
+            'two': 3,
+            'three': {
+                'one': 5,
+                'two': 3,
+                'three': 1,
+            },
+        }, o.two)
+
+
+class ListTestCase(unittest.TestCase):
+    def test_empty_list(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = factory.List([])
+
+        o = TestObjectFactory()
+        self.assertEqual([], o.one)
+
+    def test_naive_list(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = factory.List([1])
+
+        o = TestObjectFactory()
+        self.assertEqual([1], o.one)
+
+    def test_sequence_list(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = factory.List([factory.Sequence(lambda n: n + 2)])
+
+        o1 = TestObjectFactory()
+        o2 = TestObjectFactory()
+
+        self.assertEqual([2], o1.one)
+        self.assertEqual([3], o2.one)
+
+    def test_list_override(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = factory.List([1])
+
+        o = TestObjectFactory(one__0=2)
+        self.assertEqual([2], o.one)
+
+    def test_list_extra_key(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = factory.List([1])
+
+        o = TestObjectFactory(one__1=2)
+        self.assertEqual([1, 2], o.one)
+
+    def test_list_merged_fields(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            two = 13
+            one = factory.List([
+                1,
+                2,
+                factory.SelfAttribute('1'),
+            ])
+
+        o = TestObjectFactory(one__0=42)
+        self.assertEqual([42, 2, 2], o.one)
+
+    def test_nested_lists(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = 1
+            two = factory.List([
+                3,
+                factory.SelfAttribute('0'),
+                factory.List([
+                    5,
+                    factory.SelfAttribute('..0'),
+                    factory.SelfAttribute('...one'),
+                ]),
+            ])
+
+        o = TestObjectFactory()
+        self.assertEqual(1, o.one)
+        self.assertEqual([
+            3,
+            3,
+            [
+                5,
+                3,
+                1,
+            ],
+        ], o.two)
 
 if __name__ == '__main__':
     unittest.main()

@@ -25,6 +25,11 @@ __author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
 
 from .base import (
     Factory,
+    BaseDictFactory,
+    DictFactory,
+    BaseListFactory,
+    ListFactory,
+    MogoFactory,
     StubFactory,
     DjangoModelFactory,
 
@@ -42,6 +47,8 @@ from .declarations import (
     SelfAttribute,
     ContainerAttribute,
     SubFactory,
+    Dict,
+    List,
     PostGeneration,
     PostGenerationMethodCall,
     RelatedFactory,

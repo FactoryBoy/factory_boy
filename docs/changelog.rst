@@ -15,6 +15,7 @@ ChangeLog
       through :attr:`~factory.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE`.
     - Add support for :mod:`~factory.fuzzy` attribute definitions.
     - The :class:`Sequence` counter can be overridden when calling a generating function
+    - Add :class:`~factory.Dict` and :class:`~factory.List` declarations (Closes #18).
 
 *Removed:*
 

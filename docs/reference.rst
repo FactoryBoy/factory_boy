@@ -879,6 +879,81 @@ use the :func:`iterator` decorator:
                     yield line
 
 
+Dict and List
+"""""""""""""
+
+When a factory expects lists or dicts as arguments, such values can be generated
+through the whole range of factory_boy declarations,
+with the :class:`Dict` and :class:`List` attributes:
+
+.. class:: Dict(params[, dict_factory=factory.DictFactory])
+
+    The :class:`Dict` class is used for dict-like attributes.
+    It receives as non-keyword argument a dictionary of fields to define, whose
+    value may be any factory-enabled declarations:
+
+    .. code-block:: python
+
+        class UserFactory(factory.Factory):
+            FACTORY_FOR = User
+
+            is_superuser = False
+            roles = factory.Dict({
+                'role1': True,
+                'role2': False,
+                'role3': factory.Iterator([True, False]),
+                'admin': factory.SelfAttribute('..is_superuser'),
+            })
+
+    .. note:: Declarations used as a :class:`Dict` values are evaluated within
+              that :class:`Dict`'s context; this means that you must use
+              the ``..foo`` syntax to access fields defined at the factory level.
+
+              On the other hand, the :class:`Sequence` counter is aligned on the
+              containing factory's one.
+
+
+    The :class:`Dict` behaviour can be tuned through the following parameters:
+
+    .. attribute:: dict_factory
+
+        The actual factory to use for generating the dict can be set as a keyword
+        argument, if an exotic dictionary-like object (SortedDict, ...) is required.
+
+
+.. class:: List(items[, list_factory=factory.ListFactory])
+
+    The :class:`List` can be used for list-like attributes.
+
+    Internally, the fields are converted into a ``index=value`` dict, which
+    makes it possible to override some values at use time:
+
+    .. code-block:: python
+
+        class UserFactory(factory.Factory):
+            FACTORY_FOR = User
+
+            flags = factory.List([
+                'user',
+                'active',
+                'admin',
+            ])
+
+    .. code-block:: pycon
+
+        >>> u = UserFactory(flags__2='superadmin')
+        >>> u.flags
+        ['user', 'active', 'superadmin']
+
+
+    The :class:`List` behaviour can be tuned through the following parameters:
+
+    .. attribute:: list_factory
+
+        The actual factory to use for generating the list can be set as a keyword
+        argument, if another type (tuple, set, ...) is required.
+
+
 Post-generation hooks
 """""""""""""""""""""
 

@@ -63,6 +63,15 @@ class SafetyTestCase(unittest.TestCase):
         self.assertRaises(base.FactoryError, base.BaseFactory)
 
 
+class AbstractFactoryTestCase(unittest.TestCase):
+    def test_factory_for_optional(self):
+        """Ensure that FACTORY_FOR is optional for ABSTRACT_FACTORY."""
+        class TestObjectFactory(base.Factory):
+            ABSTRACT_FACTORY = True
+
+        # Passed
+
+
 class FactoryTestCase(unittest.TestCase):
     def test_factory_for(self):
         class TestObjectFactory(base.Factory):
@@ -105,6 +114,7 @@ class FactoryTestCase(unittest.TestCase):
         alt_sub = TestSubFactory.build()
         ones = set([x.one for x in (parent, alt_parent, sub, alt_sub)])
         self.assertEqual(4, len(ones))
+
 
 class FactoryDefaultStrategyTestCase(unittest.TestCase):
     def setUp(self):

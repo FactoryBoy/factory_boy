@@ -281,12 +281,14 @@ class ParameteredAttribute(OrderedDeclaration):
             containers = self._prepare_containers(obj, containers)
             defaults[self.CONTAINERS_FIELD] = containers
 
-        return self.generate(create, defaults)
+        return self.generate(sequence, obj, create, defaults)
 
-    def generate(self, create, params):  # pragma: no cover
+    def generate(self, sequence, obj, create, params):  # pragma: no cover
         """Actually generate the related attribute.
 
         Args:
+            sequence (int): the current sequence number
+            obj (LazyStub): the object being constructed
             create (bool): whether the calling factory was in 'create' or
                 'build' mode
             params (dict): parameters inherited from init and evaluation-time
@@ -332,7 +334,7 @@ class SubFactory(ParameteredAttribute):
                     self.factory_module, self.factory_name)
         return self.factory
 
-    def generate(self, create, params):
+    def generate(self, sequence, obj, create, params):
         """Evaluate the current definition and fill its attributes.
 
         Args:
@@ -343,6 +345,33 @@ class SubFactory(ParameteredAttribute):
         """
         subfactory = self.get_factory()
         return subfactory.simple_generate(create, **params)
+
+
+class Dict(SubFactory):
+    """Fill a dict with usual declarations."""
+
+    def __init__(self, params, dict_factory='factory.DictFactory'):
+        super(Dict, self).__init__(dict_factory, **dict(params))
+
+    def generate(self, sequence, obj, create, params):
+        dict_factory = self.get_factory()
+        return dict_factory.simple_generate(create,
+            __sequence=sequence,
+            **params)
+
+
+class List(SubFactory):
+    """Fill a list with standard declarations."""
+
+    def __init__(self, params, list_factory='factory.ListFactory'):
+        params = dict((str(i), v) for i, v in enumerate(params))
+        super(List, self).__init__(list_factory, **params)
+
+    def generate(self, sequence, obj, create, params):
+        list_factory = self.get_factory()
+        return list_factory.simple_generate(create,
+            __sequence=sequence,
+            **params)
 
 
 class PostGenerationDeclaration(object):

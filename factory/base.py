@@ -621,6 +621,48 @@ class MogoFactory(Factory):
         return target_class.new(*args, **kwargs)
 
 
+class BaseDictFactory(Factory):
+    """Factory for dictionary-like classes."""
+    ABSTRACT_FACTORY = True
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        if args:
+            raise ValueError(
+                "DictFactory %r does not support FACTORY_ARG_PARAMETERS.", cls)
+        return target_class(**kwargs)
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        return cls._build(target_class, *args, **kwargs)
+
+
+class DictFactory(BaseDictFactory):
+    FACTORY_FOR = dict
+
+
+class BaseListFactory(Factory):
+    """Factory for list-like classes."""
+    ABSTRACT_FACTORY = True
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        if args:
+            raise ValueError(
+                "ListFactory %r does not support FACTORY_ARG_PARAMETERS.", cls)
+
+        values = [v for k, v in sorted(kwargs.items())]
+        return target_class(values)
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        return cls._build(target_class, *args, **kwargs)
+
+
+class ListFactory(BaseListFactory):
+    FACTORY_FOR = list
+
+
 def use_strategy(new_strategy):
     """Force the use of a different strategy.
 
