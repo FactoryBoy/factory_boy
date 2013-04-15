@@ -502,6 +502,37 @@ sequence counter is shared:
     '123-555-0003'
 
 
+Forcing a sequence counter
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If a specific value of the sequence counter is required for one instance, the
+``__sequence`` keyword argument should be passed to the factory method.
+
+This will force the sequence counter during the call, without altering the
+class-level value.
+
+.. code-block:: python
+
+    class UserFactory(factory.Factory):
+        FACTORY_FOR = User
+
+        uid = factory.Sequence(int)
+
+.. code-block:: pycon
+
+    >>> UserFactory()
+    <User: 0>
+    >>> UserFactory()
+    <User: 1>
+    >>> UserFactory(__sequence=42)
+    <User: 42>
+
+
+.. warning:: The impact of setting ``__sequence=n`` on a ``_batch`` call is
+             undefined. Each generated instance may share a same counter, or
+             use incremental values starting from the forced value.
+
+
 LazyAttributeSequence
 """""""""""""""""""""
 

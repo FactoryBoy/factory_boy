@@ -282,7 +282,13 @@ class BaseFactory(object):
             applicable; the current list of computed attributes is available
             to the currently processed object.
         """
-        return containers.AttributeBuilder(cls, extra).build(create)
+        force_sequence = None
+        if extra:
+            force_sequence = extra.pop('__sequence', None)
+        return containers.AttributeBuilder(cls, extra).build(
+            create=create,
+            force_sequence=force_sequence,
+        )
 
     @classmethod
     def declarations(cls, extra_defs=None):

@@ -236,16 +236,21 @@ class AttributeBuilder(object):
                 attrs_with_subfields, self._attrs)
 
     def has_subfields(self, value):
-        return isinstance(value, declarations.SubFactory)
+        return isinstance(value, declarations.ParameteredAttribute)
 
-    def build(self, create):
+    def build(self, create, force_sequence=None):
         """Build a dictionary of attributes.
 
         Args:
             create (bool): whether to 'build' or 'create' the subfactories.
+            force_sequence (int or None): if set to an int, use this value for
+                the sequence counter; don't advance the related counter.
         """
         # Setup factory sequence.
-        self.factory.sequence = self.factory._generate_next_sequence()
+        if force_sequence is None:
+            sequence = self.factory._generate_next_sequence()
+        else:
+            sequence = force_sequence
 
         # Parse attribute declarations, wrapping SubFactory and
         # OrderedDeclaration.
@@ -253,7 +258,7 @@ class AttributeBuilder(object):
         for k, v in self._attrs.items():
             if isinstance(v, declarations.OrderedDeclaration):
                 v = OrderedDeclarationWrapper(v,
-                        sequence=self.factory.sequence,
+                        sequence=sequence,
                         create=create,
                         extra=self._subfields.get(k, {}),
                 )

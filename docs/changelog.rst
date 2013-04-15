@@ -14,6 +14,7 @@ ChangeLog
     - Add support for ``get_or_create`` in :class:`~factory.DjangoModelFactory`,
       through :attr:`~factory.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE`.
     - Add support for :mod:`~factory.fuzzy` attribute definitions.
+    - The :class:`Sequence` counter can be overridden when calling a generating function
 
 *Removed:*
 

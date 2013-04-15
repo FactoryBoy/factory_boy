@@ -346,6 +346,22 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual('one43', test_object1.one)
         self.assertEqual('two43', test_object1.two)
 
+    def test_sequence_override(self):
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
+            one = factory.Sequence(lambda n: 'one%d' % n)
+
+        o1 = TestObjectFactory()
+        o2 = TestObjectFactory()
+        o3 = TestObjectFactory(__sequence=42)
+        o4 = TestObjectFactory()
+
+        self.assertEqual('one0', o1.one)
+        self.assertEqual('one1', o2.one)
+        self.assertEqual('one42', o3.one)
+        self.assertEqual('one2', o4.one)
+
     def test_custom_create(self):
         class TestModelFactory(factory.Factory):
             FACTORY_FOR = TestModel
