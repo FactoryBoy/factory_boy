@@ -50,9 +50,11 @@ class FakeModel(object):
 
     class FakeModelManager(object):
         def get_or_create(self, **kwargs):
-            kwargs.update(kwargs.pop('defaults', {}))
+            defaults = kwargs.pop('defaults', {})
+            kwargs.update(defaults)
             instance = FakeModel.create(**kwargs)
             instance.id = 2
+            instance._defaults = defaults
             return instance, True
 
         def values_list(self, *args, **kwargs):
@@ -1777,6 +1779,35 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
         self.assertEqual('foo_4', o3.a)
         self.assertEqual('foo_5', o4.a)
+
+    def test_no_get_or_create(self):
+        class TestModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = TestModel
+
+            a = factory.Sequence(lambda n: 'foo_%s' % n)
+
+        o = TestModelFactory()
+        self.assertEqual({}, o._defaults)
+        self.assertEqual('foo_2', o.a)
+        self.assertEqual(2, o.id)
+
+    def test_get_or_create(self):
+        class TestModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = TestModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b')
+
+            a = factory.Sequence(lambda n: 'foo_%s' % n)
+            b = 2
+            c = 3
+            d = 4
+
+        o = TestModelFactory()
+        self.assertEqual({'c': 3, 'd': 4}, o._defaults)
+        self.assertEqual('foo_2', o.a)
+        self.assertEqual(2, o.b)
+        self.assertEqual(3, o.c)
+        self.assertEqual(4, o.d)
+        self.assertEqual(2, o.id)
 
 
 if __name__ == '__main__':

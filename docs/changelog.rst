@@ -1,6 +1,14 @@
 ChangeLog
 =========
 
+2.0.1 (2013-04-16)
+------------------
+
+*New:*
+
+    - Don't push ``defaults`` to ``get_or_create`` when
+      :attr:`~factory.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE` is not set.
+
 2.0.0 (2013-04-15)
 ------------------
 

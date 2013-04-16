@@ -596,10 +596,13 @@ class DjangoModelFactory(Factory):
             "(in %s.FACTORY_DJANGO_GET_OR_CREATE=%r)"
             % (cls, cls.FACTORY_DJANGO_GET_OR_CREATE))
 
-        key_fields = {}
-        for field in cls.FACTORY_DJANGO_GET_OR_CREATE:
-            key_fields[field] = kwargs.pop(field)
-        key_fields['defaults'] = kwargs
+        if cls.FACTORY_DJANGO_GET_OR_CREATE:
+            key_fields = {}
+            for field in cls.FACTORY_DJANGO_GET_OR_CREATE:
+                key_fields[field] = kwargs.pop(field)
+            key_fields['defaults'] = kwargs
+        else:
+            key_fields = kwargs
 
         obj, _created = manager.get_or_create(*args, **key_fields)
         return obj
