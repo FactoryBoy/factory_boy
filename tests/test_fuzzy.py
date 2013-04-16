@@ -21,6 +21,8 @@
 # THE SOFTWARE.
 
 
+import datetime
+
 from factory import fuzzy
 
 from .compat import mock, unittest
@@ -102,3 +104,62 @@ class FuzzyIntegerTestCase(unittest.TestCase):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(8, res)
+
+
+class FuzzyDateTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Setup useful constants
+        cls.jan1 = datetime.date(2013, 1, 1)
+        cls.jan3 = datetime.date(2013, 1, 3)
+        cls.jan31 = datetime.date(2013, 1, 31)
+
+    def test_accurate_definition(self):
+        """Tests all ways of defining a FuzzyDate."""
+        fuzz = fuzzy.FuzzyDate(self.jan1, self.jan31)
+
+        for _i in range(20):
+            res = fuzz.evaluate(2, None, False)
+            self.assertLessEqual(self.jan1, res)
+            self.assertLessEqual(res, self.jan31)
+
+    def test_partial_definition(self):
+        """Test defining a FuzzyDate without passing an end date."""
+        with utils.mocked_date_today(self.jan3, fuzzy):
+            fuzz = fuzzy.FuzzyDate(self.jan1)
+
+        for _i in range(20):
+            res = fuzz.evaluate(2, None, False)
+            self.assertLessEqual(self.jan1, res)
+            self.assertLessEqual(res, self.jan3)
+
+    def test_invalid_definition(self):
+        self.assertRaises(ValueError, fuzzy.FuzzyDate,
+            self.jan31, self.jan1)
+
+    def test_invalid_partial_definition(self):
+        with utils.mocked_date_today(self.jan1, fuzzy):
+            self.assertRaises(ValueError, fuzzy.FuzzyDate,
+                self.jan31)
+
+    def test_biased(self):
+        """Tests a FuzzyDate with a biased random.randint."""
+
+        fake_randint = lambda low, high: (low + high) // 2
+        fuzz = fuzzy.FuzzyDate(self.jan1, self.jan31)
+
+        with mock.patch('random.randint', fake_randint):
+            res = fuzz.evaluate(2, None, False)
+
+        self.assertEqual(datetime.date(2013, 1, 16), res)
+
+    def test_biased_partial(self):
+        """Tests a FuzzyDate with a biased random and implicit upper bound."""
+        with utils.mocked_date_today(self.jan3, fuzzy):
+            fuzz = fuzzy.FuzzyDate(self.jan1)
+
+        fake_randint = lambda low, high: (low + high) // 2
+        with mock.patch('random.randint', fake_randint):
+            res = fuzz.evaluate(2, None, False)
+
+        self.assertEqual(datetime.date(2013, 1, 2), res)

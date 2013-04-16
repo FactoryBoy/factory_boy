@@ -70,6 +70,33 @@ FuzzyInteger
         int, the inclusive higher bound of generated integers
 
 
+FuzzyDate
+---------
+
+.. class:: FuzzyDate(start_date[, end_date])
+
+    The :class:`FuzzyDate` fuzzer generates random dates within a given
+    inclusive range.
+
+    The :attr:`end_date` bound may be omitted, in which case it defaults to the current date:
+
+    .. code-block:: pycon
+
+        >>> fd = FuzzyDate(datetime.date(2008, 1, 1))
+        >>> fd.start_date, fd.end_date
+        datetime.date(2008, 1, 1), datetime.date(2013, 4, 16)
+
+    .. attribute:: start_date
+
+        :class:`datetime.date`, the inclusive lower bound of generated dates
+
+    .. attribute:: end_date
+
+        :class:`datetime.date`, the inclusive higher bound of generated dates
+
+        int, the inclusive higher bound of generated dates
+
+
 Custom fuzzy fields
 -------------------
 
