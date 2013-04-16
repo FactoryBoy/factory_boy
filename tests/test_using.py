@@ -1758,5 +1758,26 @@ class ListTestCase(unittest.TestCase):
             ],
         ], o.two)
 
+
+class DjangoModelFactoryTestCase(unittest.TestCase):
+    def test_sequence(self):
+        class TestModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = TestModel
+
+            a = factory.Sequence(lambda n: 'foo_%s' % n)
+
+        o1 = TestModelFactory()
+        o2 = TestModelFactory()
+
+        self.assertEqual('foo_2', o1.a)
+        self.assertEqual('foo_3', o2.a)
+
+        o3 = TestModelFactory.build()
+        o4 = TestModelFactory.build()
+
+        self.assertEqual('foo_4', o3.a)
+        self.assertEqual('foo_5', o4.a)
+
+
 if __name__ == '__main__':
     unittest.main()
