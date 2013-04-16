@@ -57,6 +57,12 @@ class FakeModel(object):
             instance._defaults = defaults
             return instance, True
 
+        def create(self, **kwargs):
+            instance = FakeModel.create(**kwargs)
+            instance.id = 2
+            instance._defaults = None
+            return instance
+
         def values_list(self, *args, **kwargs):
             return self
 
@@ -1787,7 +1793,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
             a = factory.Sequence(lambda n: 'foo_%s' % n)
 
         o = TestModelFactory()
-        self.assertEqual({}, o._defaults)
+        self.assertEqual(None, o._defaults)
         self.assertEqual('foo_2', o.a)
         self.assertEqual(2, o.id)
 
@@ -1803,6 +1809,25 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
         o = TestModelFactory()
         self.assertEqual({'c': 3, 'd': 4}, o._defaults)
+        self.assertEqual('foo_2', o.a)
+        self.assertEqual(2, o.b)
+        self.assertEqual(3, o.c)
+        self.assertEqual(4, o.d)
+        self.assertEqual(2, o.id)
+
+    def test_full_get_or_create(self):
+        """Test a DjangoModelFactory with all fields in get_or_create."""
+        class TestModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = TestModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b', 'c', 'd')
+
+            a = factory.Sequence(lambda n: 'foo_%s' % n)
+            b = 2
+            c = 3
+            d = 4
+
+        o = TestModelFactory()
+        self.assertEqual({}, o._defaults)
         self.assertEqual('foo_2', o.a)
         self.assertEqual(2, o.b)
         self.assertEqual(3, o.c)

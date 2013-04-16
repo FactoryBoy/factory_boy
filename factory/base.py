@@ -587,8 +587,8 @@ class DjangoModelFactory(Factory):
             return 1
 
     @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        """Create an instance of the model, and save it to the database."""
+    def _get_or_create(cls, target_class, *args, **kwargs):
+        """Create an instance of the model through objects.get_or_create."""
         manager = cls._get_manager(target_class)
 
         assert 'defaults' not in cls.FACTORY_DJANGO_GET_OR_CREATE, (
@@ -596,16 +596,23 @@ class DjangoModelFactory(Factory):
             "(in %s.FACTORY_DJANGO_GET_OR_CREATE=%r)"
             % (cls, cls.FACTORY_DJANGO_GET_OR_CREATE))
 
-        if cls.FACTORY_DJANGO_GET_OR_CREATE:
-            key_fields = {}
-            for field in cls.FACTORY_DJANGO_GET_OR_CREATE:
-                key_fields[field] = kwargs.pop(field)
-            key_fields['defaults'] = kwargs
-        else:
-            key_fields = kwargs
+        key_fields = {}
+        for field in cls.FACTORY_DJANGO_GET_OR_CREATE:
+            key_fields[field] = kwargs.pop(field)
+        key_fields['defaults'] = kwargs
 
         obj, _created = manager.get_or_create(*args, **key_fields)
         return obj
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        """Create an instance of the model, and save it to the database."""
+        manager = cls._get_manager(target_class)
+
+        if cls.FACTORY_DJANGO_GET_OR_CREATE:
+            return cls._get_or_create(target_class, *args, **kwargs)
+
+        return manager.create(*args, **kwargs)
 
     @classmethod
     def _after_postgeneration(cls, obj, create, results=None):
