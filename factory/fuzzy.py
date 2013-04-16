@@ -25,6 +25,7 @@
 
 
 import random
+import datetime
 
 from . import declarations
 
@@ -84,3 +85,13 @@ class FuzzyInteger(BaseFuzzyAttribute):
 
     def fuzz(self):
         return random.randint(self.low, self.high)
+
+class FuzzyDate(BaseFuzzyAttribute):
+    """Random date within a given date range."""
+    def __init__(self, start_date, end_date=datetime.date.today(), **kwargs):
+        super(FuzzyDate, self).__init__(**kwargs)
+        self.start_date = start_date.toordinal()
+        self.end_date = end_date.toordinal()
+
+    def fuzz(self):
+        return datetime.date.fromordinal(random.randint(self.start_date, self.end_date))
