@@ -23,50 +23,23 @@
 import datetime
 
 from .compat import mock
+from . import alter_time
 
 
 class MultiModulePatcher(object):
     """An abstract context processor for patching multiple modules."""
 
-    replaced_symbol = None
-    replaced_symbol_module = None
-    module_imported_as = ''
-
     def __init__(self, *target_modules, **kwargs):
         super(MultiModulePatcher, self).__init__(**kwargs)
-        if not self.module_imported_as:
-            self.module_imported_as = replaced_symbol.__module__.__name__
         self.patchers = [self._build_patcher(mod) for mod in target_modules]
-
-    def _check_module(self, target_module):
-        if not self.replaced_symbol_module:
-            # No check to perform
-            return
-
-        replaced_import = getattr(target_module, self.module_imported_as)
-        assert replaced_import is self.replaced_symbol_module, (
-            "Cannot patch import %s.%s (%r != %r)" % (
-                target_module.__name__, self.module_imported_as,
-                replaced_import, self.replaced_symbol_module))
 
     def _build_patcher(self, target_module):
         """Build a mock patcher for the target module."""
-        self._check_module(target_module)
-
-        return mock.patch.object(
-            getattr(target_module, self.module_imported_as),
-            self.replaced_symbol.__name__,
-            mock.Mock(wraps=self.replaced_symbol),
-        )
-
-    def setup_mocked_symbol(self, mocked_symbol):
-        """Setup a mocked symbol for later use."""
-        pass
+        raise NotImplementedError()
 
     def __enter__(self):
         for patcher in self.patchers:
             mocked_symbol = patcher.start()
-            self.setup_mocked_symbol(mocked_symbol)
 
     def __exit__(self, exc_type=None, exc_val=None, exc_tb=None):
         for patcher in self.patchers:
@@ -75,26 +48,21 @@ class MultiModulePatcher(object):
 
 class mocked_date_today(MultiModulePatcher):
     """A context processor changing the value of date.today()."""
-    replaced_symbol = datetime.date
-    replaced_symbol_module = datetime
-    module_imported_as = 'datetime'
 
     def __init__(self, target_date, *target_modules, **kwargs):
         self.target_date = target_date
         super(mocked_date_today, self).__init__(*target_modules, **kwargs)
 
-    def setup_mocked_symbol(self, mocked_date):
-        mocked_date.today.return_value = self.target_date
+    def _build_patcher(self, target_module):
+        module_datetime = getattr(target_module, 'datetime')
+        return alter_time.mock_date_today(self.target_date, module_datetime)
 
 
 class mocked_datetime_now(MultiModulePatcher):
-    replaced_symbol = datetime.datetime
-    replaced_symbol_module = datetime
-    module_imported_as = 'datetime'
-
     def __init__(self, target_dt, *target_modules, **kwargs):
         self.target_dt = target_dt
         super(mocked_datetime_now, self).__init__(*target_modules, **kwargs)
 
-    def setup_mocked_symbol(self, mocked_datetime):
-        mocked_datetime.now.return_value = self.target_dt
+    def _build_patcher(self, target_module):
+        module_datetime = getattr(target_module, 'datetime')
+        return alter_time.mock_datetime_now(self.target_dt, module_datetime)
