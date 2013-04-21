@@ -1,6 +1,14 @@
 ChangeLog
 =========
 
+2.1.0 (current)
+---------------
+
+*New:*
+
+    - Add :class:`~factory.fuzzy.FuzzyDate` thanks to `saulshanabrook <https://github.com/saulshanabrook>`_
+    - Add :class:`~factory.fuzzy.FuzzyDateTime` and :class:`~factory.fuzzy.FuzzyNaiveDateTime`.
+
 2.0.2 (2013-04-16)
 ------------------
 
