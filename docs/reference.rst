@@ -586,7 +586,7 @@ handles more complex cases:
 SubFactory
 """"""""""
 
-.. class:: SubFactory(sub_factory, **kwargs)
+.. class:: SubFactory(factory, **kwargs)
 
     .. OHAI_VIM**
 
@@ -599,6 +599,18 @@ The :class:`SubFactory` attribute should be called with:
   path to that :class:`Factory` (see :ref:`Circular imports <subfactory-circular>`)
 * An optional set of keyword arguments that should be passed when calling that
   factory
+
+
+.. note:: When passing an actual :class:`~factory.Factory` for the
+          :attr:`~factory.SubFactory.factory` argument, make sure to pass
+          the class and not instance (i.e no ``()`` after the class):
+
+          .. code-block:: python
+
+              class FooFactory(factory.Factory):
+                  FACTORY_FOR = Foo
+
+                  bar = factory.SubFactory(BarFactory)  # Not BarFactory()
 
 
 Definition
@@ -1038,6 +1050,18 @@ RelatedFactory
 
         It will be passed as a keyword argument, using the :attr:`name` value as
         keyword:
+
+
+.. note:: When passing an actual :class:`~factory.Factory` for the
+          :attr:`~factory.RelatedFactory.factory` argument, make sure to pass
+          the class and not instance (i.e no ``()`` after the class):
+
+          .. code-block:: python
+
+              class FooFactory(factory.Factory):
+                  FACTORY_FOR = Foo
+
+                  bar = factory.RelatedFactory(BarFactory)  # Not BarFactory()
 
 
 .. code-block:: python
