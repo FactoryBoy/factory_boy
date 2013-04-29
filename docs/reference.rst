@@ -1025,7 +1025,7 @@ as keyword arguments; ``{'post_x': 2}`` will be passed to ``SomeFactory.FACTORY_
 RelatedFactory
 """"""""""""""
 
-.. class:: RelatedFactory(factory, name='', **kwargs)
+.. class:: RelatedFactory(factory, factory_related_name='', **kwargs)
 
     .. OHAI_VIM**
 
@@ -1045,7 +1045,7 @@ RelatedFactory
     .. attribute:: name
 
         The generated object (where the :class:`RelatedFactory` attribute will
-        set) may be passed to the related factory if the :attr:`name` parameter
+        set) may be passed to the related factory if the :attr:`factory_related_name` parameter
         is set.
 
         It will be passed as a keyword argument, using the :attr:`name` value as

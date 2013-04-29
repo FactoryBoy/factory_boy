@@ -9,6 +9,10 @@ ChangeLog
     - Add :class:`~factory.fuzzy.FuzzyDate` thanks to `saulshanabrook <https://github.com/saulshanabrook>`_
     - Add :class:`~factory.fuzzy.FuzzyDateTime` and :class:`~factory.fuzzy.FuzzyNaiveDateTime`.
 
+*Deprecation:*
+
+    - Rename :class:`~factory.RelatedFactory`'s ``name`` argument to ``factory_related_name`` (See #58)
+
 2.0.2 (2013-04-16)
 ------------------
 

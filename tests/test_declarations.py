@@ -210,6 +210,17 @@ class RelatedFactoryTestCase(unittest.TestCase):
             # IMPORTANT: restore attribute.
             datetime.date = orig_date
 
+    def test_deprecate_name(self):
+        with warnings.catch_warnings(record=True) as w:
+
+            warnings.simplefilter('always')
+            f = declarations.RelatedFactory('datetime.date', name='blah')
+
+            self.assertEqual('blah', f.name)
+            self.assertEqual(1, len(w))
+            self.assertIn('RelatedFactory', str(w[0].message))
+            self.assertIn('factory_related_name', str(w[0].message))
+
 
 class PostGenerationMethodCallTestCase(unittest.TestCase):
     def setUp(self):
