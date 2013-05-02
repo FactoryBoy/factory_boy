@@ -62,6 +62,50 @@ When a :class:`UserFactory` is instantiated, factory_boy will call
 ``UserLogFactory(user=that_user, action=...)`` just before returning the created ``User``.
 
 
+Example: Django's Profile
+"""""""""""""""""""""""""
+
+Django (<1.5) provided a mechanism to attach a ``Profile`` to a ``User`` instance,
+using a :class:`~django.db.models.ForeignKey` from the ``Profile`` to the ``User``.
+
+A typical way to create those profiles was to hook a post-save signal to the ``User`` model.
+
+factory_boy allows to define attributes of such profiles dynamically when creating a ``User``:
+
+.. code-block:: python
+
+    class ProfileFactory(factory.DjangoModelFactory):
+        FACTORY_FOR = my_models.Profile
+
+        title = 'Dr'
+
+    class UserFactory(factory.DjangoModelFactory):
+        FACTORY_FOR = auth_models.User
+
+        username = factory.Sequence(lambda n: "user_%d" % n)
+        profile = factory.RelatedFactory(ProfileFactory)
+
+        @classmethod
+        def _create(cls, target_class, *args, **kwargs):
+            """Override the default _create() to disable the post-save signal."""
+            post_save.disconnect(handler_create_user_profile, auth_models.User)
+            user = super(UserFactory, cls)._create(target_class, *args, **kwargs)
+            post_save.connect(handler_create_user_profile, auth_models.User)
+            return user
+
+.. OHAI_VIM:*
+
+
+.. code-block:: pycon
+
+    >>> u = UserFactory(profile__title=u"Lord")
+    >>> u.get_profile().title
+    u"Lord"
+
+Such behaviour can be extended to other situations where a signal interferes with
+factory_boy related factories.
+
+
 Simple ManyToMany
 -----------------
 
