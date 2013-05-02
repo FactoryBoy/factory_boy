@@ -353,6 +353,11 @@ accept the object being built as sole argument, and return a value.
     'leo@example.com'
 
 
+The object passed to :class:`LazyAttribute` is not an instance of the target class,
+but instead a :class:`~containers.LazyStub`: a temporary container that computes
+the value of all declared fields.
+
+
 Decorator
 ~~~~~~~~~
 
@@ -796,6 +801,19 @@ Obviously, this "follow parents" hability also handles overriding some attribute
     >>> company = CompanyFactory(country=china)
     >>> company.owner.language
     'cn'
+
+
+This feature is also available to :class:`LazyAttribute` and :class:`LazyAttributeSequence`,
+through the :attr:`~containers.LazyStub.factory_parent` attribute of the passed-in object:
+
+.. code-block:: python
+
+    class CompanyFactory(factory.Factory):
+        FACTORY_FOR = Company
+        country = factory.SubFactory(CountryFactory)
+        owner = factory.SubFactory(UserFactory,
+            language=factory.LazyAttribute(lambda user: user.factory_parent.country.language),
+        )
 
 
 Iterator

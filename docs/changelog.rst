@@ -8,6 +8,9 @@ ChangeLog
 
     - Add :class:`~factory.fuzzy.FuzzyDate` thanks to `saulshanabrook <https://github.com/saulshanabrook>`_
     - Add :class:`~factory.fuzzy.FuzzyDateTime` and :class:`~factory.fuzzy.FuzzyNaiveDateTime`.
+    - Add a :attr:`~factory.containers.LazyStub.factory_parent` attribute to the
+      :class:`~factory.containers.LazyStub` passed to :class:`~factory.LazyAttribute`, in order to access
+      fields defined in wrapping factories.
 
 *Deprecation:*
 

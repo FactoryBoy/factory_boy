@@ -55,6 +55,7 @@ class LazyStub(object):
         self.__pending = []
         self.__containers = containers
         self.__target_class = target_class
+        self.factory_parent = containers[0] if containers else None
         self.__initialized = True
 
     def __repr__(self):
