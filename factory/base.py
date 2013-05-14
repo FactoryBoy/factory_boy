@@ -598,7 +598,8 @@ class DjangoModelFactory(Factory):
 
         key_fields = {}
         for field in cls.FACTORY_DJANGO_GET_OR_CREATE:
-            key_fields[field] = kwargs.pop(field)
+            if field in kwargs:
+                key_fields[field] = kwargs.pop(field)
         key_fields['defaults'] = kwargs
 
         obj, _created = manager.get_or_create(*args, **key_fields)
@@ -609,7 +610,7 @@ class DjangoModelFactory(Factory):
         """Create an instance of the model, and save it to the database."""
         manager = cls._get_manager(target_class)
 
-        if cls.FACTORY_DJANGO_GET_OR_CREATE:
+        if set(cls.FACTORY_DJANGO_GET_OR_CREATE) & set(kwargs):
             return cls._get_or_create(target_class, *args, **kwargs)
 
         return manager.create(*args, **kwargs)

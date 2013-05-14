@@ -1276,6 +1276,11 @@ class BetterFakeModelManager(object):
         instance.id = 2
         return instance, True
 
+    def create(self, **kwargs):
+        instance = FakeModel.create(**kwargs)
+        instance.id = 2
+        return instance
+
     def values_list(self, *args, **kwargs):
         return self
 
@@ -1405,6 +1410,41 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         self.assertEqual(1, obj.x)
         self.assertEqual(2, obj.y)
         self.assertEqual(4, obj.z)
+        self.assertEqual(2, obj.id)
+
+    def test_new_instance_without_key(self):
+        prev = BetterFakeModel.create(x=1, y=2, z=3)
+        prev.id = 42
+
+        class MyFakeModel(BetterFakeModel):
+            objects = BetterFakeModelManager({'x': 1}, prev)
+
+        class MyFakeModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = MyFakeModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('x',)
+            y = 4
+            z = 6
+
+        obj = MyFakeModelFactory()
+        self.assertNotEqual(prev, obj)
+        self.assertEqual(4, obj.y)
+        self.assertEqual(6, obj.z)
+        self.assertEqual(2, obj.id)
+
+    def test_new_instance_with_partial_complex_key(self):
+        prev = BetterFakeModel.create(x=1, y=2, z=3)
+        prev.id = 42
+
+        class MyFakeModel(BetterFakeModel):
+            objects = BetterFakeModelManager({'x': 1}, prev)
+
+        class MyFakeModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = MyFakeModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('x', 'y', 'z')
+
+        obj = MyFakeModelFactory(x=2)
+        self.assertNotEqual(prev, obj)
+        self.assertEqual(2, obj.x)
         self.assertEqual(2, obj.id)
 
 
