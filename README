@@ -184,6 +184,14 @@ The associated object's strategy will be used:
     True
 
 
+ORM Support
+"""""""""""
+
+factory_boy has specific support for a few ORMs, through specific :class:`~factory.Factory` subclasses:
+
+* Django, with :class:`~factory.DjangoModelFactory`
+* Mogo, with :class:`~factory.MogoFactory`
+
 Contributing
 ------------
 
