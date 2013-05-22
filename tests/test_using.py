@@ -1276,6 +1276,11 @@ class BetterFakeModelManager(object):
         instance.id = 2
         return instance, True
 
+    def create(self, **kwargs):
+        instance = FakeModel.create(**kwargs)
+        instance.id = 2
+        return instance
+
     def values_list(self, *args, **kwargs):
         return self
 
@@ -1304,6 +1309,24 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         obj = FakeModelFactory(one=1)
         self.assertEqual(1, obj.one)
         self.assertEqual(2, obj.id)
+
+    def test_sequence(self):
+        class FakeModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = FakeModel
+
+            a = factory.Sequence(lambda n: 'foo_%s' % n)
+
+        o1 = FakeModelFactory()
+        o2 = FakeModelFactory()
+
+        self.assertEqual('foo_2', o1.a)
+        self.assertEqual('foo_3', o2.a)
+
+        o3 = FakeModelFactory.build()
+        o4 = FakeModelFactory.build()
+
+        self.assertEqual('foo_4', o3.a)
+        self.assertEqual('foo_5', o4.a)
 
     def test_existing_instance(self):
         prev = BetterFakeModel.create(x=1, y=2, z=3)
@@ -1387,6 +1410,41 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         self.assertEqual(1, obj.x)
         self.assertEqual(2, obj.y)
         self.assertEqual(4, obj.z)
+        self.assertEqual(2, obj.id)
+
+    def test_new_instance_without_key(self):
+        prev = BetterFakeModel.create(x=1, y=2, z=3)
+        prev.id = 42
+
+        class MyFakeModel(BetterFakeModel):
+            objects = BetterFakeModelManager({'x': 1}, prev)
+
+        class MyFakeModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = MyFakeModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('x',)
+            y = 4
+            z = 6
+
+        obj = MyFakeModelFactory()
+        self.assertNotEqual(prev, obj)
+        self.assertEqual(4, obj.y)
+        self.assertEqual(6, obj.z)
+        self.assertEqual(2, obj.id)
+
+    def test_new_instance_with_partial_complex_key(self):
+        prev = BetterFakeModel.create(x=1, y=2, z=3)
+        prev.id = 42
+
+        class MyFakeModel(BetterFakeModel):
+            objects = BetterFakeModelManager({'x': 1}, prev)
+
+        class MyFakeModelFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = MyFakeModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('x', 'y', 'z')
+
+        obj = MyFakeModelFactory(x=2)
+        self.assertNotEqual(prev, obj)
+        self.assertEqual(2, obj.x)
         self.assertEqual(2, obj.id)
 
 
@@ -1765,74 +1823,6 @@ class ListTestCase(unittest.TestCase):
                 1,
             ],
         ], o.two)
-
-
-class DjangoModelFactoryTestCase(unittest.TestCase):
-    def test_sequence(self):
-        class TestModelFactory(factory.DjangoModelFactory):
-            FACTORY_FOR = TestModel
-
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
-
-        o1 = TestModelFactory()
-        o2 = TestModelFactory()
-
-        self.assertEqual('foo_2', o1.a)
-        self.assertEqual('foo_3', o2.a)
-
-        o3 = TestModelFactory.build()
-        o4 = TestModelFactory.build()
-
-        self.assertEqual('foo_4', o3.a)
-        self.assertEqual('foo_5', o4.a)
-
-    def test_no_get_or_create(self):
-        class TestModelFactory(factory.DjangoModelFactory):
-            FACTORY_FOR = TestModel
-
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
-
-        o = TestModelFactory()
-        self.assertEqual(None, o._defaults)
-        self.assertEqual('foo_2', o.a)
-        self.assertEqual(2, o.id)
-
-    def test_get_or_create(self):
-        class TestModelFactory(factory.DjangoModelFactory):
-            FACTORY_FOR = TestModel
-            FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b')
-
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
-            b = 2
-            c = 3
-            d = 4
-
-        o = TestModelFactory()
-        self.assertEqual({'c': 3, 'd': 4}, o._defaults)
-        self.assertEqual('foo_2', o.a)
-        self.assertEqual(2, o.b)
-        self.assertEqual(3, o.c)
-        self.assertEqual(4, o.d)
-        self.assertEqual(2, o.id)
-
-    def test_full_get_or_create(self):
-        """Test a DjangoModelFactory with all fields in get_or_create."""
-        class TestModelFactory(factory.DjangoModelFactory):
-            FACTORY_FOR = TestModel
-            FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b', 'c', 'd')
-
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
-            b = 2
-            c = 3
-            d = 4
-
-        o = TestModelFactory()
-        self.assertEqual({}, o._defaults)
-        self.assertEqual('foo_2', o.a)
-        self.assertEqual(2, o.b)
-        self.assertEqual(3, o.c)
-        self.assertEqual(4, o.d)
-        self.assertEqual(2, o.id)
 
 
 if __name__ == '__main__':
