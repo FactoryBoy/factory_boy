@@ -635,3 +635,36 @@ def use_strategy(new_strategy):
         klass.FACTORY_STRATEGY = new_strategy
         return klass
     return wrapped_class
+
+
+class SQLAlchemyModelFactory(Factory):
+    """Factory for SQLAlchemy models. """
+
+    ABSTRACT_FACTORY = True
+    FACTORY_HIDDEN_ARGS=('SESSION',)
+
+    def __init__(self, session):
+        self.session = session
+
+    @classmethod
+    def _get_function(cls, function_name):
+        session = cls._declarations['SESSION']
+        sqlalchemy = __import__(session.__module__)
+        max = getattr(sqlalchemy.sql.functions, function_name)
+
+    @classmethod
+    def _setup_next_sequence(cls, *args, **kwargs):
+        """Compute the next available PK, based on the 'pk' database field."""
+        max = cls._get_function('max')
+        session = cls._declarations['SESSION']
+        pk = cls.FACTORY_FOR.__table__.primary_key.columns.values()[0].key
+        max_pk = session.query(max(getattr(cls.FACTORY_FOR, pk))).one()
+        return max_pk[0] + 1 if max_pk[0] else 1
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        """Create an instance of the model, and save it to the database."""
+        session = cls._declarations['SESSION']
+        obj = target_class(*args, **kwargs)
+        session.add(obj)
+        return obj
