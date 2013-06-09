@@ -59,7 +59,9 @@ class DjangoModelFactory(base.Factory):
         try:
             return 1 + manager.values_list('pk', flat=True
                 ).order_by('-pk')[0]
-        except IndexError:
+        except (IndexError, TypeError):
+            # IndexError: No instance exist yet
+            # TypeError: pk isn't an integer type
             return 1
 
     @classmethod
