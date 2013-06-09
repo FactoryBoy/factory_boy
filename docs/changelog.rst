@@ -16,6 +16,10 @@ ChangeLog
     - Add the :meth:`~factory.Factory.reset_sequence` classmethod to :class:`~factory.Factory`
       to ease resetting the sequence counter for a given factory.
 
+*Bugfix*
+
+    - Properly handle non-integer pks in :class:`~factory.django.DjangoModelFactory` (#57).
+
 *Deprecation:*
 
     - Rename :class:`~factory.RelatedFactory`'s ``name`` argument to ``factory_related_name`` (See #58)
