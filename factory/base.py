@@ -240,6 +240,21 @@ class BaseFactory(object):
     FACTORY_HIDDEN_ARGS = ()
 
     @classmethod
+    def reset_sequence(cls, value=None, force=False):
+        """Reset the sequence counter."""
+        if cls._base_factory:
+            if force:
+                cls._base_factory.reset_sequence(value=value)
+            else:
+                raise ValueError(
+                    "Cannot reset the sequence of a factory subclass. "
+                    "Please call reset_sequence() on the root factory, "
+                    "or call reset_sequence(forward=True)."
+                )
+        else:
+            cls._next_sequence = value
+
+    @classmethod
     def _setup_next_sequence(cls):
         """Set up an initial sequence value for Sequence attributes.
 
