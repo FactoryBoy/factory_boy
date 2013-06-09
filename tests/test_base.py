@@ -34,6 +34,7 @@ class TestObject(object):
         self.three = three
         self.four = four
 
+
 class FakeDjangoModel(object):
     @classmethod
     def create(cls, **kwargs):
@@ -45,6 +46,7 @@ class FakeDjangoModel(object):
         for name, value in kwargs.items():
             setattr(self, name, value)
             self.id = None
+
 
 class FakeModelFactory(base.Factory):
     ABSTRACT_FACTORY = True
@@ -114,6 +116,84 @@ class FactoryTestCase(unittest.TestCase):
         alt_sub = TestSubFactory.build()
         ones = set([x.one for x in (parent, alt_parent, sub, alt_sub)])
         self.assertEqual(4, len(ones))
+
+
+class FactorySequenceTestCase(unittest.TestCase):
+    def setUp(self):
+        super(FactorySequenceTestCase, self).setUp()
+
+        class TestObjectFactory(base.Factory):
+            FACTORY_FOR = TestObject
+            one = declarations.Sequence(lambda n: n)
+
+        self.TestObjectFactory = TestObjectFactory
+
+    def test_reset_sequence(self):
+        o1 = self.TestObjectFactory()
+        self.assertEqual(0, o1.one)
+
+        o2 = self.TestObjectFactory()
+        self.assertEqual(1, o2.one)
+
+        self.TestObjectFactory.reset_sequence()
+        o3 = self.TestObjectFactory()
+        self.assertEqual(0, o3.one)
+
+    def test_reset_sequence_with_value(self):
+        o1 = self.TestObjectFactory()
+        self.assertEqual(0, o1.one)
+
+        o2 = self.TestObjectFactory()
+        self.assertEqual(1, o2.one)
+
+        self.TestObjectFactory.reset_sequence(42)
+        o3 = self.TestObjectFactory()
+        self.assertEqual(42, o3.one)
+
+    def test_reset_sequence_subclass_fails(self):
+        """Tests that the sequence of a 'slave' factory cannot be reseted."""
+        class SubTestObjectFactory(self.TestObjectFactory):
+            pass
+
+        self.assertRaises(ValueError, SubTestObjectFactory.reset_sequence)
+
+    def test_reset_sequence_subclass_force(self):
+        """Tests that reset_sequence(force=True) works."""
+        class SubTestObjectFactory(self.TestObjectFactory):
+            pass
+
+        o1 = SubTestObjectFactory()
+        self.assertEqual(0, o1.one)
+
+        o2 = SubTestObjectFactory()
+        self.assertEqual(1, o2.one)
+
+        SubTestObjectFactory.reset_sequence(force=True)
+        o3 = SubTestObjectFactory()
+        self.assertEqual(0, o3.one)
+
+        # The master sequence counter has been reset
+        o4 = self.TestObjectFactory()
+        self.assertEqual(1, o4.one)
+
+    def test_reset_sequence_subclass_parent(self):
+        """Tests that the sequence of a 'slave' factory cannot be reseted."""
+        class SubTestObjectFactory(self.TestObjectFactory):
+            pass
+
+        o1 = SubTestObjectFactory()
+        self.assertEqual(0, o1.one)
+
+        o2 = SubTestObjectFactory()
+        self.assertEqual(1, o2.one)
+
+        self.TestObjectFactory.reset_sequence()
+        o3 = SubTestObjectFactory()
+        self.assertEqual(0, o3.one)
+
+        o4 = self.TestObjectFactory()
+        self.assertEqual(1, o4.one)
+
 
 
 class FactoryDefaultStrategyTestCase(unittest.TestCase):

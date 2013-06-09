@@ -234,6 +234,48 @@ The :class:`Factory` class
         values, for instance.
 
 
+    **Advanced functions:**
+
+
+    .. classmethod:: reset_sequence(cls, value=None, force=False)
+
+        :arg int value: The value to reset the sequence to
+        :arg bool force: Whether to force-reset the sequence
+
+        Allows to reset the sequence counter for a :class:`~factory.Factory`.
+        The new value can be passed in as the ``value`` argument:
+
+        .. code-block:: pycon
+
+            >>> SomeFactory.reset_sequence(4)
+            >>> SomeFactory._next_sequence
+            4
+
+        Since subclasses of a non-:attr:`abstract <factory.Factory.ABSTRACT_FACTORY>`
+        :class:`~factory.Factory` share the same sequence counter, special care needs
+        to be taken when resetting the counter of such a subclass.
+
+        By default, :meth:`reset_sequence` will raise a :exc:`ValueError` when
+        called on a subclassed :class:`~factory.Factory` subclass. This can be
+        avoided by passing in the ``force=True`` flag:
+
+        .. code-block:: pycon
+
+            >>> InheritedFactory.reset_sequence()
+            Traceback (most recent call last):
+              File "factory_boy/tests/test_base.py", line 179, in test_reset_sequence_subclass_parent
+                SubTestObjectFactory.reset_sequence()
+              File "factory_boy/factory/base.py", line 250, in reset_sequence
+                "Cannot reset the sequence of a factory subclass. "
+            ValueError: Cannot reset the sequence of a factory subclass. Please call reset_sequence() on the root factory, or call reset_sequence(forward=True).
+
+            >>> InheritedFactory.reset_sequence(force=True)
+            >>>
+
+        This is equivalent to calling :meth:`reset_sequence` on the base
+        factory in the chain.
+
+
 .. _strategies:
 
 Strategies

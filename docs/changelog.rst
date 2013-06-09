@@ -13,6 +13,8 @@ ChangeLog
       fields defined in wrapping factories.
     - Move :class:`~factory.django.DjangoModelFactory` and :class:`~factory.mogo.MogoFactory`
       to their own modules (:mod:`factory.django` and :mod:`factory.mogo`)
+    - Add the :meth:`~factory.Factory.reset_sequence` classmethod to :class:`~factory.Factory`
+      to ease resetting the sequence counter for a given factory.
 
 *Deprecation:*
 
