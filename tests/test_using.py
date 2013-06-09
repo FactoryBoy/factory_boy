@@ -125,7 +125,7 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.foo, 'bar')
 
     def test_create_custom_base(self):
-        obj = factory.create(FakeModel, foo='bar', FACTORY_CLASS=factory.DjangoModelFactory)
+        obj = factory.create(FakeModel, foo='bar', FACTORY_CLASS=factory.django.DjangoModelFactory)
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
@@ -141,7 +141,7 @@ class SimpleBuildTestCase(unittest.TestCase):
 
     def test_create_batch_custom_base(self):
         objs = factory.create_batch(FakeModel, 4, foo='bar',
-                FACTORY_CLASS=factory.DjangoModelFactory)
+                FACTORY_CLASS=factory.django.DjangoModelFactory)
 
         self.assertEqual(4, len(objs))
         self.assertEqual(4, len(set(objs)))
@@ -177,7 +177,7 @@ class SimpleBuildTestCase(unittest.TestCase):
 
     def test_generate_create_custom_base(self):
         obj = factory.generate(FakeModel, factory.CREATE_STRATEGY, foo='bar',
-                FACTORY_CLASS=factory.DjangoModelFactory)
+                FACTORY_CLASS=factory.django.DjangoModelFactory)
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
@@ -208,7 +208,7 @@ class SimpleBuildTestCase(unittest.TestCase):
 
     def test_generate_batch_create_custom_base(self):
         objs = factory.generate_batch(FakeModel, factory.CREATE_STRATEGY, 20, foo='bar',
-                FACTORY_CLASS=factory.DjangoModelFactory)
+                FACTORY_CLASS=factory.django.DjangoModelFactory)
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
@@ -238,7 +238,7 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.foo, 'bar')
 
     def test_simple_generate_create_custom_base(self):
-        obj = factory.simple_generate(FakeModel, True, foo='bar', FACTORY_CLASS=factory.DjangoModelFactory)
+        obj = factory.simple_generate(FakeModel, True, foo='bar', FACTORY_CLASS=factory.django.DjangoModelFactory)
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
@@ -264,7 +264,7 @@ class SimpleBuildTestCase(unittest.TestCase):
 
     def test_simple_generate_batch_create_custom_base(self):
         objs = factory.simple_generate_batch(FakeModel, True, 20, foo='bar',
-                FACTORY_CLASS=factory.DjangoModelFactory)
+                FACTORY_CLASS=factory.django.DjangoModelFactory)
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
@@ -1298,7 +1298,7 @@ class BetterFakeModel(object):
 
 class DjangoModelFactoryTestCase(unittest.TestCase):
     def test_simple(self):
-        class FakeModelFactory(factory.DjangoModelFactory):
+        class FakeModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = FakeModel
 
         obj = FakeModelFactory(one=1)
@@ -1312,7 +1312,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         class MyFakeModel(BetterFakeModel):
             objects = BetterFakeModelManager({'x': 1}, prev)
 
-        class MyFakeModelFactory(factory.DjangoModelFactory):
+        class MyFakeModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = MyFakeModel
             FACTORY_DJANGO_GET_OR_CREATE = ('x',)
             x = 1
@@ -1333,7 +1333,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         class MyFakeModel(BetterFakeModel):
             objects = BetterFakeModelManager({'x': 1, 'y': 2, 'z': 3}, prev)
 
-        class MyFakeModelFactory(factory.DjangoModelFactory):
+        class MyFakeModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = MyFakeModel
             FACTORY_DJANGO_GET_OR_CREATE = ('x', 'y', 'z')
             x = 1
@@ -1354,7 +1354,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         class MyFakeModel(BetterFakeModel):
             objects = BetterFakeModelManager({'x': 1}, prev)
 
-        class MyFakeModelFactory(factory.DjangoModelFactory):
+        class MyFakeModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = MyFakeModel
             FACTORY_DJANGO_GET_OR_CREATE = ('x',)
             x = 1
@@ -1375,7 +1375,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         class MyFakeModel(BetterFakeModel):
             objects = BetterFakeModelManager({'x': 1, 'y': 2, 'z': 3}, prev)
 
-        class MyFakeModelFactory(factory.DjangoModelFactory):
+        class MyFakeModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = MyFakeModel
             FACTORY_DJANGO_GET_OR_CREATE = ('x', 'y', 'z')
             x = 1
@@ -1769,7 +1769,7 @@ class ListTestCase(unittest.TestCase):
 
 class DjangoModelFactoryTestCase(unittest.TestCase):
     def test_sequence(self):
-        class TestModelFactory(factory.DjangoModelFactory):
+        class TestModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = TestModel
 
             a = factory.Sequence(lambda n: 'foo_%s' % n)
@@ -1787,7 +1787,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         self.assertEqual('foo_5', o4.a)
 
     def test_no_get_or_create(self):
-        class TestModelFactory(factory.DjangoModelFactory):
+        class TestModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = TestModel
 
             a = factory.Sequence(lambda n: 'foo_%s' % n)
@@ -1798,7 +1798,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         self.assertEqual(2, o.id)
 
     def test_get_or_create(self):
-        class TestModelFactory(factory.DjangoModelFactory):
+        class TestModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = TestModel
             FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b')
 
@@ -1817,7 +1817,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
     def test_full_get_or_create(self):
         """Test a DjangoModelFactory with all fields in get_or_create."""
-        class TestModelFactory(factory.DjangoModelFactory):
+        class TestModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = TestModel
             FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b', 'c', 'd')
 

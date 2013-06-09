@@ -25,7 +25,7 @@ use the :class:`~factory.SubFactory` declaration:
     import factory
     from . import models
 
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.User
 
         first_name = factory.Sequence(lambda n: "Agent %03d" % n)
@@ -52,7 +52,7 @@ use a :class:`~factory.RelatedFactory` declaration:
 
 
     # factories.py
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.User
 
         log = factory.RelatedFactory(UserLogFactory, 'user', action=models.UserLog.ACTION_CREATE)
@@ -74,12 +74,12 @@ factory_boy allows to define attributes of such profiles dynamically when creati
 
 .. code-block:: python
 
-    class ProfileFactory(factory.DjangoModelFactory):
+    class ProfileFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = my_models.Profile
 
         title = 'Dr'
 
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = auth_models.User
 
         username = factory.Sequence(lambda n: "user_%d" % n)
@@ -129,12 +129,12 @@ hook:
 
 
     # factories.py
-    class GroupFactory(factory.DjangoModelFactory):
+    class GroupFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.Group
 
         name = factory.Sequence(lambda n: "Group #%s" % n)
 
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.User
 
         name = "John Doe"
@@ -184,17 +184,17 @@ If more links are needed, simply add more :class:`RelatedFactory` declarations:
 
 
     # factories.py
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.User
 
         name = "John Doe"
 
-    class GroupFactory(factory.DjangoModelFactory):
+    class GroupFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.Group
 
         name = "Admins"
 
-    class GroupLevelFactory(factory.DjangoModelFactory):
+    class GroupLevelFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.GroupLevel
 
         user = factory.SubFactory(UserFactory)
@@ -257,20 +257,20 @@ Here, we want:
 .. code-block:: python
 
     # factories.py
-    class CountryFactory(factory.DjangoModelFactory):
+    class CountryFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.Country
 
         name = factory.Iterator(["France", "Italy", "Spain"])
         lang = factory.Iterator(['fr', 'it', 'es'])
 
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.User
 
         name = "John"
         lang = factory.SelfAttribute('country.lang')
         country = factory.SubFactory(CountryFactory)
 
-    class CompanyFactory(factory.DjangoModelFactory):
+    class CompanyFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.Company
 
         name = "ACME, Inc."

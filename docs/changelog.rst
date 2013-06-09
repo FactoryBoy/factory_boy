@@ -11,6 +11,8 @@ ChangeLog
     - Add a :attr:`~factory.containers.LazyStub.factory_parent` attribute to the
       :class:`~factory.containers.LazyStub` passed to :class:`~factory.LazyAttribute`, in order to access
       fields defined in wrapping factories.
+    - Move :class:`~factory.django.DjangoModelFactory` and :class:`~factory.mogo.MogoFactory`
+      to their own modules (:mod:`factory.django` and :mod:`factory.mogo`)
 
 *Deprecation:*
 
@@ -21,7 +23,7 @@ ChangeLog
 
 *New:*
 
-    - When :attr:`~factory.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE` is
+    - When :attr:`~factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE` is
       empty, use ``Model.objects.create()`` instead of ``Model.objects.get_or_create``.
 
 
@@ -31,7 +33,7 @@ ChangeLog
 *New:*
 
     - Don't push ``defaults`` to ``get_or_create`` when
-      :attr:`~factory.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE` is not set.
+      :attr:`~factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE` is not set.
 
 
 2.0.0 (2013-04-15)
@@ -44,8 +46,8 @@ ChangeLog
     - The default :attr:`~factory.Sequence.type` for :class:`~factory.Sequence` is now :obj:`int`
     - Fields listed in :attr:`~factory.Factory.FACTORY_HIDDEN_ARGS` won't be passed to
       the associated class' constructor
-    - Add support for ``get_or_create`` in :class:`~factory.DjangoModelFactory`,
-      through :attr:`~factory.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE`.
+    - Add support for ``get_or_create`` in :class:`~factory.django.DjangoModelFactory`,
+      through :attr:`~factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE`.
     - Add support for :mod:`~factory.fuzzy` attribute definitions.
     - The :class:`Sequence` counter can be overridden when calling a generating function
     - Add :class:`~factory.Dict` and :class:`~factory.List` declarations (Closes #18).
@@ -75,7 +77,7 @@ New
 
 - **Global:**
     - Rewrite the whole documentation
-    - Provide a dedicated :class:`~factory.MogoFactory` subclass of :class:`~factory.Factory`
+    - Provide a dedicated :class:`~factory.mogo.MogoFactory` subclass of :class:`~factory.Factory`
 
 - **The Factory class:**
     - Better creation/building customization hooks at :meth:`factory.Factory._build` and :meth:`factory.Factory.create`
@@ -92,7 +94,7 @@ New
       its :attr:`~factory.Iterator.cycle` argument to ``False``
     - Allow overriding default arguments in a :class:`~factory.PostGenerationMethodCall`
       when generating an instance of the factory
-    - An object created by a :class:`~factory.DjangoModelFactory` will be saved
+    - An object created by a :class:`~factory.django.DjangoModelFactory` will be saved
       again after :class:`~factory.PostGeneration` hooks execution
 
 
@@ -127,7 +129,7 @@ In order to upgrade client code, apply the following rules:
   :class:`~factory.Factory`, instead of relying on automagic associated class
   discovery
 - When using factory_boy for Django models, have each factory inherit from
-  :class:`~factory.DjangoModelFactory`
+  :class:`~factory.django.DjangoModelFactory`
 - Replace ``factory.CircularSubFactory('some.module', 'Symbol')`` with
   ``factory.SubFactory('some.module.Symbol')``
 - Replace ``factory.InfiniteIterator(iterable)`` with ``factory.Iterator(iterable)``
@@ -216,7 +218,7 @@ In order to upgrade client code, apply the following rules:
   - Introduce :data:`~factory.MOGO_BUILD` build function
   - Add support for inheriting from multiple :class:`~factory.Factory`
   - Base :class:`~factory.Factory` classes can now be declared :attr:`abstract <factory.Factory.ABSTRACT_FACTORY>`.
-  - Provide :class:`~factory.DjangoModelFactory`, whose :class:`~factory.Sequence` counter starts at the next free database id
+  - Provide :class:`~factory.django.DjangoModelFactory`, whose :class:`~factory.Sequence` counter starts at the next free database id
   - Introduce :class:`~factory.SelfAttribute`, a shortcut for ``factory.LazyAttribute(lambda o: o.foo.bar.baz``.
 
 *Bugfix:*

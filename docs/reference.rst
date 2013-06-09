@@ -606,7 +606,9 @@ The :class:`SubFactory` attribute should be called with:
   factory
 
 
-.. note:: When passing an actual :class:`~factory.Factory` for the
+.. note::
+
+          When passing an actual :class:`~factory.Factory` for the
           :attr:`~factory.SubFactory.factory` argument, make sure to pass
           the class and not instance (i.e no ``()`` after the class):
 
@@ -1070,7 +1072,9 @@ RelatedFactory
         keyword:
 
 
-.. note:: When passing an actual :class:`~factory.Factory` for the
+.. note::
+
+          When passing an actual :class:`~factory.Factory` for the
           :attr:`~factory.RelatedFactory.factory` argument, make sure to pass
           the class and not instance (i.e no ``()`` after the class):
 
@@ -1266,7 +1270,7 @@ factory during instantiation.
 
     .. code-block:: python
 
-        class UserFactory(factory.DjangoModelFactory):
+        class UserFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = User
 
             username = 'user'
@@ -1357,12 +1361,12 @@ Lightweight factory declaration
         UserFactory = make_factory(models.User,
             login='john',
             email=factory.LazyAttribute(lambda u: '%s@example.com' % u.login),
-            FACTORY_CLASS=factory.DjangoModelFactory,
+            FACTORY_CLASS=factory.django.DjangoModelFactory,
         )
 
         # This is equivalent to:
 
-        class UserFactory(factory.DjangoModelFactory):
+        class UserFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = models.User
 
             login = 'john'
