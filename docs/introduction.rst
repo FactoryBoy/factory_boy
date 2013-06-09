@@ -227,7 +227,7 @@ All factories support two built-in strategies:
           as for a Django model.
 
           Starting from 2.0, :meth:`factory.Factory.create` simply calls ``AssociatedClass(**kwargs)``.
-          You should use :class:`~factory.DjangoModelFactory` for Django models.
+          You should use :class:`~factory.django.DjangoModelFactory` for Django models.
 
 
 When a :class:`~factory.Factory` includes related fields (:class:`~factory.SubFactory`, :class:`~factory.RelatedFactory`),

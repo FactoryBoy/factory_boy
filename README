@@ -189,8 +189,8 @@ ORM Support
 
 factory_boy has specific support for a few ORMs, through specific :class:`~factory.Factory` subclasses:
 
-* Django, with :class:`~factory.DjangoModelFactory`
-* Mogo, with :class:`~factory.MogoFactory`
+* Django, with :class:`~factory.django.DjangoModelFactory`
+* Mogo, with :class:`~factory.mogo.MogoFactory`
 
 Contributing
 ------------
