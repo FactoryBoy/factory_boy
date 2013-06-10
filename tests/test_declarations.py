@@ -142,33 +142,40 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
         self.assertEqual({'bar': 42}, call_params[1])
 
 
-class SubFactoryTestCase(unittest.TestCase):
+class FactoryWrapperTestCase(unittest.TestCase):
+    def test_invalid_path(self):
+        self.assertRaises(ValueError, declarations._FactoryWrapper, 'UnqualifiedSymbol')
+        self.assertRaises(ValueError, declarations._FactoryWrapper, 42)
 
-    def test_arg(self):
-        self.assertRaises(ValueError, declarations.SubFactory, 'UnqualifiedSymbol')
+    def test_class(self):
+        w = declarations._FactoryWrapper(datetime.date)
+        self.assertEqual(datetime.date, w.get())
+
+    def test_path(self):
+        w = declarations._FactoryWrapper('datetime.date')
+        self.assertEqual(datetime.date, w.get())
 
     def test_lazyness(self):
-        f = declarations.SubFactory('factory.declarations.Sequence', x=3)
+        f = declarations._FactoryWrapper('factory.declarations.Sequence')
         self.assertEqual(None, f.factory)
 
-        self.assertEqual({'x': 3}, f.defaults)
-
-        factory_class = f.get_factory()
+        factory_class = f.get()
         self.assertEqual(declarations.Sequence, factory_class)
 
     def test_cache(self):
+        """Ensure that _FactoryWrapper tries to import only once."""
         orig_date = datetime.date
-        f = declarations.SubFactory('datetime.date')
-        self.assertEqual(None, f.factory)
+        w = declarations._FactoryWrapper('datetime.date')
+        self.assertEqual(None, w.factory)
 
-        factory_class = f.get_factory()
+        factory_class = w.get()
         self.assertEqual(orig_date, factory_class)
 
         try:
             # Modify original value
             datetime.date = None
             # Repeat import
-            factory_class = f.get_factory()
+            factory_class = w.get()
             self.assertEqual(orig_date, factory_class)
 
         finally:
@@ -177,38 +184,6 @@ class SubFactoryTestCase(unittest.TestCase):
 
 
 class RelatedFactoryTestCase(unittest.TestCase):
-
-    def test_arg(self):
-        self.assertRaises(ValueError, declarations.RelatedFactory, 'UnqualifiedSymbol')
-
-    def test_lazyness(self):
-        f = declarations.RelatedFactory('factory.declarations.Sequence', x=3)
-        self.assertEqual(None, f.factory)
-
-        self.assertEqual({'x': 3}, f.defaults)
-
-        factory_class = f.get_factory()
-        self.assertEqual(declarations.Sequence, factory_class)
-
-    def test_cache(self):
-        """Ensure that RelatedFactory tries to import only once."""
-        orig_date = datetime.date
-        f = declarations.RelatedFactory('datetime.date')
-        self.assertEqual(None, f.factory)
-
-        factory_class = f.get_factory()
-        self.assertEqual(orig_date, factory_class)
-
-        try:
-            # Modify original value
-            datetime.date = None
-            # Repeat import
-            factory_class = f.get_factory()
-            self.assertEqual(orig_date, factory_class)
-
-        finally:
-            # IMPORTANT: restore attribute.
-            datetime.date = orig_date
 
     def test_deprecate_name(self):
         with warnings.catch_warnings(record=True) as w:
