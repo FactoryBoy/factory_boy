@@ -18,14 +18,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-
 from . import base
-
-try:
-    from sqlalchemy.sql.functions import max
-except ImportError:
-    def max():
-        raise ImportError('sqlalchemy is not found!')
 
 
 class SQLAlchemyModelFactory(base.Factory):
@@ -36,6 +29,7 @@ class SQLAlchemyModelFactory(base.Factory):
     @classmethod
     def _setup_next_sequence(cls, *args, **kwargs):
         """Compute the next available PK, based on the 'pk' database field."""
+        from sqlalchemy.sql.functions import max
         session = cls.FACTORY_SESSION
         pk = cls.FACTORY_FOR.__table__.primary_key.columns.values()[0].key
         max_pk = session.query(max(getattr(cls.FACTORY_FOR, pk))).one()
