@@ -163,16 +163,19 @@ class Iterator(OrderedDeclaration):
         self.getter = getter
 
         if cycle:
-            self.iterator = itertools.cycle(iterator)
-        else:
-            self.iterator = iter(iterator)
+            iterator = itertools.cycle(iterator)
+        self.iterator = utils.ResetableIterator(iterator)
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
         logger.debug("Iterator: Fetching next value from %r", self.iterator)
-        value = next(self.iterator)
+        value = next(iter(self.iterator))
         if self.getter is None:
             return value
         return self.getter(value)
+
+    def reset(self):
+        """Reset the internal iterator."""
+        self.iterator.reset()
 
 
 class Sequence(OrderedDeclaration):

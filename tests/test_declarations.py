@@ -107,6 +107,27 @@ class IteratorTestCase(unittest.TestCase):
         self.assertEqual(2, it.evaluate(1, None, False))
         self.assertRaises(StopIteration, it.evaluate, 2, None, False)
 
+    def test_reset_cycle(self):
+        it = declarations.Iterator([1, 2])
+        self.assertEqual(1, it.evaluate(0, None, False))
+        self.assertEqual(2, it.evaluate(1, None, False))
+        self.assertEqual(1, it.evaluate(2, None, False))
+        self.assertEqual(2, it.evaluate(3, None, False))
+        self.assertEqual(1, it.evaluate(4, None, False))
+        it.reset()
+        self.assertEqual(1, it.evaluate(5, None, False))
+        self.assertEqual(2, it.evaluate(6, None, False))
+
+    def test_reset_no_cycling(self):
+        it = declarations.Iterator([1, 2], cycle=False)
+        self.assertEqual(1, it.evaluate(0, None, False))
+        self.assertEqual(2, it.evaluate(1, None, False))
+        self.assertRaises(StopIteration, it.evaluate, 2, None, False)
+        it.reset()
+        self.assertEqual(1, it.evaluate(0, None, False))
+        self.assertEqual(2, it.evaluate(1, None, False))
+        self.assertRaises(StopIteration, it.evaluate, 2, None, False)
+
     def test_getter(self):
         it = declarations.Iterator([(1, 2), (1, 3)], getter=lambda p: p[1])
         self.assertEqual(2, it.evaluate(0, None, False))

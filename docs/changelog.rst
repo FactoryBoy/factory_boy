@@ -16,6 +16,7 @@ ChangeLog
     - Add the :meth:`~factory.Factory.reset_sequence` classmethod to :class:`~factory.Factory`
       to ease resetting the sequence counter for a given factory.
     - Add debug messages to ``factory`` logger.
+    - Add a :meth:`~factory.Iterator.reset` method to :class:`~factory.Iterator` (:issue:`63`)
 
 *Bugfix*
 
