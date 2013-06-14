@@ -1157,6 +1157,22 @@ Extra kwargs may be passed to the related factory, through the usual ``ATTR__SUB
     >>> City.objects.get(capital_of=england)
     <City: London>
 
+If a value if passed for the :class:`RelatedFactory` attribute, this disables
+:class:`RelatedFactory` generation:
+
+.. code-block:: pycon
+
+    >>> france = CountryFactory()
+    >>> paris = City.objects.get()
+    >>> paris
+    <City: Paris>
+    >>> reunion = CountryFactory(capital_city=paris)
+    >>> City.objects.count()  # No new capital_city generated
+    1
+    >>> guyane = CountryFactory(capital_city=paris, capital_city__name='Kourou')
+    >>> City.objects.count()  # No new capital_city generated, ``name`` ignored.
+    1
+
 
 PostGeneration
 """"""""""""""

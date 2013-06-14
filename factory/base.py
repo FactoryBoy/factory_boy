@@ -380,9 +380,9 @@ class BaseFactory(object):
         # Handle post-generation attributes
         results = {}
         for name, decl in sorted(postgen_declarations.items()):
-            extracted, extracted_kwargs = postgen_attributes[name]
+            did_extract, extracted, extracted_kwargs = postgen_attributes[name]
             results[name] = decl.call(obj, create, extracted,
-                    **extracted_kwargs)
+                    factory_extracted=did_extract, **extracted_kwargs)
 
         cls._after_postgeneration(obj, create, results)
 
