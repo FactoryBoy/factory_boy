@@ -19,11 +19,13 @@ ChangeLog
 
 *Bugfix*
 
-    - Properly handle non-integer pks in :class:`~factory.django.DjangoModelFactory` (#57).
+    - Properly handle non-integer pks in :class:`~factory.django.DjangoModelFactory` (:issue:`57`).
+    - Disable :class:`~factory.RelatedFactory` generation when a specific value was
+      passed (:issue:`62`, thanks to `Gabe Koscky <https://github.com/dhekke>`_)
 
 *Deprecation:*
 
-    - Rename :class:`~factory.RelatedFactory`'s ``name`` argument to ``factory_related_name`` (See #58)
+    - Rename :class:`~factory.RelatedFactory`'s ``name`` argument to ``factory_related_name`` (See :issue:`58`)
 
 2.0.2 (2013-04-16)
 ------------------
@@ -57,7 +59,7 @@ ChangeLog
       through :attr:`~factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE`.
     - Add support for :mod:`~factory.fuzzy` attribute definitions.
     - The :class:`Sequence` counter can be overridden when calling a generating function
-    - Add :class:`~factory.Dict` and :class:`~factory.List` declarations (Closes #18).
+    - Add :class:`~factory.Dict` and :class:`~factory.List` declarations (Closes :issue:`18`).
 
 *Removed:*
 
