@@ -142,7 +142,7 @@ class FileField(declarations.PostGenerationDeclaration):
             path = content.name
 
         else:
-            data = params.get('data', '')
+            data = params.get('data', b'')
             content = django_files.base.ContentFile(data)
 
         if path:

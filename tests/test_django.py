@@ -185,32 +185,32 @@ class DjangoFileFieldTestCase(unittest.TestCase):
     def test_default_build(self):
         o = WithFileFactory.build()
         self.assertIsNone(o.pk)
-        self.assertEqual('', o.afile.read())
+        self.assertEqual(b'', o.afile.read())
         self.assertEqual('django/example.dat', o.afile.name)
 
     def test_default_create(self):
         o = WithFileFactory.create()
         self.assertIsNotNone(o.pk)
-        self.assertEqual('', o.afile.read())
+        self.assertEqual(b'', o.afile.read())
         self.assertEqual('django/example.dat', o.afile.name)
 
     def test_with_content(self):
         o = WithFileFactory.build(afile__data='foo')
         self.assertIsNone(o.pk)
-        self.assertEqual('foo', o.afile.read())
+        self.assertEqual(b'foo', o.afile.read())
         self.assertEqual('django/example.dat', o.afile.name)
 
     def test_with_file(self):
         with open(testdata.TESTFILE_PATH, 'rb') as f:
             o = WithFileFactory.build(afile__from_file=f)
         self.assertIsNone(o.pk)
-        self.assertEqual('example_data\n', o.afile.read())
+        self.assertEqual(b'example_data\n', o.afile.read())
         self.assertEqual('django/example.data', o.afile.name)
 
     def test_with_path(self):
         o = WithFileFactory.build(afile__from_path=testdata.TESTFILE_PATH)
         self.assertIsNone(o.pk)
-        self.assertEqual('example_data\n', o.afile.read())
+        self.assertEqual(b'example_data\n', o.afile.read())
         self.assertEqual('django/example.data', o.afile.name)
 
     def test_with_file_empty_path(self):
@@ -220,7 +220,7 @@ class DjangoFileFieldTestCase(unittest.TestCase):
                 afile__from_path=''
             )
         self.assertIsNone(o.pk)
-        self.assertEqual('example_data\n', o.afile.read())
+        self.assertEqual(b'example_data\n', o.afile.read())
         self.assertEqual('django/example.data', o.afile.name)
 
     def test_with_path_empty_file(self):
@@ -229,7 +229,7 @@ class DjangoFileFieldTestCase(unittest.TestCase):
             afile__from_file=None,
         )
         self.assertIsNone(o.pk)
-        self.assertEqual('example_data\n', o.afile.read())
+        self.assertEqual(b'example_data\n', o.afile.read())
         self.assertEqual('django/example.data', o.afile.name)
 
     def test_error_both_file_and_path(self):
@@ -244,7 +244,7 @@ class DjangoFileFieldTestCase(unittest.TestCase):
             afile__filename='example.foo',
         )
         self.assertIsNone(o.pk)
-        self.assertEqual('example_data\n', o.afile.read())
+        self.assertEqual(b'example_data\n', o.afile.read())
         self.assertEqual('django/example.foo', o.afile.name)
 
     def test_existing_file(self):
@@ -252,7 +252,7 @@ class DjangoFileFieldTestCase(unittest.TestCase):
 
         o2 = WithFileFactory.build(afile=o1.afile)
         self.assertIsNone(o2.pk)
-        self.assertEqual('example_data\n', o2.afile.read())
+        self.assertEqual(b'example_data\n', o2.afile.read())
         self.assertEqual('django/example_1.data', o2.afile.name)
 
     def test_no_file(self):
