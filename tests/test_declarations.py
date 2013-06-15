@@ -140,11 +140,11 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
     def test_extract_no_prefix(self):
         decl = declarations.PostGenerationDeclaration()
 
-        did_extract, extracted, kwargs = decl.extract('foo',
+        context = decl.extract('foo',
                 {'foo': 13, 'foo__bar': 42})
-        self.assertTrue(did_extract)
-        self.assertEqual(extracted, 13)
-        self.assertEqual(kwargs, {'bar': 42})
+        self.assertTrue(context.did_extract)
+        self.assertEqual(context.value, 13)
+        self.assertEqual(context.extra, {'bar': 42})
 
     def test_decorator_simple(self):
         call_params = []
@@ -153,14 +153,14 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
             call_params.append(args)
             call_params.append(kwargs)
 
-        did_extract, extracted, kwargs = foo.extract('foo',
+        context = foo.extract('foo',
             {'foo': 13, 'foo__bar': 42, 'blah': 42, 'blah__baz': 1})
-        self.assertTrue(did_extract)
-        self.assertEqual(13, extracted)
-        self.assertEqual({'bar': 42}, kwargs)
+        self.assertTrue(context.did_extract)
+        self.assertEqual(13, context.value)
+        self.assertEqual({'bar': 42}, context.extra)
 
         # No value returned.
-        foo.call(None, False, extracted, **kwargs)
+        foo.call(None, False, context)
         self.assertEqual(2, len(call_params))
         self.assertEqual((None, False, 13), call_params[0])
         self.assertEqual({'bar': 42}, call_params[1])
@@ -225,68 +225,73 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
     def setUp(self):
         self.obj = mock.MagicMock()
 
+    def ctx(self, value=None, force_value=False, extra=None):
+        return declarations.ExtractionContext(
+            value,
+            bool(value) or force_value,
+            extra,
+        )
+
     def test_simplest_setup_and_call(self):
         decl = declarations.PostGenerationMethodCall('method')
-        decl.call(self.obj, False)
+        decl.call(self.obj, False, self.ctx())
         self.obj.method.assert_called_once_with()
 
     def test_call_with_method_args(self):
         decl = declarations.PostGenerationMethodCall(
                 'method', 'data')
-        decl.call(self.obj, False)
+        decl.call(self.obj, False, self.ctx())
         self.obj.method.assert_called_once_with('data')
 
     def test_call_with_passed_extracted_string(self):
         decl = declarations.PostGenerationMethodCall(
                 'method')
-        decl.call(self.obj, False, 'data', factory_extracted=True)
+        decl.call(self.obj, False, self.ctx('data'))
         self.obj.method.assert_called_once_with('data')
 
     def test_call_with_passed_extracted_int(self):
         decl = declarations.PostGenerationMethodCall('method')
-        decl.call(self.obj, False, 1, factory_extracted=True)
+        decl.call(self.obj, False, self.ctx(1))
         self.obj.method.assert_called_once_with(1)
 
     def test_call_with_passed_extracted_iterable(self):
         decl = declarations.PostGenerationMethodCall('method')
-        decl.call(self.obj, False, (1, 2, 3), factory_extracted=True)
+        decl.call(self.obj, False, self.ctx((1, 2, 3)))
         self.obj.method.assert_called_once_with((1, 2, 3))
 
     def test_call_with_method_kwargs(self):
         decl = declarations.PostGenerationMethodCall(
                 'method', data='data')
-        decl.call(self.obj, False)
+        decl.call(self.obj, False, self.ctx())
         self.obj.method.assert_called_once_with(data='data')
 
     def test_call_with_passed_kwargs(self):
         decl = declarations.PostGenerationMethodCall('method')
-        decl.call(self.obj, False, data='other')
+        decl.call(self.obj, False, self.ctx(extra={'data': 'other'}))
         self.obj.method.assert_called_once_with(data='other')
 
     def test_multi_call_with_multi_method_args(self):
         decl = declarations.PostGenerationMethodCall(
                 'method', 'arg1', 'arg2')
-        decl.call(self.obj, False)
+        decl.call(self.obj, False, self.ctx())
         self.obj.method.assert_called_once_with('arg1', 'arg2')
 
     def test_multi_call_with_passed_multiple_args(self):
         decl = declarations.PostGenerationMethodCall(
                 'method', 'arg1', 'arg2')
-        decl.call(self.obj, False, ('param1', 'param2', 'param3'),
-                factory_extracted=True)
+        decl.call(self.obj, False, self.ctx(('param1', 'param2', 'param3')))
         self.obj.method.assert_called_once_with('param1', 'param2', 'param3')
 
     def test_multi_call_with_passed_tuple(self):
         decl = declarations.PostGenerationMethodCall(
                 'method', 'arg1', 'arg2')
-        decl.call(self.obj, False, (('param1', 'param2'),),
-                factory_extracted=True)
+        decl.call(self.obj, False, self.ctx((('param1', 'param2'),)))
         self.obj.method.assert_called_once_with(('param1', 'param2'))
 
     def test_multi_call_with_kwargs(self):
         decl = declarations.PostGenerationMethodCall(
                 'method', 'arg1', 'arg2')
-        decl.call(self.obj, False, x=2)
+        decl.call(self.obj, False, self.ctx(extra={'x': 2}))
         self.obj.method.assert_called_once_with('arg1', 'arg2', x=2)
 
 
