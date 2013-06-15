@@ -1580,6 +1580,45 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(4, related.two)
 
 
+class RelatedFactoryExtractionTestCase(unittest.TestCase):
+    def setUp(self):
+        self.relateds = []
+
+        class TestRelatedObject(object):
+            def __init__(subself, obj):
+                self.relateds.append(subself)
+                subself.obj = obj
+                obj.related = subself
+
+        class TestRelatedObjectFactory(factory.Factory):
+            FACTORY_FOR = TestRelatedObject
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            one = factory.RelatedFactory(TestRelatedObjectFactory, 'obj')
+
+        self.TestRelatedObject = TestRelatedObject
+        self.TestRelatedObjectFactory = TestRelatedObjectFactory
+        self.TestObjectFactory = TestObjectFactory
+
+    def test_no_extraction(self):
+        o = self.TestObjectFactory()
+        self.assertEqual(1, len(self.relateds))
+        rel = self.relateds[0]
+        self.assertEqual(o, rel.obj)
+        self.assertEqual(rel, o.related)
+
+    def test_passed_value(self):
+        o = self.TestObjectFactory(one=42)
+        self.assertEqual([], self.relateds)
+        self.assertFalse(hasattr(o, 'related'))
+
+    def test_passed_none(self):
+        o = self.TestObjectFactory(one=None)
+        self.assertEqual([], self.relateds)
+        self.assertFalse(hasattr(o, 'related'))
+
+
 class CircularTestCase(unittest.TestCase):
     def test_example(self):
         sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
