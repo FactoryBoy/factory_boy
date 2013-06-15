@@ -20,25 +20,7 @@
 # THE SOFTWARE.
 
 
-"""Helpers for testing django apps."""
-
 import os.path
 
-from django.conf import settings
-from django.db import models
-
-class StandardModel(models.Model):
-    foo = models.CharField(max_length=20)
-
-
-class NonIntegerPk(models.Model):
-    foo = models.CharField(max_length=20, primary_key=True)
-    bar = models.CharField(max_length=20, blank=True)
-
-
-WITHFILE_UPLOAD_TO = 'django'
-WITHFILE_UPLOAD_DIR = os.path.join(settings.MEDIA_ROOT, WITHFILE_UPLOAD_TO)
-
-class WithFile(models.Model):
-    afile = models.FileField(upload_to=WITHFILE_UPLOAD_TO)
-
+TESTDATA_ROOT = os.path.abspath(os.path.dirname(__file__))
+TESTFILE_PATH = os.path.join(TESTDATA_ROOT, 'example.data')
