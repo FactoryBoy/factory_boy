@@ -419,10 +419,11 @@ class List(SubFactory):
 
 class ExtractionContext(object):
     """Private class holding all required context from extraction to postgen."""
-    def __init__(self, value=None, did_extract=False, extra=None):
+    def __init__(self, value=None, did_extract=False, extra=None, for_field=''):
         self.value = value
         self.did_extract = did_extract
         self.extra = extra or {}
+        self.for_field = for_field
 
     def __repr__(self):
         return 'ExtractionContext(%r, %r, %r)' % (
@@ -456,7 +457,7 @@ class PostGenerationDeclaration(object):
             did_extract = False
 
         kwargs = utils.extract_dict(name, attrs)
-        return ExtractionContext(extracted, did_extract, kwargs)
+        return ExtractionContext(extracted, did_extract, kwargs, name)
 
     def call(self, obj, create, extraction_context):  # pragma: no cover
         """Call this hook; no return value is expected.
