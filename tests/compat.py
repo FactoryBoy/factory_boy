@@ -25,13 +25,13 @@ import sys
 
 is_python2 = (sys.version_info[0] == 2)
 
-try:
+if sys.version_info[0:2] < (2, 7):  # pragma: no cover
     import unittest2 as unittest
-except ImportError:
+else:  # pragma: no cover
     import unittest
 
-if sys.version_info[0:2] < (3, 3):
+if sys.version_info[0:2] < (3, 3):  # pragma: no cover
     import mock
-else:
+else:  # pragma: no cover
     from unittest import mock
 

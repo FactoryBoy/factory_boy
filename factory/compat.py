@@ -28,17 +28,17 @@ import sys
 
 PY2 = (sys.version_info[0] == 2)
 
-if PY2:
+if PY2:  # pragma: no cover
     def is_string(obj):
         return isinstance(obj, (str, unicode))
-else:
+else:  # pragma: no cover
     def is_string(obj):
         return isinstance(obj, str)
 
-try:
+try:  # pragma: no cover
     # Python >= 3.2
     UTC = datetime.timezone.utc
-except AttributeError:
+except AttributeError:  # pragma: no cover
     try:
         # Fallback to pytz
         from pytz import UTC

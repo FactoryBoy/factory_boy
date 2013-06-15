@@ -82,7 +82,7 @@ def mock_date_today(target, datetime_module):
     return mock.patch.object(datetime_module, 'date', MockedDate)
 
 
-def main():
+def main():  # pragma: no cover
     """Run a couple of tests"""
     target_dt = real_datetime_class(2009, 1, 1)
     target_date = real_date_class(2009, 1, 1)
@@ -109,5 +109,5 @@ def main():
     print("- isinstance(target, date)  ->", isinstance(target_date, datetime.date))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main()

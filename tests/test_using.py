@@ -299,7 +299,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         test_object = TestObjectFactory.build()
         self.assertEqual(test_object.one, 'one')
 
-    def test_inheritance(self):
+    def test_inheriting_target_class(self):
         @factory.use_strategy(factory.BUILD_STRATEGY)
         class TestObjectFactory(factory.Factory, TestObject):
             FACTORY_FOR = TestObject
@@ -1253,7 +1253,7 @@ class IteratorTestCase(unittest.TestCase):
 
             @factory.iterator
             def one():
-                for i in range(10, 50):
+                for i in range(10, 50):  # pragma: no cover
                     yield i
 
         objs = TestObjectFactory.build_batch(20)
@@ -1388,6 +1388,72 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         self.assertEqual(2, obj.y)
         self.assertEqual(4, obj.z)
         self.assertEqual(2, obj.id)
+
+    def test_sequence(self):
+        class TestModelFactory(factory.django.DjangoModelFactory):
+            FACTORY_FOR = TestModel
+
+            a = factory.Sequence(lambda n: 'foo_%s' % n)
+
+        o1 = TestModelFactory()
+        o2 = TestModelFactory()
+
+        self.assertEqual('foo_2', o1.a)
+        self.assertEqual('foo_3', o2.a)
+
+        o3 = TestModelFactory.build()
+        o4 = TestModelFactory.build()
+
+        self.assertEqual('foo_4', o3.a)
+        self.assertEqual('foo_5', o4.a)
+
+    def test_no_get_or_create(self):
+        class TestModelFactory(factory.django.DjangoModelFactory):
+            FACTORY_FOR = TestModel
+
+            a = factory.Sequence(lambda n: 'foo_%s' % n)
+
+        o = TestModelFactory()
+        self.assertEqual(None, o._defaults)
+        self.assertEqual('foo_2', o.a)
+        self.assertEqual(2, o.id)
+
+    def test_get_or_create(self):
+        class TestModelFactory(factory.django.DjangoModelFactory):
+            FACTORY_FOR = TestModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b')
+
+            a = factory.Sequence(lambda n: 'foo_%s' % n)
+            b = 2
+            c = 3
+            d = 4
+
+        o = TestModelFactory()
+        self.assertEqual({'c': 3, 'd': 4}, o._defaults)
+        self.assertEqual('foo_2', o.a)
+        self.assertEqual(2, o.b)
+        self.assertEqual(3, o.c)
+        self.assertEqual(4, o.d)
+        self.assertEqual(2, o.id)
+
+    def test_full_get_or_create(self):
+        """Test a DjangoModelFactory with all fields in get_or_create."""
+        class TestModelFactory(factory.django.DjangoModelFactory):
+            FACTORY_FOR = TestModel
+            FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b', 'c', 'd')
+
+            a = factory.Sequence(lambda n: 'foo_%s' % n)
+            b = 2
+            c = 3
+            d = 4
+
+        o = TestModelFactory()
+        self.assertEqual({}, o._defaults)
+        self.assertEqual('foo_2', o.a)
+        self.assertEqual(2, o.b)
+        self.assertEqual(3, o.c)
+        self.assertEqual(4, o.d)
+        self.assertEqual(2, o.id)
 
 
 class PostGenerationTestCase(unittest.TestCase):
@@ -1806,73 +1872,5 @@ class ListTestCase(unittest.TestCase):
         ], o.two)
 
 
-class DjangoModelFactoryTestCase(unittest.TestCase):
-    def test_sequence(self):
-        class TestModelFactory(factory.django.DjangoModelFactory):
-            FACTORY_FOR = TestModel
-
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
-
-        o1 = TestModelFactory()
-        o2 = TestModelFactory()
-
-        self.assertEqual('foo_2', o1.a)
-        self.assertEqual('foo_3', o2.a)
-
-        o3 = TestModelFactory.build()
-        o4 = TestModelFactory.build()
-
-        self.assertEqual('foo_4', o3.a)
-        self.assertEqual('foo_5', o4.a)
-
-    def test_no_get_or_create(self):
-        class TestModelFactory(factory.django.DjangoModelFactory):
-            FACTORY_FOR = TestModel
-
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
-
-        o = TestModelFactory()
-        self.assertEqual(None, o._defaults)
-        self.assertEqual('foo_2', o.a)
-        self.assertEqual(2, o.id)
-
-    def test_get_or_create(self):
-        class TestModelFactory(factory.django.DjangoModelFactory):
-            FACTORY_FOR = TestModel
-            FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b')
-
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
-            b = 2
-            c = 3
-            d = 4
-
-        o = TestModelFactory()
-        self.assertEqual({'c': 3, 'd': 4}, o._defaults)
-        self.assertEqual('foo_2', o.a)
-        self.assertEqual(2, o.b)
-        self.assertEqual(3, o.c)
-        self.assertEqual(4, o.d)
-        self.assertEqual(2, o.id)
-
-    def test_full_get_or_create(self):
-        """Test a DjangoModelFactory with all fields in get_or_create."""
-        class TestModelFactory(factory.django.DjangoModelFactory):
-            FACTORY_FOR = TestModel
-            FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b', 'c', 'd')
-
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
-            b = 2
-            c = 3
-            d = 4
-
-        o = TestModelFactory()
-        self.assertEqual({}, o._defaults)
-        self.assertEqual('foo_2', o.a)
-        self.assertEqual(2, o.b)
-        self.assertEqual(3, o.c)
-        self.assertEqual(4, o.d)
-        self.assertEqual(2, o.id)
-
-
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     unittest.main()

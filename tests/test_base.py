@@ -321,7 +321,7 @@ class FactoryCreationTestCase(unittest.TestCase):
         try:
             class Test(base.Factory):
                 pass
-            self.fail()
+            self.fail()  # pragma: no cover
         except base.Factory.AssociatedClassError as e:
             self.assertTrue('autodiscovery' not in str(e))
 
@@ -348,5 +348,5 @@ class PostGenerationParsingTestCase(unittest.TestCase):
 
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     unittest.main()

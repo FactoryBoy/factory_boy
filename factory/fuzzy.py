@@ -37,7 +37,7 @@ class BaseFuzzyAttribute(declarations.OrderedDeclaration):
     Custom fuzzers should override the `fuzz()` method.
     """
 
-    def fuzz(self):
+    def fuzz(self):  # pragma: no cover
         raise NotImplementedError()
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):

@@ -28,7 +28,7 @@ import factory.django
 
 try:
     import django
-except ImportError:
+except ImportError:  # pragma: no cover
     django = None
 
 
@@ -43,7 +43,7 @@ if django is not None:
     from django.test import simple as django_test_simple
     from django.test import utils as django_test_utils
     from .djapp import models
-else:
+else:  # pragma: no cover
     django_test = unittest
 
     class Fake(object):
@@ -58,7 +58,7 @@ test_state = {}
 
 
 def setUpModule():
-    if django is None:
+    if django is None:  # pragma: no cover
         return
     django_test_utils.setup_test_environment()
     runner = django_test_simple.DjangoTestSuiteRunner()
@@ -70,7 +70,7 @@ def setUpModule():
 
 
 def tearDownModule():
-    if django is None:
+    if django is None:  # pragma: no cover
         return
     runner = test_state['runner']
     runner_state = test_state['runner_state']

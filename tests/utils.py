@@ -33,7 +33,7 @@ class MultiModulePatcher(object):
         super(MultiModulePatcher, self).__init__(**kwargs)
         self.patchers = [self._build_patcher(mod) for mod in target_modules]
 
-    def _build_patcher(self, target_module):
+    def _build_patcher(self, target_module):  # pragma: no cover
         """Build a mock patcher for the target module."""
         raise NotImplementedError()
 
