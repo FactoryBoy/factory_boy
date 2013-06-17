@@ -23,6 +23,7 @@
 __version__ = '2.1.0-dev'
 __author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
 
+
 from .base import (
     Factory,
     BaseDictFactory,
@@ -39,7 +40,6 @@ from .base import (
 
 from .mogo import MogoFactory
 from .django import DjangoModelFactory
-from .alchemy import SQLAlchemyModelFactory
 
 from .declarations import (
     LazyAttribute,
