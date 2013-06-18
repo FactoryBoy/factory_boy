@@ -92,3 +92,68 @@ factory_boy supports `Mogo`_-style models, through the :class:`MogoFactory` clas
     * :func:`~factory.Factory.build()` calls a model's ``new()`` method
     * :func:`~factory.Factory.create()` builds an instance through ``new()`` then
       saves it.
+
+SQLAlchemy
+----------
+
+.. currentmodule:: factory.alchemy
+
+
+Factoy_boy also supports `SQLAlchemy`_  models through the :class:`SQLAlchemyModelFactory` class.
+
+To work, this class needs an `SQLAlchemy`_ session object affected to "FACTORY_SESSION" class attribute.
+
+.. _SQLAlchemy: http://www.sqlalchemy.org/
+
+.. class:: SQLAlchemyModelFactory(factory.Factory)
+
+    Dedicated class for `SQLAlchemy`_ models.
+
+    This class provides the following features:
+
+    * :func:`~factory.Factory.create()` uses :meth:`sqlalchemy.orm.session.Session.add`
+    * :func:`~factory.Factory._setup_next_sequence()` selects the next unused primary key value
+
+    .. attribute:: FACTORY_SESSION
+
+        Fields whose SQLAlchemy session object are passed will be used to communicate with the database
+
+A (very) simple exemple:
+
+.. code-block:: python
+
+    from sqlalchemy import Column, Integer, Unicode, create_engine
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy.orm import scoped_session, sessionmaker
+
+    session = scoped_session(sessionmaker())
+    engine = create_engine('sqlite://')
+    session.configure(bind=engine)
+    Base = declarative_base()
+
+
+    class User(Base):
+        """ A SQLAlchemy simple model class who represents a user """
+        __tablename__ = 'UserTable'
+
+        id = Column(Integer(), primary_key=True)
+        name = Column(Unicode(20))
+
+    Base.metadata.create_all(engine)
+
+
+    class UserFactory(SQLAlchemyModelFactory):
+        FACTORY_FOR = User
+        FACTORY_SESSION = session   # the SQLAlchemy session object
+
+        id = factory.Sequence(lambda n: n)
+        name = factory.Sequence(lambda n: u'User %d' % n)
+
+.. code-block:: pycon
+
+    >>> session.query(User).all()
+    []
+    >>> UserFactory()
+    <User: User 1>
+    >>> session.query(User).all()
+    [<User: User 1>]
