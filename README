@@ -12,7 +12,7 @@ Its features include:
 - Support for multiple build strategies (saved/unsaved instances, attribute dicts, stubbed objects)
 - Powerful helpers for common cases (sequences, sub-factories, reverse dependencies, circular factories, ...)
 - Multiple factories per class support, including inheritance
-- Support for various ORMs (currently Django, Mogo)
+- Support for various ORMs (currently Django, Mogo, SQLAlchemy)
 
 
 Links
@@ -219,6 +219,7 @@ factory_boy has specific support for a few ORMs, through specific :class:`~facto
 
 * Django, with :class:`~factory.django.DjangoModelFactory`
 * Mogo, with :class:`~factory.mogo.MogoFactory`
+* SQLAlchemy, with :class:`~factory.alchemy.SQLAlchemyModelFactory`
 
 Contributing
 ------------
