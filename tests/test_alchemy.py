@@ -31,7 +31,7 @@ except ImportError:
     sqlalchemy = None
 
 if sqlalchemy:
-    from factory import SQLAlchemyModelFactory
+    from factory.alchemy import SQLAlchemyModelFactory
     from .alchemyapp import models
 else:
 

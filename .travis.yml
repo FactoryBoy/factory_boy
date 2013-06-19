@@ -13,6 +13,7 @@ script:
 install:
   - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then pip install unittest2 --use-mirrors; fi
   - pip install Django --use-mirrors
+  - pip install sqlalchemy --use-mirrors
 
 notifications:
   email: false
