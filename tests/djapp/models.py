@@ -24,6 +24,14 @@
 
 import os.path
 
+try:
+    from PIL import Image
+except ImportError:
+    try:
+        import Image
+    except ImportError:
+        Image = None
+
 from django.conf import settings
 from django.db import models
 
@@ -43,7 +51,11 @@ class WithFile(models.Model):
     afile = models.FileField(upload_to=WITHFILE_UPLOAD_TO)
 
 
+if Image is not None:  # PIL is available
 
-class WithImage(models.Model):
-    animage = models.ImageField(upload_to=WITHFILE_UPLOAD_TO)
+    class WithImage(models.Model):
+        animage = models.ImageField(upload_to=WITHFILE_UPLOAD_TO)
 
+else:
+    class WithImage(models.Model):
+        pass
