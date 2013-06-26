@@ -1,6 +1,8 @@
 ChangeLog
 =========
 
+.. _v2.1.0:
+
 2.1.0 (2013-06-26)
 ------------------
 
@@ -32,6 +34,9 @@ ChangeLog
 
     - Rename :class:`~factory.RelatedFactory`'s ``name`` argument to ``factory_related_name`` (See :issue:`58`)
 
+
+.. _v2.0.2:
+
 2.0.2 (2013-04-16)
 ------------------
 
@@ -41,6 +46,8 @@ ChangeLog
       empty, use ``Model.objects.create()`` instead of ``Model.objects.get_or_create``.
 
 
+.. _v2.0.1:
+
 2.0.1 (2013-04-16)
 ------------------
 
@@ -49,6 +56,8 @@ ChangeLog
     - Don't push ``defaults`` to ``get_or_create`` when
       :attr:`~factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE` is not set.
 
+
+.. _v2.0.0:
 
 2.0.0 (2013-04-15)
 ------------------
@@ -76,6 +85,8 @@ ChangeLog
     - Remove STRATEGY_*
     - Remove :meth:`~factory.Factory.set_building_function` / :meth:`~factory.Factory.set_creation_function`
 
+
+.. _v1.3.0:
 
 1.3.0 (2013-03-11)
 ------------------
@@ -155,6 +166,8 @@ In order to upgrade client code, apply the following rules:
 
 
 
+.. _v1.2.0:
+
 1.2.0 (2012-09-08)
 ------------------
 
@@ -162,12 +175,18 @@ In order to upgrade client code, apply the following rules:
 
     - Add :class:`~factory.CircularSubFactory` to solve circular dependencies between factories
 
+
+.. _v1.1.5:
+
 1.1.5 (2012-07-09)
 ------------------
 
 *Bugfix:*
 
     - Fix :class:`~factory.PostGenerationDeclaration` and derived classes.
+
+
+.. _v1.1.4:
 
 1.1.4 (2012-06-19)
 ------------------
@@ -180,12 +199,18 @@ In order to upgrade client code, apply the following rules:
     - Introduce :class:`~factory.PostGeneration` and
       :class:`~factory.RelatedFactory`
 
+
+.. _v1.1.3:
+
 1.1.3 (2012-03-09)
 ------------------
 
 *Bugfix:*
 
   - Fix packaging rules
+
+
+.. _v1.1.2:
 
 1.1.2 (2012-02-25)
 ------------------
@@ -196,12 +221,18 @@ In order to upgrade client code, apply the following rules:
   - Provide :func:`~factory.Factory.generate` and :func:`~factory.Factory.simple_generate`, that allow specifying the instantiation strategy directly.
     Also provides :func:`~factory.Factory.generate_batch` and :func:`~factory.Factory.simple_generate_batch`.
 
+
+.. _v1.1.1:
+
 1.1.1 (2012-02-24)
 ------------------
 
 *New:*
 
   - Add :func:`~factory.Factory.build_batch`, :func:`~factory.Factory.create_batch` and :func:`~factory.Factory.stub_batch`, to instantiate factories in batch
+
+
+.. _v1.1.0:
 
 1.1.0 (2012-02-24)
 ------------------
@@ -220,6 +251,9 @@ In order to upgrade client code, apply the following rules:
 *Deprecation:*
 
   - Auto-discovery of :attr:`~factory.Factory.FACTORY_FOR` based on class name is now deprecated
+
+
+.. _v1.0.4:
 
 1.0.4 (2011-12-21)
 ------------------
@@ -241,12 +275,18 @@ In order to upgrade client code, apply the following rules:
   - Share sequence counter between parent and subclasses
   - Fix :class:`~factory.SubFactory` / :class:`~factory.Sequence` interferences
 
+
+.. _v1.0.2:
+
 1.0.2 (2011-05-16)
 ------------------
 
 *New:*
 
   - Introduce :class:`~factory.SubFactory`
+
+
+.. _v1.0.1:
 
 1.0.1 (2011-05-13)
 ------------------
@@ -259,6 +299,9 @@ In order to upgrade client code, apply the following rules:
 *Bugfix:*
 
   - Fix concurrency between :class:`~factory.LazyAttribute` and :class:`~factory.Sequence`
+
+
+.. _v1.0.0:
 
 1.0.0 (2010-08-22)
 ------------------
