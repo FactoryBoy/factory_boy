@@ -34,8 +34,10 @@ except ImportError as e:  # pragma: no cover
     django_files = None
     import_failure = e
 
+
 from . import base
 from . import declarations
+from .compat import BytesIO
 
 
 class DjangoModelFactory(base.Factory):
@@ -111,14 +113,22 @@ class DjangoModelFactory(base.Factory):
 class FileField(declarations.PostGenerationDeclaration):
     """Helper to fill in django.db.models.FileField from a Factory."""
 
-    def __init__(self, *args, **kwargs):
+    DEFAULT_FILENAME = 'example.dat'
+
+    def __init__(self, **defaults):
         if django_files is None:  # pragma: no cover
             raise import_failure
-        super(FileField, self).__init__(*args, **kwargs)
+        self.defaults = defaults
+        super(FileField, self).__init__()
+
+    def _make_data(self, params):
+        """Create data for the field."""
+        return params.get('data', b'')
 
     def _make_content(self, extraction_context):
         path = ''
-        params = extraction_context.extra
+        params = dict(self.defaults)
+        params.update(extraction_context.extra)
 
         if params.get('from_path') and params.get('from_file'):
             raise ValueError(
@@ -142,13 +152,13 @@ class FileField(declarations.PostGenerationDeclaration):
             path = content.name
 
         else:
-            data = params.get('data', b'')
+            data = self._make_data(params)
             content = django_files.base.ContentFile(data)
 
         if path:
             default_filename = os.path.basename(path)
         else:
-            default_filename = 'example.dat'
+            default_filename = self.DEFAULT_FILENAME
 
         filename = params.get('filename', default_filename)
         return filename, content
@@ -166,3 +176,26 @@ class FileField(declarations.PostGenerationDeclaration):
         finally:
             content.file.close()
         return field_file
+
+
+class ImageField(FileField):
+    DEFAULT_FILENAME = 'example.jpg'
+
+    def _make_data(self, params):
+        # ImageField (both django's and factory_boy's) require PIL.
+        # Try to import it along one of its known installation paths.
+        try:
+            from PIL import Image
+        except ImportError:
+            import Image
+
+        width = params.get('width', 100)
+        height = params.get('height', width)
+        color = params.get('blue')
+        image_format = params.get('format', 'JPEG')
+
+        thumb = Image.new('RGB', (width, height), color)
+        thumb_io = BytesIO()
+        thumb.save(thumb_io, format=image_format)
+        return thumb_io.getvalue()
+

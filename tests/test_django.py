@@ -31,6 +31,16 @@ try:
 except ImportError:  # pragma: no cover
     django = None
 
+try:
+    from PIL import Image
+except ImportError:  # pragma: no cover
+    # Try PIL alternate name
+    try:
+        import Image
+    except ImportError:
+        # OK, not installed
+        Image = None
+
 
 from .compat import is_python2, unittest
 from . import testdata
@@ -97,6 +107,12 @@ class WithFileFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = models.WithFile
 
     afile = factory.django.FileField()
+
+
+class WithImageFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = models.WithImage
+
+    animage = factory.django.ImageField()
 
 
 @unittest.skipIf(django is None, "Django not installed.")
@@ -259,6 +275,104 @@ class DjangoFileFieldTestCase(unittest.TestCase):
         o = WithFileFactory.build(afile=None)
         self.assertIsNone(o.pk)
         self.assertFalse(o.afile)
+
+
+@unittest.skipIf(django is None, "Django not installed.")
+@unittest.skipIf(Image is None, "PIL not installed.")
+class DjangoImageFieldTestCase(unittest.TestCase):
+
+    def tearDown(self):
+        super(DjangoImageFieldTestCase, self).tearDown()
+        for path in os.listdir(models.WITHFILE_UPLOAD_DIR):
+            # Remove temporary files written during tests.
+            os.unlink(os.path.join(models.WITHFILE_UPLOAD_DIR, path))
+
+    def test_default_build(self):
+        o = WithImageFactory.build()
+        self.assertIsNone(o.pk)
+        self.assertEqual(100, o.animage.width)
+        self.assertEqual(100, o.animage.height)
+        self.assertEqual('django/example.jpg', o.animage.name)
+
+    def test_default_create(self):
+        o = WithImageFactory.create()
+        self.assertIsNotNone(o.pk)
+        self.assertEqual(100, o.animage.width)
+        self.assertEqual(100, o.animage.height)
+        self.assertEqual('django/example.jpg', o.animage.name)
+
+    def test_with_content(self):
+        o = WithImageFactory.build(animage__width=13, animage__color='blue')
+        self.assertIsNone(o.pk)
+        self.assertEqual(13, o.animage.width)
+        self.assertEqual(13, o.animage.height)
+        self.assertEqual('django/example.jpg', o.animage.name)
+
+    def test_with_file(self):
+        with open(testdata.TESTIMAGE_PATH, 'rb') as f:
+            o = WithImageFactory.build(animage__from_file=f)
+        self.assertIsNone(o.pk)
+        # Image file for a 42x42 green jpeg: 301 bytes long.
+        self.assertEqual(301, len(o.animage.read()))
+        self.assertEqual('django/example.jpeg', o.animage.name)
+
+    def test_with_path(self):
+        o = WithImageFactory.build(animage__from_path=testdata.TESTIMAGE_PATH)
+        self.assertIsNone(o.pk)
+        # Image file for a 42x42 green jpeg: 301 bytes long.
+        self.assertEqual(301, len(o.animage.read()))
+        self.assertEqual('django/example.jpeg', o.animage.name)
+
+    def test_with_file_empty_path(self):
+        with open(testdata.TESTIMAGE_PATH, 'rb') as f:
+            o = WithImageFactory.build(
+                animage__from_file=f,
+                animage__from_path=''
+            )
+        self.assertIsNone(o.pk)
+        # Image file for a 42x42 green jpeg: 301 bytes long.
+        self.assertEqual(301, len(o.animage.read()))
+        self.assertEqual('django/example.jpeg', o.animage.name)
+
+    def test_with_path_empty_file(self):
+        o = WithImageFactory.build(
+            animage__from_path=testdata.TESTIMAGE_PATH,
+            animage__from_file=None,
+        )
+        self.assertIsNone(o.pk)
+        # Image file for a 42x42 green jpeg: 301 bytes long.
+        self.assertEqual(301, len(o.animage.read()))
+        self.assertEqual('django/example.jpeg', o.animage.name)
+
+    def test_error_both_file_and_path(self):
+        self.assertRaises(ValueError, WithImageFactory.build,
+            animage__from_file='fakefile',
+            animage__from_path=testdata.TESTIMAGE_PATH,
+        )
+
+    def test_override_filename_with_path(self):
+        o = WithImageFactory.build(
+            animage__from_path=testdata.TESTIMAGE_PATH,
+            animage__filename='example.foo',
+        )
+        self.assertIsNone(o.pk)
+        # Image file for a 42x42 green jpeg: 301 bytes long.
+        self.assertEqual(301, len(o.animage.read()))
+        self.assertEqual('django/example.foo', o.animage.name)
+
+    def test_existing_file(self):
+        o1 = WithImageFactory.build(animage__from_path=testdata.TESTIMAGE_PATH)
+
+        o2 = WithImageFactory.build(animage=o1.animage)
+        self.assertIsNone(o2.pk)
+        # Image file for a 42x42 green jpeg: 301 bytes long.
+        self.assertEqual(301, len(o2.animage.read()))
+        self.assertEqual('django/example_1.jpeg', o2.animage.name)
+
+    def test_no_file(self):
+        o = WithImageFactory.build(animage=None)
+        self.assertIsNone(o.pk)
+        self.assertFalse(o.animage)
 
 
 if __name__ == '__main__':  # pragma: no cover

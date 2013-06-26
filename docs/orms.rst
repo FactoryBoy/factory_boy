@@ -72,6 +72,74 @@ All factories for a Django :class:`~django.db.models.Model` should use the
             [<User: john>, <User: jack>]
 
 
+.. class:: FileField
+
+    Custom declarations for :class:`django.db.models.FileField`
+
+    .. method:: __init__(self, from_path='', from_file='', data=b'', filename='example.dat')
+
+        :param str from_path: Use data from the file located at ``from_path``,
+                              and keep its filename
+        :param file from_file: Use the contents of the provided file object; use its filename
+                               if available
+        :param bytes data: Use the provided bytes as file contents
+        :param str filename: The filename for the FileField
+
+.. note:: If the value ``None`` was passed for the :class:`FileField` field, this will
+          disable field generation:
+
+.. code-block:: python
+
+    class MyFactory(factory.django.DjangoModelFactory):
+        FACTORY_FOR = models.MyModel
+
+        the_file = factory.django.FileField(filename='the_file.dat')
+
+.. code-block:: pycon
+
+    >>> MyFactory(the_file__data=b'uhuh').the_file.read()
+    b'uhuh'
+    >>> MyFactory(the_file=None).the_file
+    None
+
+
+.. class:: ImageField
+
+    Custom declarations for :class:`django.db.models.ImageField`
+
+    .. method:: __init__(self, from_path='', from_file='', filename='example.jpg', width=100, height=100, color='green', format='JPEG')
+
+        :param str from_path: Use data from the file located at ``from_path``,
+                              and keep its filename
+        :param file from_file: Use the contents of the provided file object; use its filename
+                               if available
+        :param str filename: The filename for the ImageField
+        :param int width: The width of the generated image (default: ``100``)
+        :param int height: The height of the generated image (default: ``100``)
+        :param str color: The color of the generated image (default: ``'green'``)
+        :param str format: The image format (as supported by PIL) (default: ``'JPEG'``)
+
+.. note:: If the value ``None`` was passed for the :class:`FileField` field, this will
+          disable field generation:
+
+.. note:: Just as Django's :class:`django.db.models.ImageField` requires the
+          Python Imaging Library, this :class:`ImageField` requires it too.
+
+.. code-block:: python
+
+    class MyFactory(factory.django.DjangoModelFactory):
+        FACTORY_FOR = models.MyModel
+
+        the_image = factory.django.ImageField(color='blue')
+
+.. code-block:: pycon
+
+    >>> MyFactory(the_image__width=42).the_image.width
+    42
+    >>> MyFactory(the_image=None).the_image
+    None
+
+
 Mogo
 ----
 

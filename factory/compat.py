@@ -31,9 +31,14 @@ PY2 = (sys.version_info[0] == 2)
 if PY2:  # pragma: no cover
     def is_string(obj):
         return isinstance(obj, (str, unicode))
+
+    from StringIO import StringIO as BytesIO
+
 else:  # pragma: no cover
     def is_string(obj):
         return isinstance(obj, str)
+
+    from io import BytesIO
 
 try:  # pragma: no cover
     # Python >= 3.2
