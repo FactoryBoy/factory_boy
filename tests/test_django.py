@@ -64,6 +64,8 @@ else:  # pragma: no cover
     models = Fake()
     models.StandardModel = Fake
     models.NonIntegerPk = Fake
+    models.WithFile = Fake
+    models.WithImage = Fake
 
 
 test_state = {}
@@ -106,13 +108,15 @@ class NonIntegerPkFactory(factory.django.DjangoModelFactory):
 class WithFileFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = models.WithFile
 
-    afile = factory.django.FileField()
+    if django is not None:
+        afile = factory.django.FileField()
 
 
 class WithImageFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = models.WithImage
 
-    animage = factory.django.ImageField()
+    if django is not None:
+        animage = factory.django.ImageField()
 
 
 @unittest.skipIf(django is None, "Django not installed.")
