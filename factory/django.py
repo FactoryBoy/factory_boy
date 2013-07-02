@@ -191,7 +191,7 @@ class ImageField(FileField):
 
         width = params.get('width', 100)
         height = params.get('height', width)
-        color = params.get('blue')
+        color = params.get('color', 'blue')
         image_format = params.get('format', 'JPEG')
 
         thumb = Image.new('RGB', (width, height), color)

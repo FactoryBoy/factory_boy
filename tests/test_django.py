@@ -51,6 +51,7 @@ if django is not None:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests.djapp.settings')
 
     from django import test as django_test
+    from django.conf import settings
     from django.db import models as django_models
     from django.test import simple as django_test_simple
     from django.test import utils as django_test_utils
@@ -306,11 +307,30 @@ class DjangoImageFieldTestCase(unittest.TestCase):
         self.assertEqual('django/example.jpg', o.animage.name)
 
     def test_with_content(self):
-        o = WithImageFactory.build(animage__width=13, animage__color='blue')
+        o = WithImageFactory.build(animage__width=13, animage__color='red')
         self.assertIsNone(o.pk)
         self.assertEqual(13, o.animage.width)
         self.assertEqual(13, o.animage.height)
         self.assertEqual('django/example.jpg', o.animage.name)
+
+        i = Image.open(os.path.join(settings.MEDIA_ROOT, o.animage.name))
+        colors = i.getcolors()
+        # 169 pixels with rgb(254, 0, 0)
+        self.assertEqual([(169, (254, 0, 0))], colors)
+        self.assertEqual('JPEG', i.format)
+
+    def test_gif(self):
+        o = WithImageFactory.build(animage__width=13, animage__color='blue', animage__format='GIF')
+        self.assertIsNone(o.pk)
+        self.assertEqual(13, o.animage.width)
+        self.assertEqual(13, o.animage.height)
+        self.assertEqual('django/example.jpg', o.animage.name)
+
+        i = Image.open(os.path.join(settings.MEDIA_ROOT, o.animage.name))
+        colors = i.getcolors()
+        # 169 pixels with color 190 from the GIF palette
+        self.assertEqual([(169, 190)], colors)
+        self.assertEqual('GIF', i.format)
 
     def test_with_file(self):
         with open(testdata.TESTIMAGE_PATH, 'rb') as f:
