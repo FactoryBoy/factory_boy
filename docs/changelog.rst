@@ -1,6 +1,16 @@
 ChangeLog
 =========
 
+
+.. _v2.1.1:
+
+2.1.1 (2013-07-02)
+------------------
+
+*Bugfix:*
+
+    - Properly retrieve the ``color`` keyword argument passed to :class:`~factory.django.ImageField`
+
 .. _v2.1.0:
 
 2.1.0 (2013-06-26)
