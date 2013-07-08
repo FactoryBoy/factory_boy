@@ -216,10 +216,9 @@ class FactoryMetaClass(type):
         parent_options = parent_factories[0]._meta
         options_from_class_meta(attrs, parent_options)
 
-        is_abstract = attrs.pop('ABSTRACT_FACTORY', False)
         extra_attrs = {}
 
-        if not is_abstract:
+        if not attrs['_meta'].abstract:
 
             base = parent_factories[0]
 
@@ -590,7 +589,7 @@ class BaseFactory(object):
 
 
 Factory = FactoryMetaClass('Factory', (BaseFactory,), {
-    'ABSTRACT_FACTORY': True,
+    'Meta': type('Meta', (), {'abstract': True}),
     '__doc__': """Factory base with build and create support.
 
     This class has the ability to support multiple ORMs by using custom creation
@@ -619,7 +618,8 @@ class StubFactory(Factory):
 
 class BaseDictFactory(Factory):
     """Factory for dictionary-like classes."""
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
@@ -639,7 +639,8 @@ class DictFactory(BaseDictFactory):
 
 class BaseListFactory(Factory):
     """Factory for list-like classes."""
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
@@ -672,9 +673,8 @@ def use_strategy(new_strategy):
 
 class SQLAlchemyModelFactory(Factory):
     """Factory for SQLAlchemy models. """
-    ABSTRACT_FACTORY = True
-
     class Meta:
+        abstract = True
         hide = ('SESSION',)
 
     def __init__(self, session):

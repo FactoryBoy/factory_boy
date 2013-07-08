@@ -49,7 +49,8 @@ class FakeDjangoModel(object):
 
 
 class FakeModelFactory(base.Factory):
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
@@ -67,9 +68,10 @@ class SafetyTestCase(unittest.TestCase):
 
 class AbstractFactoryTestCase(unittest.TestCase):
     def test_factory_for_optional(self):
-        """Ensure that FACTORY_FOR is optional for ABSTRACT_FACTORY."""
+        """Ensure that FACTORY_FOR is optional for abstract factory."""
         class TestObjectFactory(base.Factory):
-            ABSTRACT_FACTORY = True
+            class Meta:
+                abstract = True
 
         # Passed
 

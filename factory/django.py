@@ -48,9 +48,9 @@ class DjangoModelFactory(base.Factory):
     Possible improvement: define a new 'attribute' type, AutoField, which would
     handle those for non-numerical primary keys.
     """
-
-    ABSTRACT_FACTORY = True
     FACTORY_DJANGO_GET_OR_CREATE = ()
+    class Meta:
+        abstract = True
 
     @classmethod
     def _get_manager(cls, target_class):

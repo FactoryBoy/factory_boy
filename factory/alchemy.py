@@ -26,8 +26,8 @@ from . import base
 
 class SQLAlchemyModelFactory(base.Factory):
     """Factory for SQLAlchemy models. """
-
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _setup_next_sequence(cls, *args, **kwargs):

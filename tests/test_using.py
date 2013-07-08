@@ -78,7 +78,8 @@ class FakeModel(object):
 
 
 class FakeModelFactory(factory.Factory):
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
@@ -311,7 +312,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_abstract(self):
         class SomeAbstractFactory(factory.Factory):
-            ABSTRACT_FACTORY = True
+            class Meta:
+                abstract = True
             one = 'one'
 
         class InheritedFactory(SomeAbstractFactory):
