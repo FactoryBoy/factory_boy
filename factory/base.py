@@ -41,6 +41,7 @@ class DefaultOptions:
     # List of attributes that should not be passed to the underlying class
     hide = ()
 
+    # List of arguments that should be passed as *args instead of **kwargs
     force_args = ()
 
 OPTIONS = [attr for attr in dir(DefaultOptions) if not attr.startswith('_')]
@@ -277,9 +278,6 @@ class BaseFactory(object):
     # Holds the target class, once resolved.
     _associated_class = None
 
-    # List of arguments that should be passed as *args instead of **kwargs
-    FACTORY_ARG_PARAMETERS = ()
-
     @classmethod
     def reset_sequence(cls, value=None, force=False):
         """Reset the sequence counter."""
@@ -383,7 +381,7 @@ class BaseFactory(object):
             del kwargs[arg]
 
         # Extract *args from **kwargs
-        args = tuple(kwargs.pop(key) for key in cls.FACTORY_ARG_PARAMETERS)
+        args = tuple(kwargs.pop(key) for key in cls._meta.force_args)
 
         logger.debug('BaseFactory: Generating %s.%s(%s)',
             cls.__module__,
@@ -628,7 +626,7 @@ class BaseDictFactory(Factory):
     def _build(cls, target_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "DictFactory %r does not support FACTORY_ARG_PARAMETERS.", cls)
+                "DictFactory %r does not support Meta.force_args.", cls)
         return target_class(**kwargs)
 
     @classmethod
@@ -648,7 +646,7 @@ class BaseListFactory(Factory):
     def _build(cls, target_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "ListFactory %r does not support FACTORY_ARG_PARAMETERS.", cls)
+                "ListFactory %r does not support Meta.force_args.", cls)
 
         values = [v for k, v in sorted(kwargs.items())]
         return target_class(values)

@@ -795,7 +795,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
-            FACTORY_ARG_PARAMETERS = ('x', 'y')
+            class Meta:
+                force_args = ('x', 'y')
 
             x = 1
             y = 2
@@ -834,8 +835,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
-            FACTORY_ARG_PARAMETERS = ('y',)
             class Meta:
+                force_args = ('y',)
                 hide = ('x', 'z')
 
             x = 1
@@ -858,7 +859,8 @@ class NonKwargParametersTestCase(unittest.TestCase):
 
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
-            FACTORY_ARG_PARAMETERS = ('one', 'two',)
+            class Meta:
+                force_args = ('one', 'two',)
 
             one = 1
             two = 2
@@ -883,7 +885,8 @@ class NonKwargParametersTestCase(unittest.TestCase):
 
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
-            FACTORY_ARG_PARAMETERS = ('one', 'two')
+            class Meta:
+                force_args = ('one', 'two')
 
             one = 1
             two = 2

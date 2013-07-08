@@ -194,7 +194,16 @@ class DeclarationDictTestCase(unittest.TestCase):
         d.update_with_public({
             'one': 1,
             'FACTORY_FOR': 2,
-            'FACTORY_ARG_PARAMETERS': 3,
+        })
+        self.assertEqual(['one'], list(d))
+        self.assertEqual([1], list(d.values()))
+
+    def test_update_with_public_ignores_meta_options(self):
+        """Ensure that a DeclarationDict ignores private _* keys."""
+        d = containers.DeclarationDict()
+        d.update_with_public({
+            'one': 1,
+            '_meta': 2,
         })
         self.assertEqual(['one'], list(d))
         self.assertEqual([1], list(d.values()))
