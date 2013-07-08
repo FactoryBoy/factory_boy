@@ -35,6 +35,11 @@ class TestObject(object):
         self.four = four
 
 
+class TestObjectWithPrivateOptions(object):
+    def __init__(self):
+        self._meta = "options"
+
+
 class FakeDjangoModel(object):
     @classmethod
     def create(cls, **kwargs):
@@ -77,7 +82,7 @@ class AbstractFactoryTestCase(unittest.TestCase):
 
 
 class FactoryTestCase(unittest.TestCase):
-    def test_factory_meta(self):
+    def test_options_not_made_public_to_built_object(self):
         class TestObjectFactory(base.Factory):
             class Meta:
                 model = TestObject
@@ -85,6 +90,22 @@ class FactoryTestCase(unittest.TestCase):
         self.assertEqual(TestObject, TestObjectFactory._meta.model)
         obj = TestObjectFactory.build()
         self.assertFalse(hasattr(obj, 'Meta'))
+
+    def test_meta_made_private_to_factory(self):
+        class TestObjectFactory(base.Factory):
+            class Meta:
+                model = TestObject
+
+        self.assertFalse(hasattr(TestObjectFactory, 'Meta'))
+        self.assertTrue(hasattr(TestObjectFactory, '_meta'))
+
+    def test_private_options_not_put_on_built_object(self):
+        class TestObjectWithOptionsFactory(base.Factory):
+            class Meta:
+                model = TestObjectWithPrivateOptions
+
+        obj = TestObjectWithOptionsFactory.build()
+        self.assertNotEqual(obj._meta, TestObjectWithOptionsFactory._meta)
 
     def test_display(self):
         class TestObjectFactory(base.Factory):
