@@ -37,7 +37,10 @@ class DefaultOptions:
     model = None
     abstract = False
     strategy = 'build'
+
+    # List of attributes that should not be passed to the underlying class
     hide = ()
+
     force_args = ()
 
 OPTIONS = [attr for attr in dir(DefaultOptions) if not attr.startswith('_')]
@@ -277,9 +280,6 @@ class BaseFactory(object):
     # List of arguments that should be passed as *args instead of **kwargs
     FACTORY_ARG_PARAMETERS = ()
 
-    # List of attributes that should not be passed to the underlying class
-    FACTORY_HIDDEN_ARGS = ()
-
     @classmethod
     def reset_sequence(cls, value=None, force=False):
         """Reset the sequence counter."""
@@ -379,7 +379,7 @@ class BaseFactory(object):
         kwargs = cls._adjust_kwargs(**kwargs)
 
         # Remove 'hidden' arguments.
-        for arg in cls.FACTORY_HIDDEN_ARGS:
+        for arg in cls._meta.hide:
             del kwargs[arg]
 
         # Extract *args from **kwargs
@@ -675,9 +675,10 @@ def use_strategy(new_strategy):
 
 class SQLAlchemyModelFactory(Factory):
     """Factory for SQLAlchemy models. """
-
     ABSTRACT_FACTORY = True
-    FACTORY_HIDDEN_ARGS=('SESSION',)
+
+    class Meta:
+        hide = ('SESSION',)
 
     def __init__(self, session):
         self.session = session

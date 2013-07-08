@@ -814,7 +814,8 @@ class UsingFactoryTestCase(unittest.TestCase):
 
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
-            FACTORY_HIDDEN_ARGS = ('x', 'z')
+            class Meta:
+                hide = ('x', 'z')
 
             x = 1
             y = 2
@@ -833,8 +834,9 @@ class UsingFactoryTestCase(unittest.TestCase):
 
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject
-            FACTORY_HIDDEN_ARGS = ('x', 'z')
             FACTORY_ARG_PARAMETERS = ('y',)
+            class Meta:
+                hide = ('x', 'z')
 
             x = 1
             y = 2
