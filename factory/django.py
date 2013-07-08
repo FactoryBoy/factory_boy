@@ -48,9 +48,9 @@ class DjangoModelFactory(base.Factory):
     Possible improvement: define a new 'attribute' type, AutoField, which would
     handle those for non-numerical primary keys.
     """
-    FACTORY_DJANGO_GET_OR_CREATE = ()
     class Meta:
         abstract = True
+        django_get_or_create = ()
 
     @classmethod
     def _get_manager(cls, target_class):
@@ -79,13 +79,13 @@ class DjangoModelFactory(base.Factory):
         """Create an instance of the model through objects.get_or_create."""
         manager = cls._get_manager(target_class)
 
-        assert 'defaults' not in cls.FACTORY_DJANGO_GET_OR_CREATE, (
+        assert 'defaults' not in cls._meta.django_get_or_create, (
             "'defaults' is a reserved keyword for get_or_create "
-            "(in %s.FACTORY_DJANGO_GET_OR_CREATE=%r)"
-            % (cls, cls.FACTORY_DJANGO_GET_OR_CREATE))
+            "(in %s.Meta.django_get_or_create=%r)"
+            % (cls, cls._meta.django_get_or_create))
 
         key_fields = {}
-        for field in cls.FACTORY_DJANGO_GET_OR_CREATE:
+        for field in cls._meta.django_get_or_create:
             key_fields[field] = kwargs.pop(field)
         key_fields['defaults'] = kwargs
 
@@ -97,7 +97,7 @@ class DjangoModelFactory(base.Factory):
         """Create an instance of the model, and save it to the database."""
         manager = cls._get_manager(target_class)
 
-        if cls.FACTORY_DJANGO_GET_OR_CREATE:
+        if cls._meta.django_get_or_create:
             return cls._get_or_create(target_class, *args, **kwargs)
 
         return manager.create(*args, **kwargs)

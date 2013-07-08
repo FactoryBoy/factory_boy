@@ -1321,7 +1321,8 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
         class MyFakeModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = MyFakeModel
-            FACTORY_DJANGO_GET_OR_CREATE = ('x',)
+            class Meta:
+                django_get_or_create = ('x',)
             x = 1
             y = 4
             z = 6
@@ -1342,7 +1343,8 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
         class MyFakeModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = MyFakeModel
-            FACTORY_DJANGO_GET_OR_CREATE = ('x', 'y', 'z')
+            class Meta:
+                django_get_or_create = ('x', 'y', 'z')
             x = 1
             y = 4
             z = 6
@@ -1363,7 +1365,8 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
         class MyFakeModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = MyFakeModel
-            FACTORY_DJANGO_GET_OR_CREATE = ('x',)
+            class Meta:
+                django_get_or_create = ('x',)
             x = 1
             y = 4
             z = 6
@@ -1384,7 +1387,8 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
         class MyFakeModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = MyFakeModel
-            FACTORY_DJANGO_GET_OR_CREATE = ('x', 'y', 'z')
+            class Meta:
+                django_get_or_create = ('x', 'y', 'z')
             x = 1
             y = 4
             z = 6
@@ -1428,7 +1432,8 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
     def test_get_or_create(self):
         class TestModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = TestModel
-            FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b')
+            class Meta:
+                django_get_or_create = ('a', 'b')
 
             a = factory.Sequence(lambda n: 'foo_%s' % n)
             b = 2
@@ -1447,7 +1452,8 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         """Test a DjangoModelFactory with all fields in get_or_create."""
         class TestModelFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = TestModel
-            FACTORY_DJANGO_GET_OR_CREATE = ('a', 'b', 'c', 'd')
+            class Meta:
+                django_get_or_create = ('a', 'b', 'c', 'd')
 
             a = factory.Sequence(lambda n: 'foo_%s' % n)
             b = 2

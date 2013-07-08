@@ -44,6 +44,8 @@ class DefaultOptions:
     # List of arguments that should be passed as *args instead of **kwargs
     force_args = ()
 
+    django_get_or_create = False
+
 OPTIONS = [attr for attr in dir(DefaultOptions) if not attr.startswith('_')]
 
 
