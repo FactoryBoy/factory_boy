@@ -33,6 +33,16 @@ CREATE_STRATEGY = 'create'
 STUB_STRATEGY = 'stub'
 
 
+class DefaultOptions:
+    model = None
+    abstract = False
+    strategy = 'build'
+    hide = ()
+    force_args = ()
+
+OPTIONS = [attr for attr in dir(DefaultOptions) if not attr.startswith('_')]
+
+
 # Special declarations
 FACTORY_CLASS_DECLARATION = 'FACTORY_FOR'
 
@@ -63,6 +73,27 @@ class UnsupportedStrategy(FactoryError):
 def get_factory_bases(bases):
     """Retrieve all FactoryMetaClass-derived bases from a list."""
     return [b for b in bases if issubclass(b, BaseFactory)]
+
+
+def options_from_class_meta(attrs, parent):
+    try:
+        options = attrs['Meta']
+
+        # Set any missing options using the parent options
+        # The 'abstract' option must be explicit; it is not inherited
+        if not hasattr(options, 'abstract'):
+            options.abstract = False
+        for opt in OPTIONS:
+            if not hasattr(options, opt):
+                setattr(options, opt, getattr(parent, opt))
+
+        del attrs['Meta']
+    except KeyError:
+        inherited = dict((a, getattr(parent, a)) for a in dir(parent))
+        inherited['abstract'] = False
+        options = type('Meta', (), inherited)
+
+    attrs['_meta'] = options
 
 
 class FactoryMetaClass(type):
@@ -178,6 +209,9 @@ class FactoryMetaClass(type):
             return super(FactoryMetaClass, mcs).__new__(
                     mcs, class_name, bases, attrs)
 
+        parent_options = parent_factories[0]._meta
+        options_from_class_meta(attrs, parent_options)
+
         is_abstract = attrs.pop('ABSTRACT_FACTORY', False)
         extra_attrs = {}
 
@@ -226,6 +260,8 @@ class BaseFactory(object):
     def __new__(cls, *args, **kwargs):
         """Would be called if trying to instantiate the class."""
         raise FactoryError('You cannot instantiate BaseFactory')
+
+    _meta = DefaultOptions
 
     # ID to use for the next 'declarations.Sequence' attribute.
     _next_sequence = None
