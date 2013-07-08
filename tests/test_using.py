@@ -126,7 +126,7 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.foo, 'bar')
 
     def test_create_custom_base(self):
-        obj = factory.create(FakeModel, foo='bar', FACTORY_CLASS=factory.django.DjangoModelFactory)
+        obj = factory.create(FakeModel, foo='bar', _meta=dict(base_class=factory.django.DjangoModelFactory))
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
@@ -142,7 +142,7 @@ class SimpleBuildTestCase(unittest.TestCase):
 
     def test_create_batch_custom_base(self):
         objs = factory.create_batch(FakeModel, 4, foo='bar',
-                FACTORY_CLASS=factory.django.DjangoModelFactory)
+                _meta=dict(base_class=factory.django.DjangoModelFactory))
 
         self.assertEqual(4, len(objs))
         self.assertEqual(4, len(set(objs)))
@@ -178,7 +178,7 @@ class SimpleBuildTestCase(unittest.TestCase):
 
     def test_generate_create_custom_base(self):
         obj = factory.generate(FakeModel, factory.CREATE_STRATEGY, foo='bar',
-                FACTORY_CLASS=factory.django.DjangoModelFactory)
+                _meta=dict(base_class=factory.django.DjangoModelFactory))
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
@@ -209,7 +209,7 @@ class SimpleBuildTestCase(unittest.TestCase):
 
     def test_generate_batch_create_custom_base(self):
         objs = factory.generate_batch(FakeModel, factory.CREATE_STRATEGY, 20, foo='bar',
-                FACTORY_CLASS=factory.django.DjangoModelFactory)
+                _meta=dict(base_class=factory.django.DjangoModelFactory))
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
@@ -239,7 +239,7 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.foo, 'bar')
 
     def test_simple_generate_create_custom_base(self):
-        obj = factory.simple_generate(FakeModel, True, foo='bar', FACTORY_CLASS=factory.django.DjangoModelFactory)
+        obj = factory.simple_generate(FakeModel, True, foo='bar', _meta=dict(base_class=factory.django.DjangoModelFactory))
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
@@ -265,7 +265,7 @@ class SimpleBuildTestCase(unittest.TestCase):
 
     def test_simple_generate_batch_create_custom_base(self):
         objs = factory.simple_generate_batch(FakeModel, True, 20, foo='bar',
-                FACTORY_CLASS=factory.django.DjangoModelFactory)
+                _meta=dict(base_class=factory.django.DjangoModelFactory))
 
         self.assertEqual(20, len(objs))
         self.assertEqual(20, len(set(objs)))
