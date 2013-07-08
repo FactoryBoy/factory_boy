@@ -36,7 +36,7 @@ STUB_STRATEGY = 'stub'
 class DefaultOptions:
     model = None
     abstract = False
-    strategy = 'build'
+    strategy = 'create'
 
     # List of attributes that should not be passed to the underlying class
     hide = ()
@@ -109,15 +109,15 @@ class FactoryMetaClass(type):
         Returns an instance of the associated class.
         """
 
-        if cls.FACTORY_STRATEGY == BUILD_STRATEGY:
+        if cls._meta.strategy == BUILD_STRATEGY:
             return cls.build(**kwargs)
-        elif cls.FACTORY_STRATEGY == CREATE_STRATEGY:
+        elif cls._meta.strategy == CREATE_STRATEGY:
             return cls.create(**kwargs)
-        elif cls.FACTORY_STRATEGY == STUB_STRATEGY:
+        elif cls._meta.strategy == STUB_STRATEGY:
             return cls.stub(**kwargs)
         else:
-            raise UnknownStrategy('Unknown FACTORY_STRATEGY: {0}'.format(
-                cls.FACTORY_STRATEGY))
+            raise UnknownStrategy('Unknown Meta.strategy: {0}'.format(
+                cls._meta.strategy))
 
     @classmethod
     def _discover_associated_class(mcs, class_name, attrs, inherited=None):
@@ -591,7 +591,6 @@ class BaseFactory(object):
 
 Factory = FactoryMetaClass('Factory', (BaseFactory,), {
     'ABSTRACT_FACTORY': True,
-    'FACTORY_STRATEGY': CREATE_STRATEGY,
     '__doc__': """Factory base with build and create support.
 
     This class has the ability to support multiple ORMs by using custom creation
@@ -605,9 +604,9 @@ Factory.AssociatedClassError = AssociatedClassError  # pylint: disable=W0201
 
 
 class StubFactory(Factory):
-
-    FACTORY_STRATEGY = STUB_STRATEGY
     FACTORY_FOR = containers.StubObject
+    class Meta:
+        strategy = STUB_STRATEGY
 
     @classmethod
     def build(cls, **kwargs):
@@ -666,7 +665,7 @@ def use_strategy(new_strategy):
     This is an alternative to setting default_strategy in the class definition.
     """
     def wrapped_class(klass):
-        klass.FACTORY_STRATEGY = new_strategy
+        klass._meta.strategy = new_strategy
         return klass
     return wrapped_class
 
