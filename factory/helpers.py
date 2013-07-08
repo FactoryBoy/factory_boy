@@ -31,15 +31,14 @@ from . import declarations
 def make_factory(klass, **kwargs):
     """Create a new, simple factory for the given class."""
     factory_name = '%sFactory' % klass.__name__
-    kwargs[base.FACTORY_CLASS_DECLARATION] = klass
 
     options = kwargs.pop('_meta', {})
     if 'model' in options:
         raise KeyError("cannot use 'model' in _meta dict here; use the klass arg")
+    options['model'] = klass
     base_class = options.pop('base_class', base.Factory)
 
-    if options:
-        kwargs['Meta'] = type('Meta', (), _meta)
+    kwargs['Meta'] = type('Meta', (), options)
 
     factory_class = type(base.Factory).__new__(
             type(base.Factory), factory_name, (base_class,), kwargs)

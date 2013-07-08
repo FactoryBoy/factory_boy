@@ -54,9 +54,6 @@ class DefaultOptions:
 OPTIONS = [attr for attr in dir(DefaultOptions) if not attr.startswith('_')]
 
 
-# Special declarations
-FACTORY_CLASS_DECLARATION = 'FACTORY_FOR'
-
 # Factory class attributes
 CLASS_ATTRIBUTE_DECLARATIONS = '_declarations'
 CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS = '_postgen_declarations'
@@ -68,7 +65,7 @@ class FactoryError(Exception):
 
 
 class AssociatedClassError(FactoryError):
-    """Exception for Factory subclasses lacking FACTORY_FOR."""
+    """Exception for Factory subclasses lacking Meta.model"""
 
 
 class UnknownStrategy(FactoryError):
@@ -131,7 +128,7 @@ class FactoryMetaClass(type):
         """Try to find the class associated with this factory.
 
         In order, the following tests will be performed:
-        - Lookup the FACTORY_CLASS_DECLARATION attribute
+        - Lookup the Meta.model attribute
         - If an inherited associated class was provided, use it.
 
         Args:
@@ -148,8 +145,8 @@ class FactoryMetaClass(type):
             AssociatedClassError: If we were unable to associate this factory
                 to a class.
         """
-        if FACTORY_CLASS_DECLARATION in attrs:
-            return attrs[FACTORY_CLASS_DECLARATION]
+        if attrs['_meta'].model is not None:
+            return attrs['_meta'].model
 
         # No specific associated class was given, and one was defined for our
         # parent, use it.
@@ -158,7 +155,7 @@ class FactoryMetaClass(type):
 
         raise AssociatedClassError(
             "Could not determine the class associated with %s. "
-            "Use the FACTORY_FOR attribute to specify an associated class." %
+            "Use the Meta.model attribute to specify an associated class." %
             class_name)
 
     @classmethod
@@ -605,8 +602,8 @@ Factory.AssociatedClassError = AssociatedClassError  # pylint: disable=W0201
 
 
 class StubFactory(Factory):
-    FACTORY_FOR = containers.StubObject
     class Meta:
+        model = containers.StubObject
         strategy = STUB_STRATEGY
 
     @classmethod
@@ -636,7 +633,8 @@ class BaseDictFactory(Factory):
 
 
 class DictFactory(BaseDictFactory):
-    FACTORY_FOR = dict
+    class Meta:
+        model = dict
 
 
 class BaseListFactory(Factory):
@@ -659,7 +657,8 @@ class BaseListFactory(Factory):
 
 
 class ListFactory(BaseListFactory):
-    FACTORY_FOR = list
+    class Meta:
+        model = list
 
 
 def use_strategy(new_strategy):

@@ -46,7 +46,8 @@ else:
 
 
 class StandardFactory(SQLAlchemyModelFactory):
-    FACTORY_FOR = models.StandardModel
+    class Meta:
+        model = models.StandardModel
     FACTORY_SESSION = models.session
 
     id = factory.Sequence(lambda n: n)
@@ -54,7 +55,8 @@ class StandardFactory(SQLAlchemyModelFactory):
 
 
 class NonIntegerPkFactory(SQLAlchemyModelFactory):
-    FACTORY_FOR = models.NonIntegerPk
+    class Meta:
+        model = models.NonIntegerPk
     FACTORY_SESSION = models.session
 
     id = factory.Sequence(lambda n: 'foo%d' % n)

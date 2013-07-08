@@ -32,7 +32,8 @@ class Foo(object):
 
 
 class FooFactory(factory.Factory):
-    FACTORY_FOR = Foo
+    class Meta:
+        model = Foo
 
     x = 42
     bar = factory.SubFactory(bar.BarFactory)
