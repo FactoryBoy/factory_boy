@@ -38,6 +38,11 @@ class DefaultOptions:
     abstract = False
     strategy = 'create'
 
+    # Base factory, if this class was inherited from another factory. This is
+    # used for sharing the _next_sequence counter among factories for the same
+    # class.
+    base_class = None
+
     # List of attributes that should not be passed to the underlying class
     hide = ()
 
@@ -232,7 +237,7 @@ class FactoryMetaClass(type):
             # If inheriting the factory from a parent, keep a link to it.
             # This allows to use the sequence counters from the parents.
             if associated_class == inherited_associated_class:
-                attrs['_base_factory'] = base
+                attrs['_meta'].base_class = base
 
             # The CLASS_ATTRIBUTE_ASSOCIATED_CLASS must *not* be taken into
             # account when parsing the declared attributes of the new class.
@@ -271,20 +276,15 @@ class BaseFactory(object):
     # ID to use for the next 'declarations.Sequence' attribute.
     _next_sequence = None
 
-    # Base factory, if this class was inherited from another factory. This is
-    # used for sharing the _next_sequence counter among factories for the same
-    # class.
-    _base_factory = None
-
     # Holds the target class, once resolved.
     _associated_class = None
 
     @classmethod
     def reset_sequence(cls, value=None, force=False):
         """Reset the sequence counter."""
-        if cls._base_factory:
+        if cls._meta.base_class:
             if force:
-                cls._base_factory.reset_sequence(value=value)
+                cls._meta.base_class.reset_sequence(value=value)
             else:
                 raise ValueError(
                     "Cannot reset the sequence of a factory subclass. "
@@ -314,8 +314,8 @@ class BaseFactory(object):
         """
 
         # Rely upon our parents
-        if cls._base_factory:
-            return cls._base_factory._generate_next_sequence()
+        if cls._meta.base_class:
+            return cls._meta.base_class._generate_next_sequence()
 
         # Make sure _next_sequence is initialized
         if cls._next_sequence is None:
