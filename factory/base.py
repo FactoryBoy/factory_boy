@@ -57,7 +57,6 @@ OPTIONS = [attr for attr in dir(DefaultOptions) if not attr.startswith('_')]
 # Factory class attributes
 CLASS_ATTRIBUTE_DECLARATIONS = '_declarations'
 CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS = '_postgen_declarations'
-CLASS_ATTRIBUTE_ASSOCIATED_CLASS = '_associated_class'
 
 
 class FactoryError(Exception):
@@ -226,8 +225,7 @@ class FactoryMetaClass(type):
 
             base = parent_factories[0]
 
-            inherited_associated_class = getattr(base,
-                    CLASS_ATTRIBUTE_ASSOCIATED_CLASS, None)
+            inherited_associated_class = base._meta.model
             associated_class = mcs._discover_associated_class(class_name, attrs,
                     inherited_associated_class)
 
@@ -235,10 +233,6 @@ class FactoryMetaClass(type):
             # This allows to use the sequence counters from the parents.
             if associated_class == inherited_associated_class:
                 attrs['_meta'].base_class = base
-
-            # The CLASS_ATTRIBUTE_ASSOCIATED_CLASS must *not* be taken into
-            # account when parsing the declared attributes of the new class.
-            extra_attrs = {CLASS_ATTRIBUTE_ASSOCIATED_CLASS: associated_class}
 
         # Extract pre- and post-generation declarations
         attributes = mcs._extract_declarations(parent_factories, attrs)
@@ -251,8 +245,7 @@ class FactoryMetaClass(type):
                 mcs, class_name, bases, attributes)
 
     def __str__(cls):
-        return '<%s for %s>' % (cls.__name__,
-            getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS).__name__)
+        return '<%s for %s>' % (cls.__name__, cls._meta.model.__name__)
 
 
 # Factory base classes
@@ -272,9 +265,6 @@ class BaseFactory(object):
 
     # ID to use for the next 'declarations.Sequence' attribute.
     _next_sequence = None
-
-    # Holds the target class, once resolved.
-    _associated_class = None
 
     @classmethod
     def reset_sequence(cls, value=None, force=False):
@@ -371,7 +361,7 @@ class BaseFactory(object):
             create: bool, whether to create or to build the object
             **kwargs: arguments to pass to the creation function
         """
-        target_class = getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)
+        target_class = cls._meta.model
         kwargs = cls._adjust_kwargs(**kwargs)
 
         # Remove 'hidden' arguments.

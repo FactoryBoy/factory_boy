@@ -63,7 +63,7 @@ class DjangoModelFactory(base.Factory):
     def _setup_next_sequence(cls):
         """Compute the next available PK, based on the 'pk' database field."""
 
-        model = cls._associated_class  # pylint: disable=E1101
+        model = cls._meta.model  # pylint: disable=E1101
         manager = cls._get_manager(model)
 
         try:
