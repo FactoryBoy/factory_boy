@@ -53,7 +53,8 @@ Usage
 Defining factories
 """"""""""""""""""
 
-Factories declare a set of attributes used to instantiate an object. The class of the object must be defined in the FACTORY_FOR attribute:
+Factories declare a set of attributes used to instantiate an object. The class of the object must be defined within a Meta class
+as the model attribute:
 
 .. code-block:: python
 
@@ -61,19 +62,21 @@ Factories declare a set of attributes used to instantiate an object. The class o
     from . import models
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = models.User
-
         first_name = 'John'
         last_name = 'Doe'
         admin = False
 
+        class Meta:
+            model = models.User
+
     # Another, different, factory for the same object
     class AdminFactory(factory.Factory):
-        FACTORY_FOR = models.User
-
         first_name = 'Admin'
         last_name = 'User'
         admin = True
+
+        class Meta:
+            model = models.User
 
 
 Using factories
@@ -123,10 +126,12 @@ These "lazy" attributes can be added as follows:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = models.User
         first_name = 'Joe'
         last_name = 'Blow'
         email = factory.LazyAttribute(lambda a: '{0}.{1}@example.com'.format(a.first_name, a.last_name).lower())
+
+        class Meta:
+            model = models.User
 
 .. code-block:: pycon
 
@@ -142,8 +147,10 @@ Unique values in a specific format (for example, e-mail addresses) can be genera
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = models.User
         email = factory.Sequence(lambda n: 'person{0}@example.com'.format(n))
+
+        class Meta:
+            model = models.User
 
     >>> UserFactory().email
     'person0@example.com'
@@ -160,8 +167,10 @@ This is handled by the ``SubFactory`` helper:
 .. code-block:: python
 
     class PostFactory(factory.Factory):
-        FACTORY_FOR = models.Post
         author = factory.SubFactory(UserFactory)
+
+        class Meta:
+            model = models.Post
 
 
 The associated object's strategy will be used:
@@ -220,6 +229,42 @@ factory_boy has specific support for a few ORMs, through specific :class:`~facto
 * Django, with :class:`~factory.django.DjangoModelFactory`
 * Mogo, with :class:`~factory.mogo.MogoFactory`
 * SQLAlchemy, with :class:`~factory.alchemy.SQLAlchemyModelFactory`
+
+
+Options
+"""""""
+
+Options can be defined in a :class:`Meta` class contained within the factory. The only required option is ``model`` as above.
+
+* ``abstract``, if set to ``True``, does not allow the factory to be instantiated directly. Instead it will act as a base class for some
+  default attributes.
+
+* ``strategy`` determines what ``YourFactory()`` will do by default. Valid options are ``create``, ``build`` and ``stub``.
+
+* ``hide`` is a tuple of attributes that should not be passed to the underlying class when creating it.
+
+* ``force_args`` is a tuple of attributes that should be passed to the underlying class as ``*args`` rather than ``**kwargs``.
+
+* ``django_get_or_create``, if set to ``True``, will use ``Model.objects.get_or_create()`` instead of just ``Model.objects.create()``.
+
+For example:
+
+.. code-block:: python
+
+    class PostFactory(factory.Factory):
+        first = "john"
+        last = "doe"
+        author = factory.LazyAttribute(lambda p: p.first + " " + p.last)
+        title = "Something of note"
+
+        class Meta:
+            model = models.Post
+            strategy = 'build'        # Build, rather than creating in the DB
+            hide = ('first', 'last')  # Just use full author name when building
+
+
+See the full documentation for a longer explanation of each option with examples.
+
 
 Contributing
 ------------

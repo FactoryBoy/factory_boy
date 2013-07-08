@@ -15,34 +15,35 @@ The :class:`Factory` class
 
     The :class:`Factory` class is the base of factory_boy features.
 
-    It accepts a few specific attributes (must be specified on class declaration):
+    It accepts a few specific attributes within a Meta class (specified on class declaration):
 
-    .. attribute:: FACTORY_FOR
+    .. attribute:: Meta.model
 
         This required attribute describes the class of objects to generate.
         It may only be absent if the factory has been marked abstract through
-        :attr:`ABSTRACT_FACTORY`.
+        :attr:`abstract`.
 
-    .. attribute:: ABSTRACT_FACTORY
+    .. attribute:: Meta.abstract
 
         This attribute indicates that the :class:`Factory` subclass should not
         be used to generate objects, but instead provides some extra defaults.
 
-    .. attribute:: FACTORY_ARG_PARAMETERS
+    .. attribute:: Meta.force_args
 
         Some factories require non-keyword arguments to their :meth:`~object.__init__`.
-        They should be listed, in order, in the :attr:`FACTORY_ARG_PARAMETERS`
+        They should be listed, in order, in the :attr:`force_args`
         attribute:
 
         .. code-block:: python
 
             class UserFactory(factory.Factory):
-                FACTORY_FOR = User
-                FACTORY_ARG_PARAMETERS = ('login', 'email')
-
                 login = 'john'
                 email = factory.LazyAttribute(lambda o: '%s@example.com' % o.login)
                 firstname = "John"
+
+                class Meta:
+                    model = User
+                    force_args = ('login', 'email')
 
         .. code-block:: pycon
 
@@ -50,26 +51,27 @@ The :class:`Factory` class
             <User: john>
             >>> User('john', 'john@example.com', firstname="John")  # actual call
 
-    .. attribute:: FACTORY_HIDDEN_ARGS
+    .. attribute:: Meta.hide
 
         While writing a :class:`Factory` for some object, it may be useful to
         have general fields helping defining others, but that should not be
         passed to the target class; for instance, a field named 'now' that would
         hold a reference time used by other objects.
 
-        Factory fields whose name are listed in :attr:`FACTORY_HIDDEN_ARGS` will
+        Factory fields whose name are listed in :attr:`hide` will
         be removed from the set of args/kwargs passed to the underlying class;
         they can be any valid factory_boy declaration:
 
         .. code-block:: python
 
             class OrderFactory(factory.Factory):
-                FACTORY_FOR = Order
-                FACTORY_HIDDEN_ARGS = ('now',)
-
                 now = factory.LazyAttribute(lambda o: datetime.datetime.utcnow())
                 started_at = factory.LazyAttribute(lambda o: o.now - datetime.timedelta(hours=1))
                 paid_at = factory.LazyAttribute(lambda o: o.now - datetime.timedelta(minutes=50))
+
+                class Meta:
+                    model = Order
+                    hide = ('now',)
 
         .. code-block:: pycon
 
@@ -159,7 +161,7 @@ The :class:`Factory` class
         The :meth:`_adjust_kwargs` extension point allows for late fields tuning.
 
         It is called once keyword arguments have been resolved and post-generation
-        items removed, but before the :attr:`FACTORY_ARG_PARAMETERS` extraction
+        items removed, but before the :attr:`force_args` extraction
         phase.
 
         .. code-block:: python
@@ -191,7 +193,7 @@ The :class:`Factory` class
         .. OHAI_VIM*
 
         This class method is called whenever a new instance needs to be built.
-        It receives the target class (provided to :attr:`FACTORY_FOR`), and
+        It receives the target class (provided to :attr:`model`), and
         the positional and keyword arguments to use for the class once all has
         been computed.
 
@@ -211,7 +213,8 @@ The :class:`Factory` class
         .. code-block:: python
 
             class BaseBackendFactory(factory.Factory):
-                ABSTRACT_FACTORY = True
+                class Meta:
+                    abstract = True
 
                 def _create(cls, target_class, *args, **kwargs):
                     obj = target_class(*args, **kwargs)
@@ -251,7 +254,7 @@ The :class:`Factory` class
             >>> SomeFactory._next_sequence
             4
 
-        Since subclasses of a non-:attr:`abstract <factory.Factory.ABSTRACT_FACTORY>`
+        Since subclasses of a non-:attr:`abstract <factory.Factory.Meta.abstract`
         :class:`~factory.Factory` share the same sequence counter, special care needs
         to be taken when resetting the counter of such a subclass.
 
@@ -284,16 +287,16 @@ Strategies
 factory_boy supports two main strategies for generating instances, plus stubs.
 
 
-.. data:: BUILD_STRATEGY
+.. data:: Strategy.build
 
     The 'build' strategy is used when an instance should be created,
     but not persisted to any datastore.
 
     It is usually a simple call to the :meth:`~object.__init__` method of the
-    :attr:`~Factory.FACTORY_FOR` class.
+    :attr:`~Factory.Meta.model` class.
 
 
-.. data:: CREATE_STRATEGY
+.. data:: Strategy.create
 
     The 'create' strategy builds and saves an instance into its appropriate datastore.
 
@@ -313,7 +316,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
                  when using the ``create`` strategy.
 
                  That policy will be used if the
-                 :attr:`associated class <Factory.FACTORY_FOR>` has an ``objects``
+                 :attr:`associated class <Factory.Meta.model>` has an ``objects``
                  attribute *and* the :meth:`~Factory._create` classmethod of the
                  :class:`Factory` wasn't overridden.
 
@@ -326,15 +329,15 @@ factory_boy supports two main strategies for generating instances, plus stubs.
 
     .. code-block:: python
 
-        @use_strategy(factory.BUILD_STRATEGY)
+        @use_strategy(factory.Strategy.build)
         class UserBuildingFactory(UserFactory):
             pass
 
 
-.. data:: STUB_STRATEGY
+.. data:: Strategy.stub
 
     The 'stub' strategy is an exception in the factory_boy world: it doesn't return
-    an instance of the :attr:`~Factory.FACTORY_FOR` class, and actually doesn't
+    an instance of the :attr:`~Factory.Meta.model` class, and actually doesn't
     require one to be present.
 
     Instead, it returns an instance of :class:`StubObject` whose attributes have been
@@ -356,7 +359,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
 
 .. class:: StubFactory(Factory)
 
-    An :attr:`abstract <Factory.ABSTRACT_FACTORY>` :class:`Factory`,
+    An :attr:`abstract <Factory.Meta.abstract>` :class:`Factory`,
     with a default strategy set to :data:`STUB_STRATEGY`.
 
 
@@ -379,10 +382,11 @@ accept the object being built as sole argument, and return a value.
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         username = 'john'
         email = factory.LazyAttribute(lambda o: '%s@example.com' % o.username)
+
+        class Meta:
+            model = User
 
 .. code-block:: pycon
 
@@ -414,9 +418,10 @@ return value of the method:
 .. code-block:: python
 
     class UserFactory(factory.Factory)
-        FACTORY_FOR = User
-
         name = u"Jean"
+
+        class Meta:
+            model = User
 
         @factory.lazy_attribute
         def email(self):
@@ -452,9 +457,10 @@ This declaration takes a single argument, a function accepting a single paramete
 .. code-block:: python
 
     class UserFactory(factory.Factory)
-        FACTORY_FOR = User
-
         phone = factory.Sequence(lambda n: '123-555-%04d' % n)
+
+        class Meta:
+            model = User
 
 .. code-block:: pycon
 
@@ -477,7 +483,8 @@ be the sequence counter - this might be confusing:
 .. code-block:: python
 
     class UserFactory(factory.Factory)
-        FACTORY_FOR = User
+        class Meta:
+            model = User
 
         @factory.sequence
         def phone(n):
@@ -502,10 +509,11 @@ The sequence counter is shared across all :class:`Sequence` attributes of the
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         phone = factory.Sequence(lambda n: '%04d' % n)
         office = factory.Sequence(lambda n: 'A23-B%03d' % n)
+
+        class Meta:
+            model = User
 
 .. code-block:: pycon
 
@@ -526,9 +534,10 @@ sequence counter is shared:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         phone = factory.Sequence(lambda n: '123-555-%04d' % n)
+
+        class Meta:
+            model = User
 
 
     class EmployeeFactory(UserFactory):
@@ -561,9 +570,10 @@ class-level value.
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         uid = factory.Sequence(int)
+
+        class Meta:
+            model = User
 
 .. code-block:: pycon
 
@@ -596,10 +606,11 @@ It takes a single argument, a function whose two parameters are, in order:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         login = 'john'
         email = factory.LazyAttributeSequence(lambda o, n: '%s@s%d.example.com' % (o.login, n))
+
+        class Meta:
+            model = User
 
 .. code-block:: pycon
 
@@ -620,9 +631,10 @@ handles more complex cases:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         login = 'john'
+
+        class Meta:
+            model = User
 
         @lazy_attribute_sequence
         def email(self, n):
@@ -657,9 +669,10 @@ The :class:`SubFactory` attribute should be called with:
           .. code-block:: python
 
               class FooFactory(factory.Factory):
-                  FACTORY_FOR = Foo
-
                   bar = factory.SubFactory(BarFactory)  # Not BarFactory()
+
+                  class Meta:
+                      model = Foo
 
 
 Definition
@@ -670,21 +683,23 @@ Definition
 
     # A standard factory
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         # Various fields
         first_name = 'John'
         last_name = factory.Sequence(lambda n: 'D%se' % ('o' * n))  # De, Doe, Dooe, Doooe, ...
         email = factory.LazyAttribute(lambda o: '%s.%s@example.org' % (o.first_name.lower(), o.last_name.lower()))
 
+        class Meta:
+            model = User
+
     # A factory for an object with a 'User' field
     class CompanyFactory(factory.Factory):
-        FACTORY_FOR = Company
-
         name = factory.Sequence(lambda n: 'FactoryBoyz' + 'z' * n)
 
         # Let's use our UserFactory to create that user, and override its first name.
         owner = factory.SubFactory(UserFactory, first_name='Jack')
+
+        class Meta:
+            model = Company
 
 
 Calling
@@ -759,16 +774,18 @@ This issue can be handled by passing the absolute import path to the target
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         username = 'john'
         main_group = factory.SubFactory('users.factories.GroupFactory')
 
-    class GroupFactory(factory.Factory):
-        FACTORY_FOR = Group
+        class Meta:
+            model = User
 
+    class GroupFactory(factory.Factory):
         name = "MyGroup"
         owner = factory.SubFactory(UserFactory)
+
+        class Meta:
+            model = Group
 
 
 Obviously, such circular relationships require careful handling of loops:
@@ -793,10 +810,11 @@ That declaration takes a single argument, a dot-delimited path to the attribute 
 .. code-block:: python
 
     class UserFactory(factory.Factory)
-        FACTORY_FOR = User
-
         birthdate = factory.Sequence(lambda n: datetime.date(2000, 1, 1) + datetime.timedelta(days=n))
         birthmonth = factory.SelfAttribute('birthdate.month')
+
+        class Meta:
+            model = User
 
 .. code-block:: pycon
 
@@ -819,16 +837,18 @@ gains an "upward" semantic through the double-dot notation, as used in Python im
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         language = 'en'
+
+        class Meta:
+            model = User
 
 
     class CompanyFactory(factory.Factory):
-        FACTORY_FOR = Company
-
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory, language=factory.SelfAttribute('..country.language'))
+
+        class Meta:
+            model = Company
 
 .. code-block:: pycon
 
@@ -853,11 +873,13 @@ through the :attr:`~containers.LazyStub.factory_parent` attribute of the passed-
 .. code-block:: python
 
     class CompanyFactory(factory.Factory):
-        FACTORY_FOR = Company
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory,
             language=factory.LazyAttribute(lambda user: user.factory_parent.country.language),
         )
+
+        class Meta:
+            model = Company
 
 
 Iterator
@@ -931,10 +953,11 @@ adequate value.
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         # CATEGORY_CHOICES is a list of (key, title) tuples
         category = factory.Iterator(User.CATEGORY_CHOICES, getter=lambda c: c[0])
+
+        class Meta:
+            model = User
 
 
 Decorator
@@ -952,7 +975,8 @@ use the :func:`iterator` decorator:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
+        class Meta:
+            model = User
 
         @factory.iterator
         def name():
@@ -995,8 +1019,6 @@ with the :class:`Dict` and :class:`List` attributes:
     .. code-block:: python
 
         class UserFactory(factory.Factory):
-            FACTORY_FOR = User
-
             is_superuser = False
             roles = factory.Dict({
                 'role1': True,
@@ -1004,6 +1026,9 @@ with the :class:`Dict` and :class:`List` attributes:
                 'role3': factory.Iterator([True, False]),
                 'admin': factory.SelfAttribute('..is_superuser'),
             })
+
+            class Meta:
+                model = User
 
     .. note:: Declarations used as a :class:`Dict` values are evaluated within
               that :class:`Dict`'s context; this means that you must use
@@ -1031,13 +1056,14 @@ with the :class:`Dict` and :class:`List` attributes:
     .. code-block:: python
 
         class UserFactory(factory.Factory):
-            FACTORY_FOR = User
-
             flags = factory.List([
                 'user',
                 'active',
                 'admin',
             ])
+
+            class Meta:
+                model = User
 
     .. code-block:: pycon
 
@@ -1078,7 +1104,8 @@ For instance, a :class:`PostGeneration` hook is declared as ``post``:
 .. code-block:: python
 
     class SomeFactory(factory.Factory):
-        FACTORY_FOR = SomeObject
+        class Meta:
+            model = SomeObject
 
         @post_generation
         def post(self, create, extracted, **kwargs):
@@ -1093,7 +1120,7 @@ When calling the factory, some arguments will be extracted for this method:
 - Any argument starting with ``post__XYZ`` will be extracted, its ``post__`` prefix
   removed, and added to the kwargs passed to the post-generation hook.
 
-Extracted arguments won't be passed to the :attr:`~Factory.FACTORY_FOR` class.
+Extracted arguments won't be passed to the :attr:`~Factory.Meta.model` class.
 
 Thus, in the following call:
 
@@ -1107,7 +1134,7 @@ Thus, in the following call:
     )
 
 The ``post`` hook will receive ``1`` as ``extracted`` and ``{'y': 3, 'z__t': 42}``
-as keyword arguments; ``{'post_x': 2}`` will be passed to ``SomeFactory.FACTORY_FOR``.
+as keyword arguments; ``{'post_x': 2}`` will be passed to ``SomeFactory.Meta.model``.
 
 
 RelatedFactory
@@ -1149,24 +1176,27 @@ RelatedFactory
           .. code-block:: python
 
               class FooFactory(factory.Factory):
-                  FACTORY_FOR = Foo
-
                   bar = factory.RelatedFactory(BarFactory)  # Not BarFactory()
+
+                  class Meta:
+                      model = Foo
 
 
 .. code-block:: python
 
     class CityFactory(factory.Factory):
-        FACTORY_FOR = City
-
         capital_of = None
         name = "Toronto"
 
-    class CountryFactory(factory.Factory):
-        FACTORY_FOR = Country
+        class Meta:
+            model = City
 
+    class CountryFactory(factory.Factory):
         lang = 'fr'
         capital_city = factory.RelatedFactory(CityFactory, 'capital_of', name="Paris")
+
+        class Meta:
+            model = Country
 
 .. code-block:: pycon
 
@@ -1225,11 +1255,12 @@ as ``callable(obj, create, extracted, **kwargs)``, where:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         login = 'john'
         make_mbox = factory.PostGeneration(
                 lambda obj, create, extracted, **kwargs: os.makedirs(obj.login))
+
+        class Meta:
+            model = User
 
 .. OHAI_VIM**
 
@@ -1245,9 +1276,10 @@ A decorator is also provided, decorating a single method accepting the same
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         login = 'john'
+
+        class Meta:
+            model = User
 
         @factory.post_generation
         def mbox(self, create, extracted, **kwargs):
@@ -1281,7 +1313,7 @@ PostGenerationMethodCall
 
     .. attribute:: method_name
 
-        The name of the method to call on the :attr:`~Factory.FACTORY_FOR` object
+        The name of the method to call on the :attr:`~Factory.Meta.model` object
 
     .. attribute:: args
 
@@ -1305,11 +1337,12 @@ attribute like below:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         username = 'user'
         password = factory.PostGenerationMethodCall('set_password',
                                                     'defaultpassword')
+
+        class Meta:
+            model = User
 
 When we instantiate a user from the ``UserFactory``, the factory
 will create a password attribute by calling ``User.set_password('defaultpassword')``.
@@ -1355,11 +1388,12 @@ factory during instantiation.
     .. code-block:: python
 
         class UserFactory(factory.django.DjangoModelFactory):
-            FACTORY_FOR = User
-
             username = 'user'
             password = factory.PostGenerationMethodCall('set_password',
                                                         'defaultpassword')
+
+            class Meta:
+                model = User
 
 
 If instead the :class:`PostGenerationMethodCall` declaration uses two or
@@ -1369,10 +1403,11 @@ example, if we declared the ``password`` attribute like the following,
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = User
-
         username = 'user'
         password = factory.PostGenerationMethodCall('set_password', '', 'sha1')
+
+        class Meta:
+            model = User
 
 then we must be cautious to pass in an iterable for the ``password``
 keyword argument when creating an instance from the factory:
@@ -1432,32 +1467,31 @@ Lightweight factory declaration
         # This is equivalent to:
 
         class UserFactory(factory.Factory):
-            FACTORY_FOR = User
-
             login = 'john'
             email = factory.LazyAttribute(lambda u: '%s@example.com' % u.login)
 
-    An alternate base class to :class:`Factory` can be specified in the
-    ``FACTORY_CLASS`` argument:
+            class Meta:
+                model = User
+
+    An alternate base class to :class:`Factory` can be specified as a
+    ``base_class`` key in the ``_meta`` argument:
 
     .. code-block:: python
 
         UserFactory = make_factory(models.User,
             login='john',
             email=factory.LazyAttribute(lambda u: '%s@example.com' % u.login),
-            FACTORY_CLASS=factory.django.DjangoModelFactory,
+            _meta=dict(base_class=factory.django.DjangoModelFactory),
         )
 
         # This is equivalent to:
 
         class UserFactory(factory.django.DjangoModelFactory):
-            FACTORY_FOR = models.User
-
             login = 'john'
             email = factory.LazyAttribute(lambda u: '%s@example.com' % u.login)
 
-    .. versionadded:: 2.0.0
-        The ``FACTORY_CLASS`` kwarg was added in 2.0.0.
+            class Meta:
+                model = models.User
 
 
 Instance building
@@ -1466,8 +1500,8 @@ Instance building
 The :mod:`factory` module provides a bunch of shortcuts for creating a factory and
 extracting instances from them:
 
-.. function:: build(klass, FACTORY_CLASS=None, **kwargs)
-.. function:: build_batch(klass, size, FACTORY_CLASS=None, **kwargs)
+.. function:: build(klass, **kwargs)
+.. function:: build_batch(klass, size, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
     return an instance built from that factory,
@@ -1476,12 +1510,11 @@ extracting instances from them:
     :param class klass: Class of the instance to build
     :param int size: Number of instances to build
     :param kwargs: Declarations to use for the generated factory
-    :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
 
 
 
-.. function:: create(klass, FACTORY_CLASS=None, **kwargs)
-.. function:: create_batch(klass, size, FACTORY_CLASS=None, **kwargs)
+.. function:: create(klass, **kwargs)
+.. function:: create_batch(klass, size, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
     return an instance created from that factory,
@@ -1490,12 +1523,11 @@ extracting instances from them:
     :param class klass: Class of the instance to create
     :param int size: Number of instances to create
     :param kwargs: Declarations to use for the generated factory
-    :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
 
 
 
-.. function:: stub(klass, FACTORY_CLASS=None, **kwargs)
-.. function:: stub_batch(klass, size, FACTORY_CLASS=None, **kwargs)
+.. function:: stub(klass, **kwargs)
+.. function:: stub_batch(klass, size, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
     return an instance stubbed from that factory,
@@ -1504,12 +1536,11 @@ extracting instances from them:
     :param class klass: Class of the instance to stub
     :param int size: Number of instances to stub
     :param kwargs: Declarations to use for the generated factory
-    :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
 
 
 
-.. function:: generate(klass, strategy, FACTORY_CLASS=None, **kwargs)
-.. function:: generate_batch(klass, strategy, size, FACTORY_CLASS=None, **kwargs)
+.. function:: generate(klass, strategy, **kwargs)
+.. function:: generate_batch(klass, strategy, size, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
     return an instance generated from that factory with the :obj:`strategy` strategy,
@@ -1519,12 +1550,11 @@ extracting instances from them:
     :param str strategy: The strategy to use
     :param int size: Number of instances to generate
     :param kwargs: Declarations to use for the generated factory
-    :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
 
 
 
-.. function:: simple_generate(klass, create, FACTORY_CLASS=None, **kwargs)
-.. function:: simple_generate_batch(klass, create, size, FACTORY_CLASS=None, **kwargs)
+.. function:: simple_generate(klass, create, **kwargs)
+.. function:: simple_generate_batch(klass, create, size, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
     return an instance generated from that factory according to the :obj:`create` flag,
@@ -1534,6 +1564,5 @@ extracting instances from them:
     :param bool create: Whether to build (``False``) or create (``True``) instances
     :param int size: Number of instances to generate
     :param kwargs: Declarations to use for the generated factory
-    :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
 
 

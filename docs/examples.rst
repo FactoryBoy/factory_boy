@@ -56,19 +56,21 @@ And now, we'll define the related factories:
 
 
     class AccountFactory(factory.Factory):
-        FACTORY_FOR = objects.Account
-
         username = factory.Sequence(lambda n: 'john%s' % n)
         email = factory.LazyAttribute(lambda o: '%s@example.org' % o.username)
 
+        class Meta:
+            model = objects.Account
+
 
     class ProfileFactory(factory.Factory):
-        FACTORY_FOR = objects.Profile
-
         account = factory.SubFactory(AccountFactory)
         gender = factory.Iterator([objects.Profile.GENDER_MALE, objects.Profile.GENDER_FEMALE])
         firstname = u'John'
         lastname = u'Doe'
+
+        class Meta:
+            model = objects.Profile
 
 
 

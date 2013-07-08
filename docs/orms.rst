@@ -38,7 +38,7 @@ All factories for a Django :class:`~django.db.models.Model` should use the
       attributes, the base object will be :meth:`saved <django.db.models.Model.save>`
       once all post-generation hooks have run.
 
-    .. attribute:: FACTORY_DJANGO_GET_OR_CREATE
+    .. attribute:: Meta.django_get_or_create
 
         Fields whose name are passed in this list will be used to perform a
         :meth:`Model.objects.get_or_create() <django.db.models.query.QuerySet.get_or_create>`
@@ -47,10 +47,11 @@ All factories for a Django :class:`~django.db.models.Model` should use the
         .. code-block:: python
 
             class UserFactory(factory.django.DjangoModelFactory):
-                FACTORY_FOR = models.User
-                FACTORY_DJANGO_GET_OR_CREATE = ('username',)
-
                 username = 'john'
+
+                class Meta:
+                    model = models.User
+                    django_get_or_create = ('username',)
 
         .. code-block:: pycon
 

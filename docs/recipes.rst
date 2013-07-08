@@ -26,10 +26,11 @@ use the :class:`~factory.SubFactory` declaration:
     from . import models
 
     class UserFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.User
-
         first_name = factory.Sequence(lambda n: "Agent %03d" % n)
         group = factory.SubFactory(GroupFactory)
+
+        class Meta:
+            model = models.User
 
 
 Reverse dependencies (reverse ForeignKey)
@@ -53,9 +54,10 @@ use a :class:`~factory.RelatedFactory` declaration:
 
     # factories.py
     class UserFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.User
-
         log = factory.RelatedFactory(UserLogFactory, 'user', action=models.UserLog.ACTION_CREATE)
+
+        class Meta:
+            model = models.User
 
 
 When a :class:`UserFactory` is instantiated, factory_boy will call
@@ -75,15 +77,18 @@ factory_boy allows to define attributes of such profiles dynamically when creati
 .. code-block:: python
 
     class ProfileFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = my_models.Profile
-
         title = 'Dr'
 
-    class UserFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = auth_models.User
+        class Meta:
+            model = my_models.Profile
 
+
+    class UserFactory(factory.django.DjangoModelFactory):
         username = factory.Sequence(lambda n: "user_%d" % n)
         profile = factory.RelatedFactory(ProfileFactory)
+
+        class Meta:
+            model = auth_models.User
 
         @classmethod
         def _create(cls, target_class, *args, **kwargs):
@@ -130,14 +135,17 @@ hook:
 
     # factories.py
     class GroupFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.Group
-
         name = factory.Sequence(lambda n: "Group #%s" % n)
 
-    class UserFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.User
+        class Meta:
+            model = models.Group
 
+
+    class UserFactory(factory.django.DjangoModelFactory):
         name = "John Doe"
+
+        class Meta:
+            model = models.User
 
         @factory.post_generation
         def groups(self, create, extracted, **kwargs):
@@ -185,21 +193,27 @@ If more links are needed, simply add more :class:`RelatedFactory` declarations:
 
     # factories.py
     class UserFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.User
-
         name = "John Doe"
 
-    class GroupFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.Group
+        class Meta:
+            model = models.User
 
+
+    class GroupFactory(factory.django.DjangoModelFactory):
         name = "Admins"
 
-    class GroupLevelFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.GroupLevel
+        class Meta:
+            model = models.Group
 
+
+    class GroupLevelFactory(factory.django.DjangoModelFactory):
         user = factory.SubFactory(UserFactory)
         group = factory.SubFactory(GroupFactory)
         rank = 1
+
+        class Meta:
+            model = models.GroupLevel
+
 
     class UserWithGroupFactory(UserFactory):
         membership = factory.RelatedFactory(GroupLevelFactory, 'user')
@@ -258,21 +272,26 @@ Here, we want:
 
     # factories.py
     class CountryFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.Country
-
         name = factory.Iterator(["France", "Italy", "Spain"])
         lang = factory.Iterator(['fr', 'it', 'es'])
 
-    class UserFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.User
+        class Meta:
+            model = models.Country
 
+
+    class UserFactory(factory.django.DjangoModelFactory):
         name = "John"
         lang = factory.SelfAttribute('country.lang')
         country = factory.SubFactory(CountryFactory)
 
-    class CompanyFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.Company
+        class Meta:
+            model = models.User
 
+
+    class CompanyFactory(factory.django.DjangoModelFactory):
         name = "ACME, Inc."
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory, country=factory.SelfAttribute('..country'))
+
+        class Meta:
+            model = models.Company
