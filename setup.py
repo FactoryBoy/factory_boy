@@ -46,10 +46,15 @@ class test(cmd.Command):
         except ImportError:
             import unittest
 
-        if self.verbose:
-            verbosity=1
+        import logging
+        logger = logging.getLogger('factory')
+        logger.addHandler(logging.StreamHandler())
+
+        verbosity = self.verbose
+        if verbosity >= 2:
+            logger.setLevel(logging.DEBUG)
         else:
-            verbosity=0
+            logger.setLevel(logging.INFO)
 
         loader = unittest.TestLoader()
         suite = unittest.TestSuite()

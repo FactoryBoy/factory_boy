@@ -25,7 +25,7 @@ use the :class:`~factory.SubFactory` declaration:
     import factory
     from . import models
 
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.User
 
         first_name = factory.Sequence(lambda n: "Agent %03d" % n)
@@ -52,7 +52,7 @@ use a :class:`~factory.RelatedFactory` declaration:
 
 
     # factories.py
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.User
 
         log = factory.RelatedFactory(UserLogFactory, 'user', action=models.UserLog.ACTION_CREATE)
@@ -60,6 +60,50 @@ use a :class:`~factory.RelatedFactory` declaration:
 
 When a :class:`UserFactory` is instantiated, factory_boy will call
 ``UserLogFactory(user=that_user, action=...)`` just before returning the created ``User``.
+
+
+Example: Django's Profile
+"""""""""""""""""""""""""
+
+Django (<1.5) provided a mechanism to attach a ``Profile`` to a ``User`` instance,
+using a :class:`~django.db.models.ForeignKey` from the ``Profile`` to the ``User``.
+
+A typical way to create those profiles was to hook a post-save signal to the ``User`` model.
+
+factory_boy allows to define attributes of such profiles dynamically when creating a ``User``:
+
+.. code-block:: python
+
+    class ProfileFactory(factory.django.DjangoModelFactory):
+        FACTORY_FOR = my_models.Profile
+
+        title = 'Dr'
+
+    class UserFactory(factory.django.DjangoModelFactory):
+        FACTORY_FOR = auth_models.User
+
+        username = factory.Sequence(lambda n: "user_%d" % n)
+        profile = factory.RelatedFactory(ProfileFactory)
+
+        @classmethod
+        def _create(cls, target_class, *args, **kwargs):
+            """Override the default _create() to disable the post-save signal."""
+            post_save.disconnect(handler_create_user_profile, auth_models.User)
+            user = super(UserFactory, cls)._create(target_class, *args, **kwargs)
+            post_save.connect(handler_create_user_profile, auth_models.User)
+            return user
+
+.. OHAI_VIM:*
+
+
+.. code-block:: pycon
+
+    >>> u = UserFactory(profile__title=u"Lord")
+    >>> u.get_profile().title
+    u"Lord"
+
+Such behaviour can be extended to other situations where a signal interferes with
+factory_boy related factories.
 
 
 Simple ManyToMany
@@ -85,12 +129,12 @@ hook:
 
 
     # factories.py
-    class GroupFactory(factory.DjangoModelFactory):
+    class GroupFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.Group
 
         name = factory.Sequence(lambda n: "Group #%s" % n)
 
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.User
 
         name = "John Doe"
@@ -140,17 +184,17 @@ If more links are needed, simply add more :class:`RelatedFactory` declarations:
 
 
     # factories.py
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.User
 
         name = "John Doe"
 
-    class GroupFactory(factory.DjangoModelFactory):
+    class GroupFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.Group
 
         name = "Admins"
 
-    class GroupLevelFactory(factory.DjangoModelFactory):
+    class GroupLevelFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.GroupLevel
 
         user = factory.SubFactory(UserFactory)
@@ -213,20 +257,20 @@ Here, we want:
 .. code-block:: python
 
     # factories.py
-    class CountryFactory(factory.DjangoModelFactory):
+    class CountryFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.Country
 
         name = factory.Iterator(["France", "Italy", "Spain"])
         lang = factory.Iterator(['fr', 'it', 'es'])
 
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.User
 
         name = "John"
         lang = factory.SelfAttribute('country.lang')
         country = factory.SubFactory(CountryFactory)
 
-    class CompanyFactory(factory.DjangoModelFactory):
+    class CompanyFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = models.Company
 
         name = "ACME, Inc."

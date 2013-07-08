@@ -68,6 +68,16 @@ class LazyStubTestCase(unittest.TestCase):
             containers=())
         self.assertEqual(2, stub.one)
 
+    def test_access_parent(self):
+        """Test simple access to a stub' parent."""
+        o1 = containers.LazyStub({'rank': 1})
+        o2 = containers.LazyStub({'rank': 2}, (o1,))
+        stub = containers.LazyStub({'rank': 3}, (o2, o1))
+
+        self.assertEqual(3, stub.rank)
+        self.assertEqual(2, stub.factory_parent.rank)
+        self.assertEqual(1, stub.factory_parent.factory_parent.rank)
+
     def test_cyclic_definition(self):
         class LazyAttr(containers.LazyValue):
             def __init__(self, attrname):
@@ -349,5 +359,5 @@ class AttributeBuilderTestCase(unittest.TestCase):
         pass
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     unittest.main()

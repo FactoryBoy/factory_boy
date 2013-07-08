@@ -23,11 +23,46 @@
 
 """Compatibility tools"""
 
+import datetime
 import sys
 
-is_python2 = (sys.version_info[0] == 2)
+PY2 = (sys.version_info[0] == 2)
 
-if is_python2:
-    string_types = (str, unicode)
-else:
-    string_types = (str,)
+if PY2:  # pragma: no cover
+    def is_string(obj):
+        return isinstance(obj, (str, unicode))
+
+    from StringIO import StringIO as BytesIO
+
+else:  # pragma: no cover
+    def is_string(obj):
+        return isinstance(obj, str)
+
+    from io import BytesIO
+
+try:  # pragma: no cover
+    # Python >= 3.2
+    UTC = datetime.timezone.utc
+except AttributeError:  # pragma: no cover
+    try:
+        # Fallback to pytz
+        from pytz import UTC
+    except ImportError:
+
+        # Ok, let's write our own.
+        class _UTC(datetime.tzinfo):
+            """The UTC tzinfo."""
+
+            def utcoffset(self, dt):
+                return datetime.timedelta(0)
+
+            def tzname(self, dt):
+                return "UTC"
+
+            def dst(self, dt):
+                return datetime.timedelta(0)
+
+            def localize(self, dt):
+                dt.astimezone(self)
+
+        UTC = _UTC()

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2010 Mark Sandstrom
-# Copyright (c) 2011-2013 Raphaël Barrois
+# Copyright (c) 2013 Romain Commandé
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,62 +18,33 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+from __future__ import unicode_literals
+from sqlalchemy.sql.functions import max
 
-__version__ = '2.1.1'
-__author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
+from . import base
 
 
-from .base import (
-    Factory,
-    BaseDictFactory,
-    DictFactory,
-    BaseListFactory,
-    ListFactory,
-    StubFactory,
+class SQLAlchemyModelFactory(base.Factory):
+    """Factory for SQLAlchemy models. """
 
-    BUILD_STRATEGY,
-    CREATE_STRATEGY,
-    STUB_STRATEGY,
-    use_strategy,
-)
+    ABSTRACT_FACTORY = True
 
-from .mogo import MogoFactory
-from .django import DjangoModelFactory
+    @classmethod
+    def _setup_next_sequence(cls, *args, **kwargs):
+        """Compute the next available PK, based on the 'pk' database field."""
+        session = cls.FACTORY_SESSION
+        model = cls.FACTORY_FOR
+        pk = getattr(model, model.__mapper__.primary_key[0].name)
+        max_pk = session.query(max(pk)).one()[0]
+        if isinstance(max_pk, int):
+            return max_pk + 1 if max_pk else 1
+        else:
+            return 1
 
-from .declarations import (
-    LazyAttribute,
-    Iterator,
-    Sequence,
-    LazyAttributeSequence,
-    SelfAttribute,
-    ContainerAttribute,
-    SubFactory,
-    Dict,
-    List,
-    PostGeneration,
-    PostGenerationMethodCall,
-    RelatedFactory,
-)
-
-from .helpers import (
-    build,
-    create,
-    stub,
-    generate,
-    simple_generate,
-    make_factory,
-
-    build_batch,
-    create_batch,
-    stub_batch,
-    generate_batch,
-    simple_generate_batch,
-
-    lazy_attribute,
-    iterator,
-    sequence,
-    lazy_attribute_sequence,
-    container_attribute,
-    post_generation,
-)
-
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        """Create an instance of the model, and save it to the database."""
+        session = cls.FACTORY_SESSION
+        obj = target_class(*args, **kwargs)
+        session.add(obj)
+        return obj

@@ -3,4 +3,4 @@ include docs/Makefile
 recursive-include docs *.py *.rst
 include docs/_static/.keep_dir
 prune docs/_build
-recursive-include tests *.py
+recursive-include tests *.py *.data

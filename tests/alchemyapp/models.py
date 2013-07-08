@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2010 Mark Sandstrom
-# Copyright (c) 2011-2013 Raphaël Barrois
+# Copyright (c) 2013 Romain Commandé
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,61 +19,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__version__ = '2.1.1'
-__author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
+
+"""Helpers for testing SQLAlchemy apps."""
+
+from sqlalchemy import Column, Integer, Unicode, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+session = scoped_session(sessionmaker())
+engine = create_engine('sqlite://')
+session.configure(bind=engine)
+Base = declarative_base()
 
 
-from .base import (
-    Factory,
-    BaseDictFactory,
-    DictFactory,
-    BaseListFactory,
-    ListFactory,
-    StubFactory,
+class StandardModel(Base):
+    __tablename__ = 'StandardModelTable'
 
-    BUILD_STRATEGY,
-    CREATE_STRATEGY,
-    STUB_STRATEGY,
-    use_strategy,
-)
+    id = Column(Integer(), primary_key=True)
+    foo = Column(Unicode(20))
 
-from .mogo import MogoFactory
-from .django import DjangoModelFactory
 
-from .declarations import (
-    LazyAttribute,
-    Iterator,
-    Sequence,
-    LazyAttributeSequence,
-    SelfAttribute,
-    ContainerAttribute,
-    SubFactory,
-    Dict,
-    List,
-    PostGeneration,
-    PostGenerationMethodCall,
-    RelatedFactory,
-)
+class NonIntegerPk(Base):
+    __tablename__ = 'NonIntegerPk'
 
-from .helpers import (
-    build,
-    create,
-    stub,
-    generate,
-    simple_generate,
-    make_factory,
+    id = Column(Unicode(20), primary_key=True)
 
-    build_batch,
-    create_batch,
-    stub_batch,
-    generate_batch,
-    simple_generate_batch,
-
-    lazy_attribute,
-    iterator,
-    sequence,
-    lazy_attribute_sequence,
-    container_attribute,
-    post_generation,
-)
-
+Base.metadata.create_all(engine)

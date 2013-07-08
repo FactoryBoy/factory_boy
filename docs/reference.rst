@@ -50,6 +50,37 @@ The :class:`Factory` class
             <User: john>
             >>> User('john', 'john@example.com', firstname="John")  # actual call
 
+    .. attribute:: FACTORY_HIDDEN_ARGS
+
+        While writing a :class:`Factory` for some object, it may be useful to
+        have general fields helping defining others, but that should not be
+        passed to the target class; for instance, a field named 'now' that would
+        hold a reference time used by other objects.
+
+        Factory fields whose name are listed in :attr:`FACTORY_HIDDEN_ARGS` will
+        be removed from the set of args/kwargs passed to the underlying class;
+        they can be any valid factory_boy declaration:
+
+        .. code-block:: python
+
+            class OrderFactory(factory.Factory):
+                FACTORY_FOR = Order
+                FACTORY_HIDDEN_ARGS = ('now',)
+
+                now = factory.LazyAttribute(lambda o: datetime.datetime.utcnow())
+                started_at = factory.LazyAttribute(lambda o: o.now - datetime.timedelta(hours=1))
+                paid_at = factory.LazyAttribute(lambda o: o.now - datetime.timedelta(minutes=50))
+
+        .. code-block:: pycon
+
+            >>> OrderFactory()    # The value of 'now' isn't passed to Order()
+            <Order: started 2013-04-01 12:00:00, paid 2013-04-01 12:10:00>
+
+            >>> # An alternate value may be passed for 'now'
+            >>> OrderFactory(now=datetime.datetime(2013, 4, 1, 10))
+            <Order: started 2013-04-01 09:00:00, paid 2013-04-01 09:10:00>
+
+
     **Base functions:**
 
     The :class:`Factory` class provides a few methods for getting objects;
@@ -203,6 +234,48 @@ The :class:`Factory` class
         values, for instance.
 
 
+    **Advanced functions:**
+
+
+    .. classmethod:: reset_sequence(cls, value=None, force=False)
+
+        :arg int value: The value to reset the sequence to
+        :arg bool force: Whether to force-reset the sequence
+
+        Allows to reset the sequence counter for a :class:`~factory.Factory`.
+        The new value can be passed in as the ``value`` argument:
+
+        .. code-block:: pycon
+
+            >>> SomeFactory.reset_sequence(4)
+            >>> SomeFactory._next_sequence
+            4
+
+        Since subclasses of a non-:attr:`abstract <factory.Factory.ABSTRACT_FACTORY>`
+        :class:`~factory.Factory` share the same sequence counter, special care needs
+        to be taken when resetting the counter of such a subclass.
+
+        By default, :meth:`reset_sequence` will raise a :exc:`ValueError` when
+        called on a subclassed :class:`~factory.Factory` subclass. This can be
+        avoided by passing in the ``force=True`` flag:
+
+        .. code-block:: pycon
+
+            >>> InheritedFactory.reset_sequence()
+            Traceback (most recent call last):
+              File "factory_boy/tests/test_base.py", line 179, in test_reset_sequence_subclass_parent
+                SubTestObjectFactory.reset_sequence()
+              File "factory_boy/factory/base.py", line 250, in reset_sequence
+                "Cannot reset the sequence of a factory subclass. "
+            ValueError: Cannot reset the sequence of a factory subclass. Please call reset_sequence() on the root factory, or call reset_sequence(forward=True).
+
+            >>> InheritedFactory.reset_sequence(force=True)
+            >>>
+
+        This is equivalent to calling :meth:`reset_sequence` on the base
+        factory in the chain.
+
+
 .. _strategies:
 
 Strategies
@@ -320,6 +393,11 @@ accept the object being built as sole argument, and return a value.
     >>> u = UserFactory(username='leo')
     >>> u.email
     'leo@example.com'
+
+
+The object passed to :class:`LazyAttribute` is not an instance of the target class,
+but instead a :class:`~containers.LazyStub`: a temporary container that computes
+the value of all declared fields.
 
 
 Decorator
@@ -471,6 +549,37 @@ sequence counter is shared:
     '123-555-0003'
 
 
+Forcing a sequence counter
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If a specific value of the sequence counter is required for one instance, the
+``__sequence`` keyword argument should be passed to the factory method.
+
+This will force the sequence counter during the call, without altering the
+class-level value.
+
+.. code-block:: python
+
+    class UserFactory(factory.Factory):
+        FACTORY_FOR = User
+
+        uid = factory.Sequence(int)
+
+.. code-block:: pycon
+
+    >>> UserFactory()
+    <User: 0>
+    >>> UserFactory()
+    <User: 1>
+    >>> UserFactory(__sequence=42)
+    <User: 42>
+
+
+.. warning:: The impact of setting ``__sequence=n`` on a ``_batch`` call is
+             undefined. Each generated instance may share a same counter, or
+             use incremental values starting from the forced value.
+
+
 LazyAttributeSequence
 """""""""""""""""""""
 
@@ -524,7 +633,7 @@ handles more complex cases:
 SubFactory
 """"""""""
 
-.. class:: SubFactory(sub_factory, **kwargs)
+.. class:: SubFactory(factory, **kwargs)
 
     .. OHAI_VIM**
 
@@ -537,6 +646,20 @@ The :class:`SubFactory` attribute should be called with:
   path to that :class:`Factory` (see :ref:`Circular imports <subfactory-circular>`)
 * An optional set of keyword arguments that should be passed when calling that
   factory
+
+
+.. note::
+
+          When passing an actual :class:`~factory.Factory` for the
+          :attr:`~factory.SubFactory.factory` argument, make sure to pass
+          the class and not instance (i.e no ``()`` after the class):
+
+          .. code-block:: python
+
+              class FooFactory(factory.Factory):
+                  FACTORY_FOR = Foo
+
+                  bar = factory.SubFactory(BarFactory)  # Not BarFactory()
 
 
 Definition
@@ -724,6 +847,19 @@ Obviously, this "follow parents" hability also handles overriding some attribute
     'cn'
 
 
+This feature is also available to :class:`LazyAttribute` and :class:`LazyAttributeSequence`,
+through the :attr:`~containers.LazyStub.factory_parent` attribute of the passed-in object:
+
+.. code-block:: python
+
+    class CompanyFactory(factory.Factory):
+        FACTORY_FOR = Company
+        country = factory.SubFactory(CountryFactory)
+        owner = factory.SubFactory(UserFactory,
+            language=factory.LazyAttribute(lambda user: user.factory_parent.country.language),
+        )
+
+
 Iterator
 """"""""
 
@@ -747,6 +883,14 @@ Iterator
         See the :ref:`iterator-getter` section for details.
 
         .. versionadded:: 1.3.0
+
+    .. method:: reset()
+
+        Reset the internal iterator used by the attribute, so that the next value
+        will be the first value generated by the iterator.
+
+        May be called several times.
+
 
 Each call to the factory will receive the next value from the iterable:
 
@@ -817,6 +961,99 @@ use the :func:`iterator` decorator:
                     yield line
 
 
+Resetting
+~~~~~~~~~
+
+In order to start back at the first value in an :class:`Iterator`,
+simply call the :meth:`~Iterator.reset` method of that attribute
+(accessing it from the bare :class:`~Factory` subclass):
+
+.. code-block:: pycon
+
+    >>> UserFactory().lang
+    'en'
+    >>> UserFactory().lang
+    'fr'
+    >>> UserFactory.lang.reset()
+    >>> UserFactory().lang
+    'en'
+
+
+Dict and List
+"""""""""""""
+
+When a factory expects lists or dicts as arguments, such values can be generated
+through the whole range of factory_boy declarations,
+with the :class:`Dict` and :class:`List` attributes:
+
+.. class:: Dict(params[, dict_factory=factory.DictFactory])
+
+    The :class:`Dict` class is used for dict-like attributes.
+    It receives as non-keyword argument a dictionary of fields to define, whose
+    value may be any factory-enabled declarations:
+
+    .. code-block:: python
+
+        class UserFactory(factory.Factory):
+            FACTORY_FOR = User
+
+            is_superuser = False
+            roles = factory.Dict({
+                'role1': True,
+                'role2': False,
+                'role3': factory.Iterator([True, False]),
+                'admin': factory.SelfAttribute('..is_superuser'),
+            })
+
+    .. note:: Declarations used as a :class:`Dict` values are evaluated within
+              that :class:`Dict`'s context; this means that you must use
+              the ``..foo`` syntax to access fields defined at the factory level.
+
+              On the other hand, the :class:`Sequence` counter is aligned on the
+              containing factory's one.
+
+
+    The :class:`Dict` behaviour can be tuned through the following parameters:
+
+    .. attribute:: dict_factory
+
+        The actual factory to use for generating the dict can be set as a keyword
+        argument, if an exotic dictionary-like object (SortedDict, ...) is required.
+
+
+.. class:: List(items[, list_factory=factory.ListFactory])
+
+    The :class:`List` can be used for list-like attributes.
+
+    Internally, the fields are converted into a ``index=value`` dict, which
+    makes it possible to override some values at use time:
+
+    .. code-block:: python
+
+        class UserFactory(factory.Factory):
+            FACTORY_FOR = User
+
+            flags = factory.List([
+                'user',
+                'active',
+                'admin',
+            ])
+
+    .. code-block:: pycon
+
+        >>> u = UserFactory(flags__2='superadmin')
+        >>> u.flags
+        ['user', 'active', 'superadmin']
+
+
+    The :class:`List` behaviour can be tuned through the following parameters:
+
+    .. attribute:: list_factory
+
+        The actual factory to use for generating the list can be set as a keyword
+        argument, if another type (tuple, set, ...) is required.
+
+
 Post-generation hooks
 """""""""""""""""""""
 
@@ -876,7 +1113,7 @@ as keyword arguments; ``{'post_x': 2}`` will be passed to ``SomeFactory.FACTORY_
 RelatedFactory
 """"""""""""""
 
-.. class:: RelatedFactory(factory, name='', **kwargs)
+.. class:: RelatedFactory(factory, factory_related_name='', **kwargs)
 
     .. OHAI_VIM**
 
@@ -896,11 +1133,25 @@ RelatedFactory
     .. attribute:: name
 
         The generated object (where the :class:`RelatedFactory` attribute will
-        set) may be passed to the related factory if the :attr:`name` parameter
+        set) may be passed to the related factory if the :attr:`factory_related_name` parameter
         is set.
 
         It will be passed as a keyword argument, using the :attr:`name` value as
         keyword:
+
+
+.. note::
+
+          When passing an actual :class:`~factory.Factory` for the
+          :attr:`~factory.RelatedFactory.factory` argument, make sure to pass
+          the class and not instance (i.e no ``()`` after the class):
+
+          .. code-block:: python
+
+              class FooFactory(factory.Factory):
+                  FACTORY_FOR = Foo
+
+                  bar = factory.RelatedFactory(BarFactory)  # Not BarFactory()
 
 
 .. code-block:: python
@@ -931,6 +1182,22 @@ Extra kwargs may be passed to the related factory, through the usual ``ATTR__SUB
     >>> england = CountryFactory(lang='en', capital_city__name="London")
     >>> City.objects.get(capital_of=england)
     <City: London>
+
+If a value if passed for the :class:`RelatedFactory` attribute, this disables
+:class:`RelatedFactory` generation:
+
+.. code-block:: pycon
+
+    >>> france = CountryFactory()
+    >>> paris = City.objects.get()
+    >>> paris
+    <City: Paris>
+    >>> reunion = CountryFactory(capital_city=paris)
+    >>> City.objects.count()  # No new capital_city generated
+    1
+    >>> guyane = CountryFactory(capital_city=paris, capital_city__name='Kourou')
+    >>> City.objects.count()  # No new capital_city generated, ``name`` ignored.
+    1
 
 
 PostGeneration
@@ -1087,7 +1354,7 @@ factory during instantiation.
 
     .. code-block:: python
 
-        class UserFactory(factory.DjangoModelFactory):
+        class UserFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = User
 
             username = 'user'
@@ -1178,12 +1445,12 @@ Lightweight factory declaration
         UserFactory = make_factory(models.User,
             login='john',
             email=factory.LazyAttribute(lambda u: '%s@example.com' % u.login),
-            FACTORY_CLASS=factory.DjangoModelFactory,
+            FACTORY_CLASS=factory.django.DjangoModelFactory,
         )
 
         # This is equivalent to:
 
-        class UserFactory(factory.DjangoModelFactory):
+        class UserFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = models.User
 
             login = 'john'

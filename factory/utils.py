@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import collections
 
 #: String for splitting an attribute name into a
 #: (subfactory_name, subfactory_field) tuple.
@@ -94,3 +95,32 @@ def import_object(module_name, attribute_name):
     module = __import__(module_name, {}, {}, [attribute_name], 0)
     return getattr(module, attribute_name)
 
+
+def log_pprint(args=(), kwargs=None):
+    kwargs = kwargs or {}
+    return ', '.join(
+        [str(arg) for arg in args] +
+        ['%s=%r' % item for item in kwargs.items()]
+    )
+
+
+class ResetableIterator(object):
+    """An iterator wrapper that can be 'reset()' to its start."""
+    def __init__(self, iterator, **kwargs):
+        super(ResetableIterator, self).__init__(**kwargs)
+        self.iterator = iter(iterator)
+        self.past_elements = collections.deque()
+        self.next_elements = collections.deque()
+
+    def __iter__(self):
+        while True:
+            if self.next_elements:
+                yield self.next_elements.popleft()
+            else:
+                value = next(self.iterator)
+                self.past_elements.append(value)
+                yield value
+
+    def reset(self):
+        self.next_elements.clear()
+        self.next_elements.extend(self.past_elements)

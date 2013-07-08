@@ -20,61 +20,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__version__ = '2.1.1'
-__author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
+
+from __future__ import unicode_literals
 
 
-from .base import (
-    Factory,
-    BaseDictFactory,
-    DictFactory,
-    BaseListFactory,
-    ListFactory,
-    StubFactory,
+"""factory_boy extensions for use with the mogo library (pymongo wrapper)."""
 
-    BUILD_STRATEGY,
-    CREATE_STRATEGY,
-    STUB_STRATEGY,
-    use_strategy,
-)
 
-from .mogo import MogoFactory
-from .django import DjangoModelFactory
+from . import base
 
-from .declarations import (
-    LazyAttribute,
-    Iterator,
-    Sequence,
-    LazyAttributeSequence,
-    SelfAttribute,
-    ContainerAttribute,
-    SubFactory,
-    Dict,
-    List,
-    PostGeneration,
-    PostGenerationMethodCall,
-    RelatedFactory,
-)
 
-from .helpers import (
-    build,
-    create,
-    stub,
-    generate,
-    simple_generate,
-    make_factory,
+class MogoFactory(base.Factory):
+    """Factory for mogo objects."""
+    ABSTRACT_FACTORY = True
 
-    build_batch,
-    create_batch,
-    stub_batch,
-    generate_batch,
-    simple_generate_batch,
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        return target_class.new(*args, **kwargs)
 
-    lazy_attribute,
-    iterator,
-    sequence,
-    lazy_attribute_sequence,
-    container_attribute,
-    post_generation,
-)
-
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        instance = target_class.new(*args, **kwargs)
+        instance.save()
+        return instance

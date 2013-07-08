@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 from . import declarations
 from . import utils
@@ -49,16 +52,18 @@ class LazyStub(object):
 
     __initialized = False
 
-    def __init__(self, attrs, containers=(), target_class=object):
+    def __init__(self, attrs, containers=(), target_class=object, log_ctx=None):
         self.__attrs = attrs
         self.__values = {}
         self.__pending = []
         self.__containers = containers
         self.__target_class = target_class
+        self.__log_ctx = log_ctx or '%s.%s' % (target_class.__module__, target_class.__name__)
+        self.factory_parent = containers[0] if containers else None
         self.__initialized = True
 
     def __repr__(self):
-        return '<LazyStub for %s>' % self.__target_class.__name__
+        return '<LazyStub for %s.%s>' % (self.__target_class.__module__, self.__target_class.__name__)
 
     def __str__(self):
         return '<LazyStub for %s with %s>' % (
@@ -71,8 +76,14 @@ class LazyStub(object):
             dict: map of attribute name => computed value
         """
         res = {}
+        logger.debug("LazyStub: Computing values for %s(%s)",
+            self.__log_ctx, utils.log_pprint(kwargs=self.__attrs),
+        )
         for attr in self.__attrs:
             res[attr] = getattr(self, attr)
+        logger.debug("LazyStub: Computed values, got %s(%s)",
+            self.__log_ctx, utils.log_pprint(kwargs=res),
+        )
         return res
 
     def __getattr__(self, name):
@@ -172,30 +183,6 @@ class LazyValue(object):
         raise NotImplementedError("This is an abstract method.")
 
 
-class SubFactoryWrapper(LazyValue):
-    """Lazy wrapper around a SubFactory.
-
-    Attributes:
-        subfactory (declarations.SubFactory): the SubFactory being wrapped
-        subfields (DeclarationDict): Default values to override when evaluating
-            the SubFactory
-        create (bool): whether to 'create' or 'build' the SubFactory.
-    """
-
-    def __init__(self, subfactory, subfields, create, *args, **kwargs):
-        super(SubFactoryWrapper, self).__init__(*args, **kwargs)
-        self.subfactory = subfactory
-        self.subfields = subfields
-        self.create = create
-
-    def evaluate(self, obj, containers=()):
-        expanded_containers = (obj,)
-        if containers:
-            expanded_containers += tuple(containers)
-        return self.subfactory.evaluate(self.create, self.subfields,
-            expanded_containers)
-
-
 class OrderedDeclarationWrapper(LazyValue):
     """Lazy wrapper around an OrderedDeclaration.
 
@@ -206,10 +193,12 @@ class OrderedDeclarationWrapper(LazyValue):
             declaration
     """
 
-    def __init__(self, declaration, sequence, *args, **kwargs):
-        super(OrderedDeclarationWrapper, self).__init__(*args, **kwargs)
+    def __init__(self, declaration, sequence, create, extra=None, **kwargs):
+        super(OrderedDeclarationWrapper, self).__init__(**kwargs)
         self.declaration = declaration
         self.sequence = sequence
+        self.create = create
+        self.extra = extra
 
     def evaluate(self, obj, containers=()):
         """Lazily evaluate the attached OrderedDeclaration.
@@ -219,7 +208,14 @@ class OrderedDeclarationWrapper(LazyValue):
             containers (object list): the chain of containers of the object
                 being built, its immediate holder being first.
         """
-        return self.declaration.evaluate(self.sequence, obj, containers)
+        return self.declaration.evaluate(self.sequence, obj,
+                create=self.create,
+                extra=self.extra,
+                containers=containers,
+        )
+
+    def __repr__(self):
+        return '<%s for %r>' % (self.__class__.__name__, self.declaration)
 
 
 class AttributeBuilder(object):
@@ -233,44 +229,55 @@ class AttributeBuilder(object):
             overridden default values for the related SubFactory.
     """
 
-    def __init__(self, factory, extra=None, *args, **kwargs):
-        super(AttributeBuilder, self).__init__(*args, **kwargs)
+    def __init__(self, factory, extra=None, log_ctx=None, **kwargs):
+        super(AttributeBuilder, self).__init__(**kwargs)
 
         if not extra:
             extra = {}
 
         self.factory = factory
-        self._containers = extra.pop('__containers', None)
+        self._containers = extra.pop('__containers', ())
         self._attrs = factory.declarations(extra)
+        self._log_ctx = log_ctx
 
-        attrs_with_subfields = [k for k, v in self._attrs.items() if self.has_subfields(v)]
+        attrs_with_subfields = [
+            k for k, v in self._attrs.items()
+            if self.has_subfields(v)]
 
-        self._subfields = utils.multi_extract_dict(attrs_with_subfields, self._attrs)
+        self._subfields = utils.multi_extract_dict(
+                attrs_with_subfields, self._attrs)
 
     def has_subfields(self, value):
-        return isinstance(value, declarations.SubFactory)
+        return isinstance(value, declarations.ParameteredAttribute)
 
-    def build(self, create):
+    def build(self, create, force_sequence=None):
         """Build a dictionary of attributes.
 
         Args:
             create (bool): whether to 'build' or 'create' the subfactories.
+            force_sequence (int or None): if set to an int, use this value for
+                the sequence counter; don't advance the related counter.
         """
         # Setup factory sequence.
-        self.factory.sequence = self.factory._generate_next_sequence()
+        if force_sequence is None:
+            sequence = self.factory._generate_next_sequence()
+        else:
+            sequence = force_sequence
 
         # Parse attribute declarations, wrapping SubFactory and
         # OrderedDeclaration.
         wrapped_attrs = {}
         for k, v in self._attrs.items():
-            if isinstance(v, declarations.SubFactory):
-                v = SubFactoryWrapper(v, self._subfields.get(k, {}), create)
-            elif isinstance(v, declarations.OrderedDeclaration):
-                v = OrderedDeclarationWrapper(v, self.factory.sequence)
+            if isinstance(v, declarations.OrderedDeclaration):
+                v = OrderedDeclarationWrapper(v,
+                        sequence=sequence,
+                        create=create,
+                        extra=self._subfields.get(k, {}),
+                )
             wrapped_attrs[k] = v
 
         stub = LazyStub(wrapped_attrs, containers=self._containers,
-            target_class=self.factory)
+            target_class=self.factory, log_ctx=self._log_ctx)
         return stub.__fill__()
 
 

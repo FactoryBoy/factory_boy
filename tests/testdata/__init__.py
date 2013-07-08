@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2010 Mark Sandstrom
 # Copyright (c) 2011-2013 Raphaël Barrois
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,61 +19,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__version__ = '2.1.1'
-__author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
 
+import os.path
 
-from .base import (
-    Factory,
-    BaseDictFactory,
-    DictFactory,
-    BaseListFactory,
-    ListFactory,
-    StubFactory,
-
-    BUILD_STRATEGY,
-    CREATE_STRATEGY,
-    STUB_STRATEGY,
-    use_strategy,
-)
-
-from .mogo import MogoFactory
-from .django import DjangoModelFactory
-
-from .declarations import (
-    LazyAttribute,
-    Iterator,
-    Sequence,
-    LazyAttributeSequence,
-    SelfAttribute,
-    ContainerAttribute,
-    SubFactory,
-    Dict,
-    List,
-    PostGeneration,
-    PostGenerationMethodCall,
-    RelatedFactory,
-)
-
-from .helpers import (
-    build,
-    create,
-    stub,
-    generate,
-    simple_generate,
-    make_factory,
-
-    build_batch,
-    create_batch,
-    stub_batch,
-    generate_batch,
-    simple_generate_batch,
-
-    lazy_attribute,
-    iterator,
-    sequence,
-    lazy_attribute_sequence,
-    container_attribute,
-    post_generation,
-)
-
+TESTDATA_ROOT = os.path.abspath(os.path.dirname(__file__))
+TESTFILE_PATH = os.path.join(TESTDATA_ROOT, 'example.data')
+TESTIMAGE_PATH = os.path.join(TESTDATA_ROOT, 'example.jpeg')

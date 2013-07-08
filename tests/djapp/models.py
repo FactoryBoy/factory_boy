@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2010 Mark Sandstrom
 # Copyright (c) 2011-2013 Raphaël Barrois
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,61 +19,43 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__version__ = '2.1.1'
-__author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
+
+"""Helpers for testing django apps."""
+
+import os.path
+
+try:
+    from PIL import Image
+except ImportError:
+    try:
+        import Image
+    except ImportError:
+        Image = None
+
+from django.conf import settings
+from django.db import models
+
+class StandardModel(models.Model):
+    foo = models.CharField(max_length=20)
 
 
-from .base import (
-    Factory,
-    BaseDictFactory,
-    DictFactory,
-    BaseListFactory,
-    ListFactory,
-    StubFactory,
+class NonIntegerPk(models.Model):
+    foo = models.CharField(max_length=20, primary_key=True)
+    bar = models.CharField(max_length=20, blank=True)
 
-    BUILD_STRATEGY,
-    CREATE_STRATEGY,
-    STUB_STRATEGY,
-    use_strategy,
-)
 
-from .mogo import MogoFactory
-from .django import DjangoModelFactory
+WITHFILE_UPLOAD_TO = 'django'
+WITHFILE_UPLOAD_DIR = os.path.join(settings.MEDIA_ROOT, WITHFILE_UPLOAD_TO)
 
-from .declarations import (
-    LazyAttribute,
-    Iterator,
-    Sequence,
-    LazyAttributeSequence,
-    SelfAttribute,
-    ContainerAttribute,
-    SubFactory,
-    Dict,
-    List,
-    PostGeneration,
-    PostGenerationMethodCall,
-    RelatedFactory,
-)
+class WithFile(models.Model):
+    afile = models.FileField(upload_to=WITHFILE_UPLOAD_TO)
 
-from .helpers import (
-    build,
-    create,
-    stub,
-    generate,
-    simple_generate,
-    make_factory,
 
-    build_batch,
-    create_batch,
-    stub_batch,
-    generate_batch,
-    simple_generate_batch,
+if Image is not None:  # PIL is available
 
-    lazy_attribute,
-    iterator,
-    sequence,
-    lazy_attribute_sequence,
-    container_attribute,
-    post_generation,
-)
+    class WithImage(models.Model):
+        animage = models.ImageField(upload_to=WITHFILE_UPLOAD_TO)
 
+else:
+    class WithImage(models.Model):
+        pass
