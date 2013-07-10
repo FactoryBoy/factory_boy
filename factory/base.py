@@ -51,6 +51,8 @@ class DefaultOptions:
 
     django_get_or_create = False
 
+    session = None
+
 OPTIONS = [attr for attr in dir(DefaultOptions) if not attr.startswith('_')]
 
 
@@ -682,8 +684,8 @@ class SQLAlchemyModelFactory(Factory):
         """Compute the next available PK, based on the 'pk' database field."""
         max = cls._get_function('max')
         session = cls._declarations['SESSION']
-        pk = cls.FACTORY_FOR.__table__.primary_key.columns.values()[0].key
-        max_pk = session.query(max(getattr(cls.FACTORY_FOR, pk))).one()
+        pk = cls._meta.model.__table__.primary_key.columns.values()[0].key
+        max_pk = session.query(max(getattr(cls._meta.model, pk))).one()
         return max_pk[0] + 1 if max_pk[0] else 1
 
     @classmethod

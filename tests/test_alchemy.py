@@ -36,7 +36,8 @@ if sqlalchemy:
 else:
 
     class Fake(object):
-        FACTORY_SESSION = None
+        class Meta:
+            session = None
 
     models = Fake()
     models.StandardModel = Fake()
@@ -48,7 +49,7 @@ else:
 class StandardFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.StandardModel
-    FACTORY_SESSION = models.session
+        session = models.session
 
     id = factory.Sequence(lambda n: n)
     foo = factory.Sequence(lambda n: 'foo%d' % n)
@@ -57,7 +58,7 @@ class StandardFactory(SQLAlchemyModelFactory):
 class NonIntegerPkFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.NonIntegerPk
-    FACTORY_SESSION = models.session
+        session = models.session
 
     id = factory.Sequence(lambda n: 'foo%d' % n)
 
@@ -68,7 +69,7 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
     def setUp(self):
         super(SQLAlchemyPkSequenceTestCase, self).setUp()
         StandardFactory.reset_sequence()
-        NonIntegerPkFactory.FACTORY_SESSION.rollback()
+        NonIntegerPkFactory._meta.session.rollback()
 
     def test_pk_first(self):
         std = StandardFactory.build()
@@ -106,7 +107,7 @@ class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
     def setUp(self):
         super(SQLAlchemyNonIntegerPkTestCase, self).setUp()
         NonIntegerPkFactory.reset_sequence()
-        NonIntegerPkFactory.FACTORY_SESSION.rollback()
+        NonIntegerPkFactory._meta.session.rollback()
 
     def test_first(self):
         nonint = NonIntegerPkFactory.build()

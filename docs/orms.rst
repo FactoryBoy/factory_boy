@@ -92,7 +92,8 @@ All factories for a Django :class:`~django.db.models.Model` should use the
 .. code-block:: python
 
     class MyFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.MyModel
+        class Meta:
+            model = models.MyModel
 
         the_file = factory.django.FileField(filename='the_file.dat')
 
@@ -129,7 +130,8 @@ All factories for a Django :class:`~django.db.models.Model` should use the
 .. code-block:: python
 
     class MyFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.MyModel
+        class Meta:
+            model = models.MyModel
 
         the_image = factory.django.ImageField(color='blue')
 
@@ -170,7 +172,7 @@ SQLAlchemy
 
 Factoy_boy also supports `SQLAlchemy`_  models through the :class:`SQLAlchemyModelFactory` class.
 
-To work, this class needs an `SQLAlchemy`_ session object affected to "FACTORY_SESSION" class attribute.
+To work, this class needs an `SQLAlchemy`_ session object affected to "Meta.session" class attribute.
 
 .. _SQLAlchemy: http://www.sqlalchemy.org/
 
@@ -183,7 +185,7 @@ To work, this class needs an `SQLAlchemy`_ session object affected to "FACTORY_S
     * :func:`~factory.Factory.create()` uses :meth:`sqlalchemy.orm.session.Session.add`
     * :func:`~factory.Factory._setup_next_sequence()` selects the next unused primary key value
 
-    .. attribute:: FACTORY_SESSION
+    .. attribute:: Meta.session
 
         Fields whose SQLAlchemy session object are passed will be used to communicate with the database
 
@@ -212,8 +214,9 @@ A (very) simple exemple:
 
 
     class UserFactory(SQLAlchemyModelFactory):
-        FACTORY_FOR = User
-        FACTORY_SESSION = session   # the SQLAlchemy session object
+        class Meta:
+            model = User
+            session = session   # the SQLAlchemy session object
 
         id = factory.Sequence(lambda n: n)
         name = factory.Sequence(lambda n: u'User %d' % n)
