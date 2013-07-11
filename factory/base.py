@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 import logging
+import warnings
 
 from . import containers
 from . import utils
@@ -59,6 +60,13 @@ OPTIONS = [attr for attr in dir(DefaultOptions) if not attr.startswith('_')]
 # Factory class attributes
 CLASS_ATTRIBUTE_DECLARATIONS = '_declarations'
 CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS = '_postgen_declarations'
+
+
+OLD_STYLE_WARNING = (
+    "Use of %s is deprecated and will be removed in the"
+    " future. Please use a Meta class inside your factory, with"
+    " the '%s' attribute"
+)
 
 
 class FactoryError(Exception):
@@ -102,7 +110,59 @@ def options_from_class_meta(attrs, parent):
         inherited['abstract'] = False
         options = type('Meta', (), inherited)
 
+    options_using_old_factory_style(attrs, options)
+
     attrs['_meta'] = options
+
+
+def options_using_old_factory_style(attrs, options):
+    """Populate options with old-style FACTORY_* options
+
+    Warns about the deprecation of the old-style options, puts them into
+    the options dict (ready to go into the _meta attribute) and then removes
+    the old-style options from the attributes dict.
+    """
+    if 'FACTORY_FOR' in attrs:
+        warnings.warn(OLD_STYLE_WARNING % ('FACTORY_FOR', 'model'),
+                      PendingDeprecationWarning, 2)
+        options.model = attrs['FACTORY_FOR']
+        del attrs['FACTORY_FOR']
+    if 'ABSTRACT_FACTORY' in attrs:
+        warnings.warn(OLD_STYLE_WARNING % ('ABSTRACT_FACTORY', ''),
+                      PendingDeprecationWarning, 2)
+        options.abstract = attrs['ABSTRACT_FACTORY']
+        del attrs['ABSTRACT_FACTORY']
+    if 'FACTORY_STRATEGY' in attrs:
+        warnings.warn(OLD_STYLE_WARNING % ('FACTORY_STRATEGY', 'strategy'),
+                      PendingDeprecationWarning, 2)
+        options.strategy = attrs['FACTORY_STRATEGY']
+        del attrs['FACTORY_STRATEGY']
+    if 'FACTORY_HIDDEN_ARGS' in attrs:
+        warnings.warn(OLD_STYLE_WARNING % ('FACTORY_HIDDEN_ARGS', 'hide'),
+                      PendingDeprecationWarning, 2)
+        options.hide = attrs['FACTORY_HIDDEN_ARGS']
+        del attrs['FACTORY_HIDDEN_ARGS']
+    if 'FACTORY_ARG_PARAMETERS' in attrs:
+        warnings.warn(
+            OLD_STYLE_WARNING % ('FACTORY_ARG_PARAMETERS', 'force_args'),
+            PendingDeprecationWarning, 2
+        )
+        options.force_args = attrs['FACTORY_ARG_PARAMETERS']
+        del attrs['FACTORY_ARG_PARAMETERS']
+    if 'FACTORY_DJANGO_GET_OR_CREATE' in attrs:
+        warnings.warn(
+            OLD_STYLE_WARNING % (
+                'FACTORY_DJANGO_GET_OR_CREATE', 'django_get_or_create'
+            ),
+            PendingDeprecationWarning, 2
+        )
+        options.django_get_or_create = attrs['FACTORY_DJANGO_GET_OR_CREATE']
+        del attrs['FACTORY_DJANGO_GET_OR_CREATE']
+    if 'FACTORY_SESSION' in attrs:
+        warnings.warn(OLD_STYLE_WARNING % ('FACTORY_SESSION', 'session'),
+                      PendingDeprecationWarning, 2)
+        options.session = attrs['FACTORY_SESSION']
+        del attrs['FACTORY_SESSION']
 
 
 class FactoryMetaClass(type):
