@@ -47,4 +47,5 @@ class SQLAlchemyModelFactory(base.Factory):
         session = cls.FACTORY_SESSION
         obj = target_class(*args, **kwargs)
         session.add(obj)
+        session.commit()
         return obj
