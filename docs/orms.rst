@@ -139,6 +139,45 @@ All factories for a Django :class:`~django.db.models.Model` should use the
     >>> MyFactory(the_image=None).the_image
     None
 
+Django models with `GenericForeignKeys`_ can be made with factory_boy.
+
+.. code-block:: python
+
+    #models.py
+    from django.db import models
+    from django.contrib.contenttypes.models import ContentType
+    from django.contrib.contenttypes import generic
+
+    class TaggedItem(models.Model):
+        content_type = models.ForeignKey(ContentType)
+        object_id = models.PositiveIntegerField()
+        content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    #factories.py
+    import factory
+    from django.contrib.contenttypes.models import ContentType
+    from models import TaggedItem
+    from other_factories import UserFactory, BookmarkFactory
+
+    class TaggedItemFactory(factory.DjangoModelFactory):
+        FACTORY_HIDDEN_ARGS = ('content_object',)
+        ABSTRACT_FACTORY = True
+
+        object_id = factory.SelfAttribute('content_object.id')
+        content_type = factory.LazyAttribute(
+            lambda o: ContentType.objects.get_for_model(o.content_object))
+
+    class TaggedUserFactory(TaggedItemFactory):
+        FACTORY_FOR = TaggedItem
+
+        content_type = factory.SubFactory(UserFactory)
+
+    class TaggedBookmarkFactory
+        FACTORY_FOR = TaggedItem
+
+        content_type = BookmarkFactory
+
+.. _GenericForeignKey: https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/#django.contrib.contenttypes.generic.GenericForeignKey
 
 Mogo
 ----
