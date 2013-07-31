@@ -175,7 +175,7 @@ Django models with `GenericForeignKeys`_ can be made with factory_boy.
     class TaggedBookmarkFactory
         FACTORY_FOR = TaggedItem
 
-        content_type = BookmarkFactory
+        content_type = factory.SubFactory(BookmarkFactory)
 
 .. _GenericForeignKey: https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/#django.contrib.contenttypes.generic.GenericForeignKey
 
