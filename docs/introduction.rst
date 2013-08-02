@@ -99,7 +99,7 @@ This is achieved with the :class:`~factory.Sequence` declaration:
     >>> UserFactory()
     <User: user2>
 
-.. note:: For more complex situations, you may also use the :meth:`~factory.@sequence` decorator:
+.. note:: For more complex situations, you may also use the :meth:`~factory.@sequence` decorator (note that ``self`` is not added as first parameter):
 
           .. code-block:: python
 
@@ -107,7 +107,7 @@ This is achieved with the :class:`~factory.Sequence` declaration:
                 FACTORY_FOR = models.User
 
                 @factory.sequence
-                def username(self, n):
+                def username(n):
                     return 'user%d' % n
 
 
