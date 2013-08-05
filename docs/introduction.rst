@@ -140,7 +140,19 @@ taking the object being built and returning the value for the field:
     <User: user3 (doe@example.com)>
 
 
-.. note:: As for :class:`~factory.Sequence`, a :meth:`~factory.@lazy_attribute` decorator is available.
+.. note:: As for :class:`~factory.Sequence`, a :meth:`~factory.@lazy_attribute` decorator is available:
+
+
+.. code-block:: python
+
+    class UserFactory(factory.Factory):
+        FACTORY_FOR = models.User
+
+        username = factory.Sequence(lambda n: 'user%d' % n)
+
+        @factory.lazy_attribute
+        def email(self):
+            return '%s@example.com' % self.username
 
 
 Inheritance
