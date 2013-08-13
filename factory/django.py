@@ -49,7 +49,7 @@ class DjangoModelFactory(base.Factory):
     handle those for non-numerical primary keys.
     """
 
-    ABSTRACT_FACTORY = True
+    ABSTRACT_FACTORY = True  # Optional, but explicit.
     FACTORY_DJANGO_GET_OR_CREATE = ()
 
     @classmethod

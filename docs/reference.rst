@@ -19,14 +19,17 @@ The :class:`Factory` class
 
     .. attribute:: FACTORY_FOR
 
-        This required attribute describes the class of objects to generate.
-        It may only be absent if the factory has been marked abstract through
-        :attr:`ABSTRACT_FACTORY`.
+        This optional attribute describes the class of objects to generate.
+
+        If unset, it will be inherited from parent :class:`Factory` subclasses.
 
     .. attribute:: ABSTRACT_FACTORY
 
         This attribute indicates that the :class:`Factory` subclass should not
         be used to generate objects, but instead provides some extra defaults.
+
+        It will be automatically set to ``True`` if neither the :class:`Factory`
+        subclass nor its parents define the :attr:`~Factory.FACTORY_FOR` attribute.
 
     .. attribute:: FACTORY_ARG_PARAMETERS
 
@@ -211,7 +214,7 @@ The :class:`Factory` class
         .. code-block:: python
 
             class BaseBackendFactory(factory.Factory):
-                ABSTRACT_FACTORY = True
+                ABSTRACT_FACTORY = True  # Optional
 
                 def _create(cls, target_class, *args, **kwargs):
                     obj = target_class(*args, **kwargs)

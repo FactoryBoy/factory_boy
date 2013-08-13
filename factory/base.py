@@ -40,6 +40,7 @@ FACTORY_CLASS_DECLARATION = 'FACTORY_FOR'
 CLASS_ATTRIBUTE_DECLARATIONS = '_declarations'
 CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS = '_postgen_declarations'
 CLASS_ATTRIBUTE_ASSOCIATED_CLASS = '_associated_class'
+CLASS_ATTRIBUTE_IS_ABSTRACT = '_abstract_factory'
 
 
 class FactoryError(Exception):
@@ -101,10 +102,6 @@ class FactoryMetaClass(type):
 
         Returns:
             class: the class to associate with this factory
-
-        Raises:
-            AssociatedClassError: If we were unable to associate this factory
-                to a class.
         """
         if FACTORY_CLASS_DECLARATION in attrs:
             return attrs[FACTORY_CLASS_DECLARATION]
@@ -114,10 +111,8 @@ class FactoryMetaClass(type):
         if inherited is not None:
             return inherited
 
-        raise AssociatedClassError(
-            "Could not determine the class associated with %s. "
-            "Use the FACTORY_FOR attribute to specify an associated class." %
-            class_name)
+        # Nothing found, return None.
+        return None
 
     @classmethod
     def _extract_declarations(mcs, bases, attributes):
@@ -155,7 +150,7 @@ class FactoryMetaClass(type):
 
         return attributes
 
-    def __new__(mcs, class_name, bases, attrs, extra_attrs=None):
+    def __new__(mcs, class_name, bases, attrs):
         """Record attributes as a pattern for later instance construction.
 
         This is called when a new Factory subclass is defined; it will collect
@@ -166,9 +161,6 @@ class FactoryMetaClass(type):
             bases (list of class): the parents of the class being created
             attrs (str => obj dict): the attributes as defined in the class
                 definition
-            extra_attrs (str => obj dict): extra attributes that should not be
-                included in the factory defaults, even if public. This
-                argument is only provided by extensions of this metaclass.
 
         Returns:
             A new class
@@ -178,18 +170,20 @@ class FactoryMetaClass(type):
             return super(FactoryMetaClass, mcs).__new__(
                     mcs, class_name, bases, attrs)
 
-        is_abstract = attrs.pop('ABSTRACT_FACTORY', False)
         extra_attrs = {}
 
-        if not is_abstract:
+        is_abstract = attrs.pop('ABSTRACT_FACTORY', False)
 
-            base = parent_factories[0]
+        base = parent_factories[0]
+        inherited_associated_class = getattr(base,
+                CLASS_ATTRIBUTE_ASSOCIATED_CLASS, None)
+        associated_class = mcs._discover_associated_class(class_name, attrs,
+                inherited_associated_class)
 
-            inherited_associated_class = getattr(base,
-                    CLASS_ATTRIBUTE_ASSOCIATED_CLASS, None)
-            associated_class = mcs._discover_associated_class(class_name, attrs,
-                    inherited_associated_class)
+        if associated_class is None:
+            is_abstract = True
 
+        else:
             # If inheriting the factory from a parent, keep a link to it.
             # This allows to use the sequence counters from the parents.
             if associated_class == inherited_associated_class:
@@ -197,21 +191,23 @@ class FactoryMetaClass(type):
 
             # The CLASS_ATTRIBUTE_ASSOCIATED_CLASS must *not* be taken into
             # account when parsing the declared attributes of the new class.
-            extra_attrs = {CLASS_ATTRIBUTE_ASSOCIATED_CLASS: associated_class}
+            extra_attrs[CLASS_ATTRIBUTE_ASSOCIATED_CLASS] = associated_class
+
+        extra_attrs[CLASS_ATTRIBUTE_IS_ABSTRACT] = is_abstract
 
         # Extract pre- and post-generation declarations
         attributes = mcs._extract_declarations(parent_factories, attrs)
-
-        # Add extra args if provided.
-        if extra_attrs:
-            attributes.update(extra_attrs)
+        attributes.update(extra_attrs)
 
         return super(FactoryMetaClass, mcs).__new__(
                 mcs, class_name, bases, attributes)
 
     def __str__(cls):
-        return '<%s for %s>' % (cls.__name__,
-            getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS).__name__)
+        if cls._abstract_factory:
+            return '<%s (abstract)>'
+        else:
+            return '<%s for %s>' % (cls.__name__,
+                getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS).__name__)
 
 
 # Factory base classes
@@ -237,6 +233,9 @@ class BaseFactory(object):
 
     # Holds the target class, once resolved.
     _associated_class = None
+
+    # Whether this factory is considered "abstract", thus uncallable.
+    _abstract_factory = False
 
     # List of arguments that should be passed as *args instead of **kwargs
     FACTORY_ARG_PARAMETERS = ()
@@ -367,6 +366,12 @@ class BaseFactory(object):
             create (bool): whether to 'build' or 'create' the object
             attrs (dict): attributes to use for generating the object
         """
+        if cls._abstract_factory:
+            raise FactoryError(
+                "Cannot generate instances of abstract factory %(f)s; "
+                "Ensure %(f)s.FACTORY_FOR is set and %(f)s.ABSTRACT_FACTORY "
+                "is either not set or False." % dict(f=cls))
+
         # Extract declarations used for post-generation
         postgen_declarations = getattr(cls,
                 CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS)

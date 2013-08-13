@@ -1,6 +1,17 @@
 ChangeLog
 =========
 
+.. _v2.1.2:
+
+2.1.2 (current)
+---------------
+
+*New:*
+
+    - The :class:`~factory.Factory.ABSTRACT_FACTORY` keyword is now optional, and automatically set
+      to ``True`` if neither the :class:`~factory.Factory` subclass nor its parent declare the
+      :class:`~factory.Factory.FACTORY_FOR` attribute (:issue:`74`)
+
 
 .. _v2.1.1:
 

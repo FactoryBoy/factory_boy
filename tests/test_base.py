@@ -73,6 +73,20 @@ class AbstractFactoryTestCase(unittest.TestCase):
 
         # Passed
 
+    def test_factory_for_and_abstract_factory_optional(self):
+        """Ensure that ABSTRACT_FACTORY is optional."""
+        class TestObjectFactory(base.Factory):
+            pass
+
+        # passed
+
+    def test_abstract_factory_cannot_be_called(self):
+        class TestObjectFactory(base.Factory):
+            pass
+
+        self.assertRaises(base.FactoryError, TestObjectFactory.build)
+        self.assertRaises(base.FactoryError, TestObjectFactory.create)
+
 
 class FactoryTestCase(unittest.TestCase):
     def test_factory_for(self):
@@ -318,12 +332,10 @@ class FactoryCreationTestCase(unittest.TestCase):
     # Errors
 
     def test_no_associated_class(self):
-        try:
-            class Test(base.Factory):
-                pass
-            self.fail()  # pragma: no cover
-        except base.Factory.AssociatedClassError as e:
-            self.assertTrue('autodiscovery' not in str(e))
+        class Test(base.Factory):
+            pass
+
+        self.assertTrue(Test._abstract_factory)
 
 
 class PostGenerationParsingTestCase(unittest.TestCase):
