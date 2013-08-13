@@ -78,18 +78,26 @@ factory_boy allows to define attributes of such profiles dynamically when creati
         FACTORY_FOR = my_models.Profile
 
         title = 'Dr'
+        # We pass in profile=None to prevent UserFactory from creating another profile
+        # (this disables the RelatedFactory)
+        user = factory.SubFactory(UserFactory, profile=None)
 
     class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = auth_models.User
 
         username = factory.Sequence(lambda n: "user_%d" % n)
-        profile = factory.RelatedFactory(ProfileFactory)
+
+        # We pass in 'user' to link the generated Profile to our just-generated User
+        # This will call ProfileFactory(user=our_new_user), thus skipping the SubFactory.
+        profile = factory.RelatedFactory(ProfileFactory, 'user')
 
         @classmethod
-        def _create(cls, target_class, *args, **kwargs):
-            """Override the default _create() to disable the post-save signal."""
+        def _generate(cls, create, attrs):
+            """Override the default _generate() to disable the post-save signal."""
+
+            # Note: If the signal was defined with a dispatch_uid, include that in both calls.
             post_save.disconnect(handler_create_user_profile, auth_models.User)
-            user = super(UserFactory, cls)._create(target_class, *args, **kwargs)
+            user = super(UserFactory, cls)._generate(create, attrs)
             post_save.connect(handler_create_user_profile, auth_models.User)
             return user
 
@@ -104,6 +112,13 @@ factory_boy allows to define attributes of such profiles dynamically when creati
 
 Such behaviour can be extended to other situations where a signal interferes with
 factory_boy related factories.
+
+.. note:: When any :class:`~factory.RelatedFactory` or :class:`~factory.post_generation`
+          attribute is defined on the :class:`~factory.django.DjangoModelFactory` subclass,
+          a second ``save()`` is performed *after* the call to ``_create()``.
+
+          Code working with signals should thus override the :meth:`~factory.Factory._generate`
+          method.
 
 
 Simple ManyToMany
