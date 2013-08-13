@@ -26,14 +26,14 @@ from . import base
 
 class SQLAlchemyModelFactory(base.Factory):
     """Factory for SQLAlchemy models. """
-
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _setup_next_sequence(cls, *args, **kwargs):
         """Compute the next available PK, based on the 'pk' database field."""
-        session = cls.FACTORY_SESSION
-        model = cls.FACTORY_FOR
+        session = cls._meta.session
+        model = cls._meta.model
         pk = getattr(model, model.__mapper__.primary_key[0].name)
         max_pk = session.query(max(pk)).one()[0]
         if isinstance(max_pk, int):
@@ -44,7 +44,7 @@ class SQLAlchemyModelFactory(base.Factory):
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
-        session = cls.FACTORY_SESSION
+        session = cls._meta.session
         obj = target_class(*args, **kwargs)
         session.add(obj)
         return obj

@@ -35,6 +35,11 @@ class TestObject(object):
         self.four = four
 
 
+class TestObjectWithPrivateOptions(object):
+    def __init__(self):
+        self._meta = "options"
+
+
 class FakeDjangoModel(object):
     @classmethod
     def create(cls, **kwargs):
@@ -49,7 +54,8 @@ class FakeDjangoModel(object):
 
 
 class FakeModelFactory(base.Factory):
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
@@ -67,32 +73,52 @@ class SafetyTestCase(unittest.TestCase):
 
 class AbstractFactoryTestCase(unittest.TestCase):
     def test_factory_for_optional(self):
-        """Ensure that FACTORY_FOR is optional for ABSTRACT_FACTORY."""
+        """Ensure that Meta.model is optional for abstract factory."""
         class TestObjectFactory(base.Factory):
-            ABSTRACT_FACTORY = True
+            class Meta:
+                abstract = True
 
         # Passed
 
 
 class FactoryTestCase(unittest.TestCase):
-    def test_factory_for(self):
+    def test_options_not_made_public_to_built_object(self):
         class TestObjectFactory(base.Factory):
-            FACTORY_FOR = TestObject
+            class Meta:
+                model = TestObject
 
-        self.assertEqual(TestObject, TestObjectFactory.FACTORY_FOR)
+        self.assertEqual(TestObject, TestObjectFactory._meta.model)
         obj = TestObjectFactory.build()
-        self.assertFalse(hasattr(obj, 'FACTORY_FOR'))
+        self.assertFalse(hasattr(obj, 'Meta'))
+
+    def test_meta_made_private_to_factory(self):
+        class TestObjectFactory(base.Factory):
+            class Meta:
+                model = TestObject
+
+        self.assertFalse(hasattr(TestObjectFactory, 'Meta'))
+        self.assertTrue(hasattr(TestObjectFactory, '_meta'))
+
+    def test_private_options_not_put_on_built_object(self):
+        class TestObjectWithOptionsFactory(base.Factory):
+            class Meta:
+                model = TestObjectWithPrivateOptions
+
+        obj = TestObjectWithOptionsFactory.build()
+        self.assertNotEqual(obj._meta, TestObjectWithOptionsFactory._meta)
 
     def test_display(self):
         class TestObjectFactory(base.Factory):
-            FACTORY_FOR = FakeDjangoModel
+            class Meta:
+                model = FakeDjangoModel
 
         self.assertIn('TestObjectFactory', str(TestObjectFactory))
         self.assertIn('FakeDjangoModel', str(TestObjectFactory))
 
     def test_lazy_attribute_non_existent_param(self):
         class TestObjectFactory(base.Factory):
-            FACTORY_FOR = TestObject
+            class Meta:
+                model = TestObject
 
             one = declarations.LazyAttribute(lambda a: a.does_not_exist )
 
@@ -101,12 +127,14 @@ class FactoryTestCase(unittest.TestCase):
     def test_inheritance_with_sequence(self):
         """Tests that sequence IDs are shared between parent and son."""
         class TestObjectFactory(base.Factory):
-            FACTORY_FOR = TestObject
+            class Meta:
+                model = TestObject
 
             one = declarations.Sequence(lambda a: a)
 
         class TestSubFactory(TestObjectFactory):
-            FACTORY_FOR = TestObject
+            class Meta:
+                model = TestObject
 
             pass
 
@@ -123,7 +151,8 @@ class FactorySequenceTestCase(unittest.TestCase):
         super(FactorySequenceTestCase, self).setUp()
 
         class TestObjectFactory(base.Factory):
-            FACTORY_FOR = TestObject
+            class Meta:
+                model = TestObject
             one = declarations.Sequence(lambda n: n)
 
         self.TestObjectFactory = TestObjectFactory
@@ -198,16 +227,17 @@ class FactorySequenceTestCase(unittest.TestCase):
 
 class FactoryDefaultStrategyTestCase(unittest.TestCase):
     def setUp(self):
-        self.default_strategy = base.Factory.FACTORY_STRATEGY
+        self.default_strategy = base.Factory._meta.strategy
 
     def tearDown(self):
-        base.Factory.FACTORY_STRATEGY = self.default_strategy
+        base.Factory._meta.strategy = self.default_strategy
 
     def test_build_strategy(self):
-        base.Factory.FACTORY_STRATEGY = base.BUILD_STRATEGY
+        base.Factory._meta.strategy = base.BUILD_STRATEGY
 
         class TestModelFactory(base.Factory):
-            FACTORY_FOR = TestModel
+            class Meta:
+                model = TestModel
 
             one = 'one'
 
@@ -216,10 +246,11 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertFalse(test_model.id)
 
     def test_create_strategy(self):
-        # Default FACTORY_STRATEGY
+        # Default Meta.strategy
 
         class TestModelFactory(FakeModelFactory):
-            FACTORY_FOR = TestModel
+            class Meta:
+                model = TestModel
 
             one = 'one'
 
@@ -228,10 +259,11 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertTrue(test_model.id)
 
     def test_stub_strategy(self):
-        base.Factory.FACTORY_STRATEGY = base.STUB_STRATEGY
+        base.Factory._meta.strategy = base.STUB_STRATEGY
 
         class TestModelFactory(base.Factory):
-            FACTORY_FOR = TestModel
+            class Meta:
+                model = TestModel
 
             one = 'one'
 
@@ -240,10 +272,11 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertFalse(hasattr(test_model, 'id'))  # We should have a plain old object
 
     def test_unknown_strategy(self):
-        base.Factory.FACTORY_STRATEGY = 'unknown'
+        base.Factory._meta.strategy = 'unknown'
 
         class TestModelFactory(base.Factory):
-            FACTORY_FOR = TestModel
+            class Meta:
+                model = TestModel
 
             one = 'one'
 
@@ -251,31 +284,34 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
     def test_stub_with_non_stub_strategy(self):
         class TestModelFactory(base.StubFactory):
-            FACTORY_FOR = TestModel
+            class Meta:
+                model = TestModel
 
             one = 'one'
 
-        TestModelFactory.FACTORY_STRATEGY = base.CREATE_STRATEGY
+        TestModelFactory._meta.strategy = base.CREATE_STRATEGY
 
         self.assertRaises(base.StubFactory.UnsupportedStrategy, TestModelFactory)
 
-        TestModelFactory.FACTORY_STRATEGY = base.BUILD_STRATEGY
+        TestModelFactory._meta.strategy = base.BUILD_STRATEGY
         self.assertRaises(base.StubFactory.UnsupportedStrategy, TestModelFactory)
 
     def test_change_strategy(self):
         @base.use_strategy(base.CREATE_STRATEGY)
         class TestModelFactory(base.StubFactory):
-            FACTORY_FOR = TestModel
+            class Meta:
+                model = TestModel
 
             one = 'one'
 
-        self.assertEqual(base.CREATE_STRATEGY, TestModelFactory.FACTORY_STRATEGY)
+        self.assertEqual(base.CREATE_STRATEGY, TestModelFactory._meta.strategy)
 
 
 class FactoryCreationTestCase(unittest.TestCase):
     def test_factory_for(self):
         class TestFactory(base.Factory):
-            FACTORY_FOR = TestObject
+            class Meta:
+                model = TestObject
 
         self.assertTrue(isinstance(TestFactory.build(), TestObject))
 
@@ -283,22 +319,24 @@ class FactoryCreationTestCase(unittest.TestCase):
         class TestFactory(base.StubFactory):
             pass
 
-        self.assertEqual(TestFactory.FACTORY_STRATEGY, base.STUB_STRATEGY)
+        self.assertEqual(TestFactory._meta.strategy, base.STUB_STRATEGY)
 
     def test_inheritance_with_stub(self):
         class TestObjectFactory(base.StubFactory):
-            FACTORY_FOR = TestObject
+            class Meta:
+                model = TestObject
 
             pass
 
         class TestFactory(TestObjectFactory):
             pass
 
-        self.assertEqual(TestFactory.FACTORY_STRATEGY, base.STUB_STRATEGY)
+        self.assertEqual(TestFactory._meta.strategy, base.STUB_STRATEGY)
 
     def test_custom_creation(self):
         class TestModelFactory(FakeModelFactory):
-            FACTORY_FOR = TestModel
+            class Meta:
+                model = TestModel
 
             @classmethod
             def _prepare(cls, create, **kwargs):
@@ -330,7 +368,8 @@ class PostGenerationParsingTestCase(unittest.TestCase):
 
     def test_extraction(self):
         class TestObjectFactory(base.Factory):
-            FACTORY_FOR = TestObject
+            class Meta:
+                model = TestObject
 
             foo = declarations.PostGenerationDeclaration()
 
@@ -338,7 +377,8 @@ class PostGenerationParsingTestCase(unittest.TestCase):
 
     def test_classlevel_extraction(self):
         class TestObjectFactory(base.Factory):
-            FACTORY_FOR = TestObject
+            class Meta:
+                model = TestObject
 
             foo = declarations.PostGenerationDeclaration()
             foo__bar = 42

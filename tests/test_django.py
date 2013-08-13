@@ -94,27 +94,31 @@ def tearDownModule():
 
 
 class StandardFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = models.StandardModel
+    class Meta:
+        model = models.StandardModel
 
     foo = factory.Sequence(lambda n: "foo%d" % n)
 
 
 class NonIntegerPkFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = models.NonIntegerPk
+    class Meta:
+        model = models.NonIntegerPk
 
     foo = factory.Sequence(lambda n: "foo%d" % n)
     bar = ''
 
 
 class WithFileFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = models.WithFile
+    class Meta:
+        model = models.WithFile
 
     if django is not None:
         afile = factory.django.FileField()
 
 
 class WithImageFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = models.WithImage
+    class Meta:
+        model = models.WithImage
 
     if django is not None:
         animage = factory.django.ImageField()

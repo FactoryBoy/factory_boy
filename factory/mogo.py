@@ -32,7 +32,8 @@ from . import base
 
 class MogoFactory(base.Factory):
     """Factory for mogo objects."""
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):

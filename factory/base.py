@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 import logging
+import warnings
 
 from . import containers
 from . import utils
@@ -33,13 +34,39 @@ CREATE_STRATEGY = 'create'
 STUB_STRATEGY = 'stub'
 
 
-# Special declarations
-FACTORY_CLASS_DECLARATION = 'FACTORY_FOR'
+class DefaultOptions:
+    model = None
+    abstract = False
+    strategy = 'create'
+
+    # Base factory, if this class was inherited from another factory. This is
+    # used for sharing the _next_sequence counter among factories for the same
+    # class.
+    base_class = None
+
+    # List of attributes that should not be passed to the underlying class
+    hide = ()
+
+    # List of arguments that should be passed as *args instead of **kwargs
+    force_args = ()
+
+    django_get_or_create = False
+
+    session = None
+
+OPTIONS = [attr for attr in dir(DefaultOptions) if not attr.startswith('_')]
+
 
 # Factory class attributes
 CLASS_ATTRIBUTE_DECLARATIONS = '_declarations'
 CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS = '_postgen_declarations'
-CLASS_ATTRIBUTE_ASSOCIATED_CLASS = '_associated_class'
+
+
+OLD_STYLE_WARNING = (
+    "Use of %s is deprecated and will be removed in the"
+    " future. Please use a Meta class inside your factory, with"
+    " the '%s' attribute"
+)
 
 
 class FactoryError(Exception):
@@ -47,7 +74,7 @@ class FactoryError(Exception):
 
 
 class AssociatedClassError(FactoryError):
-    """Exception for Factory subclasses lacking FACTORY_FOR."""
+    """Exception for Factory subclasses lacking Meta.model"""
 
 
 class UnknownStrategy(FactoryError):
@@ -65,6 +92,79 @@ def get_factory_bases(bases):
     return [b for b in bases if issubclass(b, BaseFactory)]
 
 
+def options_from_class_meta(attrs, parent):
+    try:
+        options = attrs['Meta']
+
+        # Set any missing options using the parent options
+        # The 'abstract' option must be explicit; it is not inherited
+        if not hasattr(options, 'abstract'):
+            options.abstract = False
+        for opt in OPTIONS:
+            if not hasattr(options, opt):
+                setattr(options, opt, getattr(parent, opt))
+
+        del attrs['Meta']
+    except KeyError:
+        inherited = dict((a, getattr(parent, a)) for a in dir(parent))
+        inherited['abstract'] = False
+        options = type('Meta', (), inherited)
+
+    options_using_old_factory_style(attrs, options)
+
+    attrs['_meta'] = options
+
+
+def options_using_old_factory_style(attrs, options):
+    """Populate options with old-style FACTORY_* options
+
+    Warns about the deprecation of the old-style options, puts them into
+    the options dict (ready to go into the _meta attribute) and then removes
+    the old-style options from the attributes dict.
+    """
+    if 'FACTORY_FOR' in attrs:
+        warnings.warn(OLD_STYLE_WARNING % ('FACTORY_FOR', 'model'),
+                      PendingDeprecationWarning, 2)
+        options.model = attrs['FACTORY_FOR']
+        del attrs['FACTORY_FOR']
+    if 'ABSTRACT_FACTORY' in attrs:
+        warnings.warn(OLD_STYLE_WARNING % ('ABSTRACT_FACTORY', ''),
+                      PendingDeprecationWarning, 2)
+        options.abstract = attrs['ABSTRACT_FACTORY']
+        del attrs['ABSTRACT_FACTORY']
+    if 'FACTORY_STRATEGY' in attrs:
+        warnings.warn(OLD_STYLE_WARNING % ('FACTORY_STRATEGY', 'strategy'),
+                      PendingDeprecationWarning, 2)
+        options.strategy = attrs['FACTORY_STRATEGY']
+        del attrs['FACTORY_STRATEGY']
+    if 'FACTORY_HIDDEN_ARGS' in attrs:
+        warnings.warn(OLD_STYLE_WARNING % ('FACTORY_HIDDEN_ARGS', 'hide'),
+                      PendingDeprecationWarning, 2)
+        options.hide = attrs['FACTORY_HIDDEN_ARGS']
+        del attrs['FACTORY_HIDDEN_ARGS']
+    if 'FACTORY_ARG_PARAMETERS' in attrs:
+        warnings.warn(
+            OLD_STYLE_WARNING % ('FACTORY_ARG_PARAMETERS', 'force_args'),
+            PendingDeprecationWarning, 2
+        )
+        options.force_args = attrs['FACTORY_ARG_PARAMETERS']
+        del attrs['FACTORY_ARG_PARAMETERS']
+    if 'FACTORY_DJANGO_GET_OR_CREATE' in attrs:
+        warnings.warn(
+            OLD_STYLE_WARNING % (
+                'FACTORY_DJANGO_GET_OR_CREATE', 'django_get_or_create'
+            ),
+            PendingDeprecationWarning, 2
+        )
+        options.django_get_or_create = attrs['FACTORY_DJANGO_GET_OR_CREATE']
+        del attrs['FACTORY_DJANGO_GET_OR_CREATE']
+    if 'FACTORY_SESSION' in attrs:
+        warnings.warn(OLD_STYLE_WARNING % ('FACTORY_SESSION', 'session'),
+                      PendingDeprecationWarning, 2)
+        options.session = attrs['FACTORY_SESSION']
+        del attrs['FACTORY_SESSION']
+
+
 class FactoryMetaClass(type):
     """Factory metaclass for handling ordered declarations."""
 
@@ -74,22 +174,22 @@ class FactoryMetaClass(type):
         Returns an instance of the associated class.
         """
 
-        if cls.FACTORY_STRATEGY == BUILD_STRATEGY:
+        if cls._meta.strategy == BUILD_STRATEGY:
             return cls.build(**kwargs)
-        elif cls.FACTORY_STRATEGY == CREATE_STRATEGY:
+        elif cls._meta.strategy == CREATE_STRATEGY:
             return cls.create(**kwargs)
-        elif cls.FACTORY_STRATEGY == STUB_STRATEGY:
+        elif cls._meta.strategy == STUB_STRATEGY:
             return cls.stub(**kwargs)
         else:
-            raise UnknownStrategy('Unknown FACTORY_STRATEGY: {0}'.format(
-                cls.FACTORY_STRATEGY))
+            raise UnknownStrategy('Unknown Meta.strategy: {0}'.format(
+                cls._meta.strategy))
 
     @classmethod
     def _discover_associated_class(mcs, class_name, attrs, inherited=None):
         """Try to find the class associated with this factory.
 
         In order, the following tests will be performed:
-        - Lookup the FACTORY_CLASS_DECLARATION attribute
+        - Lookup the Meta.model attribute
         - If an inherited associated class was provided, use it.
 
         Args:
@@ -106,8 +206,8 @@ class FactoryMetaClass(type):
             AssociatedClassError: If we were unable to associate this factory
                 to a class.
         """
-        if FACTORY_CLASS_DECLARATION in attrs:
-            return attrs[FACTORY_CLASS_DECLARATION]
+        if attrs['_meta'].model is not None:
+            return attrs['_meta'].model
 
         # No specific associated class was given, and one was defined for our
         # parent, use it.
@@ -116,7 +216,7 @@ class FactoryMetaClass(type):
 
         raise AssociatedClassError(
             "Could not determine the class associated with %s. "
-            "Use the FACTORY_FOR attribute to specify an associated class." %
+            "Use the Meta.model attribute to specify an associated class." %
             class_name)
 
     @classmethod
@@ -178,26 +278,23 @@ class FactoryMetaClass(type):
             return super(FactoryMetaClass, mcs).__new__(
                     mcs, class_name, bases, attrs)
 
-        is_abstract = attrs.pop('ABSTRACT_FACTORY', False)
+        parent_options = parent_factories[0]._meta
+        options_from_class_meta(attrs, parent_options)
+
         extra_attrs = {}
 
-        if not is_abstract:
+        if not attrs['_meta'].abstract:
 
             base = parent_factories[0]
 
-            inherited_associated_class = getattr(base,
-                    CLASS_ATTRIBUTE_ASSOCIATED_CLASS, None)
+            inherited_associated_class = base._meta.model
             associated_class = mcs._discover_associated_class(class_name, attrs,
                     inherited_associated_class)
 
             # If inheriting the factory from a parent, keep a link to it.
             # This allows to use the sequence counters from the parents.
             if associated_class == inherited_associated_class:
-                attrs['_base_factory'] = base
-
-            # The CLASS_ATTRIBUTE_ASSOCIATED_CLASS must *not* be taken into
-            # account when parsing the declared attributes of the new class.
-            extra_attrs = {CLASS_ATTRIBUTE_ASSOCIATED_CLASS: associated_class}
+                attrs['_meta'].base_class = base
 
         # Extract pre- and post-generation declarations
         attributes = mcs._extract_declarations(parent_factories, attrs)
@@ -210,8 +307,7 @@ class FactoryMetaClass(type):
                 mcs, class_name, bases, attributes)
 
     def __str__(cls):
-        return '<%s for %s>' % (cls.__name__,
-            getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS).__name__)
+        return '<%s for %s>' % (cls.__name__, cls._meta.model.__name__)
 
 
 # Factory base classes
@@ -227,29 +323,17 @@ class BaseFactory(object):
         """Would be called if trying to instantiate the class."""
         raise FactoryError('You cannot instantiate BaseFactory')
 
+    _meta = DefaultOptions
+
     # ID to use for the next 'declarations.Sequence' attribute.
     _next_sequence = None
-
-    # Base factory, if this class was inherited from another factory. This is
-    # used for sharing the _next_sequence counter among factories for the same
-    # class.
-    _base_factory = None
-
-    # Holds the target class, once resolved.
-    _associated_class = None
-
-    # List of arguments that should be passed as *args instead of **kwargs
-    FACTORY_ARG_PARAMETERS = ()
-
-    # List of attributes that should not be passed to the underlying class
-    FACTORY_HIDDEN_ARGS = ()
 
     @classmethod
     def reset_sequence(cls, value=None, force=False):
         """Reset the sequence counter."""
-        if cls._base_factory:
+        if cls._meta.base_class:
             if force:
-                cls._base_factory.reset_sequence(value=value)
+                cls._meta.base_class.reset_sequence(value=value)
             else:
                 raise ValueError(
                     "Cannot reset the sequence of a factory subclass. "
@@ -279,8 +363,8 @@ class BaseFactory(object):
         """
 
         # Rely upon our parents
-        if cls._base_factory:
-            return cls._base_factory._generate_next_sequence()
+        if cls._meta.base_class:
+            return cls._meta.base_class._generate_next_sequence()
 
         # Make sure _next_sequence is initialized
         if cls._next_sequence is None:
@@ -339,15 +423,15 @@ class BaseFactory(object):
             create: bool, whether to create or to build the object
             **kwargs: arguments to pass to the creation function
         """
-        target_class = getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)
+        target_class = cls._meta.model
         kwargs = cls._adjust_kwargs(**kwargs)
 
         # Remove 'hidden' arguments.
-        for arg in cls.FACTORY_HIDDEN_ARGS:
+        for arg in cls._meta.hide:
             del kwargs[arg]
 
         # Extract *args from **kwargs
-        args = tuple(kwargs.pop(key) for key in cls.FACTORY_ARG_PARAMETERS)
+        args = tuple(kwargs.pop(key) for key in cls._meta.force_args)
 
         logger.debug('BaseFactory: Generating %s.%s(%s)',
             cls.__module__,
@@ -556,8 +640,7 @@ class BaseFactory(object):
 
 
 Factory = FactoryMetaClass('Factory', (BaseFactory,), {
-    'ABSTRACT_FACTORY': True,
-    'FACTORY_STRATEGY': CREATE_STRATEGY,
+    'Meta': type('Meta', (), {'abstract': True}),
     '__doc__': """Factory base with build and create support.
 
     This class has the ability to support multiple ORMs by using custom creation
@@ -571,9 +654,9 @@ Factory.AssociatedClassError = AssociatedClassError  # pylint: disable=W0201
 
 
 class StubFactory(Factory):
-
-    FACTORY_STRATEGY = STUB_STRATEGY
-    FACTORY_FOR = containers.StubObject
+    class Meta:
+        model = containers.StubObject
+        strategy = STUB_STRATEGY
 
     @classmethod
     def build(cls, **kwargs):
@@ -586,13 +669,14 @@ class StubFactory(Factory):
 
 class BaseDictFactory(Factory):
     """Factory for dictionary-like classes."""
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "DictFactory %r does not support FACTORY_ARG_PARAMETERS.", cls)
+                "DictFactory %r does not support Meta.force_args.", cls)
         return target_class(**kwargs)
 
     @classmethod
@@ -601,18 +685,20 @@ class BaseDictFactory(Factory):
 
 
 class DictFactory(BaseDictFactory):
-    FACTORY_FOR = dict
+    class Meta:
+        model = dict
 
 
 class BaseListFactory(Factory):
     """Factory for list-like classes."""
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "ListFactory %r does not support FACTORY_ARG_PARAMETERS.", cls)
+                "ListFactory %r does not support Meta.force_args.", cls)
 
         values = [v for k, v in sorted(kwargs.items())]
         return target_class(values)
@@ -623,7 +709,8 @@ class BaseListFactory(Factory):
 
 
 class ListFactory(BaseListFactory):
-    FACTORY_FOR = list
+    class Meta:
+        model = list
 
 
 def use_strategy(new_strategy):
@@ -632,16 +719,16 @@ def use_strategy(new_strategy):
     This is an alternative to setting default_strategy in the class definition.
     """
     def wrapped_class(klass):
-        klass.FACTORY_STRATEGY = new_strategy
+        klass._meta.strategy = new_strategy
         return klass
     return wrapped_class
 
 
 class SQLAlchemyModelFactory(Factory):
     """Factory for SQLAlchemy models. """
-
-    ABSTRACT_FACTORY = True
-    FACTORY_HIDDEN_ARGS=('SESSION',)
+    class Meta:
+        abstract = True
+        hide = ('SESSION',)
 
     def __init__(self, session):
         self.session = session
@@ -657,8 +744,8 @@ class SQLAlchemyModelFactory(Factory):
         """Compute the next available PK, based on the 'pk' database field."""
         max = cls._get_function('max')
         session = cls._declarations['SESSION']
-        pk = cls.FACTORY_FOR.__table__.primary_key.columns.values()[0].key
-        max_pk = session.query(max(getattr(cls.FACTORY_FOR, pk))).one()
+        pk = cls._meta.model.__table__.primary_key.columns.values()[0].key
+        max_pk = session.query(max(getattr(cls._meta.model, pk))).one()
         return max_pk[0] + 1 if max_pk[0] else 1
 
     @classmethod
