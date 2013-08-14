@@ -74,7 +74,7 @@ test_state = {}
 
 def setUpModule():
     if django is None:  # pragma: no cover
-        return
+        raise unittest.SkipTest("Django not installed")
     django_test_utils.setup_test_environment()
     runner = django_test_simple.DjangoTestSuiteRunner()
     runner_state = runner.setup_databases()

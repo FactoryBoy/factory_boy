@@ -3,6 +3,7 @@
 
 import os
 import re
+import sys
 
 from setuptools import setup
 
@@ -20,6 +21,11 @@ def get_version(package_name):
                 return match.groups()[0]
     return '0.1.0'
 
+
+if sys.version_info[0:2] < (2, 7):  # pragma: no cover
+    test_loader = 'unittest2:TestLoader'
+else:
+    test_loader = 'unittest:TestLoader'
 
 
 PACKAGE = 'factory'
@@ -40,6 +46,9 @@ setup(
     setup_requires=[
         'setuptools>=0.8',
     ],
+    tests_require=[
+        'mock',
+    ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -58,4 +67,5 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
     test_suite='tests',
+    test_loader=test_loader,
 )
