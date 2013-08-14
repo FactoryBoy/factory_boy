@@ -1,11 +1,15 @@
-*.pyc
+# Temporary files
 .*.swp
+*.pyc
+*.pyo
+
+# Build-related files
+docs/_build/
 .coverage
-MANIFEST
+.tox
+*.egg-info
+*.egg
 build/
 dist/
 htmlcov/
-docs/_build
-docs/_static
-docs/_templates
-.tox
+MANIFEST

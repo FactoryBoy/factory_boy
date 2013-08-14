@@ -23,7 +23,7 @@
 
 import factory
 
-from cyclic import bar
+from . import bar as bar_mod
 
 class Foo(object):
     def __init__(self, bar, x):
@@ -35,4 +35,4 @@ class FooFactory(factory.Factory):
     FACTORY_FOR = Foo
 
     x = 42
-    bar = factory.SubFactory(bar.BarFactory)
+    bar = factory.SubFactory(bar_mod.BarFactory)
