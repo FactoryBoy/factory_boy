@@ -40,6 +40,7 @@ from .base import (
 
 from .mogo import MogoFactory
 from .django import DjangoModelFactory
+from .alchemy import SQLAlchemyModelFactory
 
 from .declarations import (
     LazyAttribute,
