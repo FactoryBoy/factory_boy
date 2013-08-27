@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 from __future__ import unicode_literals
-from peewee import fn
+import peewee
 from playhouse.test_utils import test_database
 
 from . import base
@@ -38,7 +38,7 @@ class PeeweeModelFactory(base.Factory):
         pk = getattr(model, model._meta.primary_key.name)
         with test_database(db, (model,), create_tables=False):
             max_pk = model.select(
-                model, fn.Max(pk).alias('maxpk')
+                model, peewee.fn.Max(pk).alias('maxpk')
             ).limit(1).execute()
             max_pk = [mp.maxpk for mp in max_pk][0]
         if isinstance(max_pk, int):
