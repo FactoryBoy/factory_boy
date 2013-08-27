@@ -28,6 +28,7 @@ class SQLAlchemyModelFactory(base.Factory):
     """Factory for SQLAlchemy models. """
 
     ABSTRACT_FACTORY = True
+    FACTORY_SESSION = None
 
     @classmethod
     def _setup_next_sequence(cls, *args, **kwargs):
