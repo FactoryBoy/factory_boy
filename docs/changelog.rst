@@ -1,6 +1,21 @@
 ChangeLog
 =========
 
+.. _v2.1.3:
+
+2.1.3 (current)
+---------------
+
+*Bugfix:*
+
+    - Removed duplicated :class:`~factory.alchemy.SQLAlchemyModelFactory` lurking in :mod:`factory`
+      (:issue:`83`)
+
+*New:*
+
+    - The :class:`~factory.django.DjangoModelFactory` now supports the ``FACTORY_FOR = 'myapp.MyModel'``
+      syntax, making it easier to shove all factories in a single module (:issue:`66`).
+
 .. _v2.1.2:
 
 2.1.2 (2013-08-14)
