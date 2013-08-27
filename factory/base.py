@@ -331,6 +331,15 @@ class BaseFactory(object):
         return kwargs
 
     @classmethod
+    def _load_target_class(cls):
+        """Extension point for loading target classes.
+
+        This can be overridden in framework-specific subclasses to hook into
+        existing model repositories, for instance.
+        """
+        return getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)
+
+    @classmethod
     def _prepare(cls, create, **kwargs):
         """Prepare an object for this factory.
 
@@ -338,7 +347,7 @@ class BaseFactory(object):
             create: bool, whether to create or to build the object
             **kwargs: arguments to pass to the creation function
         """
-        target_class = getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)
+        target_class = cls._load_target_class()
         kwargs = cls._adjust_kwargs(**kwargs)
 
         # Remove 'hidden' arguments.

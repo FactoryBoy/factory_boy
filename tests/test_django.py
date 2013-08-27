@@ -158,6 +158,35 @@ class DjangoPkSequenceTestCase(django_test.TestCase):
 
 
 @unittest.skipIf(django is None, "Django not installed.")
+class DjangoModelLoadingTestCase(django_test.TestCase):
+    """Tests FACTORY_FOR = 'app.Model' pattern."""
+
+    def test_loading(self):
+        class ExampleFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = 'djapp.StandardModel'
+
+        self.assertEqual(models.StandardModel, ExampleFactory._load_target_class())
+
+    def test_building(self):
+        class ExampleFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = 'djapp.StandardModel'
+
+        e = ExampleFactory.build()
+        self.assertEqual(models.StandardModel, e.__class__)
+
+    def test_cache(self):
+        class ExampleFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = 'djapp.StandardModel'
+
+        self.assertEqual('djapp.StandardModel', ExampleFactory._associated_class)
+        self.assertIsNone(ExampleFactory._associated_model)
+
+        self.assertEqual(models.StandardModel, ExampleFactory._load_target_class())
+        self.assertEqual('djapp.StandardModel', ExampleFactory._associated_class)
+        self.assertEqual(models.StandardModel, ExampleFactory._associated_model)
+
+
+@unittest.skipIf(django is None, "Django not installed.")
 class DjangoNonIntegerPkTestCase(django_test.TestCase):
     def setUp(self):
         super(DjangoNonIntegerPkTestCase, self).setUp()

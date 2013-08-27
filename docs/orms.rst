@@ -32,6 +32,8 @@ All factories for a Django :class:`~django.db.models.Model` should use the
 
     This class provides the following features:
 
+    * The :attr:`~factory.Factory.FACTORY_FOR` attribute also supports the ``'app.Model'``
+      syntax
     * :func:`~factory.Factory.create()` uses :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>`
     * :func:`~factory.Factory._setup_next_sequence()` selects the next unused primary key value
     * When using :class:`~factory.RelatedFactory` or :class:`~factory.PostGeneration`
@@ -47,7 +49,7 @@ All factories for a Django :class:`~django.db.models.Model` should use the
         .. code-block:: python
 
             class UserFactory(factory.django.DjangoModelFactory):
-                FACTORY_FOR = models.User
+                FACTORY_FOR = 'myapp.User'  # Equivalent to ``FACTORY_FOR = myapp.models.User``
                 FACTORY_DJANGO_GET_OR_CREATE = ('username',)
 
                 username = 'john'

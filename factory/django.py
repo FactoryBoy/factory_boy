@@ -37,7 +37,13 @@ except ImportError as e:  # pragma: no cover
 
 from . import base
 from . import declarations
-from .compat import BytesIO
+from .compat import BytesIO, is_string
+
+
+def require_django():
+    """Simple helper to ensure Django is available."""
+    if django_files is None:  # pragma: no cover
+        raise import_failure
 
 
 class DjangoModelFactory(base.Factory):
@@ -52,6 +58,21 @@ class DjangoModelFactory(base.Factory):
     ABSTRACT_FACTORY = True  # Optional, but explicit.
     FACTORY_DJANGO_GET_OR_CREATE = ()
 
+    _associated_model = None
+
+    @classmethod
+    def _load_target_class(cls):
+        associated_class = super(DjangoModelFactory, cls)._load_target_class()
+
+        if is_string(associated_class) and '.' in associated_class:
+            app, model = associated_class.split('.', 1)
+            if cls._associated_model is None:
+                from django.db.models import loading as django_loading
+                cls._associated_model = django_loading.get_model(app, model)
+            return cls._associated_model
+
+        return associated_class
+
     @classmethod
     def _get_manager(cls, target_class):
         try:
@@ -63,7 +84,7 @@ class DjangoModelFactory(base.Factory):
     def _setup_next_sequence(cls):
         """Compute the next available PK, based on the 'pk' database field."""
 
-        model = cls._associated_class  # pylint: disable=E1101
+        model = cls._load_target_class()  # pylint: disable=E1101
         manager = cls._get_manager(model)
 
         try:
@@ -116,8 +137,7 @@ class FileField(declarations.PostGenerationDeclaration):
     DEFAULT_FILENAME = 'example.dat'
 
     def __init__(self, **defaults):
-        if django_files is None:  # pragma: no cover
-            raise import_failure
+        require_django()
         self.defaults = defaults
         super(FileField, self).__init__()
 
