@@ -49,7 +49,7 @@ class StandardFactory(SQLAlchemyModelFactory):
     FACTORY_FOR = models.StandardModel
     FACTORY_SESSION = models.session
 
-    id = factory.Sequence(lambda n: n)
+    #id = factory.Sequence(lambda n: n)
     foo = factory.Sequence(lambda n: 'foo%d' % n)
 
 
