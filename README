@@ -219,6 +219,7 @@ factory_boy has specific support for a few ORMs, through specific :class:`~facto
 
 * Django, with :class:`~factory.django.DjangoModelFactory`
 * Mogo, with :class:`~factory.mogo.MogoFactory`
+* MongoEngine, with :class:`~factory.mogo.MongoEngineFactory`
 * SQLAlchemy, with :class:`~factory.alchemy.SQLAlchemyModelFactory`
 
 Contributing
