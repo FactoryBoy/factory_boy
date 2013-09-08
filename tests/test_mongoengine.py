@@ -33,15 +33,13 @@ except ImportError:
 if mongoengine:
     from factory.mongoengine import MongoEngineFactory
 
+    class Person(mongoengine.Document):
+        name = mongoengine.StringField()
 
-class Person(mongoengine.Document):
-    name = mongoengine.StringField()
+    class PersonFactory(MongoEngineFactory):
+        FACTORY_FOR = Person
 
-
-class PersonFactory(MongoEngineFactory):
-    FACTORY_FOR = Person
-
-    name = factory.Sequence(lambda n: 'name%d' % n)
+        name = factory.Sequence(lambda n: 'name%d' % n)
 
 
 
