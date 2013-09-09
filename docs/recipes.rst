@@ -80,7 +80,7 @@ factory_boy allows to define attributes of such profiles dynamically when creati
         title = 'Dr'
         # We pass in profile=None to prevent UserFactory from creating another profile
         # (this disables the RelatedFactory)
-        user = factory.SubFactory(UserFactory, profile=None)
+        user = factory.SubFactory('app.factories.UserFactory', profile=None)
 
     class UserFactory(factory.django.DjangoModelFactory):
         FACTORY_FOR = auth_models.User
