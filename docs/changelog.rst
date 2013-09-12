@@ -15,6 +15,7 @@ ChangeLog
 
     - The :class:`~factory.django.DjangoModelFactory` now supports the ``FACTORY_FOR = 'myapp.MyModel'``
       syntax, making it easier to shove all factories in a single module (:issue:`66`).
+    - Adding factory support for mongoengine with :class:`~factory.mongoengine.MongoEngineFactory`.
 
 .. _v2.1.2:
 

@@ -163,6 +163,29 @@ factory_boy supports `Mogo`_-style models, through the :class:`MogoFactory` clas
     * :func:`~factory.Factory.create()` builds an instance through ``new()`` then
       saves it.
 
+
+MongoEngine
+----
+
+.. currentmodule:: factory.mongoengine
+
+factory_boy supports `MongoEngine`_-style models, through the :class:`MongoEngineFactory` class.
+
+`mongoengine`_ is a wrapper around the ``pymongo`` library for MongoDB.
+
+.. _mongoengine:: http://mongoengine.org/
+
+.. class:: MongoEngineFactory(factory.Factory)
+
+    Dedicated class for `MongoEngine`_ models.
+
+    This class provides the following features:
+
+    * :func:`~factory.Factory.build()` calls a model's ``__init__`` method
+    * :func:`~factory.Factory.create()` builds an instance through ``__init__`` then
+      saves it.
+
+
 SQLAlchemy
 ----------
 
