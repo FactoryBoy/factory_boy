@@ -49,7 +49,7 @@ class MongoEngineTestCase(unittest.TestCase):
 
     db_name = os.environ.get('MONGO_DATABASE', 'factory_boy_test')
     db_host = os.environ.get('MONGO_HOST', 'localhost')
-    db_port = os.environ.get('MONGO_PORT', '27017')
+    db_port = int(os.environ.get('MONGO_PORT', '27017'))
 
     @classmethod
     def setUpClass(cls):
