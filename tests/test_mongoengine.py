@@ -22,6 +22,7 @@
 """Tests for factory_boy/SQLAlchemy interactions."""
 
 import factory
+import os
 from .compat import unittest
 
 
@@ -45,6 +46,18 @@ if mongoengine:
 
 @unittest.skipIf(mongoengine is None, "mongoengine not installed.")
 class MongoEngineTestCase(unittest.TestCase):
+
+    db_name = os.environ.get('MONGO_DATABASE', 'factory_boy_test')
+    db_host = os.environ.get('MONGO_HOST', 'localhost')
+    db_port = os.environ.get('MONGO_PORT', '27017')
+
+    @classmethod
+    def setUpClass(cls):
+        cls.db = mongoengine.connect(cls.db_name, host=cls.db_host, port=cls.db_port)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.db.drop_database(cls.db_name)
 
     def setUp(self):
         mongoengine.connect('factory_boy_test')
