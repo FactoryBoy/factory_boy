@@ -730,6 +730,78 @@ class UsingFactoryTestCase(unittest.TestCase):
         test_object_alt = TestObjectFactory.build()
         self.assertEqual(None, test_object_alt.three)
 
+    def test_inheritance_and_sequences(self):
+        """Sequence counters should be kept within an inheritance chain."""
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
+            one = factory.Sequence(lambda n: n)
+
+        class TestObjectFactory2(TestObjectFactory):
+            FACTORY_FOR = TestObject
+
+        to1a = TestObjectFactory()
+        self.assertEqual(0, to1a.one)
+        to2a = TestObjectFactory2()
+        self.assertEqual(1, to2a.one)
+        to1b = TestObjectFactory()
+        self.assertEqual(2, to1b.one)
+        to2b = TestObjectFactory2()
+        self.assertEqual(3, to2b.one)
+
+    def test_inheritance_sequence_inheriting_objects(self):
+        """Sequence counters are kept with inheritance, incl. misc objects."""
+        class TestObject2(TestObject):
+            pass
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
+            one = factory.Sequence(lambda n: n)
+
+        class TestObjectFactory2(TestObjectFactory):
+            FACTORY_FOR = TestObject2
+
+        to1a = TestObjectFactory()
+        self.assertEqual(0, to1a.one)
+        to2a = TestObjectFactory2()
+        self.assertEqual(1, to2a.one)
+        to1b = TestObjectFactory()
+        self.assertEqual(2, to1b.one)
+        to2b = TestObjectFactory2()
+        self.assertEqual(3, to2b.one)
+
+    def test_inheritance_sequence_unrelated_objects(self):
+        """Sequence counters are kept with inheritance, unrelated objects.
+
+        See issue https://github.com/rbarrois/factory_boy/issues/93
+
+        Problem: sequence counter is somewhat shared between factories
+        until the "slave" factory has been called.
+        """
+
+        class TestObject2(object):
+            def __init__(self, one):
+                self.one = one
+
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
+            one = factory.Sequence(lambda n: n)
+
+        class TestObjectFactory2(TestObjectFactory):
+            FACTORY_FOR = TestObject2
+
+        to1a = TestObjectFactory()
+        self.assertEqual(0, to1a.one)
+        to2a = TestObjectFactory2()
+        self.assertEqual(0, to2a.one)
+        to1b = TestObjectFactory()
+        self.assertEqual(1, to1b.one)
+        to2b = TestObjectFactory2()
+        self.assertEqual(1, to2b.one)
+
+
     def test_inheritance_with_inherited_class(self):
         class TestObjectFactory(factory.Factory):
             FACTORY_FOR = TestObject

@@ -1,15 +1,18 @@
 ChangeLog
 =========
 
-.. _v2.1.3:
+.. _v2.2.0:
 
-2.1.3 (current)
+2.2.0 (current)
 ---------------
 
 *Bugfix:*
 
     - Removed duplicated :class:`~factory.alchemy.SQLAlchemyModelFactory` lurking in :mod:`factory`
       (:issue:`83`)
+    - Properly handle sequences within object inheritance chains.
+      If FactoryA inherits from FactoryB, and their associated classes share the same link,
+      sequence counters will be shared (:issue:`93`)
 
 *New:*
 

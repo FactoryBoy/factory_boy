@@ -65,7 +65,7 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
 
     def setUp(self):
         super(SQLAlchemyPkSequenceTestCase, self).setUp()
-        StandardFactory.reset_sequence()
+        StandardFactory.reset_sequence(1)
         NonIntegerPkFactory.FACTORY_SESSION.rollback()
 
     def test_pk_first(self):
