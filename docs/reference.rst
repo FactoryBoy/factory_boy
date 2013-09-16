@@ -363,6 +363,38 @@ factory_boy supports two main strategies for generating instances, plus stubs.
     with a default strategy set to :data:`STUB_STRATEGY`.
 
 
+.. function:: debug(logger='factory', stream=None)
+
+    :param str logger: The name of the logger to enable debug for
+    :param file stream: The stream to send debug output to, defaults to :obj:`sys.stderr`
+
+    Context manager to help debugging factory_boy behavior.
+    It will temporarily put the target logger (e.g ``'factory'``) in debug mode,
+    sending all output to :obj`~sys.stderr`;
+    upon leaving the context, the logging levels are reset.
+
+    A typical use case is to understand what happens during a single factory call:
+
+    .. code-block:: python
+
+        with factory.debug():
+            obj = TestModel2Factory()
+
+    This will yield messages similar to those (artificial indentation):
+
+    .. code-block:: ini
+
+        BaseFactory: Preparing tests.test_using.TestModel2Factory(extra={})
+          LazyStub: Computing values for tests.test_using.TestModel2Factory(two=<OrderedDeclarationWrapper for <factory.declarations.SubFactory object at 0x1e15610>>)
+            SubFactory: Instantiating tests.test_using.TestModelFactory(__containers=(<LazyStub for tests.test_using.TestModel2Factory>,), one=4), create=True
+            BaseFactory: Preparing tests.test_using.TestModelFactory(extra={'__containers': (<LazyStub for tests.test_using.TestModel2Factory>,), 'one': 4})
+              LazyStub: Computing values for tests.test_using.TestModelFactory(one=4)
+              LazyStub: Computed values, got tests.test_using.TestModelFactory(one=4)
+            BaseFactory: Generating tests.test_using.TestModelFactory(one=4)
+          LazyStub: Computed values, got tests.test_using.TestModel2Factory(two=<tests.test_using.TestModel object at 0x1e15410>)
+        BaseFactory: Generating tests.test_using.TestModel2Factory(two=<tests.test_using.TestModel object at 0x1e15410>)
+
+
 .. _declarations:
 
 Declarations

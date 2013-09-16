@@ -165,7 +165,7 @@ factory_boy supports `Mogo`_-style models, through the :class:`MogoFactory` clas
 
 
 MongoEngine
-----
+-----------
 
 .. currentmodule:: factory.mongoengine
 
@@ -173,7 +173,7 @@ factory_boy supports `MongoEngine`_-style models, through the :class:`MongoEngin
 
 `mongoengine`_ is a wrapper around the ``pymongo`` library for MongoDB.
 
-.. _mongoengine:: http://mongoengine.org/
+.. _mongoengine: http://mongoengine.org/
 
 .. class:: MongoEngineFactory(factory.Factory)
 
