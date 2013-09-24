@@ -1018,9 +1018,9 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModel2Factory(FakeModelFactory):
             FACTORY_FOR = TestModel2
             two = factory.SubFactory(TestModelFactory,
-                                          one=factory.Sequence(lambda n: 'x%dx' % n),
-                                          two=factory.LazyAttribute(
-                                              lambda o: '%s%s' % (o.one, o.one)))
+                one=factory.Sequence(lambda n: 'x%dx' % n),
+                two=factory.LazyAttribute(lambda o: '%s%s' % (o.one, o.one)),
+            )
 
         test_model = TestModel2Factory(one=42)
         self.assertEqual('x0x', test_model.two.one)
@@ -1127,6 +1127,32 @@ class SubFactoryTestCase(unittest.TestCase):
         outer = OuterWrappingTestObjectFactory.build()
         self.assertEqual(outer.wrap.wrapped.two.four, 4)
         self.assertEqual(outer.wrap.friend, 5)
+
+    def test_nested_subfactory_with_override(self):
+        """Tests replacing a SubFactory field with an actual value."""
+
+        # The test class
+        class TestObject(object):
+            def __init__(self, two='one', wrapped=None):
+                self.two = two
+                self.wrapped = wrapped
+
+        # Innermost factory
+        class TestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+            two = 'two'
+
+        # Intermediary factory
+        class WrappingTestObjectFactory(factory.Factory):
+            FACTORY_FOR = TestObject
+
+            wrapped = factory.SubFactory(TestObjectFactory)
+            wrapped__two = 'three'
+
+        obj = TestObject(two='four')
+        outer = WrappingTestObjectFactory(wrapped=obj)
+        self.assertEqual(obj, outer.wrapped)
+        self.assertEqual('four', outer.wrapped.two)
 
     def test_sub_factory_and_inheritance(self):
         """Test inheriting from a factory with subfactories, overriding."""

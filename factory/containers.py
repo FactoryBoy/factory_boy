@@ -240,12 +240,13 @@ class AttributeBuilder(object):
         self._attrs = factory.declarations(extra)
         self._log_ctx = log_ctx
 
+        initial_declarations = factory.declarations({})
         attrs_with_subfields = [
-            k for k, v in self._attrs.items()
+            k for k, v in initial_declarations.items()
             if self.has_subfields(v)]
 
         self._subfields = utils.multi_extract_dict(
-                attrs_with_subfields, self._attrs)
+            attrs_with_subfields, self._attrs)
 
     def has_subfields(self, value):
         return isinstance(value, declarations.ParameteredAttribute)
@@ -270,9 +271,9 @@ class AttributeBuilder(object):
         for k, v in self._attrs.items():
             if isinstance(v, declarations.OrderedDeclaration):
                 v = OrderedDeclarationWrapper(v,
-                        sequence=sequence,
-                        create=create,
-                        extra=self._subfields.get(k, {}),
+                    sequence=sequence,
+                    create=create,
+                    extra=self._subfields.get(k, {}),
                 )
             wrapped_attrs[k] = v
 
