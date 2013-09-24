@@ -3,8 +3,8 @@ ChangeLog
 
 .. _v2.2.0:
 
-2.2.0 (current)
----------------
+2.2.0 (2013-09-24)
+------------------
 
 *Bugfix:*
 
@@ -13,6 +13,7 @@ ChangeLog
     - Properly handle sequences within object inheritance chains.
       If FactoryA inherits from FactoryB, and their associated classes share the same link,
       sequence counters will be shared (:issue:`93`)
+    - Properly handle nested :class:`~factory.SubFactory` overrides
 
 *New:*
 
