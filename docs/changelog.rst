@@ -1,6 +1,17 @@
 ChangeLog
 =========
 
+
+.. _v2.2.1:
+
+2.2.1 (2013-09-24)
+------------------
+
+*Bugfix:*
+
+    - Fixed sequence counter for :class:`~factory.django.DjangoModelFactory` when a factory
+      inherits from another factory relating to an abstract model.
+
 .. _v2.2.0:
 
 2.2.0 (2013-09-24)

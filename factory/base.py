@@ -328,7 +328,7 @@ class BaseFactory(object):
         """
 
         # Rely upon our parents
-        if cls._base_factory:
+        if cls._base_factory and not cls._base_factory._abstract_factory:
             logger.debug("%r: reusing sequence from %r", cls, cls._base_factory)
             return cls._base_factory._generate_next_sequence()
 

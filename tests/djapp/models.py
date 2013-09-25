@@ -44,6 +44,17 @@ class NonIntegerPk(models.Model):
     bar = models.CharField(max_length=20, blank=True)
 
 
+class AbstractBase(models.Model):
+    foo = models.CharField(max_length=20)
+
+    class Meta:
+        abstract = True
+
+
+class ConcreteSon(AbstractBase):
+    pass
+
+
 WITHFILE_UPLOAD_TO = 'django'
 WITHFILE_UPLOAD_DIR = os.path.join(settings.MEDIA_ROOT, WITHFILE_UPLOAD_TO)
 

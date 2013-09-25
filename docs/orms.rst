@@ -74,6 +74,21 @@ All factories for a Django :class:`~django.db.models.Model` should use the
             [<User: john>, <User: jack>]
 
 
+.. note:: If a :class:`DjangoModelFactory` relates to an :obj:`~django.db.models.Options.abstract`
+          model, be sure to declare the :class:`DjangoModelFactory` as abstract:
+
+          .. code-block:: python
+
+              class MyAbstractModelFactory(factory.django.DjangoModelFactory):
+                  FACTORY_FOR = models.MyAbstractModel
+                  ABSTRACT_FACTORY = True
+
+              class MyConcreteModelFactory(MyAbstractModel):
+                  FACTORY_FOR = models.MyConcreteModel
+
+          Otherwise, factory_boy will try to get the 'next PK' counter from the abstract model.
+
+
 .. class:: FileField
 
     Custom declarations for :class:`django.db.models.FileField`

@@ -64,6 +64,8 @@ else:  # pragma: no cover
 
     models = Fake()
     models.StandardModel = Fake
+    models.AbstractBase = Fake
+    models.ConcreteSon = Fake
     models.NonIntegerPk = Fake
     models.WithFile = Fake
     models.WithImage = Fake
@@ -104,6 +106,17 @@ class NonIntegerPkFactory(factory.django.DjangoModelFactory):
 
     foo = factory.Sequence(lambda n: "foo%d" % n)
     bar = ''
+
+
+class AbstractBaseFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = models.AbstractBase
+    ABSTRACT_FACTORY = True
+
+    foo = factory.Sequence(lambda n: "foo%d" % n)
+
+
+class ConcreteSonFactory(AbstractBaseFactory):
+    FACTORY_FOR = models.ConcreteSon
 
 
 class WithFileFactory(factory.django.DjangoModelFactory):
@@ -221,6 +234,14 @@ class DjangoNonIntegerPkTestCase(django_test.TestCase):
         nonint2 = NonIntegerPkFactory.create()
         self.assertEqual('foo1', nonint2.foo)
         self.assertEqual('foo1', nonint2.pk)
+
+
+@unittest.skipIf(django is None, "Django not installed.")
+class DjangoAbstractBaseSequenceTestCase(django_test.TestCase):
+    def test_auto_sequence(self):
+        with factory.debug():
+            obj = ConcreteSonFactory()
+        self.assertEqual(1, obj.pk)
 
 
 @unittest.skipIf(django is None, "Django not installed.")
