@@ -94,7 +94,7 @@ class FuzzyDecimal(BaseFuzzyAttribute):
     def __init__(self, low, high=None, precision=2, **kwargs):
         if high is None:
             high = low
-            low = 0
+            low = 0.0
 
         self.low = low
         self.high = high
