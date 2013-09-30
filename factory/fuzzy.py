@@ -25,7 +25,7 @@
 
 from __future__ import unicode_literals
 
-
+from decimal import Decimal
 import random
 import string
 import datetime
@@ -121,8 +121,27 @@ class FuzzyInteger(BaseFuzzyAttribute):
         return random.randint(self.low, self.high)
 
 
+class FuzzyDecimal(BaseFuzzyAttribute):
+    """Random decimal within a given range."""
+
+    def __init__(self, low, high=None, precision=2, **kwargs):
+        if high is None:
+            high = low
+            low = 0.0
+
+        self.low = low
+        self.high = high
+        self.precision = precision
+
+        super(FuzzyDecimal, self).__init__(**kwargs)
+
+    def fuzz(self):
+        return Decimal(random.uniform(self.low, self.high)).quantize(Decimal(10) ** -self.precision)
+
+
 class FuzzyDate(BaseFuzzyAttribute):
     """Random date within a given date range."""
+
     def __init__(self, start_date, end_date=None, **kwargs):
         super(FuzzyDate, self).__init__(**kwargs)
         if end_date is None:
@@ -150,12 +169,12 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
         if start_dt > end_dt:
             raise ValueError(
                 """%s boundaries should have start <= end, got %r > %r""" % (
-                self.__class__.__name__, start_dt, end_dt))
+                    self.__class__.__name__, start_dt, end_dt))
 
     def __init__(self, start_dt, end_dt=None,
-            force_year=None, force_month=None, force_day=None,
-            force_hour=None, force_minute=None, force_second=None,
-            force_microsecond=None, **kwargs):
+                 force_year=None, force_month=None, force_day=None,
+                 force_hour=None, force_minute=None, force_second=None,
+                 force_microsecond=None, **kwargs):
         super(BaseFuzzyDateTime, self).__init__(**kwargs)
 
         if end_dt is None:
