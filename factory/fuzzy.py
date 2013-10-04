@@ -66,7 +66,7 @@ class FuzzyString(BaseFuzzyAttribute):
 
     def __init__(self, prefix='', length=12, **kwargs):
         self.prefix = prefix
-        self.length = 12
+        self.length = length
         super(FuzzyString, self).__init__(**kwargs)
 
     def fuzz(self):
