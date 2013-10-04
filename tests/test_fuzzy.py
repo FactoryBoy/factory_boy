@@ -63,7 +63,7 @@ class FuzzyChoiceTestCase(unittest.TestCase):
         def options():
             for i in range(3):
                 yield i
-        
+
         d = fuzzy.FuzzyChoice(options())
 
         res = d.evaluate(2, None, False)
@@ -401,3 +401,42 @@ class FuzzyDateTimeTestCase(unittest.TestCase):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(datetime.datetime(2013, 1, 2, tzinfo=compat.UTC), res)
+
+
+class FuzzyTextTestCase(unittest.TestCase):
+
+    def test_unbiased(self):
+        chars = ['a', 'b', 'c']
+        fuzz = fuzzy.FuzzyText(prefix='pre', suffix='post', chars=chars, length=12)
+        res = fuzz.evaluate(2, None, False)
+
+        self.assertEqual('pre', res[:3])
+        self.assertEqual('post', res[-4:])
+        self.assertEqual(3 + 12 + 4, len(res))
+
+        for char in res[3:-4]:
+            self.assertIn(char, chars)
+
+    def test_mock(self):
+        fake_choice = lambda chars: chars[0]
+
+        chars = ['a', 'b', 'c']
+        fuzz = fuzzy.FuzzyText(prefix='pre', suffix='post', chars=chars, length=4)
+        with mock.patch('random.choice', fake_choice):
+            res = fuzz.evaluate(2, None, False)
+
+        self.assertEqual('preaaaapost', res)
+
+    def test_generator(self):
+        def options():
+            yield 'a'
+            yield 'b'
+            yield 'c'
+
+        fuzz = fuzzy.FuzzyText(chars=options(), length=12)
+        res = fuzz.evaluate(2, None, False)
+
+        self.assertEqual(12, len(res))
+
+        for char in res:
+            self.assertIn(char, ['a', 'b', 'c'])

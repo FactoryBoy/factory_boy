@@ -23,8 +23,11 @@
 
 """Additional declarations for "fuzzy" attribute definitions."""
 
+from __future__ import unicode_literals
+
 
 import random
+import string
 import datetime
 
 from . import compat
@@ -58,6 +61,36 @@ class FuzzyAttribute(BaseFuzzyAttribute):
 
     def fuzz(self):
         return self.fuzzer()
+
+
+class FuzzyText(BaseFuzzyAttribute):
+    """Random string with a given prefix.
+
+    Generates a random string of the given length from chosen chars.
+    If a prefix or a suffix are supplied, they will be prepended / appended
+    to the generated string.
+
+    Args:
+        prefix (text): An optional prefix to prepend to the random string
+        length (int): the length of the random part
+        suffix (text): An optional suffix to append to the random string
+        chars (str list): the chars to choose from
+
+    Useful for generating unique attributes where the exact value is
+    not important.
+    """
+
+    def __init__(self, prefix='', length=12, suffix='',
+        chars=string.ascii_letters, **kwargs):
+        super(FuzzyText, self).__init__(**kwargs)
+        self.prefix = prefix
+        self.suffix = suffix
+        self.length = length
+        self.chars = tuple(chars)  # Unroll iterators
+
+    def fuzz(self):
+        chars = [random.choice(self.chars) for _i in range(self.length)]
+        return self.prefix + ''.join(chars) + self.suffix
 
 
 class FuzzyChoice(BaseFuzzyAttribute):

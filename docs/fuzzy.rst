@@ -24,6 +24,35 @@ FuzzyAttribute
         The callable that generates random values
 
 
+FuzzyText
+---------
+
+
+.. class:: FuzzyText(length=12, chars=string.ascii_letters, prefix='')
+
+    The :class:`FuzzyText` fuzzer yields random strings beginning with
+    the given :attr:`prefix`, followed by :attr:`length` charactes chosen
+    from the :attr:`chars` character set,
+    and ending with the given :attr:`suffix`.
+
+    .. attribute:: length
+
+        int, the length of the random part
+
+    .. attribute:: prefix
+
+        text, an optional prefix to prepend to the random part
+
+    .. attribute:: suffix
+
+        text, an optional suffix to append to the random part
+
+    .. attribute:: chars
+
+        char iterable, the chars to choose from; defaults to the list of ascii
+            letters and numbers.
+
+
 FuzzyChoice
 -----------
 
