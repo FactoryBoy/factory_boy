@@ -83,7 +83,7 @@ All factories for a Django :class:`~django.db.models.Model` should use the
                   FACTORY_FOR = models.MyAbstractModel
                   ABSTRACT_FACTORY = True
 
-              class MyConcreteModelFactory(MyAbstractModel):
+              class MyConcreteModelFactory(MyAbstractModelFactory):
                   FACTORY_FOR = models.MyConcreteModel
 
           Otherwise, factory_boy will try to get the 'next PK' counter from the abstract model.
