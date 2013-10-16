@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Tests for factory_boy/SQLAlchemy interactions."""
+"""Tests for factory_boy/MongoEngine interactions."""
 
 import factory
 import os
@@ -34,14 +34,23 @@ except ImportError:
 if mongoengine:
     from factory.mongoengine import MongoEngineFactory
 
+    class Address(mongoengine.EmbeddedDocument):
+        street = mongoengine.StringField()
+
     class Person(mongoengine.Document):
         name = mongoengine.StringField()
+        address = mongoengine.EmbeddedDocumentField(Address)
+
+    class AddressFactory(MongoEngineFactory):
+        FACTORY_FOR = Address
+
+        street = factory.Sequence(lambda n: 'street%d' % n)
 
     class PersonFactory(MongoEngineFactory):
         FACTORY_FOR = Person
 
         name = factory.Sequence(lambda n: 'name%d' % n)
-
+        address = factory.SubFactory(AddressFactory)
 
 
 @unittest.skipIf(mongoengine is None, "mongoengine not installed.")
@@ -65,11 +74,11 @@ class MongoEngineTestCase(unittest.TestCase):
     def test_build(self):
         std = PersonFactory.build()
         self.assertEqual('name0', std.name)
+        self.assertEqual('street0', std.address.street)
         self.assertIsNone(std.id)
 
     def test_creation(self):
         std1 = PersonFactory.create()
         self.assertEqual('name1', std1.name)
+        self.assertEqual('street1', std1.address.street)
         self.assertIsNotNone(std1.id)
-
-
