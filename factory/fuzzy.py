@@ -25,6 +25,7 @@
 
 
 import random
+import string
 import datetime
 
 from . import compat
@@ -58,6 +59,30 @@ class FuzzyAttribute(BaseFuzzyAttribute):
 
     def fuzz(self):
         return self.fuzzer()
+
+
+class FuzzyString(BaseFuzzyAttribute):
+    """Random string with a given prefix.
+
+    Generates random string of length from set chars. Random string is
+    appended to prefix if supplied. Length defaults to 12 and
+    character set defaults to lower and uppercase ascii letters.
+
+    Useful for generating unique attributes where the exact value is
+    not important.
+
+    """
+
+    def __init__(self, prefix='', length=12,
+                 chars=string.ascii_letters, **kwargs):
+        self.prefix = prefix
+        self.length = length
+        self.chars = chars
+        super(FuzzyString, self).__init__(**kwargs)
+
+    def fuzz(self):
+        chars = [random.choice(self.chars) for _ in range(self.length)]
+        return self.prefix + ''.join(chars)
 
 
 class FuzzyChoice(BaseFuzzyAttribute):
