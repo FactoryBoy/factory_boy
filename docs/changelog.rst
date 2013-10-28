@@ -2,6 +2,15 @@ ChangeLog
 =========
 
 
+.. _v2.3.0:
+
+2.3.0 (master)
+--------------
+
+*New:*
+
+    - Add :class:`~factory.fuzzy.FuzzyText`, thanks to `jdufresne <https://github.com/jdufresne>`_ (:issue:`97`)
+
 .. _v2.2.1:
 
 2.2.1 (2013-09-24)
