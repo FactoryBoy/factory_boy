@@ -10,6 +10,7 @@ ChangeLog
 *New:*
 
     - Add :class:`~factory.fuzzy.FuzzyText`, thanks to `jdufresne <https://github.com/jdufresne>`_ (:issue:`97`)
+    - Add :class:`~factory.fuzzy.FuzzyDecimal`, thanks to `thedrow <https://github.com/thedrow>`_ (:issue:`94`)
 
 .. _v2.2.1:
 

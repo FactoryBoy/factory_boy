@@ -25,7 +25,7 @@
 
 from __future__ import unicode_literals
 
-from decimal import Decimal
+import decimal
 import random
 import string
 import datetime
@@ -136,7 +136,8 @@ class FuzzyDecimal(BaseFuzzyAttribute):
         super(FuzzyDecimal, self).__init__(**kwargs)
 
     def fuzz(self):
-        return Decimal(random.uniform(self.low, self.high)).quantize(Decimal(10) ** -self.precision)
+        base = decimal.Decimal(random.uniform(self.low, self.high))
+        return base.quantize(decimal.Decimal(10) ** -self.precision)
 
 
 class FuzzyDate(BaseFuzzyAttribute):

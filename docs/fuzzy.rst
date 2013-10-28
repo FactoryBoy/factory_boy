@@ -97,7 +97,7 @@ FuzzyInteger
     .. attribute:: high
 
         int, the inclusive higher bound of generated integers
-        
+
 FuzzyDecimal
 ------------
 
