@@ -101,6 +101,14 @@ class StandardFactory(factory.django.DjangoModelFactory):
     foo = factory.Sequence(lambda n: "foo%d" % n)
 
 
+class StandardFactoryWithPKField(factory.django.DjangoModelFactory):
+    FACTORY_FOR = models.StandardModel
+    FACTORY_DJANGO_GET_OR_CREATE = ('pk',)
+
+    foo = factory.Sequence(lambda n: "foo%d" % n)
+    pk = None
+
+
 class NonIntegerPkFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = models.NonIntegerPk
 
@@ -168,6 +176,31 @@ class DjangoPkSequenceTestCase(django_test.TestCase):
         std2 = StandardFactory.create()
         self.assertEqual('foo11', std2.foo)
         self.assertEqual(11, std2.pk)
+
+
+@unittest.skipIf(django is None, "Django not installed.")
+class DjangoPkForceTestCase(django_test.TestCase):
+    def setUp(self):
+        super(DjangoPkForceTestCase, self).setUp()
+        StandardFactoryWithPKField.reset_sequence()
+
+    def test_no_pk(self):
+        std = StandardFactoryWithPKField()
+        self.assertIsNotNone(std.pk)
+        self.assertEqual('foo1', std.foo)
+
+    def test_force_pk(self):
+        std = StandardFactoryWithPKField(pk=42)
+        self.assertIsNotNone(std.pk)
+        self.assertEqual('foo1', std.foo)
+
+    def test_reuse_pk(self):
+        std1 = StandardFactoryWithPKField(foo='bar')
+        self.assertIsNotNone(std1.pk)
+
+        std2 = StandardFactoryWithPKField(pk=std1.pk, foo='blah')
+        self.assertEqual(std1.pk, std2.pk)
+        self.assertEqual('bar', std2.foo)
 
 
 @unittest.skipIf(django is None, "Django not installed.")
