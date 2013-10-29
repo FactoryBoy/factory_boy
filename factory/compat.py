@@ -42,7 +42,7 @@ else:  # pragma: no cover
     from io import BytesIO
 
 
-if sys.version_info[:1] == (2, 6):  # pragma: no cover
+if sys.version_info[:2] == (2, 6):  # pragma: no cover
     def float_to_decimal(fl):
         return decimal.Decimal(str(fl))
 else:  # pragma: no cover
