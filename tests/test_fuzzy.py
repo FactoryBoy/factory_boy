@@ -115,17 +115,20 @@ class FuzzyDecimalTestCase(unittest.TestCase):
         fuzz = fuzzy.FuzzyDecimal(2.0, 3.0)
         for _i in range(20):
             res = fuzz.evaluate(2, None, False)
-            self.assertTrue(decimal.Decimal(2.0) <= res <= decimal.Decimal(3.0), 'value is not between 2.0 and 3.0. It is %d' % res)
+            self.assertTrue(decimal.Decimal('2.0') <= res <= decimal.Decimal('3.0'),
+                    "value %d is not between 2.0 and 3.0" % res)
 
         fuzz = fuzzy.FuzzyDecimal(4.0)
         for _i in range(20):
             res = fuzz.evaluate(2, None, False)
-            self.assertTrue(decimal.Decimal(0.0) <= res <= decimal.Decimal(4.0), 'value is not between 0.0 and 4.0. It is %d' % res)
+            self.assertTrue(decimal.Decimal('0.0') <= res <= decimal.Decimal('4.0'),
+                    "value %d is not between 0.0 and 4.0" % res)
 
         fuzz = fuzzy.FuzzyDecimal(1.0, 4.0, precision=5)
         for _i in range(20):
             res = fuzz.evaluate(2, None, False)
-            self.assertTrue(decimal.Decimal(0.54) <= res <= decimal.Decimal(4.0), 'value is not between 0.54 and 4.0. It is %d' % res)
+            self.assertTrue(decimal.Decimal('0.54') <= res <= decimal.Decimal('4.0'),
+                    "value %d is not between 0.54 and 4.0" % res)
             self.assertTrue(res.as_tuple().exponent, -5)
 
     def test_biased(self):
@@ -136,7 +139,7 @@ class FuzzyDecimalTestCase(unittest.TestCase):
         with mock.patch('random.uniform', fake_uniform):
             res = fuzz.evaluate(2, None, False)
 
-        self.assertEqual(decimal.Decimal(10.0), res)
+        self.assertEqual(decimal.Decimal('10.0'), res)
 
     def test_biased_high_only(self):
         fake_uniform = lambda low, high: low + high
@@ -146,7 +149,7 @@ class FuzzyDecimalTestCase(unittest.TestCase):
         with mock.patch('random.uniform', fake_uniform):
             res = fuzz.evaluate(2, None, False)
 
-        self.assertEqual(decimal.Decimal(8.0), res)
+        self.assertEqual(decimal.Decimal('8.0'), res)
 
     def test_precision(self):
         fake_uniform = lambda low, high: low + high + 0.001
@@ -156,7 +159,7 @@ class FuzzyDecimalTestCase(unittest.TestCase):
         with mock.patch('random.uniform', fake_uniform):
             res = fuzz.evaluate(2, None, False)
 
-        self.assertEqual(decimal.Decimal(8.001).quantize(decimal.Decimal(10) ** -3), res)
+        self.assertEqual(decimal.Decimal('8.001').quantize(decimal.Decimal(10) ** -3), res)
 
 
 class FuzzyDateTestCase(unittest.TestCase):

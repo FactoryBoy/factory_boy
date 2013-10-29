@@ -24,6 +24,7 @@
 """Compatibility tools"""
 
 import datetime
+import decimal
 import sys
 
 PY2 = (sys.version_info[0] == 2)
@@ -39,6 +40,15 @@ else:  # pragma: no cover
         return isinstance(obj, str)
 
     from io import BytesIO
+
+
+if sys.version_info[:1] == (2, 6):  # pragma: no cover
+    def float_to_decimal(fl):
+        return decimal.Decimal(str(fl))
+else:  # pragma: no cover
+    def float_to_decimal(fl):
+        return decimal.Decimal(fl)
+
 
 try:  # pragma: no cover
     # Python >= 3.2

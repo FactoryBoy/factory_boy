@@ -136,7 +136,7 @@ class FuzzyDecimal(BaseFuzzyAttribute):
         super(FuzzyDecimal, self).__init__(**kwargs)
 
     def fuzz(self):
-        base = decimal.Decimal(random.uniform(self.low, self.high))
+        base = compat.float_to_decimal(random.uniform(self.low, self.high))
         return base.quantize(decimal.Decimal(10) ** -self.precision)
 
 
