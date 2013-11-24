@@ -175,10 +175,12 @@ class FactoryMetaClass(type):
         is_abstract = attrs.pop('ABSTRACT_FACTORY', False)
 
         base = parent_factories[0]
-        inherited_associated_class = getattr(base,
-                CLASS_ATTRIBUTE_ASSOCIATED_CLASS, None)
+        inherited_associated_class = base._get_target_class()
         associated_class = mcs._discover_associated_class(class_name, attrs,
                 inherited_associated_class)
+
+        # Invoke 'lazy-loading' hooks.
+        associated_class = base._load_target_class(associated_class)
 
         if associated_class is None:
             is_abstract = True
@@ -379,13 +381,19 @@ class BaseFactory(object):
         return kwargs
 
     @classmethod
-    def _load_target_class(cls):
+    def _load_target_class(cls, class_definition):
         """Extension point for loading target classes.
 
         This can be overridden in framework-specific subclasses to hook into
         existing model repositories, for instance.
         """
-        return getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS)
+        return class_definition
+
+    @classmethod
+    def _get_target_class(cls):
+        """Retrieve the actual, associated target class."""
+        definition = getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS, None)
+        return cls._load_target_class(definition)
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -395,7 +403,7 @@ class BaseFactory(object):
             create: bool, whether to create or to build the object
             **kwargs: arguments to pass to the creation function
         """
-        target_class = cls._load_target_class()
+        target_class = cls._get_target_class()
         kwargs = cls._adjust_kwargs(**kwargs)
 
         # Remove 'hidden' arguments.

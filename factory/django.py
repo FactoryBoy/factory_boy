@@ -58,20 +58,15 @@ class DjangoModelFactory(base.Factory):
     ABSTRACT_FACTORY = True  # Optional, but explicit.
     FACTORY_DJANGO_GET_OR_CREATE = ()
 
-    _associated_model = None
-
     @classmethod
-    def _load_target_class(cls):
-        associated_class = super(DjangoModelFactory, cls)._load_target_class()
+    def _load_target_class(cls, definition):
 
-        if is_string(associated_class) and '.' in associated_class:
-            app, model = associated_class.split('.', 1)
-            if cls._associated_model is None:
-                from django.db.models import loading as django_loading
-                cls._associated_model = django_loading.get_model(app, model)
-            return cls._associated_model
+        if is_string(definition) and '.' in definition:
+            app, model = definition.split('.', 1)
+            from django.db.models import loading as django_loading
+            return django_loading.get_model(app, model)
 
-        return associated_class
+        return definition
 
     @classmethod
     def _get_manager(cls, target_class):
@@ -84,7 +79,7 @@ class DjangoModelFactory(base.Factory):
     def _setup_next_sequence(cls):
         """Compute the next available PK, based on the 'pk' database field."""
 
-        model = cls._load_target_class()  # pylint: disable=E1101
+        model = cls._get_target_class()  # pylint: disable=E1101
         manager = cls._get_manager(model)
 
         try:

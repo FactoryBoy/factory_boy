@@ -55,6 +55,10 @@ class ConcreteSon(AbstractBase):
     pass
 
 
+class StandardSon(StandardModel):
+    pass
+
+
 WITHFILE_UPLOAD_TO = 'django'
 WITHFILE_UPLOAD_DIR = os.path.join(settings.MEDIA_ROOT, WITHFILE_UPLOAD_TO)
 

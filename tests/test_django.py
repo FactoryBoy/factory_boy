@@ -64,6 +64,7 @@ else:  # pragma: no cover
 
     models = Fake()
     models.StandardModel = Fake
+    models.StandardSon = None
     models.AbstractBase = Fake
     models.ConcreteSon = Fake
     models.NonIntegerPk = Fake
@@ -211,7 +212,7 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
         class ExampleFactory(factory.DjangoModelFactory):
             FACTORY_FOR = 'djapp.StandardModel'
 
-        self.assertEqual(models.StandardModel, ExampleFactory._load_target_class())
+        self.assertEqual(models.StandardModel, ExampleFactory._get_target_class())
 
     def test_building(self):
         class ExampleFactory(factory.DjangoModelFactory):
@@ -220,16 +221,44 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
         e = ExampleFactory.build()
         self.assertEqual(models.StandardModel, e.__class__)
 
-    def test_cache(self):
+    def test_inherited_loading(self):
+        """Proper loading of a model within 'child' factories.
+
+        See https://github.com/rbarrois/factory_boy/issues/109.
+        """
         class ExampleFactory(factory.DjangoModelFactory):
             FACTORY_FOR = 'djapp.StandardModel'
 
-        self.assertEqual('djapp.StandardModel', ExampleFactory._associated_class)
-        self.assertIsNone(ExampleFactory._associated_model)
+        class Example2Factory(ExampleFactory):
+            pass
 
-        self.assertEqual(models.StandardModel, ExampleFactory._load_target_class())
-        self.assertEqual('djapp.StandardModel', ExampleFactory._associated_class)
-        self.assertEqual(models.StandardModel, ExampleFactory._associated_model)
+        e = Example2Factory.build()
+        self.assertEqual(models.StandardModel, e.__class__)
+
+    def test_inherited_loading_and_sequence(self):
+        """Proper loading of a model within 'child' factories.
+
+        See https://github.com/rbarrois/factory_boy/issues/109.
+        """
+        class ExampleFactory(factory.DjangoModelFactory):
+            FACTORY_FOR = 'djapp.StandardModel'
+
+            foo = factory.Sequence(lambda n: n)
+
+        class Example2Factory(ExampleFactory):
+            FACTORY_FOR = 'djapp.StandardSon'
+
+        self.assertEqual(models.StandardSon, Example2Factory._get_target_class())
+
+        e1 = ExampleFactory.build()
+        e2 = Example2Factory.build()
+        e3 = ExampleFactory.build()
+        self.assertEqual(models.StandardModel, e1.__class__)
+        self.assertEqual(models.StandardSon, e2.__class__)
+        self.assertEqual(models.StandardModel, e3.__class__)
+        self.assertEqual(1, e1.foo)
+        self.assertEqual(2, e2.foo)
+        self.assertEqual(3, e3.foo)
 
 
 @unittest.skipIf(django is None, "Django not installed.")
