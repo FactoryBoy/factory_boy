@@ -4,6 +4,7 @@
 import os
 import re
 import sys
+import codecs
 
 from setuptools import setup
 
@@ -14,7 +15,7 @@ def get_version(package_name):
     version_re = re.compile(r"^__version__ = [\"']([\w_.-]+)[\"']$")
     package_components = package_name.split('.')
     path_components = package_components + ['__init__.py']
-    with open(os.path.join(root_dir, *path_components)) as f:
+    with codecs.open(os.path.join(root_dir, *path_components), 'r', 'utf-8') as f:
         for line in f:
             match = version_re.match(line[:-1])
             if match:
