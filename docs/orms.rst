@@ -73,6 +73,23 @@ All factories for a Django :class:`~django.db.models.Model` should use the
             >>> User.objects.all()
             [<User: john>, <User: jack>]
 
+    .. attribute:: FACTORY_DJANGO_CUSTOM_MANAGER_METHOD
+
+        Passing a string with the name of the custom manager method
+        (e.g. `my_manager_method`) will execute
+        :meth:`Model.objects.my_manager_method()` instead of the usual 
+        :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>`.
+
+        .. code-block:: python
+
+            class UserFactory(factory.django.DjangoModelFactory):
+                FACTORY_FOR = 'UserenaSignup'
+                FACTORY_DJANGO_CUSTOM_MANAGER_METHOD = 'create_user'
+
+                username = 'john'
+                email = 'john@gmail.com'
+                password = 'my_password'
+
 
 .. note:: If a :class:`DjangoModelFactory` relates to an :obj:`~django.db.models.Options.abstract`
           model, be sure to declare the :class:`DjangoModelFactory` as abstract:

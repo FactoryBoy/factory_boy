@@ -57,6 +57,7 @@ class DjangoModelFactory(base.Factory):
 
     ABSTRACT_FACTORY = True  # Optional, but explicit.
     FACTORY_DJANGO_GET_OR_CREATE = ()
+    FACTORY_DJANGO_CUSTOM_MANAGER_METHOD = ""
 
     @classmethod
     def _load_target_class(cls, definition):
@@ -113,8 +114,18 @@ class DjangoModelFactory(base.Factory):
         """Create an instance of the model, and save it to the database."""
         manager = cls._get_manager(target_class)
 
+        if (cls.FACTORY_DJANGO_GET_OR_CREATE and
+            cls.FACTORY_DJANGO_CUSTOM_MANAGER_METHOD):
+            raise Exception("Define either FACTORY_DJANGO_GET_OR_CREATE or "
+                            "FACTORY_DJANGO_CUSTOM_MANAGER_METHOD, not both "
+                            "at the same time.")
+
         if cls.FACTORY_DJANGO_GET_OR_CREATE:
             return cls._get_or_create(target_class, *args, **kwargs)
+
+        if cls.FACTORY_DJANGO_CUSTOM_MANAGER_METHOD:
+            return getattr(manager, cls.FACTORY_DJANGO_CUSTOM_MANAGER_METHOD)(
+                *args, **kwargs)
 
         return manager.create(*args, **kwargs)
 
