@@ -11,6 +11,7 @@ ChangeLog
 
     - Add :class:`~factory.fuzzy.FuzzyText`, thanks to `jdufresne <https://github.com/jdufresne>`_ (:issue:`97`)
     - Add :class:`~factory.fuzzy.FuzzyDecimal`, thanks to `thedrow <https://github.com/thedrow>`_ (:issue:`94`)
+    - Add support for :class:`~mongoengine.EmbeddedDocument`, thanks to `imiric <https://github.com/imiric>`_ (:issue:`100`)
 
 .. _v2.2.1:
 

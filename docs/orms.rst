@@ -200,6 +200,11 @@ factory_boy supports `MongoEngine`_-style models, through the :class:`MongoEngin
     * :func:`~factory.Factory.create()` builds an instance through ``__init__`` then
       saves it.
 
+    .. note:: If the :attr:`associated class <factory.Factory.FACTORY_FOR>` is a :class:`mongoengine.EmbeddedDocument`,
+              the :meth:`~MongoEngineFactory.create` function won't "save" it, since this wouldn't make sense.
+
+              This feature makes it possible to use :class:`~factory.SubFactory` to create embedded document.
+
 
 SQLAlchemy
 ----------
