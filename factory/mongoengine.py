@@ -41,5 +41,8 @@ class MongoEngineFactory(base.Factory):
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
         instance = target_class(*args, **kwargs)
-        instance.save()
+        # If the document being created is an EmbeddedDocument subclass, it
+        # won't have a save method.
+        if hasattr(instance, "save"):
+            instance.save()
         return instance
