@@ -107,18 +107,19 @@ class FuzzyChoice(BaseFuzzyAttribute):
 class FuzzyInteger(BaseFuzzyAttribute):
     """Random integer within a given range."""
 
-    def __init__(self, low, high=None, **kwargs):
+    def __init__(self, low, high=None, step=1, **kwargs):
         if high is None:
             high = low
             low = 0
 
         self.low = low
         self.high = high
+        self.step = step
 
         super(FuzzyInteger, self).__init__(**kwargs)
 
     def fuzz(self):
-        return random.randint(self.low, self.high)
+        return random.randrange(self.low, self.high + 1, self.step)
 
 
 class FuzzyDecimal(BaseFuzzyAttribute):

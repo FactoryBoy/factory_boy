@@ -89,24 +89,34 @@ class FuzzyIntegerTestCase(unittest.TestCase):
             self.assertIn(res, [0, 1, 2, 3, 4])
 
     def test_biased(self):
-        fake_randint = lambda low, high: low + high
+        fake_randrange = lambda low, high, step: (low + high) * step
 
         fuzz = fuzzy.FuzzyInteger(2, 8)
 
-        with mock.patch('random.randint', fake_randint):
+        with mock.patch('random.randrange', fake_randrange):
             res = fuzz.evaluate(2, None, False)
 
-        self.assertEqual(10, res)
+        self.assertEqual((2 + 8 + 1) * 1, res)
 
     def test_biased_high_only(self):
-        fake_randint = lambda low, high: low + high
+        fake_randrange = lambda low, high, step: (low + high) * step
 
         fuzz = fuzzy.FuzzyInteger(8)
 
-        with mock.patch('random.randint', fake_randint):
+        with mock.patch('random.randrange', fake_randrange):
             res = fuzz.evaluate(2, None, False)
 
-        self.assertEqual(8, res)
+        self.assertEqual((0 + 8 + 1) * 1, res)
+
+    def test_biased_with_step(self):
+        fake_randrange = lambda low, high, step: (low + high) * step
+
+        fuzz = fuzzy.FuzzyInteger(5, 8, 3)
+
+        with mock.patch('random.randrange', fake_randrange):
+            res = fuzz.evaluate(2, None, False)
+
+        self.assertEqual((5 + 8 + 1) * 3, res)
 
 
 class FuzzyDecimalTestCase(unittest.TestCase):
