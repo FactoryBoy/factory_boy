@@ -291,3 +291,23 @@ Here, we want:
         name = "ACME, Inc."
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory, country=factory.SelfAttribute('..country'))
+
+
+Custom manager methods 
+----------------------
+
+Sometimes you need a factory to call a specific manager method other then the 
+default :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>` method:
+
+.. code-block:: python
+
+   class UserFactory(factory.DjangoModelFactory):
+       FACTORY_FOR = UserenaSignup
+       username = "l7d8s"
+       email = "my_name@gmail.com"
+       password = "my_password"
+
+       @classmethod
+       def _create(cls, target_class, *args, **kwargs):
+           manager = cls._get_manager(target_class)
+           return manager.create_user(*args, **kwargs)
