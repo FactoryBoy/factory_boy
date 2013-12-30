@@ -2,6 +2,15 @@ ChangeLog
 =========
 
 
+.. _v2.4.0:
+
+2.4.0 (master)
+--------------
+
+*New:*
+
+    - Add support for :attr:`factory.fuzzy.FuzzyInteger.step`, thanks to `ilya-pirogov <https://github.com/ilya-pirogov>`_ (:issue:`120`)
+
 .. _v2.3.0:
 
 2.3.0 (2013-12-25)

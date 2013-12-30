@@ -73,7 +73,7 @@ FuzzyChoice
 FuzzyInteger
 ------------
 
-.. class:: FuzzyInteger(low[, high])
+.. class:: FuzzyInteger(low[, high[, step]])
 
     The :class:`FuzzyInteger` fuzzer generates random integers within a given
     inclusive range.
@@ -82,7 +82,7 @@ FuzzyInteger
 
     .. code-block:: pycon
 
-        >>> FuzzyInteger(0, 42)
+        >>> fi = FuzzyInteger(0, 42)
         >>> fi.low, fi.high
         0, 42
 
@@ -97,6 +97,12 @@ FuzzyInteger
     .. attribute:: high
 
         int, the inclusive higher bound of generated integers
+
+    .. attribute:: step
+
+        int, the step between values in the range; for instance, a ``FuzzyInteger(0, 42, step=3)``
+        might only yield values from ``[0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42]``.
+
 
 FuzzyDecimal
 ------------
