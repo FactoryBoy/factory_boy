@@ -25,6 +25,9 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import os
+import types
+import logging
+import functools
 
 """factory_boy extensions for use with the Django framework."""
 
@@ -38,6 +41,9 @@ except ImportError as e:  # pragma: no cover
 from . import base
 from . import declarations
 from .compat import BytesIO, is_string
+
+logger = logging.getLogger('factory.generate')
+
 
 
 def require_django():
@@ -214,3 +220,57 @@ class ImageField(FileField):
         thumb.save(thumb_io, format=image_format)
         return thumb_io.getvalue()
 
+
+class PreventSignals(object):
+    """Temporarily disables and then restores any django signals.
+
+    Args:
+        *signals (django.dispatch.dispatcher.Signal): any django signals
+
+    Examples:
+        with prevent_signals(pre_init):
+            user = UserFactory.build()
+            ...
+
+        @prevent_signals(pre_save, post_save)
+        class UserFactory(factory.Factory):
+            ...
+
+        @prevent_signals(post_save)
+        def generate_users():
+            UserFactory.create_batch(10)
+    """
+
+    def __init__(self, *signals):
+        self.signals = signals
+        self.paused = {}
+
+    def __enter__(self):
+        for signal in self.signals:
+            logger.debug('PreventSignals: Disabling signal handlers %r',
+                         signal.receivers)
+
+            self.paused[signal] = signal.receivers
+            signal.receivers = []
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        for signal, receivers in self.paused.items():
+            logger.debug('PreventSignals: Restoring signal handlers %r',
+                         receivers)
+
+            signal.receivers = receivers
+        self.paused = {}
+
+    def __call__(self, func):
+        if isinstance(func, types.FunctionType):
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                with self:
+                    return func(*args, **kwargs)
+            return wrapper
+
+        generate_method = getattr(func, '_generate', None)
+        if generate_method:
+            func._generate = classmethod(self(generate_method.__func__))
+
+        return func
