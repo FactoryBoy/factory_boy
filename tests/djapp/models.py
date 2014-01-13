@@ -74,3 +74,7 @@ if Image is not None:  # PIL is available
 else:
     class WithImage(models.Model):
         pass
+
+
+class WithSignals(models.Model):
+    foo = models.CharField(max_length=20)
