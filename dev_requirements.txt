@@ -3,3 +3,4 @@ Django
 Pillow
 sqlalchemy
 mongoengine
+mock
