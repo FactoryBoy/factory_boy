@@ -10,6 +10,7 @@ ChangeLog
 *New:*
 
     - Add support for :attr:`factory.fuzzy.FuzzyInteger.step`, thanks to `ilya-pirogov <https://github.com/ilya-pirogov>`_ (:issue:`120`)
+    - Add :meth:`~factory.django.mute_signals` decorator to temporarily disable some signals, thanks to `ilya-pirogov <https://github.com>`_ (:issue:`122`)
 
 .. _v2.3.1:
 

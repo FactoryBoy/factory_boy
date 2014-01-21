@@ -89,6 +89,10 @@ All factories for a Django :class:`~django.db.models.Model` should use the
           Otherwise, factory_boy will try to get the 'next PK' counter from the abstract model.
 
 
+Extra fields
+""""""""""""
+
+
 .. class:: FileField
 
     Custom declarations for :class:`django.db.models.FileField`
@@ -155,6 +159,43 @@ All factories for a Django :class:`~django.db.models.Model` should use the
     42
     >>> MyFactory(the_image=None).the_image
     None
+
+
+Disabling signals
+"""""""""""""""""
+
+Signals are often used to plug some custom code into external components code;
+for instance to create ``Profile`` objects on-the-fly when a new ``User`` object is saved.
+
+This may interfere with finely tuned :class:`factories <DjangoModelFactory>`, which would
+create both using :class:`~factory.RelatedFactory`.
+
+To work around this problem, use the :meth:`mute_signals()` decorator/context manager:
+
+.. method:: mute_signals(signal1, ...)
+
+    Disable the list of selected signals when calling the factory, and reactivate them upon leaving.
+
+.. code-block:: python
+
+    # foo/factories.py
+
+    import factory
+    import factory.django
+
+    from . import models
+    from . import signals
+
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
+    class FooFactory(factory.django.DjangoModelFactory):
+        FACTORY_FOR = models.Foo
+
+        # ...
+
+    def make_chain():
+        with factory.django.mute_signals(signals.pre_save, signals.post_save):
+            # pre_save/post_save won't be called here.
+            return SomeFactory(), SomeOtherFactory()
 
 
 Mogo
