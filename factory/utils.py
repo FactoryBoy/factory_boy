@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import unicode_literals
+
 import collections
 
 #: String for splitting an attribute name into a
@@ -96,11 +98,26 @@ def import_object(module_name, attribute_name):
     return getattr(module, attribute_name)
 
 
+def _safe_repr(obj):
+    try:
+        obj_repr = repr(obj)
+    except UnicodeError:
+        return '<bad_repr object at %s>' % id(obj)
+
+    try:  # Convert to "text type" (= unicode)
+        return '%s' % obj_repr
+    except UnicodeError:  # non-ascii bytes repr on Py2
+        return obj_repr.decode('utf-8')
+
+
 def log_pprint(args=(), kwargs=None):
     kwargs = kwargs or {}
     return ', '.join(
-        [str(arg) for arg in args] +
-        ['%s=%r' % item for item in kwargs.items()]
+        [repr(arg) for arg in args] +
+        [
+            '%s=%s' % (key, _safe_repr(value))
+            for key, value in kwargs.items()
+        ]
     )
 
 
