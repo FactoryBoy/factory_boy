@@ -263,8 +263,10 @@ class mute_signals(object):
 
     def __call__(self, callable_obj):
         if isinstance(callable_obj, base.FactoryMetaClass):
-            generate_method = getattr(callable_obj, '_generate')
+            # Retrieve __func__, the *actual* callable object.
+            generate_method = callable_obj._generate.__func__
 
+            @classmethod
             @functools.wraps(generate_method)
             def wrapped_generate(*args, **kwargs):
                 with self:
