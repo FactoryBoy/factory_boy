@@ -24,7 +24,6 @@ import os
 
 import factory
 import factory.django
-from factory.helpers import prevent_signals
 
 
 try:
@@ -532,24 +531,24 @@ class PreventSignalsTestCase(unittest.TestCase):
         signals.pre_save.disconnect(self.handlers.pre_save)
         signals.post_save.disconnect(self.handlers.post_save)
 
-    def test_signals(self):
+    def assertSignalsReactivated(self):
         WithSignalsFactory()
 
         self.assertEqual(self.handlers.pre_save.call_count, 1)
         self.assertEqual(self.handlers.post_save.call_count, 1)
 
     def test_context_manager(self):
-        with prevent_signals(signals.pre_save, signals.post_save):
+        with factory.django.mute_signals(signals.pre_save, signals.post_save):
             WithSignalsFactory()
 
         self.assertEqual(self.handlers.pre_init.call_count, 1)
         self.assertFalse(self.handlers.pre_save.called)
         self.assertFalse(self.handlers.post_save.called)
 
-        self.test_signals()
+        self.assertSignalsReactivated()
 
     def test_class_decorator(self):
-        @prevent_signals(signals.pre_save, signals.post_save)
+        @factory.django.mute_signals(signals.pre_save, signals.post_save)
         class WithSignalsDecoratedFactory(factory.django.DjangoModelFactory):
             FACTORY_FOR = models.WithSignals
 
@@ -559,10 +558,23 @@ class PreventSignalsTestCase(unittest.TestCase):
         self.assertFalse(self.handlers.pre_save.called)
         self.assertFalse(self.handlers.post_save.called)
 
-        self.test_signals()
+        self.assertSignalsReactivated()
+
+    def test_class_decorator_build(self):
+        @factory.django.mute_signals(signals.pre_save, signals.post_save)
+        class WithSignalsDecoratedFactory(factory.django.DjangoModelFactory):
+            FACTORY_FOR = models.WithSignals
+
+        WithSignalsDecoratedFactory.build()
+
+        self.assertEqual(self.handlers.pre_init.call_count, 1)
+        self.assertFalse(self.handlers.pre_save.called)
+        self.assertFalse(self.handlers.post_save.called)
+
+        self.assertSignalsReactivated()
 
     def test_function_decorator(self):
-        @prevent_signals(signals.pre_save, signals.post_save)
+        @factory.django.mute_signals(signals.pre_save, signals.post_save)
         def foo():
             WithSignalsFactory()
 
@@ -572,12 +584,12 @@ class PreventSignalsTestCase(unittest.TestCase):
         self.assertFalse(self.handlers.pre_save.called)
         self.assertFalse(self.handlers.post_save.called)
 
-        self.test_signals()
+        self.assertSignalsReactivated()
 
     def test_classmethod_decorator(self):
         class Foo(object):
             @classmethod
-            @prevent_signals(signals.pre_save, signals.post_save)
+            @factory.django.mute_signals(signals.pre_save, signals.post_save)
             def generate(cls):
                 WithSignalsFactory()
 
@@ -587,7 +599,7 @@ class PreventSignalsTestCase(unittest.TestCase):
         self.assertFalse(self.handlers.pre_save.called)
         self.assertFalse(self.handlers.post_save.called)
 
-        self.test_signals()
+        self.assertSignalsReactivated()
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

@@ -140,7 +140,3 @@ def container_attribute(func):
 
 def post_generation(fun):
     return declarations.PostGeneration(fun)
-
-
-def prevent_signals(*signals):
-    return django.PreventSignals(*signals)
