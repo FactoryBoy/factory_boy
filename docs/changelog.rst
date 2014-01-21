@@ -11,6 +11,15 @@ ChangeLog
 
     - Add support for :attr:`factory.fuzzy.FuzzyInteger.step`, thanks to `ilya-pirogov <https://github.com/ilya-pirogov>`_ (:issue:`120`)
 
+.. _v2.3.1:
+
+2.3.1 (maint)
+-------------
+
+*Bugfix:*
+
+    - Fix badly written assert containing state-changing code, spotted by `chsigi <https://github.com/chsigi>`_ (:issue:`126`)
+
 .. _v2.3.0:
 
 2.3.0 (2013-12-25)

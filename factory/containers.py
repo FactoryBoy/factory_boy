@@ -103,7 +103,8 @@ class LazyStub(object):
             if isinstance(val, LazyValue):
                 self.__pending.append(name)
                 val = val.evaluate(self, self.__containers)
-                assert name == self.__pending.pop()
+                last = self.__pending.pop()
+                assert name == last
             self.__values[name] = val
             return val
         else:
