@@ -11,7 +11,7 @@ ChangeLog
 
     - Fix badly written assert containing state-changing code, spotted by `chsigi <https://github.com/chsigi>`_ (:issue:`126`)
     - Don't crash when handling objects whose __repr__ is non-pure-ascii bytes on Py2,
-      discovered by `mbertheau <https://github.com/mbertheau>`_ (:issue:`123`)
+      discovered by `mbertheau <https://github.com/mbertheau>`_ (:issue:`123`) and `strycore <https://github.com/strycore>`_ (:issue:`127`)
 
 .. _v2.3.0:
 
