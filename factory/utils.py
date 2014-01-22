@@ -113,7 +113,7 @@ def _safe_repr(obj):
 def log_pprint(args=(), kwargs=None):
     kwargs = kwargs or {}
     return ', '.join(
-        [repr(arg) for arg in args] +
+        [_safe_repr(arg) for arg in args] +
         [
             '%s=%s' % (key, _safe_repr(value))
             for key, value in kwargs.items()
