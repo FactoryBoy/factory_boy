@@ -107,9 +107,9 @@ FuzzyInteger
 FuzzyDecimal
 ------------
 
-.. class:: FuzzyDecimal(low[, high])
+.. class:: FuzzyDecimal(low[, high[, precision=2]])
 
-    The :class:`FuzzyDecimal` fuzzer generates random integers within a given
+    The :class:`FuzzyDecimal` fuzzer generates random :class:`decimals <decimal.Decimal>` within a given
     inclusive range.
 
     The :attr:`low` bound may be omitted, in which case it defaults to 0:
@@ -139,6 +139,32 @@ FuzzyDecimal
     .. attribute:: precision
         int, the number of digits to generate after the dot. The default is 2 digits.
 
+
+FuzzyFloat
+----------
+
+.. class:: FuzzyFloat(low[, high])
+
+    The :class:`FuzzyFloat` fuzzer provides random :class:`float` objects within a given inclusive range.
+
+    .. code-block:: pycon
+
+        >>> FuzzyFloat(0.5, 42.7)
+        >>> fi.low, fi.high
+        0.5, 42.7
+
+        >>> fi = FuzzyFloat(42.7)
+        >>> fi.low, fi.high
+        0.0, 42.7
+
+
+    .. attribute:: low
+
+        decimal, the inclusive lower bound of generated floats
+
+    .. attribute:: high
+
+        decimal, the inclusive higher bound of generated floats
 
 FuzzyDate
 ---------
