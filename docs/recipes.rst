@@ -66,7 +66,7 @@ Example: Django's Profile
 """""""""""""""""""""""""
 
 Django (<1.5) provided a mechanism to attach a ``Profile`` to a ``User`` instance,
-using a :class:`~django.db.models.ForeignKey` from the ``Profile`` to the ``User``.
+using a :class:`~django.db.models.OneToOneField` from the ``Profile`` to the ``User``.
 
 A typical way to create those profiles was to hook a post-save signal to the ``User`` model.
 
