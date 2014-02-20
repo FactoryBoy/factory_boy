@@ -33,7 +33,7 @@ PACKAGE = 'factory'
 
 
 setup(
-    name='factory_boy',
+    name='factory-boy',
     version=get_version(PACKAGE),
     description="A verstile test fixtures replacement based on thoughtbot's factory_girl for Ruby.",
     author='Mark Sandstrom',
