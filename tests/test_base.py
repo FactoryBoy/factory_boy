@@ -88,6 +88,20 @@ class AbstractFactoryTestCase(unittest.TestCase):
         self.assertRaises(base.FactoryError, TestObjectFactory.create)
 
 
+class DeclarationParsingTests(unittest.TestCase):
+    def test_classmethod(self):
+        class TestObjectFactory(base.Factory):
+            FACTORY_FOR = TestObject
+
+            @classmethod
+            def some_classmethod(cls):
+                return cls.create()
+
+        self.assertTrue(hasattr(TestObjectFactory, 'some_classmethod'))
+        obj = TestObjectFactory.some_classmethod()
+        self.assertEqual(TestObject, obj.__class__)
+
+
 class FactoryTestCase(unittest.TestCase):
     def test_factory_for(self):
         class TestObjectFactory(base.Factory):
