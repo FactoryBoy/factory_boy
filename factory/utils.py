@@ -101,7 +101,7 @@ def import_object(module_name, attribute_name):
 def _safe_repr(obj):
     try:
         obj_repr = repr(obj)
-    except:
+    except Exception:
         return '<bad_repr object at %s>' % id(obj)
 
     try:  # Convert to "text type" (= unicode)
