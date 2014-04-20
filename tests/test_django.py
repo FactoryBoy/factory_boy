@@ -445,9 +445,9 @@ class DjangoImageFieldTestCase(unittest.TestCase):
         self.assertEqual('django/example.jpg', o.animage.name)
 
         i = Image.open(os.path.join(settings.MEDIA_ROOT, o.animage.name))
-        colors = i.getcolors()
-        # 169 pixels with color 190 from the GIF palette
-        self.assertEqual([(169, 190)], colors)
+        colors = i.convert('RGB').getcolors()
+        # 169 pixels with rgb(0, 0, 255)
+        self.assertEqual([(169, (0, 0, 255))], colors)
         self.assertEqual('GIF', i.format)
 
     def test_with_file(self):
