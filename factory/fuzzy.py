@@ -29,9 +29,37 @@ import decimal
 import random
 import string
 import datetime
+from contextlib import contextmanager
 
 from . import compat
 from . import declarations
+
+
+class LazyArgument(object):
+    """
+    Data descriptor for SelfAttribute support as argument
+    """
+    context = []
+
+    def __init__(self):
+        # unique name for storing value
+        self.attr_name = '__la%d' % hash(self)
+
+    def __get__(self, instance, owner):
+        value = getattr(instance, self.attr_name)
+        if isinstance(value, declarations.SelfAttribute) and self.context:
+            return value.evaluate(*self.context)
+        return value
+
+    def __set__(self, instance, value):
+        setattr(instance, self.attr_name, value)
+
+    @classmethod
+    @contextmanager
+    def evaluate(cls, *evaluate_args):
+        old_context, cls.context = cls.context, evaluate_args
+        yield
+        cls.context = old_context
 
 
 class BaseFuzzyAttribute(declarations.OrderedDeclaration):
@@ -44,7 +72,8 @@ class BaseFuzzyAttribute(declarations.OrderedDeclaration):
         raise NotImplementedError()
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
-        return self.fuzz()
+        with LazyArgument.evaluate(sequence, obj, create, extra, containers):
+            return self.fuzz()
 
 
 class FuzzyAttribute(BaseFuzzyAttribute):
@@ -80,24 +109,35 @@ class FuzzyText(BaseFuzzyAttribute):
     not important.
     """
 
+    prefix = LazyArgument()
+    suffix = LazyArgument()
+    length = LazyArgument()
+    chars = LazyArgument()
+
     def __init__(self, prefix='', length=12, suffix='',
         chars=string.ascii_letters, **kwargs):
         super(FuzzyText, self).__init__(**kwargs)
+
         self.prefix = prefix
         self.suffix = suffix
         self.length = length
-        self.chars = tuple(chars)  # Unroll iterators
+        self.chars = chars
 
     def fuzz(self):
-        chars = [random.choice(self.chars) for _i in range(self.length)]
+        chars = tuple(self.chars)  # Unroll iterators
+        chars = [random.choice(chars) for _i in range(self.length)]
         return self.prefix + ''.join(chars) + self.suffix
 
 
 class FuzzyChoice(BaseFuzzyAttribute):
     """Handles fuzzy choice of an attribute."""
 
+    choices = LazyArgument()
+
     def __init__(self, choices, **kwargs):
-        self.choices = list(choices)
+        if not isinstance(choices, declarations.SelfAttribute):
+            choices = list(choices)
+        self.choices = choices
         super(FuzzyChoice, self).__init__(**kwargs)
 
     def fuzz(self):
@@ -106,6 +146,10 @@ class FuzzyChoice(BaseFuzzyAttribute):
 
 class FuzzyInteger(BaseFuzzyAttribute):
     """Random integer within a given range."""
+
+    low = LazyArgument()
+    high = LazyArgument()
+    step = LazyArgument()
 
     def __init__(self, low, high=None, step=1, **kwargs):
         if high is None:
@@ -124,6 +168,10 @@ class FuzzyInteger(BaseFuzzyAttribute):
 
 class FuzzyDecimal(BaseFuzzyAttribute):
     """Random decimal within a given range."""
+
+    low = LazyArgument()
+    high = LazyArgument()
+    precision = LazyArgument()
 
     def __init__(self, low, high=None, precision=2, **kwargs):
         if high is None:
@@ -144,6 +192,9 @@ class FuzzyDecimal(BaseFuzzyAttribute):
 class FuzzyFloat(BaseFuzzyAttribute):
     """Random float within a given range."""
 
+    low = LazyArgument()
+    high = LazyArgument()
+
     def __init__(self, low, high=None, **kwargs):
         if high is None:
             high = low
@@ -161,21 +212,27 @@ class FuzzyFloat(BaseFuzzyAttribute):
 class FuzzyDate(BaseFuzzyAttribute):
     """Random date within a given date range."""
 
+    start_date = LazyArgument()
+    end_date = LazyArgument()
+
     def __init__(self, start_date, end_date=None, **kwargs):
         super(FuzzyDate, self).__init__(**kwargs)
         if end_date is None:
             end_date = datetime.date.today()
 
-        if start_date > end_date:
-            raise ValueError(
-                "FuzzyDate boundaries should have start <= end; got %r > %r."
-                % (start_date, end_date))
-
-        self.start_date = start_date.toordinal()
-        self.end_date = end_date.toordinal()
+        self.start_date = start_date
+        self.end_date = end_date
 
     def fuzz(self):
-        return datetime.date.fromordinal(random.randint(self.start_date, self.end_date))
+        if self.start_date > self.end_date:
+            raise ValueError(
+                "FuzzyDate boundaries should have start <= end; got %r > %r."
+                % (self.start_date, self.end_date))
+
+        start_date = self.start_date.toordinal()
+        end_date = self.end_date.toordinal()
+
+        return datetime.date.fromordinal(random.randint(start_date, end_date))
 
 
 class BaseFuzzyDateTime(BaseFuzzyAttribute):
@@ -183,6 +240,16 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
 
     Provides fuzz() computation, forcing year/month/day/hour/...
     """
+
+    start_dt = LazyArgument()
+    end_dt = LazyArgument()
+    force_year = LazyArgument()
+    force_month = LazyArgument()
+    force_day = LazyArgument()
+    force_hour = LazyArgument()
+    force_minute = LazyArgument()
+    force_second = LazyArgument()
+    force_microsecond = LazyArgument()
 
     def _check_bounds(self, start_dt, end_dt):
         if start_dt > end_dt:
@@ -199,8 +266,6 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
         if end_dt is None:
             end_dt = self._now()
 
-        self._check_bounds(start_dt, end_dt)
-
         self.start_dt = start_dt
         self.end_dt = end_dt
         self.force_year = force_year
@@ -212,6 +277,8 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
         self.force_microsecond = force_microsecond
 
     def fuzz(self):
+        self._check_bounds(self.start_dt, self.end_dt)
+
         delta = self.end_dt - self.start_dt
         microseconds = delta.microseconds + 1000000 * (delta.seconds + (delta.days * 86400))
 
