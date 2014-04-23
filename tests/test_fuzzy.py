@@ -642,32 +642,55 @@ class LazyArgumentTestCase(unittest.TestCase):
         class Foo(object):
             param1 = fuzzy.LazyArgument()
             param2 = fuzzy.LazyArgument()
+            const1 = 'constant'
 
-        self.foo = Foo()
+        self.foo1 = Foo()
+        self.foo2 = Foo()
 
     def test_literal(self):
-        self.foo.param1 = 123
-        self.foo.param2 = 'test'
+        self.foo1.param1 = 123
+        self.foo1.param2 = 'param2 for foo1'
+        self.foo2.param1 = {"val": 1}
+        self.foo2.param2 = 'param2 for foo2'
 
-        self.assertEqual(self.foo.param1, 123)
-        self.assertEqual(self.foo.param2, 'test')
+        self.assertEqual(self.foo1.param1, 123)
+        self.assertEqual(self.foo1.param2, 'param2 for foo1')
+        self.assertEqual(self.foo1.const1, 'constant')
+        self.assertEqual(self.foo2.param1, {"val": 1})
+        self.assertEqual(self.foo2.param2, 'param2 for foo2')
+        self.assertEqual(self.foo2.const1, 'constant')
 
     def test_evaluate(self):
-        self.foo.param1 = declarations.SelfAttribute('f1')
-        self.foo.param2 = declarations.SelfAttribute('f2')
+        self.foo1.param1 = declarations.SelfAttribute('foo1param1')
+        self.foo1.param2 = declarations.SelfAttribute('foo1param2')
+        self.foo2.param1 = declarations.SelfAttribute('foo2param1')
+        self.foo2.param2 = declarations.SelfAttribute('foo2param2')
 
-        Bar = collections.namedtuple('Bar', 'f1 f2')
+        Bar = collections.namedtuple(
+            'Bar', 'foo1param1 foo1param2 foo2param1 foo2param2')
 
-        with fuzzy.LazyArgument.evaluate(2, Bar('val1', 14), False):
-            self.assertEqual(self.foo.param1, 'val1')
-            self.assertEqual(self.foo.param2, 14)
+        with fuzzy.LazyArgument.evaluate(2, Bar('val1', 14, [1, 2], None), False):
+            self.assertEqual(self.foo1.param1, 'val1')
+            self.assertEqual(self.foo1.param2, 14)
+            self.assertEqual(self.foo1.const1, 'constant')
+            self.assertEqual(self.foo2.param1, [1, 2])
+            self.assertEqual(self.foo2.param2, None)
+            self.assertEqual(self.foo2.const1, 'constant')
 
-        self.assertIsInstance(self.foo.param1, declarations.SelfAttribute)
-        self.assertIsInstance(self.foo.param2, declarations.SelfAttribute)
+        self.assertIsInstance(self.foo1.param1, declarations.SelfAttribute)
+        self.assertIsInstance(self.foo1.param2, declarations.SelfAttribute)
+        self.assertEqual(self.foo1.const1, 'constant')
+        self.assertIsInstance(self.foo2.param1, declarations.SelfAttribute)
+        self.assertIsInstance(self.foo2.param2, declarations.SelfAttribute)
+        self.assertEqual(self.foo2.const1, 'constant')
 
-        with fuzzy.LazyArgument.evaluate(2, Bar(1.1, {"a": 2}), False):
-            self.assertEqual(self.foo.param1, 1.1)
-            self.assertEqual(self.foo.param2, {"a": 2})
+        with fuzzy.LazyArgument.evaluate(2, Bar(1.1, {"a": 2}, '1', False), False):
+            self.assertEqual(self.foo1.param1, 1.1)
+            self.assertEqual(self.foo1.param2, {"a": 2})
+            self.assertEqual(self.foo1.const1, 'constant')
+            self.assertEqual(self.foo2.param1, '1')
+            self.assertEqual(self.foo2.param2, False)
+            self.assertEqual(self.foo2.const1, 'constant')
 
     def test_factory(self):
         Bar = collections.namedtuple(
