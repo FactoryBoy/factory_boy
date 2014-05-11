@@ -39,6 +39,13 @@ class StandardModel(Base):
     foo = Column(Unicode(20))
 
 
+class NamedColumnModel(Base):
+    __tablename__ = 'NamedColumnModelTable'
+
+    id = Column('num', Integer(), primary_key=True)
+    foo = Column('bar', Unicode(20))
+
+
 class NonIntegerPk(Base):
     __tablename__ = 'NonIntegerPk'
 

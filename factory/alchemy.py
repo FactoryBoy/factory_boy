@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 from __future__ import unicode_literals
-from sqlalchemy.sql.functions import max
+from sqlalchemy.sql import func
 
 from . import base
 
@@ -35,12 +35,14 @@ class SQLAlchemyModelFactory(base.Factory):
         """Compute the next available PK, based on the 'pk' database field."""
         session = cls.FACTORY_SESSION
         model = cls.FACTORY_FOR
-        pk = getattr(model, model.__mapper__.primary_key[0].name)
-        max_pk = session.query(max(pk)).one()[0]
-        if isinstance(max_pk, int):
-            return max_pk + 1 if max_pk else 1
-        else:
-            return 1
+
+        pk = model.__mapper__.primary_key[0]
+        res = session.query(func.max(pk).label("max_pk")).one()
+
+        if isinstance(res.max_pk, int) and res.max_pk > 0:
+            return res.max_pk + 1
+ 
+        return 1
 
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
