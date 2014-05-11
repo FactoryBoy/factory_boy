@@ -41,6 +41,7 @@ else:
     models = Fake()
     models.StandardModel = Fake()
     models.NonIntegerPk = Fake()
+    models.NamedColumnModel = Fake()
     models.session = Fake()
     SQLAlchemyModelFactory = Fake
 
@@ -51,6 +52,10 @@ class StandardFactory(SQLAlchemyModelFactory):
 
     id = factory.Sequence(lambda n: n)
     foo = factory.Sequence(lambda n: 'foo%d' % n)
+
+
+class NamedColumnFactory(StandardFactory):
+    FACTORY_FOR = models.NamedColumnModel
 
 
 class NonIntegerPkFactory(SQLAlchemyModelFactory):
@@ -132,3 +137,19 @@ class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
         NonIntegerPkFactory.reset_sequence()
         nonint2 = NonIntegerPkFactory.create()
         self.assertEqual('foo1', nonint2.id)
+
+
+@unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
+class SQLAlchemyNamedColumnTestCase(unittest.TestCase):
+    def setUp(self):
+        super(SQLAlchemyNamedColumnTestCase, self).setUp()
+        NamedColumnFactory.reset_sequence()
+        NamedColumnFactory.FACTORY_SESSION.rollback()
+
+    def test_creation(self):
+        named1 = NamedColumnFactory.create()
+        self.assertEqual('foo1', named1.foo)
+
+        NamedColumnFactory.reset_sequence()
+        named2 = NamedColumnFactory.build()
+        self.assertEqual('foo2', named2.foo)
