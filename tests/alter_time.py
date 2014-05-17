@@ -7,7 +7,7 @@
 from __future__ import print_function
 
 import datetime
-import mock
+from .compat import mock
 
 
 real_datetime_class = datetime.datetime

@@ -50,7 +50,9 @@ def debug(logger='factory', stream=None):
 def make_factory(klass, **kwargs):
     """Create a new, simple factory for the given class."""
     factory_name = '%sFactory' % klass.__name__
-    kwargs[base.FACTORY_CLASS_DECLARATION] = klass
+    class Meta:
+        target = klass
+    kwargs['Meta'] = Meta
     base_class = kwargs.pop('FACTORY_CLASS', base.Factory)
 
     factory_class = type(base.Factory).__new__(

@@ -52,6 +52,13 @@ def require_django():
         raise import_failure
 
 
+class DjangoOptions(base.FactoryOptions):
+    def _build_default_options(self):
+        return super(DjangoOptions, self)._build_default_options() + [
+            base.OptionDefault('django_get_or_create', (), inherit=True),
+        ]
+
+
 class DjangoModelFactory(base.Factory):
     """Factory for Django models.
 
@@ -61,8 +68,18 @@ class DjangoModelFactory(base.Factory):
     handle those for non-numerical primary keys.
     """
 
-    ABSTRACT_FACTORY = True  # Optional, but explicit.
-    FACTORY_DJANGO_GET_OR_CREATE = ()
+    _options_class = DjangoOptions
+    class Meta:
+        abstract = True  # Optional, but explicit.
+
+    @classmethod
+    def _get_blank_options(cls):
+        return DjangoOptions()
+
+    _OLDSTYLE_ATTRIBUTES = base.Factory._OLDSTYLE_ATTRIBUTES.copy()
+    _OLDSTYLE_ATTRIBUTES.update({
+        'FACTORY_DJANGO_GET_OR_CREATE': 'django_get_or_create',
+    })
 
     @classmethod
     def _load_target_class(cls, definition):
@@ -101,13 +118,13 @@ class DjangoModelFactory(base.Factory):
         """Create an instance of the model through objects.get_or_create."""
         manager = cls._get_manager(target_class)
 
-        assert 'defaults' not in cls.FACTORY_DJANGO_GET_OR_CREATE, (
+        assert 'defaults' not in cls._meta.django_get_or_create, (
             "'defaults' is a reserved keyword for get_or_create "
-            "(in %s.FACTORY_DJANGO_GET_OR_CREATE=%r)"
-            % (cls, cls.FACTORY_DJANGO_GET_OR_CREATE))
+            "(in %s._meta.django_get_or_create=%r)"
+            % (cls, cls._meta.django_get_or_create))
 
         key_fields = {}
-        for field in cls.FACTORY_DJANGO_GET_OR_CREATE:
+        for field in cls._meta.django_get_or_create:
             key_fields[field] = kwargs.pop(field)
         key_fields['defaults'] = kwargs
 
@@ -119,7 +136,7 @@ class DjangoModelFactory(base.Factory):
         """Create an instance of the model, and save it to the database."""
         manager = cls._get_manager(target_class)
 
-        if cls.FACTORY_DJANGO_GET_OR_CREATE:
+        if cls._meta.django_get_or_create:
             return cls._get_or_create(target_class, *args, **kwargs)
 
         return manager.create(*args, **kwargs)

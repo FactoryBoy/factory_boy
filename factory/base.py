@@ -23,6 +23,7 @@
 import logging
 
 from . import containers
+from . import declarations
 from . import utils
 
 logger = logging.getLogger('factory.generate')
@@ -32,15 +33,6 @@ BUILD_STRATEGY = 'build'
 CREATE_STRATEGY = 'create'
 STUB_STRATEGY = 'stub'
 
-
-# Special declarations
-FACTORY_CLASS_DECLARATION = 'FACTORY_FOR'
-
-# Factory class attributes
-CLASS_ATTRIBUTE_DECLARATIONS = '_declarations'
-CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS = '_postgen_declarations'
-CLASS_ATTRIBUTE_ASSOCIATED_CLASS = '_associated_class'
-CLASS_ATTRIBUTE_IS_ABSTRACT = '_abstract_factory'
 
 
 class FactoryError(Exception):
@@ -66,6 +58,14 @@ def get_factory_bases(bases):
     return [b for b in bases if issubclass(b, BaseFactory)]
 
 
+def resolve_attribute(name, bases, default=None):
+    """Find the first definition of an attribute according to MRO order."""
+    for base in bases:
+        if hasattr(base, name):
+            return getattr(base, name)
+    return default
+
+
 class FactoryMetaClass(type):
     """Factory metaclass for handling ordered declarations."""
 
@@ -75,80 +75,15 @@ class FactoryMetaClass(type):
         Returns an instance of the associated class.
         """
 
-        if cls.FACTORY_STRATEGY == BUILD_STRATEGY:
+        if cls._meta.strategy == BUILD_STRATEGY:
             return cls.build(**kwargs)
-        elif cls.FACTORY_STRATEGY == CREATE_STRATEGY:
+        elif cls._meta.strategy == CREATE_STRATEGY:
             return cls.create(**kwargs)
-        elif cls.FACTORY_STRATEGY == STUB_STRATEGY:
+        elif cls._meta.strategy == STUB_STRATEGY:
             return cls.stub(**kwargs)
         else:
             raise UnknownStrategy('Unknown FACTORY_STRATEGY: {0}'.format(
-                cls.FACTORY_STRATEGY))
-
-    @classmethod
-    def _discover_associated_class(mcs, class_name, attrs, inherited=None):
-        """Try to find the class associated with this factory.
-
-        In order, the following tests will be performed:
-        - Lookup the FACTORY_CLASS_DECLARATION attribute
-        - If an inherited associated class was provided, use it.
-
-        Args:
-            class_name (str): the name of the factory class being created
-            attrs (dict): the dict of attributes from the factory class
-                definition
-            inherited (class): the optional associated class inherited from a
-                parent factory
-
-        Returns:
-            class: the class to associate with this factory
-        """
-        if FACTORY_CLASS_DECLARATION in attrs:
-            return attrs[FACTORY_CLASS_DECLARATION]
-
-        # No specific associated class was given, and one was defined for our
-        # parent, use it.
-        if inherited is not None:
-            return inherited
-
-        # Nothing found, return None.
-        return None
-
-    @classmethod
-    def _extract_declarations(mcs, bases, attributes):
-        """Extract declarations from a class definition.
-
-        Args:
-            bases (class list): parent Factory subclasses
-            attributes (dict): attributes declared in the class definition
-
-        Returns:
-            dict: the original attributes, where declarations have been moved to
-                _declarations and post-generation declarations to
-                _postgen_declarations.
-        """
-        declarations = containers.DeclarationDict()
-        postgen_declarations = containers.PostGenerationDeclarationDict()
-
-        # Add parent declarations in reverse order.
-        for base in reversed(bases):
-            # Import parent PostGenerationDeclaration
-            postgen_declarations.update_with_public(
-                getattr(base, CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS, {}))
-            # Import all 'public' attributes (avoid those starting with _)
-            declarations.update_with_public(
-                    getattr(base, CLASS_ATTRIBUTE_DECLARATIONS, {}))
-
-        # Import attributes from the class definition
-        attributes = postgen_declarations.update_with_public(attributes)
-        # Store protected/private attributes in 'non_factory_attrs'.
-        attributes = declarations.update_with_public(attributes)
-
-        # Store the DeclarationDict in the attributes of the newly created class
-        attributes[CLASS_ATTRIBUTE_DECLARATIONS] = declarations
-        attributes[CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS] = postgen_declarations
-
-        return attributes
+                cls._meta.strategy))
 
     def __new__(mcs, class_name, bases, attrs):
         """Record attributes as a pattern for later instance construction.
@@ -166,51 +101,168 @@ class FactoryMetaClass(type):
             A new class
         """
         parent_factories = get_factory_bases(bases)
-        if not parent_factories:
-            return super(FactoryMetaClass, mcs).__new__(
-                    mcs, class_name, bases, attrs)
-
-        extra_attrs = {}
-
-        is_abstract = attrs.pop('ABSTRACT_FACTORY', False)
-
-        base = parent_factories[0]
-        inherited_associated_class = base._get_target_class()
-        associated_class = mcs._discover_associated_class(class_name, attrs,
-                inherited_associated_class)
-
-        # Invoke 'lazy-loading' hooks.
-        associated_class = base._load_target_class(associated_class)
-
-        if associated_class is None:
-            is_abstract = True
-
+        if parent_factories:
+            base_factory = parent_factories[0]
         else:
-            # If inheriting the factory from a parent, keep a link to it.
-            # This allows to use the sequence counters from the parents.
-            if (inherited_associated_class is not None
-                    and issubclass(associated_class, inherited_associated_class)):
-                attrs['_base_factory'] = base
+            base_factory = None
 
-            # The CLASS_ATTRIBUTE_ASSOCIATED_CLASS must *not* be taken into
-            # account when parsing the declared attributes of the new class.
-            extra_attrs[CLASS_ATTRIBUTE_ASSOCIATED_CLASS] = associated_class
+        attrs_meta = attrs.pop('Meta', None)
 
-        extra_attrs[CLASS_ATTRIBUTE_IS_ABSTRACT] = is_abstract
+        oldstyle_attrs = {}
+        for old_name, new_name in base_factory._OLDSTYLE_ATTRIBUTES.items():
+            if old_name in attrs:
+                oldstyle_attrs[new_name] = attrs.pop(old_name)
+        if oldstyle_attrs:
+            attrs_meta = type('Meta', (object,), oldstyle_attrs)
 
-        # Extract pre- and post-generation declarations
-        attributes = mcs._extract_declarations(parent_factories, attrs)
-        attributes.update(extra_attrs)
+        base_meta = resolve_attribute('_meta', bases)
+        options_class = resolve_attribute('_options_class', bases, FactoryOptions)
 
-        return super(FactoryMetaClass, mcs).__new__(
-                mcs, class_name, bases, attributes)
+        meta = options_class()
+        attrs['_meta'] = meta
+
+        new_class = super(FactoryMetaClass, mcs).__new__(
+            mcs, class_name, bases, attrs)
+
+        meta.contribute_to_class(new_class,
+            meta=attrs_meta,
+            base_meta=base_meta,
+            base_factory=base_factory,
+        )
+
+        return new_class
 
     def __str__(cls):
-        if cls._abstract_factory:
-            return '<%s (abstract)>'
+        if cls._meta.abstract:
+            return '<%s (abstract)>' % cls.__name__
         else:
-            return '<%s for %s>' % (cls.__name__,
-                getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS).__name__)
+            return '<%s for %s>' % (cls.__name__, cls._meta.target)
+
+
+class BaseMeta:
+    abstract = True
+    strategy = CREATE_STRATEGY
+
+
+class OptionDefault(object):
+    def __init__(self, name, value, inherit=False):
+        self.name = name
+        self.value = value
+        self.inherit = inherit
+
+    def apply(self, meta, base_meta):
+        value = self.value
+        if self.inherit and base_meta is not None:
+            value = getattr(base_meta, self.name, value)
+        if meta is not None:
+            value = getattr(meta, self.name, value)
+        return value
+
+    def __str__(self):
+        return '%s(%r, %r, inherit=%r)' % (
+            self.__class__.__name__,
+            self.name, self.value, self.inherit)
+
+
+class FactoryOptions(object):
+    def __init__(self):
+        self.factory = None
+        self.base_factory = None
+        self.declarations = {}
+        self.postgen_declarations = {}
+
+    def _build_default_options(self):
+        """"Provide the default value for all allowed fields.
+
+        Custom FactoryOptions classes should override this method
+        to update() its return value.
+        """
+        return [
+            OptionDefault('target', None, inherit=True),
+            OptionDefault('abstract', False, inherit=False),
+            OptionDefault('strategy', CREATE_STRATEGY, inherit=True),
+            OptionDefault('arg_parameters', (), inherit=True),
+            OptionDefault('hidden_args', (), inherit=True),
+        ]
+
+    def _fill_from_meta(self, meta, base_meta):
+        # Exclude private/protected fields from the meta
+        if meta is None:
+            meta_attrs = {}
+        else:
+            meta_attrs = dict((k, v)
+                for (k, v) in vars(meta).items()
+                if not k.startswith('_')
+            )
+
+        for option in self._build_default_options():
+            assert not hasattr(self, option.name), "Can't override field %s." % option.name
+            value = option.apply(meta, base_meta)
+            meta_attrs.pop(option.name, None)
+            setattr(self, option.name, value)
+
+        if meta_attrs:
+            # Some attributes in the Meta aren't allowed here
+            raise TypeError("'class Meta' for %r got unknown attribute(s) %s"
+                    % (self.factory, ','.join(sorted(meta_attrs.keys()))))
+
+    def contribute_to_class(self, factory,
+            meta=None, base_meta=None, base_factory=None):
+
+        self.factory = factory
+        self.base_factory = base_factory
+
+        self._fill_from_meta(meta=meta, base_meta=base_meta)
+
+        self.target = self.factory._load_target_class(self.target)
+        if self.target is None:
+            self.abstract = True
+
+        if (self.target is not None
+                and self.base_factory is not None
+                and self.base_factory._meta.target is not None
+                and issubclass(self.target, base_factory._meta.target)):
+            self.counter_reference = self.base_factory
+        else:
+            self.counter_reference = self.factory
+
+        for parent in self.factory.__mro__[1:]:
+            if not hasattr(parent, '_meta'):
+                continue
+            self.declarations.update(parent._meta.declarations)
+            self.postgen_declarations.update(parent._meta.postgen_declarations)
+
+        for k, v in vars(self.factory).items():
+            if self._is_declaration(k, v):
+                self.declarations[k] = v
+            if self._is_postgen_declaration(k, v):
+                self.postgen_declarations[k] = v
+
+    def _is_declaration(self, name, value):
+        """Determines if a class attribute is a field value declaration.
+
+        Based on the name and value of the class attribute, return ``True`` if
+        it looks like a declaration of a default field value, ``False`` if it
+        is private (name starts with '_') or a classmethod or staticmethod.
+
+        """
+        if isinstance(value, (classmethod, staticmethod)):
+            return False
+        elif isinstance(value, declarations.OrderedDeclaration):
+            return True
+        elif isinstance(value, declarations.PostGenerationDeclaration):
+            return False
+        return not name.startswith("_")
+
+    def _is_postgen_declaration(self, name, value):
+        """Captures instances of PostGenerationDeclaration."""
+        return isinstance(value, declarations.PostGenerationDeclaration)
+
+    def __str__(self):
+        return "<%s for %s>" % (self.__class__.__name__, self.factory.__class__.__name__)
+
+    def __repr__(self):
+        return str(self)
 
 
 # Factory base classes
@@ -252,25 +304,18 @@ class BaseFactory(object):
         """Would be called if trying to instantiate the class."""
         raise FactoryError('You cannot instantiate BaseFactory')
 
+    _meta = FactoryOptions()
+
+    _OLDSTYLE_ATTRIBUTES = {
+        'FACTORY_FOR': 'target',
+        'ABSTRACT_FACTORY': 'abstract',
+        'FACTORY_STRATEGY': 'strategy',
+        'FACTORY_ARG_PARAMETERS': 'arg_parameters',
+        'FACTORY_HIDDEN_ARGS': 'hidden_args',
+    }
+
     # ID to use for the next 'declarations.Sequence' attribute.
     _counter = None
-
-    # Base factory, if this class was inherited from another factory. This is
-    # used for sharing the sequence _counter among factories for the same
-    # class.
-    _base_factory = None
-
-    # Holds the target class, once resolved.
-    _associated_class = None
-
-    # Whether this factory is considered "abstract", thus uncallable.
-    _abstract_factory = False
-
-    # List of arguments that should be passed as *args instead of **kwargs
-    FACTORY_ARG_PARAMETERS = ()
-
-    # List of attributes that should not be passed to the underlying class
-    FACTORY_HIDDEN_ARGS = ()
 
     @classmethod
     def reset_sequence(cls, value=None, force=False):
@@ -282,9 +327,9 @@ class BaseFactory(object):
             force (bool): whether to force-reset parent sequence counters
                 in a factory inheritance chain.
         """
-        if cls._base_factory:
+        if cls._meta.counter_reference is not cls:
             if force:
-                cls._base_factory.reset_sequence(value=value)
+                cls._meta.base_factory.reset_sequence(value=value)
             else:
                 raise ValueError(
                     "Cannot reset the sequence of a factory subclass. "
@@ -330,9 +375,9 @@ class BaseFactory(object):
         """
 
         # Rely upon our parents
-        if cls._base_factory and not cls._base_factory._abstract_factory:
-            logger.debug("%r: reusing sequence from %r", cls, cls._base_factory)
-            return cls._base_factory._generate_next_sequence()
+        if cls._meta.counter_reference is not cls:
+            logger.debug("%r: reusing sequence from %r", cls, cls._meta.base_factory)
+            return cls._meta.base_factory._generate_next_sequence()
 
         # Make sure _counter is initialized
         cls._setup_counter()
@@ -373,7 +418,9 @@ class BaseFactory(object):
             extra_defs (dict): additional definitions to insert into the
                 retrieved DeclarationDict.
         """
-        return getattr(cls, CLASS_ATTRIBUTE_DECLARATIONS).copy(extra_defs)
+        decls = cls._meta.declarations.copy()
+        decls.update(extra_defs)
+        return decls
 
     @classmethod
     def _adjust_kwargs(cls, **kwargs):
@@ -392,7 +439,7 @@ class BaseFactory(object):
     @classmethod
     def _get_target_class(cls):
         """Retrieve the actual, associated target class."""
-        definition = getattr(cls, CLASS_ATTRIBUTE_ASSOCIATED_CLASS, None)
+        definition = cls._meta.target
         return cls._load_target_class(definition)
 
     @classmethod
@@ -407,11 +454,11 @@ class BaseFactory(object):
         kwargs = cls._adjust_kwargs(**kwargs)
 
         # Remove 'hidden' arguments.
-        for arg in cls.FACTORY_HIDDEN_ARGS:
+        for arg in cls._meta.hidden_args:
             del kwargs[arg]
 
         # Extract *args from **kwargs
-        args = tuple(kwargs.pop(key) for key in cls.FACTORY_ARG_PARAMETERS)
+        args = tuple(kwargs.pop(key) for key in cls._meta.arg_parameters)
 
         logger.debug('BaseFactory: Generating %s.%s(%s)',
             cls.__module__,
@@ -431,15 +478,14 @@ class BaseFactory(object):
             create (bool): whether to 'build' or 'create' the object
             attrs (dict): attributes to use for generating the object
         """
-        if cls._abstract_factory:
+        if cls._meta.abstract:
             raise FactoryError(
                 "Cannot generate instances of abstract factory %(f)s; "
-                "Ensure %(f)s.FACTORY_FOR is set and %(f)s.ABSTRACT_FACTORY "
-                "is either not set or False." % dict(f=cls))
+                "Ensure %(f)s.Meta.target is set and %(f)s.Meta.abstract "
+                "is either not set or False." % dict(f=cls.__name__))
 
         # Extract declarations used for post-generation
-        postgen_declarations = getattr(cls,
-                CLASS_ATTRIBUTE_POSTGEN_DECLARATIONS)
+        postgen_declarations = cls._meta.postgen_declarations
         postgen_attributes = {}
         for name, decl in sorted(postgen_declarations.items()):
             postgen_attributes[name] = decl.extract(name, attrs)
@@ -626,8 +672,7 @@ class BaseFactory(object):
 
 
 Factory = FactoryMetaClass('Factory', (BaseFactory,), {
-    'ABSTRACT_FACTORY': True,
-    'FACTORY_STRATEGY': CREATE_STRATEGY,
+    'Meta': BaseMeta,
     '__doc__': """Factory base with build and create support.
 
     This class has the ability to support multiple ORMs by using custom creation
@@ -642,8 +687,9 @@ Factory.AssociatedClassError = AssociatedClassError  # pylint: disable=W0201
 
 class StubFactory(Factory):
 
-    FACTORY_STRATEGY = STUB_STRATEGY
-    FACTORY_FOR = containers.StubObject
+    class Meta:
+        strategy = STUB_STRATEGY
+        target = containers.StubObject
 
     @classmethod
     def build(cls, **kwargs):
@@ -656,13 +702,14 @@ class StubFactory(Factory):
 
 class BaseDictFactory(Factory):
     """Factory for dictionary-like classes."""
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "DictFactory %r does not support FACTORY_ARG_PARAMETERS.", cls)
+                "DictFactory %r does not support Meta.arg_parameters.", cls)
         return target_class(**kwargs)
 
     @classmethod
@@ -671,18 +718,20 @@ class BaseDictFactory(Factory):
 
 
 class DictFactory(BaseDictFactory):
-    FACTORY_FOR = dict
+    class Meta:
+        target = dict
 
 
 class BaseListFactory(Factory):
     """Factory for list-like classes."""
-    ABSTRACT_FACTORY = True
+    class Meta:
+        abstract = True
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "ListFactory %r does not support FACTORY_ARG_PARAMETERS.", cls)
+                "ListFactory %r does not support Meta.arg_parameters.", cls)
 
         values = [v for k, v in sorted(kwargs.items())]
         return target_class(values)
@@ -693,7 +742,8 @@ class BaseListFactory(Factory):
 
 
 class ListFactory(BaseListFactory):
-    FACTORY_FOR = list
+    class Meta:
+        target = list
 
 
 def use_strategy(new_strategy):
@@ -702,6 +752,6 @@ def use_strategy(new_strategy):
     This is an alternative to setting default_strategy in the class definition.
     """
     def wrapped_class(klass):
-        klass.FACTORY_STRATEGY = new_strategy
+        klass._meta.strategy = new_strategy
         return klass
     return wrapped_class

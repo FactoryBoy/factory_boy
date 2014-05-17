@@ -107,7 +107,7 @@ class FactoryTestCase(unittest.TestCase):
         class TestObjectFactory(base.Factory):
             FACTORY_FOR = TestObject
 
-        self.assertEqual(TestObject, TestObjectFactory.FACTORY_FOR)
+        self.assertEqual(TestObject, TestObjectFactory._meta.target)
         obj = TestObjectFactory.build()
         self.assertFalse(hasattr(obj, 'FACTORY_FOR'))
 
@@ -226,13 +226,13 @@ class FactorySequenceTestCase(unittest.TestCase):
 
 class FactoryDefaultStrategyTestCase(unittest.TestCase):
     def setUp(self):
-        self.default_strategy = base.Factory.FACTORY_STRATEGY
+        self.default_strategy = base.Factory._meta.strategy
 
     def tearDown(self):
-        base.Factory.FACTORY_STRATEGY = self.default_strategy
+        base.Factory._meta.strategy = self.default_strategy
 
     def test_build_strategy(self):
-        base.Factory.FACTORY_STRATEGY = base.BUILD_STRATEGY
+        base.Factory._meta.strategy = base.BUILD_STRATEGY
 
         class TestModelFactory(base.Factory):
             FACTORY_FOR = TestModel
@@ -256,7 +256,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertTrue(test_model.id)
 
     def test_stub_strategy(self):
-        base.Factory.FACTORY_STRATEGY = base.STUB_STRATEGY
+        base.Factory._meta.strategy = base.STUB_STRATEGY
 
         class TestModelFactory(base.Factory):
             FACTORY_FOR = TestModel
@@ -268,7 +268,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertFalse(hasattr(test_model, 'id'))  # We should have a plain old object
 
     def test_unknown_strategy(self):
-        base.Factory.FACTORY_STRATEGY = 'unknown'
+        base.Factory._meta.strategy = 'unknown'
 
         class TestModelFactory(base.Factory):
             FACTORY_FOR = TestModel
@@ -283,11 +283,11 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
             one = 'one'
 
-        TestModelFactory.FACTORY_STRATEGY = base.CREATE_STRATEGY
+        TestModelFactory._meta.strategy = base.CREATE_STRATEGY
 
         self.assertRaises(base.StubFactory.UnsupportedStrategy, TestModelFactory)
 
-        TestModelFactory.FACTORY_STRATEGY = base.BUILD_STRATEGY
+        TestModelFactory._meta.strategy = base.BUILD_STRATEGY
         self.assertRaises(base.StubFactory.UnsupportedStrategy, TestModelFactory)
 
     def test_change_strategy(self):
@@ -297,7 +297,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
             one = 'one'
 
-        self.assertEqual(base.CREATE_STRATEGY, TestModelFactory.FACTORY_STRATEGY)
+        self.assertEqual(base.CREATE_STRATEGY, TestModelFactory._meta.strategy)
 
 
 class FactoryCreationTestCase(unittest.TestCase):
@@ -311,7 +311,7 @@ class FactoryCreationTestCase(unittest.TestCase):
         class TestFactory(base.StubFactory):
             pass
 
-        self.assertEqual(TestFactory.FACTORY_STRATEGY, base.STUB_STRATEGY)
+        self.assertEqual(TestFactory._meta.strategy, base.STUB_STRATEGY)
 
     def test_inheritance_with_stub(self):
         class TestObjectFactory(base.StubFactory):
@@ -322,7 +322,7 @@ class FactoryCreationTestCase(unittest.TestCase):
         class TestFactory(TestObjectFactory):
             pass
 
-        self.assertEqual(TestFactory.FACTORY_STRATEGY, base.STUB_STRATEGY)
+        self.assertEqual(TestFactory._meta.strategy, base.STUB_STRATEGY)
 
     def test_custom_creation(self):
         class TestModelFactory(FakeModelFactory):
@@ -349,7 +349,7 @@ class FactoryCreationTestCase(unittest.TestCase):
         class Test(base.Factory):
             pass
 
-        self.assertTrue(Test._abstract_factory)
+        self.assertTrue(Test._meta.abstract)
 
 
 class PostGenerationParsingTestCase(unittest.TestCase):
@@ -360,7 +360,7 @@ class PostGenerationParsingTestCase(unittest.TestCase):
 
             foo = declarations.PostGenerationDeclaration()
 
-        self.assertIn('foo', TestObjectFactory._postgen_declarations)
+        self.assertIn('foo', TestObjectFactory._meta.postgen_declarations)
 
     def test_classlevel_extraction(self):
         class TestObjectFactory(base.Factory):
@@ -369,8 +369,8 @@ class PostGenerationParsingTestCase(unittest.TestCase):
             foo = declarations.PostGenerationDeclaration()
             foo__bar = 42
 
-        self.assertIn('foo', TestObjectFactory._postgen_declarations)
-        self.assertIn('foo__bar', TestObjectFactory._declarations)
+        self.assertIn('foo', TestObjectFactory._meta.postgen_declarations)
+        self.assertIn('foo__bar', TestObjectFactory._meta.declarations)
 
 
 
