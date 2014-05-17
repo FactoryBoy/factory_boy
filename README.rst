@@ -6,20 +6,61 @@ factory_boy
 
 factory_boy is a fixtures replacement based on thoughtbot's `factory_girl <http://github.com/thoughtbot/factory_girl>`_.
 
-Its features include:
+As a fixtures replacement tool, it aims to replace static, hard to maintain fixtures
+with easy-to-use factories for complex object.
 
-- Straightforward syntax
+Instead of building an exhaustive test setup with every possible combination of corner cases,
+``factory_boy`` allows you to use objects customized for the current test,
+while only declaring the test-specific fields:
+
+.. code-block:: python
+
+    class FooTests(unittest.TestCase):
+
+        def test_with_factory_boy(self):
+            # We need a 200€, paid order, shipping to australia, for a VIP customer
+            order = OrderFactory(
+                amount=200,
+                status='PAID',
+                customer__is_vip=True,
+                address__country='AU',
+            )
+            # Run the tests here
+
+        def test_without_factory_boy(self):
+            address = Address(
+                street="42 fubar street",
+                zipcode="42Z42",
+                city="Sydney",
+                country="AU",
+            )
+            customer = Customer(
+                first_name="John",
+                last_name="Doe",
+                phone="+1234",
+                email="john.doe@example.org",
+                active=True,
+                is_vip=True,
+                address=address,
+            )
+            # etc.
+
+factory_boy is designed to work well with various ORMs (Django, Mogo, SQLAlchemy),
+and can easily be extended for other libraries.
+
+Its main features include:
+
+- Straightforward declarative syntax
+- Chaining factory calls while retaining the global context
 - Support for multiple build strategies (saved/unsaved instances, attribute dicts, stubbed objects)
-- Powerful helpers for common cases (sequences, sub-factories, reverse dependencies, circular factories, ...)
 - Multiple factories per class support, including inheritance
-- Support for various ORMs (currently Django, Mogo, SQLAlchemy)
 
 
 Links
 -----
 
 * Documentation: http://factoryboy.readthedocs.org/
-* Official repository: https://github.com/rbarrois/factory_boy
+* Repository: https://github.com/rbarrois/factory_boy
 * Package: https://pypi.python.org/pypi/factory_boy/
 
 factory_boy supports Python 2.6, 2.7, 3.2 and 3.3, as well as PyPy; it requires only the standard Python library.
