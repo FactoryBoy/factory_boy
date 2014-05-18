@@ -44,6 +44,6 @@ class DeprecationTests(unittest.TestCase):
             warning = w[0]
             # Message is indeed related to the current file
             # This is to ensure error messages are readable by end users.
-            self.assertEqual(__file__, warning.filename)
+            self.assertIn(warning.filename, __file__)
             self.assertIn('FACTORY_FOR', str(warning.message))
             self.assertIn('model', str(warning.message))
