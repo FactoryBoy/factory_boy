@@ -12,6 +12,11 @@ ChangeLog
     - Add support for :attr:`factory.fuzzy.FuzzyInteger.step`, thanks to `ilya-pirogov <https://github.com/ilya-pirogov>`_ (:issue:`120`)
     - Add :meth:`~factory.django.mute_signals` decorator to temporarily disable some signals, thanks to `ilya-pirogov <https://github.com>`_ (:issue:`122`)
     - Add :class:`~factory.fuzzy.FuzzyFloat` (:issue:`124`)
+    - Declare target model and other non-declaration fields in a ``class Meta`` section.
+
+*Deprecation:*
+
+    - Use of ``FACTORY_FOR`` and other ``FACTORY`` class-level attributes is deprecated and will be removed in 2.5.
 
 .. _v2.3.1:
 
