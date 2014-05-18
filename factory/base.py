@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 import logging
+import warnings
 
 from . import containers
 from . import declarations
@@ -109,11 +110,21 @@ class FactoryMetaClass(type):
         attrs_meta = attrs.pop('Meta', None)
 
         oldstyle_attrs = {}
+        converted_attrs = {}
         for old_name, new_name in base_factory._OLDSTYLE_ATTRIBUTES.items():
             if old_name in attrs:
-                oldstyle_attrs[new_name] = attrs.pop(old_name)
+                oldstyle_attrs[old_name] = new_name
+                converted_attrs[new_name] = attrs.pop(old_name)
         if oldstyle_attrs:
-            attrs_meta = type('Meta', (object,), oldstyle_attrs)
+            warnings.warn(
+                "Declaring any of %s at class-level is deprecated"
+                " and will be removed in the future. Please set them"
+                " as %s attributes of a 'class Meta' attribute." % (
+                    ', '.join(oldstyle_attrs.keys()),
+                    ', '.join(oldstyle_attrs.values()),
+                ),
+                PendingDeprecationWarning, 2)
+            attrs_meta = type('Meta', (object,), converted_attrs)
 
         base_meta = resolve_attribute('_meta', bases)
         options_class = resolve_attribute('_options_class', bases, FactoryOptions)
