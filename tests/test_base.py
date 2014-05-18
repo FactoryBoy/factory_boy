@@ -67,18 +67,21 @@ class SafetyTestCase(unittest.TestCase):
 
 class AbstractFactoryTestCase(unittest.TestCase):
     def test_factory_for_optional(self):
-        """Ensure that FACTORY_FOR is optional for ABSTRACT_FACTORY."""
+        """Ensure that target= is optional for abstract=True."""
         class TestObjectFactory(base.Factory):
-            ABSTRACT_FACTORY = True
+            class Meta:
+                abstract = True
 
-        # Passed
+        self.assertTrue(TestObjectFactory._meta.abstract)
+        self.assertIsNone(TestObjectFactory._meta.target)
 
     def test_factory_for_and_abstract_factory_optional(self):
-        """Ensure that ABSTRACT_FACTORY is optional."""
+        """Ensure that Meta.abstract is optional."""
         class TestObjectFactory(base.Factory):
             pass
 
-        # passed
+        self.assertTrue(TestObjectFactory._meta.abstract)
+        self.assertIsNone(TestObjectFactory._meta.target)
 
     def test_abstract_factory_cannot_be_called(self):
         class TestObjectFactory(base.Factory):
@@ -86,6 +89,116 @@ class AbstractFactoryTestCase(unittest.TestCase):
 
         self.assertRaises(base.FactoryError, TestObjectFactory.build)
         self.assertRaises(base.FactoryError, TestObjectFactory.create)
+
+    def test_abstract_factory_not_inherited(self):
+        """abstract=True isn't propagated to child classes."""
+
+        class TestObjectFactory(base.Factory):
+            class Meta:
+                abstract = True
+                target = TestObject
+
+        class TestObjectChildFactory(TestObjectFactory):
+            pass
+
+        self.assertFalse(TestObjectChildFactory._meta.abstract)
+
+    def test_abstract_or_target_is_required(self):
+        class TestObjectFactory(base.Factory):
+            class Meta:
+                abstract = False
+                target = None
+
+        self.assertRaises(base.FactoryError, TestObjectFactory.build)
+        self.assertRaises(base.FactoryError, TestObjectFactory.create)
+
+
+class OptionsTests(unittest.TestCase):
+    def test_base_attrs(self):
+        class AbstractFactory(base.Factory):
+            pass
+
+        # Declarative attributes
+        self.assertTrue(AbstractFactory._meta.abstract)
+        self.assertIsNone(AbstractFactory._meta.target)
+        self.assertEqual((), AbstractFactory._meta.arg_parameters)
+        self.assertEqual((), AbstractFactory._meta.hidden_args)
+        self.assertEqual(base.CREATE_STRATEGY, AbstractFactory._meta.strategy)
+
+        # Non-declarative attributes
+        self.assertEqual({}, AbstractFactory._meta.declarations)
+        self.assertEqual({}, AbstractFactory._meta.postgen_declarations)
+        self.assertEqual(AbstractFactory, AbstractFactory._meta.factory)
+        self.assertEqual(base.Factory, AbstractFactory._meta.base_factory)
+        self.assertEqual(AbstractFactory, AbstractFactory._meta.counter_reference)
+
+    def test_declaration_collecting(self):
+        lazy = declarations.LazyAttribute(lambda _o: 1)
+        postgen = declarations.PostGenerationDeclaration()
+
+        class AbstractFactory(base.Factory):
+            x = 1
+            y = lazy
+            z = postgen
+
+        # Declarations aren't removed
+        self.assertEqual(1, AbstractFactory.x)
+        self.assertEqual(lazy, AbstractFactory.y)
+        self.assertEqual(postgen, AbstractFactory.z)
+
+        # And are available in class Meta
+        self.assertEqual({'x': 1, 'y': lazy}, AbstractFactory._meta.declarations)
+        self.assertEqual({'z': postgen}, AbstractFactory._meta.postgen_declarations)
+
+    def test_inherited_declaration_collecting(self):
+        lazy = declarations.LazyAttribute(lambda _o: 1)
+        lazy2 = declarations.LazyAttribute(lambda _o: 2)
+        postgen = declarations.PostGenerationDeclaration()
+        postgen2 = declarations.PostGenerationDeclaration()
+
+        class AbstractFactory(base.Factory):
+            x = 1
+            y = lazy
+            z = postgen
+
+        class OtherFactory(AbstractFactory):
+            a = lazy2
+            b = postgen2
+
+        # Declarations aren't removed
+        self.assertEqual(lazy2, OtherFactory.a)
+        self.assertEqual(postgen2, OtherFactory.b)
+        self.assertEqual(1, OtherFactory.x)
+        self.assertEqual(lazy, OtherFactory.y)
+        self.assertEqual(postgen, OtherFactory.z)
+
+        # And are available in class Meta
+        self.assertEqual({'x': 1, 'y': lazy, 'a': lazy2}, OtherFactory._meta.declarations)
+        self.assertEqual({'z': postgen, 'b': postgen2}, OtherFactory._meta.postgen_declarations)
+
+    def test_inherited_declaration_shadowing(self):
+        lazy = declarations.LazyAttribute(lambda _o: 1)
+        lazy2 = declarations.LazyAttribute(lambda _o: 2)
+        postgen = declarations.PostGenerationDeclaration()
+        postgen2 = declarations.PostGenerationDeclaration()
+
+        class AbstractFactory(base.Factory):
+            x = 1
+            y = lazy
+            z = postgen
+
+        class OtherFactory(AbstractFactory):
+            y = lazy2
+            z = postgen2
+
+        # Declarations aren't removed
+        self.assertEqual(1, OtherFactory.x)
+        self.assertEqual(lazy2, OtherFactory.y)
+        self.assertEqual(postgen2, OtherFactory.z)
+
+        # And are available in class Meta
+        self.assertEqual({'x': 1, 'y': lazy2}, OtherFactory._meta.declarations)
+        self.assertEqual({'z': postgen2}, OtherFactory._meta.postgen_declarations)
 
 
 class DeclarationParsingTests(unittest.TestCase):
