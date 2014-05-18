@@ -66,7 +66,7 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
     def setUp(self):
         super(SQLAlchemyPkSequenceTestCase, self).setUp()
         StandardFactory.reset_sequence(1)
-        NonIntegerPkFactory.FACTORY_SESSION.rollback()
+        NonIntegerPkFactory._meta.sqlalchemy_session.rollback()
 
     def test_pk_first(self):
         std = StandardFactory.build()
@@ -104,7 +104,7 @@ class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
     def setUp(self):
         super(SQLAlchemyNonIntegerPkTestCase, self).setUp()
         NonIntegerPkFactory.reset_sequence()
-        NonIntegerPkFactory.FACTORY_SESSION.rollback()
+        NonIntegerPkFactory._meta.sqlalchemy_session.rollback()
 
     def test_first(self):
         nonint = NonIntegerPkFactory.build()
