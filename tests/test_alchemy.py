@@ -36,7 +36,8 @@ if sqlalchemy:
 else:
 
     class Fake(object):
-        FACTORY_SESSION = None
+        class Meta:
+            sqlalchemy_session = None
 
     models = Fake()
     models.StandardModel = Fake()
@@ -46,16 +47,18 @@ else:
 
 
 class StandardFactory(SQLAlchemyModelFactory):
-    FACTORY_FOR = models.StandardModel
-    FACTORY_SESSION = models.session
+    class Meta:
+        target = models.StandardModel
+        sqlalchemy_session = models.session
 
     id = factory.Sequence(lambda n: n)
     foo = factory.Sequence(lambda n: 'foo%d' % n)
 
 
 class NonIntegerPkFactory(SQLAlchemyModelFactory):
-    FACTORY_FOR = models.NonIntegerPk
-    FACTORY_SESSION = models.session
+    class Meta:
+        target = models.NonIntegerPk
+        sqlalchemy_session = models.session
 
     id = factory.Sequence(lambda n: 'foo%d' % n)
 

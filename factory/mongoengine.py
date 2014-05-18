@@ -32,7 +32,9 @@ from . import base
 
 class MongoEngineFactory(base.Factory):
     """Factory for mongoengine objects."""
-    ABSTRACT_FACTORY = True
+
+    class Meta:
+        abstract = True
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):

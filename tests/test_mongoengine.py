@@ -42,12 +42,14 @@ if mongoengine:
         address = mongoengine.EmbeddedDocumentField(Address)
 
     class AddressFactory(MongoEngineFactory):
-        FACTORY_FOR = Address
+        class Meta:
+            target = Address
 
         street = factory.Sequence(lambda n: 'street%d' % n)
 
     class PersonFactory(MongoEngineFactory):
-        FACTORY_FOR = Person
+        class Meta:
+            target = Person
 
         name = factory.Sequence(lambda n: 'name%d' % n)
         address = factory.SubFactory(AddressFactory)

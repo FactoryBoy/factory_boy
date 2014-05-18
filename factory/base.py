@@ -40,7 +40,7 @@ class FactoryError(Exception):
 
 
 class AssociatedClassError(FactoryError):
-    """Exception for Factory subclasses lacking FACTORY_FOR."""
+    """Exception for Factory subclasses lacking Meta.target."""
 
 
 class UnknownStrategy(FactoryError):
@@ -82,7 +82,7 @@ class FactoryMetaClass(type):
         elif cls._meta.strategy == STUB_STRATEGY:
             return cls.stub(**kwargs)
         else:
-            raise UnknownStrategy('Unknown FACTORY_STRATEGY: {0}'.format(
+            raise UnknownStrategy('Unknown Meta.strategy: {0}'.format(
                 cls._meta.strategy))
 
     def __new__(mcs, class_name, bases, attrs):
