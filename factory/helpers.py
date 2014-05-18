@@ -51,7 +51,7 @@ def make_factory(klass, **kwargs):
     """Create a new, simple factory for the given class."""
     factory_name = '%sFactory' % klass.__name__
     class Meta:
-        target = klass
+        model = klass
     kwargs['Meta'] = Meta
     base_class = kwargs.pop('FACTORY_CLASS', base.Factory)
 

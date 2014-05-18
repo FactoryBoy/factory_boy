@@ -94,7 +94,7 @@ class LazyStubTestCase(unittest.TestCase):
         class RandomObj(object):
             pass
 
-        stub = containers.LazyStub({'one': 1, 'two': 2}, target_class=RandomObj)
+        stub = containers.LazyStub({'one': 1, 'two': 2}, model_class=RandomObj)
         self.assertIn('RandomObj', repr(stub))
         self.assertIn('RandomObj', str(stub))
         self.assertIn('one', str(stub))

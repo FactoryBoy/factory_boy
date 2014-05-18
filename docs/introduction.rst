@@ -18,11 +18,11 @@ Basic usage
 -----------
 
 
-Factories declare a set of attributes used to instantiate an object, whose class is defined in the ``class Meta``'s ``target`` attribute:
+Factories declare a set of attributes used to instantiate an object, whose class is defined in the ``class Meta``'s ``model`` attribute:
 
 - Subclass ``factory.Factory`` (or a more suitable subclass)
 - Add a ``class Meta:`` block
-- Set its ``target`` attribute to the target class
+- Set its ``model`` attribute to the target class
 - Add defaults for keyword args to pass to the associated class' ``__init__`` method
 
 
@@ -33,7 +33,7 @@ Factories declare a set of attributes used to instantiate an object, whose class
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = base.User
+            model = base.User
 
         firstname = "John"
         lastname = "Doe"
@@ -59,7 +59,7 @@ A given class may be associated to many :class:`~factory.Factory` subclasses:
 
     class EnglishUserFactory(factory.Factory):
         class Meta:
-            target = base.User
+            model = base.User
 
         firstname = "John"
         lastname = "Doe"
@@ -68,7 +68,7 @@ A given class may be associated to many :class:`~factory.Factory` subclasses:
 
     class FrenchUserFactory(factory.Factory):
         class Meta:
-            target = base.User
+            model = base.User
 
         firstname = "Jean"
         lastname = "Dupont"
@@ -93,7 +93,7 @@ This is achieved with the :class:`~factory.Sequence` declaration:
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = models.User
+            model = models.User
 
         username = factory.Sequence(lambda n: 'user%d' % n)
 
@@ -110,7 +110,7 @@ This is achieved with the :class:`~factory.Sequence` declaration:
 
             class UserFactory(factory.Factory):
                 class Meta:
-                    target = models.User
+                    model = models.User
 
                 @factory.sequence
                 def username(n):
@@ -128,7 +128,7 @@ taking the object being built and returning the value for the field:
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = models.User
+            model = models.User
 
         username = factory.Sequence(lambda n: 'user%d' % n)
         email = factory.LazyAttribute(lambda obj: '%s@example.com' % obj.username)
@@ -154,7 +154,7 @@ taking the object being built and returning the value for the field:
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = models.User
+            model = models.User
 
         username = factory.Sequence(lambda n: 'user%d' % n)
 
@@ -177,7 +177,7 @@ and update them with its own declarations:
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = base.User
+            model = base.User
 
         firstname = "John"
         lastname = "Doe"
@@ -224,7 +224,7 @@ This is handled by the :data:`~factory.FactoryOptions.arg_parameters` attribute:
 
     class MyFactory(factory.Factory):
         class Meta:
-            target = MyClass
+            model = MyClass
             arg_parameters = ('x', 'y')
 
         x = 1
@@ -262,7 +262,7 @@ Calling a :class:`~factory.Factory` subclass will provide an object through the 
 
     class MyFactory(factory.Factory):
         class Meta:
-            target = MyClass
+            model = MyClass
 
 .. code-block:: pycon
 

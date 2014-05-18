@@ -47,27 +47,27 @@ class LazyStub(object):
         __containers (LazyStub list): "parents" of the LazyStub being built.
             This allows to have the field of a field depend on the value of
             another field
-        __target_class (type): the target class to build.
+        __model_class (type): the model class to build.
     """
 
     __initialized = False
 
-    def __init__(self, attrs, containers=(), target_class=object, log_ctx=None):
+    def __init__(self, attrs, containers=(), model_class=object, log_ctx=None):
         self.__attrs = attrs
         self.__values = {}
         self.__pending = []
         self.__containers = containers
-        self.__target_class = target_class
-        self.__log_ctx = log_ctx or '%s.%s' % (target_class.__module__, target_class.__name__)
+        self.__model_class = model_class
+        self.__log_ctx = log_ctx or '%s.%s' % (model_class.__module__, model_class.__name__)
         self.factory_parent = containers[0] if containers else None
         self.__initialized = True
 
     def __repr__(self):
-        return '<LazyStub for %s.%s>' % (self.__target_class.__module__, self.__target_class.__name__)
+        return '<LazyStub for %s.%s>' % (self.__model_class.__module__, self.__model_class.__name__)
 
     def __str__(self):
         return '<LazyStub for %s with %s>' % (
-            self.__target_class.__name__, list(self.__attrs.keys()))
+            self.__model_class.__name__, list(self.__attrs.keys()))
 
     def __fill__(self):
         """Fill this LazyStub, computing values of all defined attributes.
@@ -224,7 +224,7 @@ class AttributeBuilder(object):
             wrapped_attrs[k] = v
 
         stub = LazyStub(wrapped_attrs, containers=self._containers,
-            target_class=self.factory, log_ctx=self._log_ctx)
+            model_class=self.factory, log_ctx=self._log_ctx)
         return stub.__fill__()
 
 

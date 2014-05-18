@@ -41,7 +41,7 @@ class FactoryError(Exception):
 
 
 class AssociatedClassError(FactoryError):
-    """Exception for Factory subclasses lacking Meta.target."""
+    """Exception for Factory subclasses lacking Meta.model."""
 
 
 class UnknownStrategy(FactoryError):
@@ -147,7 +147,7 @@ class FactoryMetaClass(type):
         if cls._meta.abstract:
             return '<%s (abstract)>' % cls.__name__
         else:
-            return '<%s for %s>' % (cls.__name__, cls._meta.target)
+            return '<%s for %s>' % (cls.__name__, cls._meta.model)
 
 
 class BaseMeta:
@@ -189,7 +189,7 @@ class FactoryOptions(object):
         to update() its return value.
         """
         return [
-            OptionDefault('target', None, inherit=True),
+            OptionDefault('model', None, inherit=True),
             OptionDefault('abstract', False, inherit=False),
             OptionDefault('strategy', CREATE_STRATEGY, inherit=True),
             OptionDefault('arg_parameters', (), inherit=True),
@@ -225,8 +225,8 @@ class FactoryOptions(object):
 
         self._fill_from_meta(meta=meta, base_meta=base_meta)
 
-        self.target = self.factory._load_target_class(self.target)
-        if self.target is None:
+        self.model = self.factory._load_model_class(self.model)
+        if self.model is None:
             self.abstract = True
 
         self.counter_reference = self._get_counter_reference()
@@ -246,10 +246,10 @@ class FactoryOptions(object):
     def _get_counter_reference(self):
         """Identify which factory should be used for a shared counter."""
 
-        if (self.target is not None
+        if (self.model is not None
                 and self.base_factory is not None
-                and self.base_factory._meta.target is not None
-                and issubclass(self.target, self.base_factory._meta.target)):
+                and self.base_factory._meta.model is not None
+                and issubclass(self.model, self.base_factory._meta.model)):
             return self.base_factory
         else:
             return self.factory
@@ -323,7 +323,7 @@ class BaseFactory(object):
     _meta = FactoryOptions()
 
     _OLDSTYLE_ATTRIBUTES = {
-        'FACTORY_FOR': 'target',
+        'FACTORY_FOR': 'model',
         'ABSTRACT_FACTORY': 'abstract',
         'FACTORY_STRATEGY': 'strategy',
         'FACTORY_ARG_PARAMETERS': 'arg_parameters',
@@ -444,8 +444,8 @@ class BaseFactory(object):
         return kwargs
 
     @classmethod
-    def _load_target_class(cls, class_definition):
-        """Extension point for loading target classes.
+    def _load_model_class(cls, class_definition):
+        """Extension point for loading model classes.
 
         This can be overridden in framework-specific subclasses to hook into
         existing model repositories, for instance.
@@ -453,10 +453,10 @@ class BaseFactory(object):
         return class_definition
 
     @classmethod
-    def _get_target_class(cls):
-        """Retrieve the actual, associated target class."""
-        definition = cls._meta.target
-        return cls._load_target_class(definition)
+    def _get_model_class(cls):
+        """Retrieve the actual, associated model class."""
+        definition = cls._meta.model
+        return cls._load_model_class(definition)
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -466,7 +466,7 @@ class BaseFactory(object):
             create: bool, whether to create or to build the object
             **kwargs: arguments to pass to the creation function
         """
-        target_class = cls._get_target_class()
+        model_class = cls._get_model_class()
         kwargs = cls._adjust_kwargs(**kwargs)
 
         # Remove 'hidden' arguments.
@@ -482,9 +482,9 @@ class BaseFactory(object):
             utils.log_pprint(args, kwargs),
         )
         if create:
-            return cls._create(target_class, *args, **kwargs)
+            return cls._create(model_class, *args, **kwargs)
         else:
-            return cls._build(target_class, *args, **kwargs)
+            return cls._build(model_class, *args, **kwargs)
 
     @classmethod
     def _generate(cls, create, attrs):
@@ -497,7 +497,7 @@ class BaseFactory(object):
         if cls._meta.abstract:
             raise FactoryError(
                 "Cannot generate instances of abstract factory %(f)s; "
-                "Ensure %(f)s.Meta.target is set and %(f)s.Meta.abstract "
+                "Ensure %(f)s.Meta.model is set and %(f)s.Meta.abstract "
                 "is either not set or False." % dict(f=cls.__name__))
 
         # Extract declarations used for post-generation
@@ -531,34 +531,34 @@ class BaseFactory(object):
         pass
 
     @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        """Actually build an instance of the target_class.
+    def _build(cls, model_class, *args, **kwargs):
+        """Actually build an instance of the model_class.
 
         Customization point, will be called once the full set of args and kwargs
         has been computed.
 
         Args:
-            target_class (type): the class for which an instance should be
+            model_class (type): the class for which an instance should be
                 built
             args (tuple): arguments to use when building the class
             kwargs (dict): keyword arguments to use when building the class
         """
-        return target_class(*args, **kwargs)
+        return model_class(*args, **kwargs)
 
     @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        """Actually create an instance of the target_class.
+    def _create(cls, model_class, *args, **kwargs):
+        """Actually create an instance of the model_class.
 
         Customization point, will be called once the full set of args and kwargs
         has been computed.
 
         Args:
-            target_class (type): the class for which an instance should be
+            model_class (type): the class for which an instance should be
                 created
             args (tuple): arguments to use when creating the class
             kwargs (dict): keyword arguments to use when creating the class
         """
-        return target_class(*args, **kwargs)
+        return model_class(*args, **kwargs)
 
     @classmethod
     def build(cls, **kwargs):
@@ -705,7 +705,7 @@ class StubFactory(Factory):
 
     class Meta:
         strategy = STUB_STRATEGY
-        target = containers.StubObject
+        model = containers.StubObject
 
     @classmethod
     def build(cls, **kwargs):
@@ -722,20 +722,20 @@ class BaseDictFactory(Factory):
         abstract = True
 
     @classmethod
-    def _build(cls, target_class, *args, **kwargs):
+    def _build(cls, model_class, *args, **kwargs):
         if args:
             raise ValueError(
                 "DictFactory %r does not support Meta.arg_parameters.", cls)
-        return target_class(**kwargs)
+        return model_class(**kwargs)
 
     @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        return cls._build(target_class, *args, **kwargs)
+    def _create(cls, model_class, *args, **kwargs):
+        return cls._build(model_class, *args, **kwargs)
 
 
 class DictFactory(BaseDictFactory):
     class Meta:
-        target = dict
+        model = dict
 
 
 class BaseListFactory(Factory):
@@ -744,22 +744,22 @@ class BaseListFactory(Factory):
         abstract = True
 
     @classmethod
-    def _build(cls, target_class, *args, **kwargs):
+    def _build(cls, model_class, *args, **kwargs):
         if args:
             raise ValueError(
                 "ListFactory %r does not support Meta.arg_parameters.", cls)
 
         values = [v for k, v in sorted(kwargs.items())]
-        return target_class(values)
+        return model_class(values)
 
     @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        return cls._build(target_class, *args, **kwargs)
+    def _create(cls, model_class, *args, **kwargs):
+        return cls._build(model_class, *args, **kwargs)
 
 
 class ListFactory(BaseListFactory):
     class Meta:
-        target = list
+        model = list
 
 
 def use_strategy(new_strategy):

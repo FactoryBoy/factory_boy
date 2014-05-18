@@ -27,7 +27,7 @@ use the :class:`~factory.SubFactory` declaration:
 
     class UserFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.User
+            model = models.User
 
         first_name = factory.Sequence(lambda n: "Agent %03d" % n)
         group = factory.SubFactory(GroupFactory)
@@ -55,7 +55,7 @@ use a :class:`~factory.RelatedFactory` declaration:
     # factories.py
     class UserFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.User
+            model = models.User
 
         log = factory.RelatedFactory(UserLogFactory, 'user', action=models.UserLog.ACTION_CREATE)
 
@@ -78,7 +78,7 @@ factory_boy allows to define attributes of such profiles dynamically when creati
 
     class ProfileFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = my_models.Profile
+            model = my_models.Profile
 
         title = 'Dr'
         # We pass in profile=None to prevent UserFactory from creating another profile
@@ -87,7 +87,7 @@ factory_boy allows to define attributes of such profiles dynamically when creati
 
     class UserFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = auth_models.User
+            model = auth_models.User
 
         username = factory.Sequence(lambda n: "user_%d" % n)
 
@@ -150,13 +150,13 @@ hook:
     # factories.py
     class GroupFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.Group
+            model = models.Group
 
         name = factory.Sequence(lambda n: "Group #%s" % n)
 
     class UserFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.User
+            model = models.User
 
         name = "John Doe"
 
@@ -207,19 +207,19 @@ If more links are needed, simply add more :class:`RelatedFactory` declarations:
     # factories.py
     class UserFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.User
+            model = models.User
 
         name = "John Doe"
 
     class GroupFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.Group
+            model = models.Group
 
         name = "Admins"
 
     class GroupLevelFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.GroupLevel
+            model = models.GroupLevel
 
         user = factory.SubFactory(UserFactory)
         group = factory.SubFactory(GroupFactory)
@@ -283,14 +283,14 @@ Here, we want:
     # factories.py
     class CountryFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.Country
+            model = models.Country
 
         name = factory.Iterator(["France", "Italy", "Spain"])
         lang = factory.Iterator(['fr', 'it', 'es'])
 
     class UserFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.User
+            model = models.User
 
         name = "John"
         lang = factory.SelfAttribute('country.lang')
@@ -298,7 +298,7 @@ Here, we want:
 
     class CompanyFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.Company
+            model = models.Company
 
         name = "ACME, Inc."
         country = factory.SubFactory(CountryFactory)
@@ -315,15 +315,15 @@ default :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>` 
 
    class UserFactory(factory.DjangoModelFactory):
        class Meta:
-           target = UserenaSignup
+           model = UserenaSignup
 
        username = "l7d8s"
        email = "my_name@example.com"
        password = "my_password"
 
        @classmethod
-       def _create(cls, target_class, *args, **kwargs):
+       def _create(cls, model_class, *args, **kwargs):
            """Override the default ``_create`` with our custom call."""
-           manager = cls._get_manager(target_class)
+           manager = cls._get_manager(model_class)
            # The default would use ``manager.create(*args, **kwargs)``
            return manager.create_user(*args, **kwargs)

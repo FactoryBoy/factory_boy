@@ -46,4 +46,4 @@ class DeprecationTests(unittest.TestCase):
             # This is to ensure error messages are readable by end users.
             self.assertEqual(__file__, warning.filename)
             self.assertIn('FACTORY_FOR', str(warning.message))
-            self.assertIn('target', str(warning.message))
+            self.assertIn('model', str(warning.message))

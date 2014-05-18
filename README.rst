@@ -95,7 +95,7 @@ Defining factories
 """"""""""""""""""
 
 Factories declare a set of attributes used to instantiate an object.
-The class of the object must be defined in the ``target`` field of a ``class Meta:`` attribute:
+The class of the object must be defined in the ``model`` field of a ``class Meta:`` attribute:
 
 .. code-block:: python
 
@@ -104,7 +104,7 @@ The class of the object must be defined in the ``target`` field of a ``class Met
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = models.User
+            model = models.User
 
         first_name = 'John'
         last_name = 'Doe'
@@ -113,7 +113,7 @@ The class of the object must be defined in the ``target`` field of a ``class Met
     # Another, different, factory for the same object
     class AdminFactory(factory.Factory):
         class Meta:
-            target = models.User
+            model = models.User
 
         first_name = 'Admin'
         last_name = 'User'
@@ -168,7 +168,7 @@ These "lazy" attributes can be added as follows:
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = models.User
+            model = models.User
 
         first_name = 'Joe'
         last_name = 'Blow'
@@ -189,7 +189,7 @@ Unique values in a specific format (for example, e-mail addresses) can be genera
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = models.User
+            model = models.User
 
         email = factory.Sequence(lambda n: 'person{0}@example.com'.format(n))
 
@@ -209,7 +209,7 @@ This is handled by the ``SubFactory`` helper:
 
     class PostFactory(factory.Factory):
         class Meta:
-            target = models.Post
+            model = models.Post
 
         author = factory.SubFactory(UserFactory)
 

@@ -61,10 +61,10 @@ class DjangoOptions(base.FactoryOptions):
     def _get_counter_reference(self):
         counter_reference = super(DjangoOptions, self)._get_counter_reference()
         if (counter_reference == self.base_factory
-                and self.base_factory._meta.target is not None
-                and self.base_factory._meta.target._meta.abstract
-                and self.target is not None
-                and not self.target._meta.abstract):
+                and self.base_factory._meta.model is not None
+                and self.base_factory._meta.model._meta.abstract
+                and self.model is not None
+                and not self.model._meta.abstract):
             # Target factory is for an abstract model, yet we're for another,
             # concrete subclass => don't reuse the counter.
             return self.factory
@@ -90,7 +90,7 @@ class DjangoModelFactory(base.Factory):
     })
 
     @classmethod
-    def _load_target_class(cls, definition):
+    def _load_model_class(cls, definition):
 
         if is_string(definition) and '.' in definition:
             app, model = definition.split('.', 1)
@@ -100,17 +100,17 @@ class DjangoModelFactory(base.Factory):
         return definition
 
     @classmethod
-    def _get_manager(cls, target_class):
+    def _get_manager(cls, model_class):
         try:
-            return target_class._default_manager   # pylint: disable=W0212
+            return model_class._default_manager   # pylint: disable=W0212
         except AttributeError:
-            return target_class.objects
+            return model_class.objects
 
     @classmethod
     def _setup_next_sequence(cls):
         """Compute the next available PK, based on the 'pk' database field."""
 
-        model = cls._get_target_class()  # pylint: disable=E1101
+        model = cls._get_model_class()  # pylint: disable=E1101
         manager = cls._get_manager(model)
 
         try:
@@ -122,9 +122,9 @@ class DjangoModelFactory(base.Factory):
             return 1
 
     @classmethod
-    def _get_or_create(cls, target_class, *args, **kwargs):
+    def _get_or_create(cls, model_class, *args, **kwargs):
         """Create an instance of the model through objects.get_or_create."""
-        manager = cls._get_manager(target_class)
+        manager = cls._get_manager(model_class)
 
         assert 'defaults' not in cls._meta.django_get_or_create, (
             "'defaults' is a reserved keyword for get_or_create "
@@ -140,12 +140,12 @@ class DjangoModelFactory(base.Factory):
         return obj
 
     @classmethod
-    def _create(cls, target_class, *args, **kwargs):
+    def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
-        manager = cls._get_manager(target_class)
+        manager = cls._get_manager(model_class)
 
         if cls._meta.django_get_or_create:
-            return cls._get_or_create(target_class, *args, **kwargs)
+            return cls._get_or_create(model_class, *args, **kwargs)
 
         return manager.create(*args, **kwargs)
 

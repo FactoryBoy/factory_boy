@@ -23,10 +23,10 @@ The :class:`Factory` class
 
         class MyFactory(factory.Factory):
             class Meta:
-                target = MyObject
+                model = MyObject
                 abstract = False
 
-    .. attribute:: target
+    .. attribute:: model
 
         This optional attribute describes the class of objects to generate.
 
@@ -40,10 +40,10 @@ The :class:`Factory` class
         be used to generate objects, but instead provides some extra defaults.
 
         It will be automatically set to ``True`` if neither the :class:`Factory`
-        subclass nor its parents define the :attr:`~FactoryOptions.target` attribute.
+        subclass nor its parents define the :attr:`~FactoryOptions.model` attribute.
 
         .. warning:: This flag is reset to ``False`` When a :class:`Factory` subclasses
-                     another one if a :attr:`~FactoryOptions.target` is set.
+                     another one if a :attr:`~FactoryOptions.model` is set.
 
         .. versionadded:: 2.4.0
 
@@ -57,7 +57,7 @@ The :class:`Factory` class
 
             class UserFactory(factory.Factory):
                 class Meta:
-                    target = User
+                    model = User
                     arg_parameters = ('login', 'email')
 
                 login = 'john'
@@ -76,7 +76,7 @@ The :class:`Factory` class
 
         While writing a :class:`Factory` for some object, it may be useful to
         have general fields helping defining others, but that should not be
-        passed to the target class; for instance, a field named 'now' that would
+        passed to the model class; for instance, a field named 'now' that would
         hold a reference time used by other objects.
 
         Factory fields whose name are listed in :attr:`hidden_args` will
@@ -87,7 +87,7 @@ The :class:`Factory` class
 
             class OrderFactory(factory.Factory):
                 class Meta:
-                    target = Order
+                    model = Order
                     hidden_args = ('now',)
 
                 now = factory.LazyAttribute(lambda o: datetime.datetime.utcnow())
@@ -115,7 +115,7 @@ The :class:`Factory` class
               .. attribute:: FACTORY_FOR
 
                   .. deprecated:: 2.4.0
-                                  See :attr:`FactoryOptions.target`.
+                                  See :attr:`FactoryOptions.model`.
 
               .. attribute:: ABSTRACT_FACTORY
 
@@ -258,19 +258,19 @@ The :class:`Factory` class
         Subclasses may fetch the next free ID from the database, for instance.
 
 
-    .. classmethod:: _build(cls, target_class, *args, **kwargs)
+    .. classmethod:: _build(cls, model_class, *args, **kwargs)
 
         .. OHAI_VIM*
 
         This class method is called whenever a new instance needs to be built.
-        It receives the target class (provided to :attr:`~FactoryOptions.target`), and
+        It receives the model class (provided to :attr:`~FactoryOptions.model`), and
         the positional and keyword arguments to use for the class once all has
         been computed.
 
         Subclasses may override this for custom APIs.
 
 
-    .. classmethod:: _create(cls, target_class, *args, **kwargs)
+    .. classmethod:: _create(cls, model_class, *args, **kwargs)
 
         .. OHAI_VIM*
 
@@ -286,8 +286,8 @@ The :class:`Factory` class
                 class Meta:
                     abstract = True  # Optional
 
-                def _create(cls, target_class, *args, **kwargs):
-                    obj = target_class(*args, **kwargs)
+                def _create(cls, model_class, *args, **kwargs):
+                    obj = model_class(*args, **kwargs)
                     obj.save()
                     return obj
 
@@ -363,7 +363,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
     but not persisted to any datastore.
 
     It is usually a simple call to the :meth:`~object.__init__` method of the
-    :attr:`~FactoryOptions.target` class.
+    :attr:`~FactoryOptions.model` class.
 
 
 .. data:: CREATE_STRATEGY
@@ -386,7 +386,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
                  when using the ``create`` strategy.
 
                  That policy will be used if the
-                 :attr:`associated class <FactoryOptions.target>` has an ``objects``
+                 :attr:`associated class <FactoryOptions.model` has an ``objects``
                  attribute *and* the :meth:`~Factory._create` classmethod of the
                  :class:`Factory` wasn't overridden.
 
@@ -407,7 +407,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
 .. data:: STUB_STRATEGY
 
     The 'stub' strategy is an exception in the factory_boy world: it doesn't return
-    an instance of the :attr:`~FactoryOptions.target` class, and actually doesn't
+    an instance of the :attr:`~FactoryOptions.model` class, and actually doesn't
     require one to be present.
 
     Instead, it returns an instance of :class:`StubObject` whose attributes have been
@@ -485,7 +485,7 @@ accept the object being built as sole argument, and return a value.
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         username = 'john'
         email = factory.LazyAttribute(lambda o: '%s@example.com' % o.username)
@@ -521,7 +521,7 @@ return value of the method:
 
     class UserFactory(factory.Factory)
         class Meta:
-            target = User
+            model = User
 
         name = u"Jean"
 
@@ -560,7 +560,7 @@ This declaration takes a single argument, a function accepting a single paramete
 
     class UserFactory(factory.Factory)
         class Meta:
-            target = User
+            model = User
 
         phone = factory.Sequence(lambda n: '123-555-%04d' % n)
 
@@ -586,7 +586,7 @@ be the sequence counter - this might be confusing:
 
     class UserFactory(factory.Factory)
         class Meta:
-            target = User
+            model = User
 
         @factory.sequence
         def phone(n):
@@ -612,7 +612,7 @@ The sequence counter is shared across all :class:`Sequence` attributes of the
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         phone = factory.Sequence(lambda n: '%04d' % n)
         office = factory.Sequence(lambda n: 'A23-B%03d' % n)
@@ -637,7 +637,7 @@ sequence counter is shared:
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         phone = factory.Sequence(lambda n: '123-555-%04d' % n)
 
@@ -673,7 +673,7 @@ class-level value.
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         uid = factory.Sequence(int)
 
@@ -709,7 +709,7 @@ It takes a single argument, a function whose two parameters are, in order:
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         login = 'john'
         email = factory.LazyAttributeSequence(lambda o, n: '%s@s%d.example.com' % (o.login, n))
@@ -734,7 +734,7 @@ handles more complex cases:
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         login = 'john'
 
@@ -772,7 +772,7 @@ The :class:`SubFactory` attribute should be called with:
 
               class FooFactory(factory.Factory):
                   class Meta:
-                      target = Foo
+                      model = Foo
 
                   bar = factory.SubFactory(BarFactory)  # Not BarFactory()
 
@@ -786,7 +786,7 @@ Definition
     # A standard factory
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         # Various fields
         first_name = 'John'
@@ -796,7 +796,7 @@ Definition
     # A factory for an object with a 'User' field
     class CompanyFactory(factory.Factory):
         class Meta:
-            target = Company
+            model = Company
 
         name = factory.Sequence(lambda n: 'FactoryBoyz' + 'z' * n)
 
@@ -877,14 +877,14 @@ This issue can be handled by passing the absolute import path to the target
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         username = 'john'
         main_group = factory.SubFactory('users.factories.GroupFactory')
 
     class GroupFactory(factory.Factory):
         class Meta:
-            target = Group
+            model = Group
 
         name = "MyGroup"
         owner = factory.SubFactory(UserFactory)
@@ -913,7 +913,7 @@ That declaration takes a single argument, a dot-delimited path to the attribute 
 
     class UserFactory(factory.Factory)
         class Meta:
-            target = User
+            model = User
 
         birthdate = factory.Sequence(lambda n: datetime.date(2000, 1, 1) + datetime.timedelta(days=n))
         birthmonth = factory.SelfAttribute('birthdate.month')
@@ -940,14 +940,14 @@ gains an "upward" semantic through the double-dot notation, as used in Python im
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         language = 'en'
 
 
     class CompanyFactory(factory.Factory):
         class Meta:
-            target = Company
+            model = Company
 
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory, language=factory.SelfAttribute('..country.language'))
@@ -976,7 +976,7 @@ through the :attr:`~containers.LazyStub.factory_parent` attribute of the passed-
 
     class CompanyFactory(factory.Factory):
         class Meta:
-            target = Company
+            model = Company
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory,
             language=factory.LazyAttribute(lambda user: user.factory_parent.country.language),
@@ -1055,7 +1055,7 @@ adequate value.
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         # CATEGORY_CHOICES is a list of (key, title) tuples
         category = factory.Iterator(User.CATEGORY_CHOICES, getter=lambda c: c[0])
@@ -1077,7 +1077,7 @@ use the :func:`iterator` decorator:
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         @factory.iterator
         def name():
@@ -1121,7 +1121,7 @@ with the :class:`Dict` and :class:`List` attributes:
 
         class UserFactory(factory.Factory):
             class Meta:
-                target = User
+                model = User
 
             is_superuser = False
             roles = factory.Dict({
@@ -1158,7 +1158,7 @@ with the :class:`Dict` and :class:`List` attributes:
 
         class UserFactory(factory.Factory):
             class Meta:
-                target = User
+                model = User
 
             flags = factory.List([
                 'user',
@@ -1206,7 +1206,7 @@ For instance, a :class:`PostGeneration` hook is declared as ``post``:
 
     class SomeFactory(factory.Factory):
         class Meta:
-            target = SomeObject
+            model = SomeObject
 
         @post_generation
         def post(self, create, extracted, **kwargs):
@@ -1221,7 +1221,7 @@ When calling the factory, some arguments will be extracted for this method:
 - Any argument starting with ``post__XYZ`` will be extracted, its ``post__`` prefix
   removed, and added to the kwargs passed to the post-generation hook.
 
-Extracted arguments won't be passed to the :attr:`~FactoryOptions.target` class.
+Extracted arguments won't be passed to the :attr:`~FactoryOptions.model` class.
 
 Thus, in the following call:
 
@@ -1235,7 +1235,7 @@ Thus, in the following call:
     )
 
 The ``post`` hook will receive ``1`` as ``extracted`` and ``{'y': 3, 'z__t': 42}``
-as keyword arguments; ``{'post_x': 2}`` will be passed to ``SomeFactory._meta.target``.
+as keyword arguments; ``{'post_x': 2}`` will be passed to ``SomeFactory._meta.model``.
 
 
 RelatedFactory
@@ -1278,7 +1278,7 @@ RelatedFactory
 
               class FooFactory(factory.Factory):
                   class Meta:
-                      target = Foo
+                      model = Foo
 
                   bar = factory.RelatedFactory(BarFactory)  # Not BarFactory()
 
@@ -1287,14 +1287,14 @@ RelatedFactory
 
     class CityFactory(factory.Factory):
         class Meta:
-            target = City
+            model = City
 
         capital_of = None
         name = "Toronto"
 
     class CountryFactory(factory.Factory):
         class Meta:
-            target = Country
+            model = Country
 
         lang = 'fr'
         capital_city = factory.RelatedFactory(CityFactory, 'capital_of', name="Paris")
@@ -1336,7 +1336,7 @@ PostGeneration
 
 .. class:: PostGeneration(callable)
 
-The :class:`PostGeneration` declaration performs actions once the target object
+The :class:`PostGeneration` declaration performs actions once the model object
 has been generated.
 
 Its sole argument is a callable, that will be called once the base object has
@@ -1357,7 +1357,7 @@ as ``callable(obj, create, extracted, **kwargs)``, where:
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         login = 'john'
         make_mbox = factory.PostGeneration(
@@ -1378,7 +1378,7 @@ A decorator is also provided, decorating a single method accepting the same
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         login = 'john'
 
@@ -1414,7 +1414,7 @@ PostGenerationMethodCall
 
     .. attribute:: method_name
 
-        The name of the method to call on the :attr:`~FactoryOptions.target` object
+        The name of the method to call on the :attr:`~FactoryOptions.model` object
 
     .. attribute:: args
 
@@ -1439,7 +1439,7 @@ attribute like below:
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         username = 'user'
         password = factory.PostGenerationMethodCall('set_password',
@@ -1490,7 +1490,7 @@ factory during instantiation.
 
         class UserFactory(factory.django.DjangoModelFactory):
             class Meta:
-                target = User
+                model = User
 
             username = 'user'
             password = factory.PostGenerationMethodCall('set_password',
@@ -1505,7 +1505,7 @@ example, if we declared the ``password`` attribute like the following,
 
     class UserFactory(factory.Factory):
         class Meta:
-            target = User
+            model = User
 
         username = 'user'
         password = factory.PostGenerationMethodCall('set_password', '', 'sha1')
@@ -1569,7 +1569,7 @@ Lightweight factory declaration
 
         class UserFactory(factory.Factory):
             class Meta:
-                target = User
+                model = User
 
             login = 'john'
             email = factory.LazyAttribute(lambda u: '%s@example.com' % u.login)
@@ -1589,7 +1589,7 @@ Lightweight factory declaration
 
         class UserFactory(factory.django.DjangoModelFactory):
             class Meta:
-                target = models.User
+                model = models.User
 
             login = 'john'
             email = factory.LazyAttribute(lambda u: '%s@example.com' % u.login)

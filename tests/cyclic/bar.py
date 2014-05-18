@@ -31,7 +31,7 @@ class Bar(object):
 
 class BarFactory(factory.Factory):
     class Meta:
-        target = Bar
+        model = Bar
 
     y = 13
     foo = factory.SubFactory('cyclic.foo.FooFactory')

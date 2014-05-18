@@ -32,7 +32,7 @@ All factories for a Django :class:`~django.db.models.Model` should use the
 
     This class provides the following features:
 
-    * The :attr:`~factory.FactoryOption.target` attribute also supports the ``'app.Model'``
+    * The :attr:`~factory.FactoryOptions.model` attribute also supports the ``'app.Model'``
       syntax
     * :func:`~factory.Factory.create()` uses :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>`
     * :func:`~factory.Factory._setup_next_sequence()` selects the next unused primary key value
@@ -55,7 +55,7 @@ All factories for a Django :class:`~django.db.models.Model` should use the
 
             class UserFactory(factory.django.DjangoModelFactory):
                 class Meta:
-                    target = 'myapp.User'  # Equivalent to ``target = myapp.models.User``
+                    model = 'myapp.User'  # Equivalent to ``model = myapp.models.User``
                     django_get_or_create = ('username',)
 
                 username = 'john'
@@ -87,12 +87,12 @@ All factories for a Django :class:`~django.db.models.Model` should use the
 
               class MyAbstractModelFactory(factory.django.DjangoModelFactory):
                   class Meta:
-                      target = models.MyAbstractModel
+                      model = models.MyAbstractModel
                       abstract = True
 
               class MyConcreteModelFactory(MyAbstractModelFactory):
                   class Meta:
-                      target = models.MyConcreteModel
+                      model = models.MyConcreteModel
 
           Otherwise, factory_boy will try to get the 'next PK' counter from the abstract model.
 
@@ -121,7 +121,7 @@ Extra fields
 
     class MyFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.MyModel
+            model = models.MyModel
 
         the_file = factory.django.FileField(filename='the_file.dat')
 
@@ -159,7 +159,7 @@ Extra fields
 
     class MyFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.MyModel
+            model = models.MyModel
 
         the_image = factory.django.ImageField(color='blue')
 
@@ -199,7 +199,7 @@ To work around this problem, use the :meth:`mute_signals()` decorator/context ma
     @factory.django.mute_signals(signals.pre_save, signals.post_save)
     class FooFactory(factory.django.DjangoModelFactory):
         class Meta:
-            target = models.Foo
+            model = models.Foo
 
         # ...
 
@@ -252,7 +252,7 @@ factory_boy supports `MongoEngine`_-style models, through the :class:`MongoEngin
     * :func:`~factory.Factory.create()` builds an instance through ``__init__`` then
       saves it.
 
-    .. note:: If the :attr:`associated class <factory.FactoryOptions.target>` is a :class:`mongoengine.EmbeddedDocument`,
+    .. note:: If the :attr:`associated class <factory.FactoryOptions.model` is a :class:`mongoengine.EmbeddedDocument`,
               the :meth:`~MongoEngineFactory.create` function won't "save" it, since this wouldn't make sense.
 
               This feature makes it possible to use :class:`~factory.SubFactory` to create embedded document.
@@ -314,7 +314,7 @@ A (very) simple exemple:
 
     class UserFactory(SQLAlchemyModelFactory):
         class Meta:
-            target = User
+            model = User
             sqlalchemy_session = session   # the SQLAlchemy session object
 
         id = factory.Sequence(lambda n: n)

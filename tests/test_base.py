@@ -53,8 +53,8 @@ class FakeModelFactory(base.Factory):
         abstract = True
 
     @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        return target_class.create(**kwargs)
+    def _create(cls, model_class, *args, **kwargs):
+        return model_class.create(**kwargs)
 
 
 class TestModel(FakeDjangoModel):
@@ -68,13 +68,13 @@ class SafetyTestCase(unittest.TestCase):
 
 class AbstractFactoryTestCase(unittest.TestCase):
     def test_factory_for_optional(self):
-        """Ensure that target= is optional for abstract=True."""
+        """Ensure that model= is optional for abstract=True."""
         class TestObjectFactory(base.Factory):
             class Meta:
                 abstract = True
 
         self.assertTrue(TestObjectFactory._meta.abstract)
-        self.assertIsNone(TestObjectFactory._meta.target)
+        self.assertIsNone(TestObjectFactory._meta.model)
 
     def test_factory_for_and_abstract_factory_optional(self):
         """Ensure that Meta.abstract is optional."""
@@ -82,7 +82,7 @@ class AbstractFactoryTestCase(unittest.TestCase):
             pass
 
         self.assertTrue(TestObjectFactory._meta.abstract)
-        self.assertIsNone(TestObjectFactory._meta.target)
+        self.assertIsNone(TestObjectFactory._meta.model)
 
     def test_abstract_factory_cannot_be_called(self):
         class TestObjectFactory(base.Factory):
@@ -97,18 +97,18 @@ class AbstractFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(base.Factory):
             class Meta:
                 abstract = True
-                target = TestObject
+                model = TestObject
 
         class TestObjectChildFactory(TestObjectFactory):
             pass
 
         self.assertFalse(TestObjectChildFactory._meta.abstract)
 
-    def test_abstract_or_target_is_required(self):
+    def test_abstract_or_model_is_required(self):
         class TestObjectFactory(base.Factory):
             class Meta:
                 abstract = False
-                target = None
+                model = None
 
         self.assertRaises(base.FactoryError, TestObjectFactory.build)
         self.assertRaises(base.FactoryError, TestObjectFactory.create)
@@ -121,7 +121,7 @@ class OptionsTests(unittest.TestCase):
 
         # Declarative attributes
         self.assertTrue(AbstractFactory._meta.abstract)
-        self.assertIsNone(AbstractFactory._meta.target)
+        self.assertIsNone(AbstractFactory._meta.model)
         self.assertEqual((), AbstractFactory._meta.arg_parameters)
         self.assertEqual((), AbstractFactory._meta.hidden_args)
         self.assertEqual(base.CREATE_STRATEGY, AbstractFactory._meta.strategy)
@@ -206,7 +206,7 @@ class DeclarationParsingTests(unittest.TestCase):
     def test_classmethod(self):
         class TestObjectFactory(base.Factory):
             class Meta:
-                target = TestObject
+                model = TestObject
 
             @classmethod
             def some_classmethod(cls):
@@ -222,16 +222,16 @@ class FactoryTestCase(unittest.TestCase):
         """Calling a FooFactory doesn't yield a FooFactory instance."""
         class TestObjectFactory(base.Factory):
             class Meta:
-                target = TestObject
+                model = TestObject
 
-        self.assertEqual(TestObject, TestObjectFactory._meta.target)
+        self.assertEqual(TestObject, TestObjectFactory._meta.model)
         obj = TestObjectFactory.build()
         self.assertFalse(hasattr(obj, '_meta'))
 
     def test_display(self):
         class TestObjectFactory(base.Factory):
             class Meta:
-                target = FakeDjangoModel
+                model = FakeDjangoModel
 
         self.assertIn('TestObjectFactory', str(TestObjectFactory))
         self.assertIn('FakeDjangoModel', str(TestObjectFactory))
@@ -239,7 +239,7 @@ class FactoryTestCase(unittest.TestCase):
     def test_lazy_attribute_non_existent_param(self):
         class TestObjectFactory(base.Factory):
             class Meta:
-                target = TestObject
+                model = TestObject
 
             one = declarations.LazyAttribute(lambda a: a.does_not_exist )
 
@@ -249,13 +249,13 @@ class FactoryTestCase(unittest.TestCase):
         """Tests that sequence IDs are shared between parent and son."""
         class TestObjectFactory(base.Factory):
             class Meta:
-                target = TestObject
+                model = TestObject
 
             one = declarations.Sequence(lambda a: a)
 
         class TestSubFactory(TestObjectFactory):
             class Meta:
-                target = TestObject
+                model = TestObject
 
             pass
 
@@ -273,7 +273,7 @@ class FactorySequenceTestCase(unittest.TestCase):
 
         class TestObjectFactory(base.Factory):
             class Meta:
-                target = TestObject
+                model = TestObject
             one = declarations.Sequence(lambda n: n)
 
         self.TestObjectFactory = TestObjectFactory
@@ -358,7 +358,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
         class TestModelFactory(base.Factory):
             class Meta:
-                target = TestModel
+                model = TestModel
 
             one = 'one'
 
@@ -371,7 +371,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
         class TestModelFactory(FakeModelFactory):
             class Meta:
-                target = TestModel
+                model = TestModel
 
             one = 'one'
 
@@ -384,7 +384,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
         class TestModelFactory(base.Factory):
             class Meta:
-                target = TestModel
+                model = TestModel
 
             one = 'one'
 
@@ -397,7 +397,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
         class TestModelFactory(base.Factory):
             class Meta:
-                target = TestModel
+                model = TestModel
 
             one = 'one'
 
@@ -406,7 +406,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
     def test_stub_with_non_stub_strategy(self):
         class TestModelFactory(base.StubFactory):
             class Meta:
-                target = TestModel
+                model = TestModel
 
             one = 'one'
 
@@ -421,7 +421,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         @base.use_strategy(base.CREATE_STRATEGY)
         class TestModelFactory(base.StubFactory):
             class Meta:
-                target = TestModel
+                model = TestModel
 
             one = 'one'
 
@@ -432,7 +432,7 @@ class FactoryCreationTestCase(unittest.TestCase):
     def test_factory_for(self):
         class TestFactory(base.Factory):
             class Meta:
-                target = TestObject
+                model = TestObject
 
         self.assertTrue(isinstance(TestFactory.build(), TestObject))
 
@@ -445,7 +445,7 @@ class FactoryCreationTestCase(unittest.TestCase):
     def test_inheritance_with_stub(self):
         class TestObjectFactory(base.StubFactory):
             class Meta:
-                target = TestObject
+                model = TestObject
 
             pass
 
@@ -457,7 +457,7 @@ class FactoryCreationTestCase(unittest.TestCase):
     def test_custom_creation(self):
         class TestModelFactory(FakeModelFactory):
             class Meta:
-                target = TestModel
+                model = TestModel
 
             @classmethod
             def _prepare(cls, create, **kwargs):
@@ -488,7 +488,7 @@ class PostGenerationParsingTestCase(unittest.TestCase):
     def test_extraction(self):
         class TestObjectFactory(base.Factory):
             class Meta:
-                target = TestObject
+                model = TestObject
 
             foo = declarations.PostGenerationDeclaration()
 
@@ -497,7 +497,7 @@ class PostGenerationParsingTestCase(unittest.TestCase):
     def test_classlevel_extraction(self):
         class TestObjectFactory(base.Factory):
             class Meta:
-                target = TestObject
+                model = TestObject
 
             foo = declarations.PostGenerationDeclaration()
             foo__bar = 42

@@ -43,13 +43,13 @@ if mongoengine:
 
     class AddressFactory(MongoEngineFactory):
         class Meta:
-            target = Address
+            model = Address
 
         street = factory.Sequence(lambda n: 'street%d' % n)
 
     class PersonFactory(MongoEngineFactory):
         class Meta:
-            target = Person
+            model = Person
 
         name = factory.Sequence(lambda n: 'name%d' % n)
         address = factory.SubFactory(AddressFactory)

@@ -50,7 +50,7 @@ class OrderedDeclaration(object):
                 attributes
             containers (list of containers.LazyStub): The chain of SubFactory
                 which led to building this object.
-            create (bool): whether the target class should be 'built' or
+            create (bool): whether the model class should be 'built' or
                 'created'
             extra (DeclarationDict or None): extracted key/value extracted from
                 the attribute prefix
@@ -434,7 +434,7 @@ class ExtractionContext(object):
 
 
 class PostGenerationDeclaration(object):
-    """Declarations to be called once the target object has been generated."""
+    """Declarations to be called once the model object has been generated."""
 
     def extract(self, name, attrs):
         """Extract relevant attributes from a dict.
