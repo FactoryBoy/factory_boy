@@ -906,7 +906,7 @@ class UsingFactoryTestCase(unittest.TestCase):
 
         self.assertEqual(TestObjectFactory.alt_create(foo=1), {"foo": 1})
 
-    def test_arg_parameters(self):
+    def test_inline_args(self):
         class TestObject(object):
             def __init__(self, *args, **kwargs):
                 self.args = args
@@ -915,7 +915,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
-                arg_parameters = ('x', 'y')
+                inline_args = ('x', 'y')
 
             x = 1
             y = 2
@@ -926,7 +926,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual((42, 2), obj.args)
         self.assertEqual({'z': 5, 't': 4}, obj.kwargs)
 
-    def test_hidden_args(self):
+    def test_exclude(self):
         class TestObject(object):
             def __init__(self, *args, **kwargs):
                 self.args = args
@@ -935,7 +935,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
-                hidden_args = ('x', 'z')
+                exclude = ('x', 'z')
 
             x = 1
             y = 2
@@ -946,7 +946,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual((), obj.args)
         self.assertEqual({'y': 2, 't': 4}, obj.kwargs)
 
-    def test_hidden_args_and_arg_parameters(self):
+    def test_exclude_and_inline_args(self):
         class TestObject(object):
             def __init__(self, *args, **kwargs):
                 self.args = args
@@ -955,8 +955,8 @@ class UsingFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
-                hidden_args = ('x', 'z')
-                arg_parameters = ('y',)
+                exclude = ('x', 'z')
+                inline_args = ('y',)
 
             x = 1
             y = 2
@@ -979,7 +979,7 @@ class NonKwargParametersTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
-                arg_parameters = ('one', 'two',)
+                inline_args = ('one', 'two',)
 
             one = 1
             two = 2
@@ -1005,7 +1005,7 @@ class NonKwargParametersTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
-                arg_parameters = ('one', 'two')
+                inline_args = ('one', 'two')
 
             one = 1
             two = 2

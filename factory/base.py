@@ -192,8 +192,8 @@ class FactoryOptions(object):
             OptionDefault('model', None, inherit=True),
             OptionDefault('abstract', False, inherit=False),
             OptionDefault('strategy', CREATE_STRATEGY, inherit=True),
-            OptionDefault('arg_parameters', (), inherit=True),
-            OptionDefault('hidden_args', (), inherit=True),
+            OptionDefault('inline_args', (), inherit=True),
+            OptionDefault('exclude', (), inherit=True),
         ]
 
     def _fill_from_meta(self, meta, base_meta):
@@ -326,8 +326,8 @@ class BaseFactory(object):
         'FACTORY_FOR': 'model',
         'ABSTRACT_FACTORY': 'abstract',
         'FACTORY_STRATEGY': 'strategy',
-        'FACTORY_ARG_PARAMETERS': 'arg_parameters',
-        'FACTORY_HIDDEN_ARGS': 'hidden_args',
+        'FACTORY_ARG_PARAMETERS': 'inline_args',
+        'FACTORY_HIDDEN_ARGS': 'exclude',
     }
 
     # ID to use for the next 'declarations.Sequence' attribute.
@@ -470,11 +470,11 @@ class BaseFactory(object):
         kwargs = cls._adjust_kwargs(**kwargs)
 
         # Remove 'hidden' arguments.
-        for arg in cls._meta.hidden_args:
+        for arg in cls._meta.exclude:
             del kwargs[arg]
 
         # Extract *args from **kwargs
-        args = tuple(kwargs.pop(key) for key in cls._meta.arg_parameters)
+        args = tuple(kwargs.pop(key) for key in cls._meta.inline_args)
 
         logger.debug('BaseFactory: Generating %s.%s(%s)',
             cls.__module__,
@@ -725,7 +725,7 @@ class BaseDictFactory(Factory):
     def _build(cls, model_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "DictFactory %r does not support Meta.arg_parameters.", cls)
+                "DictFactory %r does not support Meta.inline_args.", cls)
         return model_class(**kwargs)
 
     @classmethod
@@ -747,7 +747,7 @@ class BaseListFactory(Factory):
     def _build(cls, model_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "ListFactory %r does not support Meta.arg_parameters.", cls)
+                "ListFactory %r does not support Meta.inline_args.", cls)
 
         values = [v for k, v in sorted(kwargs.items())]
         return model_class(values)

@@ -47,10 +47,10 @@ The :class:`Factory` class
 
         .. versionadded:: 2.4.0
 
-    .. attribute:: arg_parameters
+    .. attribute:: inline_args
 
         Some factories require non-keyword arguments to their :meth:`~object.__init__`.
-        They should be listed, in order, in the :attr:`arg_parameters`
+        They should be listed, in order, in the :attr:`inline_args`
         attribute:
 
         .. code-block:: python
@@ -58,7 +58,7 @@ The :class:`Factory` class
             class UserFactory(factory.Factory):
                 class Meta:
                     model = User
-                    arg_parameters = ('login', 'email')
+                    inline_args = ('login', 'email')
 
                 login = 'john'
                 email = factory.LazyAttribute(lambda o: '%s@example.com' % o.login)
@@ -72,14 +72,14 @@ The :class:`Factory` class
 
         .. versionadded:: 2.4.0
 
-    .. attribute:: hidden_args
+    .. attribute:: exclude
 
         While writing a :class:`Factory` for some object, it may be useful to
         have general fields helping defining others, but that should not be
         passed to the model class; for instance, a field named 'now' that would
         hold a reference time used by other objects.
 
-        Factory fields whose name are listed in :attr:`hidden_args` will
+        Factory fields whose name are listed in :attr:`exclude` will
         be removed from the set of args/kwargs passed to the underlying class;
         they can be any valid factory_boy declaration:
 
@@ -88,7 +88,7 @@ The :class:`Factory` class
             class OrderFactory(factory.Factory):
                 class Meta:
                     model = Order
-                    hidden_args = ('now',)
+                    exclude = ('now',)
 
                 now = factory.LazyAttribute(lambda o: datetime.datetime.utcnow())
                 started_at = factory.LazyAttribute(lambda o: o.now - datetime.timedelta(hours=1))
@@ -125,12 +125,12 @@ The :class:`Factory` class
               .. attribute:: FACTORY_ARG_PARAMETERS
 
                   .. deprecated:: 2.4.0
-                                  See :attr:`FactoryOptions.arg_parameters`.
+                                  See :attr:`FactoryOptions.inline_args`.
 
               .. attribute:: FACTORY_HIDDEN_ARGS
 
                   .. deprecated:: 2.4.0
-                                  See :attr:`FactoryOptions.hidden_args`.
+                                  See :attr:`FactoryOptions.exclude`.
 
 
     **Class-level attributes:**
@@ -231,7 +231,7 @@ The :class:`Factory` class
         The :meth:`_adjust_kwargs` extension point allows for late fields tuning.
 
         It is called once keyword arguments have been resolved and post-generation
-        items removed, but before the :attr:`~FactoryOptions.arg_parameters` extraction
+        items removed, but before the :attr:`~FactoryOptions.inline_args` extraction
         phase.
 
         .. code-block:: python

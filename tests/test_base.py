@@ -122,8 +122,8 @@ class OptionsTests(unittest.TestCase):
         # Declarative attributes
         self.assertTrue(AbstractFactory._meta.abstract)
         self.assertIsNone(AbstractFactory._meta.model)
-        self.assertEqual((), AbstractFactory._meta.arg_parameters)
-        self.assertEqual((), AbstractFactory._meta.hidden_args)
+        self.assertEqual((), AbstractFactory._meta.inline_args)
+        self.assertEqual((), AbstractFactory._meta.exclude)
         self.assertEqual(base.CREATE_STRATEGY, AbstractFactory._meta.strategy)
 
         # Non-declarative attributes

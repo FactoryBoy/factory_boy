@@ -218,14 +218,14 @@ Non-kwarg arguments
 
 Some classes take a few, non-kwarg arguments first.
 
-This is handled by the :data:`~factory.FactoryOptions.arg_parameters` attribute:
+This is handled by the :data:`~factory.FactoryOptions.inline_args` attribute:
 
 .. code-block:: python
 
     class MyFactory(factory.Factory):
         class Meta:
             model = MyClass
-            arg_parameters = ('x', 'y')
+            inline_args = ('x', 'y')
 
         x = 1
         y = 2
