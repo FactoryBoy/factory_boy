@@ -130,6 +130,14 @@ class ConcreteSonFactory(AbstractBaseFactory):
     FACTORY_FOR = models.ConcreteSon
 
 
+class AbstractSonFactory(AbstractBaseFactory):
+    FACTORY_FOR = models.AbstractSon
+
+
+class ConcreteGrandSonFactory(AbstractBaseFactory):
+    FACTORY_FOR = models.ConcreteGrandSon
+
+
 class WithFileFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = models.WithFile
 
@@ -307,8 +315,13 @@ class DjangoNonIntegerPkTestCase(django_test.TestCase):
 @unittest.skipIf(django is None, "Django not installed.")
 class DjangoAbstractBaseSequenceTestCase(django_test.TestCase):
     def test_auto_sequence(self):
-        with factory.debug():
-            obj = ConcreteSonFactory()
+        """The sequence of the concrete son of an abstract model should be autonomous."""
+        obj = ConcreteSonFactory()
+        self.assertEqual(1, obj.pk)
+
+    def test_auto_sequence(self):
+        """The sequence of the concrete grandson of an abstract model should be autonomous."""
+        obj = ConcreteGrandSonFactory()
         self.assertEqual(1, obj.pk)
 
 

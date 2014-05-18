@@ -58,6 +58,18 @@ class DjangoOptions(base.FactoryOptions):
             base.OptionDefault('django_get_or_create', (), inherit=True),
         ]
 
+    def _get_counter_reference(self):
+        counter_reference = super(DjangoOptions, self)._get_counter_reference()
+        if (counter_reference == self.base_factory
+                and self.base_factory._meta.target is not None
+                and self.base_factory._meta.target._meta.abstract
+                and self.target is not None
+                and not self.target._meta.abstract):
+            # Target factory is for an abstract model, yet we're for another,
+            # concrete subclass => don't reuse the counter.
+            return self.factory
+        return counter_reference
+
 
 class DjangoModelFactory(base.Factory):
     """Factory for Django models.
@@ -71,10 +83,6 @@ class DjangoModelFactory(base.Factory):
     _options_class = DjangoOptions
     class Meta:
         abstract = True  # Optional, but explicit.
-
-    @classmethod
-    def _get_blank_options(cls):
-        return DjangoOptions()
 
     _OLDSTYLE_ATTRIBUTES = base.Factory._OLDSTYLE_ATTRIBUTES.copy()
     _OLDSTYLE_ATTRIBUTES.update({

@@ -55,6 +55,15 @@ class ConcreteSon(AbstractBase):
     pass
 
 
+class AbstractSon(AbstractBase):
+    class Meta:
+        abstract = True
+
+
+class ConcreteGrandSon(AbstractSon):
+    pass
+
+
 class StandardSon(StandardModel):
     pass
 

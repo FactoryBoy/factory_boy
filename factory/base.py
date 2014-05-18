@@ -218,13 +218,7 @@ class FactoryOptions(object):
         if self.target is None:
             self.abstract = True
 
-        if (self.target is not None
-                and self.base_factory is not None
-                and self.base_factory._meta.target is not None
-                and issubclass(self.target, base_factory._meta.target)):
-            self.counter_reference = self.base_factory
-        else:
-            self.counter_reference = self.factory
+        self.counter_reference = self._get_counter_reference()
 
         for parent in self.factory.__mro__[1:]:
             if not hasattr(parent, '_meta'):
@@ -237,6 +231,17 @@ class FactoryOptions(object):
                 self.declarations[k] = v
             if self._is_postgen_declaration(k, v):
                 self.postgen_declarations[k] = v
+
+    def _get_counter_reference(self):
+        """Identify which factory should be used for a shared counter."""
+
+        if (self.target is not None
+                and self.base_factory is not None
+                and self.base_factory._meta.target is not None
+                and issubclass(self.target, self.base_factory._meta.target)):
+            return self.base_factory
+        else:
+            return self.factory
 
     def _is_declaration(self, name, value):
         """Determines if a class attribute is a field value declaration.
