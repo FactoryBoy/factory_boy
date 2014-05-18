@@ -94,7 +94,8 @@ Usage
 Defining factories
 """"""""""""""""""
 
-Factories declare a set of attributes used to instantiate an object. The class of the object must be defined in the FACTORY_FOR attribute:
+Factories declare a set of attributes used to instantiate an object.
+The class of the object must be defined in the ``target`` field of a ``class Meta:`` attribute:
 
 .. code-block:: python
 
@@ -102,7 +103,8 @@ Factories declare a set of attributes used to instantiate an object. The class o
     from . import models
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = models.User
+        class Meta:
+            target = models.User
 
         first_name = 'John'
         last_name = 'Doe'
@@ -110,7 +112,8 @@ Factories declare a set of attributes used to instantiate an object. The class o
 
     # Another, different, factory for the same object
     class AdminFactory(factory.Factory):
-        FACTORY_FOR = models.User
+        class Meta:
+            target = models.User
 
         first_name = 'Admin'
         last_name = 'User'
@@ -164,7 +167,9 @@ These "lazy" attributes can be added as follows:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = models.User
+        class Meta:
+            target = models.User
+
         first_name = 'Joe'
         last_name = 'Blow'
         email = factory.LazyAttribute(lambda a: '{0}.{1}@example.com'.format(a.first_name, a.last_name).lower())
@@ -183,7 +188,9 @@ Unique values in a specific format (for example, e-mail addresses) can be genera
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = models.User
+        class Meta:
+            target = models.User
+
         email = factory.Sequence(lambda n: 'person{0}@example.com'.format(n))
 
     >>> UserFactory().email
@@ -201,7 +208,9 @@ This is handled by the ``SubFactory`` helper:
 .. code-block:: python
 
     class PostFactory(factory.Factory):
-        FACTORY_FOR = models.Post
+        class Meta:
+            target = models.Post
+
         author = factory.SubFactory(UserFactory)
 
 

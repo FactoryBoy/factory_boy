@@ -18,10 +18,11 @@ Basic usage
 -----------
 
 
-Factories declare a set of attributes used to instantiate an object, whose class is defined in the FACTORY_FOR attribute:
+Factories declare a set of attributes used to instantiate an object, whose class is defined in the ``class Meta``'s ``target`` attribute:
 
 - Subclass ``factory.Factory`` (or a more suitable subclass)
-- Set its ``FACTORY_FOR`` attribute to the target class
+- Add a ``class Meta:`` block
+- Set its ``target`` attribute to the target class
 - Add defaults for keyword args to pass to the associated class' ``__init__`` method
 
 
@@ -31,7 +32,8 @@ Factories declare a set of attributes used to instantiate an object, whose class
     from . import base
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = base.User
+        class Meta:
+            target = base.User
 
         firstname = "John"
         lastname = "Doe"
@@ -56,7 +58,8 @@ A given class may be associated to many :class:`~factory.Factory` subclasses:
 .. code-block:: python
 
     class EnglishUserFactory(factory.Factory):
-        FACTORY_FOR = base.User
+        class Meta:
+            target = base.User
 
         firstname = "John"
         lastname = "Doe"
@@ -64,7 +67,8 @@ A given class may be associated to many :class:`~factory.Factory` subclasses:
 
 
     class FrenchUserFactory(factory.Factory):
-        FACTORY_FOR = base.User
+        class Meta:
+            target = base.User
 
         firstname = "Jean"
         lastname = "Dupont"
@@ -88,7 +92,8 @@ This is achieved with the :class:`~factory.Sequence` declaration:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = models.User
+        class Meta:
+            target = models.User
 
         username = factory.Sequence(lambda n: 'user%d' % n)
 
@@ -104,7 +109,8 @@ This is achieved with the :class:`~factory.Sequence` declaration:
           .. code-block:: python
 
             class UserFactory(factory.Factory):
-                FACTORY_FOR = models.User
+                class Meta:
+                    target = models.User
 
                 @factory.sequence
                 def username(n):
@@ -121,7 +127,8 @@ taking the object being built and returning the value for the field:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = models.User
+        class Meta:
+            target = models.User
 
         username = factory.Sequence(lambda n: 'user%d' % n)
         email = factory.LazyAttribute(lambda obj: '%s@example.com' % obj.username)
@@ -146,7 +153,8 @@ taking the object being built and returning the value for the field:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = models.User
+        class Meta:
+            target = models.User
 
         username = factory.Sequence(lambda n: 'user%d' % n)
 
@@ -168,7 +176,8 @@ and update them with its own declarations:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        FACTORY_FOR = base.User
+        class Meta:
+            target = base.User
 
         firstname = "John"
         lastname = "Doe"
@@ -209,13 +218,14 @@ Non-kwarg arguments
 
 Some classes take a few, non-kwarg arguments first.
 
-This is handled by the :data:`~factory.Factory.FACTORY_ARG_PARAMETERS` attribute:
+This is handled by the :data:`~factory.FactoryOptions.arg_parameters` attribute:
 
 .. code-block:: python
 
     class MyFactory(factory.Factory):
-        FACTORY_FOR = MyClass
-        FACTORY_ARG_PARAMETERS = ('x', 'y')
+        class Meta:
+            target = MyClass
+            arg_parameters = ('x', 'y')
 
         x = 1
         y = 2
@@ -251,7 +261,8 @@ Calling a :class:`~factory.Factory` subclass will provide an object through the 
 .. code-block:: python
 
     class MyFactory(factory.Factory):
-        FACTORY_FOR = MyClass
+        class Meta:
+            target = MyClass
 
 .. code-block:: pycon
 
@@ -265,6 +276,6 @@ Calling a :class:`~factory.Factory` subclass will provide an object through the 
     <MyClass: X (saved)>
 
 
-The default strategy can be changed by setting the class-level :attr:`~factory.Factory.FACTORY_STRATEGY` attribute.
+The default strategy can be changed by setting the ``class Meta`` :attr:`~factory.FactoryOptions.strategy` attribute.
 
 

@@ -32,7 +32,7 @@ All factories for a Django :class:`~django.db.models.Model` should use the
 
     This class provides the following features:
 
-    * The :attr:`~factory.Factory.FACTORY_FOR` attribute also supports the ``'app.Model'``
+    * The :attr:`~factory.FactoryOption.target` attribute also supports the ``'app.Model'``
       syntax
     * :func:`~factory.Factory.create()` uses :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>`
     * :func:`~factory.Factory._setup_next_sequence()` selects the next unused primary key value
@@ -40,7 +40,12 @@ All factories for a Django :class:`~django.db.models.Model` should use the
       attributes, the base object will be :meth:`saved <django.db.models.Model.save>`
       once all post-generation hooks have run.
 
-    .. attribute:: FACTORY_DJANGO_GET_OR_CREATE
+
+.. class:: DjangoOptions(factory.base.FactoryOptions)
+
+    The ``class Meta`` on a :class:`~DjangoModelFactory` supports an extra parameter:
+
+    .. attribute:: django_get_or_create
 
         Fields whose name are passed in this list will be used to perform a
         :meth:`Model.objects.get_or_create() <django.db.models.query.QuerySet.get_or_create>`
@@ -49,8 +54,9 @@ All factories for a Django :class:`~django.db.models.Model` should use the
         .. code-block:: python
 
             class UserFactory(factory.django.DjangoModelFactory):
-                FACTORY_FOR = 'myapp.User'  # Equivalent to ``FACTORY_FOR = myapp.models.User``
-                FACTORY_DJANGO_GET_OR_CREATE = ('username',)
+                class Meta:
+                    target = 'myapp.User'  # Equivalent to ``target = myapp.models.User``
+                    django_get_or_create = ('username',)
 
                 username = 'john'
 
@@ -80,11 +86,13 @@ All factories for a Django :class:`~django.db.models.Model` should use the
           .. code-block:: python
 
               class MyAbstractModelFactory(factory.django.DjangoModelFactory):
-                  FACTORY_FOR = models.MyAbstractModel
-                  ABSTRACT_FACTORY = True
+                  class Meta:
+                      target = models.MyAbstractModel
+                      abstract = True
 
               class MyConcreteModelFactory(MyAbstractModelFactory):
-                  FACTORY_FOR = models.MyConcreteModel
+                  class Meta:
+                      target = models.MyConcreteModel
 
           Otherwise, factory_boy will try to get the 'next PK' counter from the abstract model.
 
@@ -112,7 +120,8 @@ Extra fields
 .. code-block:: python
 
     class MyFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.MyModel
+        class Meta:
+            target = models.MyModel
 
         the_file = factory.django.FileField(filename='the_file.dat')
 
@@ -149,7 +158,8 @@ Extra fields
 .. code-block:: python
 
     class MyFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.MyModel
+        class Meta:
+            target = models.MyModel
 
         the_image = factory.django.ImageField(color='blue')
 
@@ -188,7 +198,8 @@ To work around this problem, use the :meth:`mute_signals()` decorator/context ma
 
     @factory.django.mute_signals(signals.pre_save, signals.post_save)
     class FooFactory(factory.django.DjangoModelFactory):
-        FACTORY_FOR = models.Foo
+        class Meta:
+            target = models.Foo
 
         # ...
 
@@ -241,7 +252,7 @@ factory_boy supports `MongoEngine`_-style models, through the :class:`MongoEngin
     * :func:`~factory.Factory.create()` builds an instance through ``__init__`` then
       saves it.
 
-    .. note:: If the :attr:`associated class <factory.Factory.FACTORY_FOR>` is a :class:`mongoengine.EmbeddedDocument`,
+    .. note:: If the :attr:`associated class <factory.FactoryOptions.target>` is a :class:`mongoengine.EmbeddedDocument`,
               the :meth:`~MongoEngineFactory.create` function won't "save" it, since this wouldn't make sense.
 
               This feature makes it possible to use :class:`~factory.SubFactory` to create embedded document.
@@ -255,7 +266,7 @@ SQLAlchemy
 
 Factoy_boy also supports `SQLAlchemy`_  models through the :class:`SQLAlchemyModelFactory` class.
 
-To work, this class needs an `SQLAlchemy`_ session object affected to "FACTORY_SESSION" class attribute.
+To work, this class needs an `SQLAlchemy`_ session object affected to the ``Meta.sqlalchemy_session`` attribute.
 
 .. _SQLAlchemy: http://www.sqlalchemy.org/
 
@@ -268,7 +279,12 @@ To work, this class needs an `SQLAlchemy`_ session object affected to "FACTORY_S
     * :func:`~factory.Factory.create()` uses :meth:`sqlalchemy.orm.session.Session.add`
     * :func:`~factory.Factory._setup_next_sequence()` selects the next unused primary key value
 
-    .. attribute:: FACTORY_SESSION
+.. class:: SQLAlchemyOptions(factory.base.FactoryOptions)
+
+    In addition to the usual parameters available in :class:`class Meta <factory.base.FactoryOptions>`,
+    a :class:`SQLAlchemyModelFactory` also supports the following settings:
+
+    .. attribute:: sqlalchemy_session
 
         Fields whose SQLAlchemy session object are passed will be used to communicate with the database
 
@@ -297,8 +313,9 @@ A (very) simple exemple:
 
 
     class UserFactory(SQLAlchemyModelFactory):
-        FACTORY_FOR = User
-        FACTORY_SESSION = session   # the SQLAlchemy session object
+        class Meta:
+            target = User
+            sqlalchemy_session = session   # the SQLAlchemy session object
 
         id = factory.Sequence(lambda n: n)
         name = factory.Sequence(lambda n: u'User %d' % n)
