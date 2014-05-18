@@ -155,6 +155,16 @@ No matter which strategy is used, it's possible to override the defined attribut
     "Joe"
 
 
+It is also possible to create a bunch of objects in a single call:
+
+.. code-block:: pycon
+
+    >>> users = USerFactory.build(10, first_name="Joe")
+    >>> len(users)
+    10
+    >>> [user.first_name for user in users]
+    ["Joe", "Joe", "Joe", "Joe", "Joe", "Joe", "Joe", "Joe", "Joe", "Joe"]
+
 Lazy Attributes
 """""""""""""""
 
