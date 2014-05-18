@@ -100,105 +100,6 @@ class LazyStubTestCase(unittest.TestCase):
         self.assertIn('one', str(stub))
 
 
-class OrderedDeclarationMock(declarations.OrderedDeclaration):
-    pass
-
-
-class DeclarationDictTestCase(unittest.TestCase):
-    def test_basics(self):
-        one = OrderedDeclarationMock()
-        two = 2
-        three = OrderedDeclarationMock()
-
-        d = containers.DeclarationDict(dict(one=one, two=two, three=three))
-
-        self.assertTrue('one' in d)
-        self.assertTrue('two' in d)
-        self.assertTrue('three' in d)
-
-        self.assertEqual(one, d['one'])
-        self.assertEqual(two, d['two'])
-        self.assertEqual(three, d['three'])
-
-        self.assertEqual(one, d.pop('one'))
-        self.assertFalse('one' in d)
-
-        d['one'] = one
-        self.assertTrue('one' in d)
-        self.assertEqual(one, d['one'])
-
-        self.assertEqual(set(['one', 'two', 'three']),
-                         set(d))
-
-    def test_insert(self):
-        one = OrderedDeclarationMock()
-        two = 2
-        three = OrderedDeclarationMock()
-        four = OrderedDeclarationMock()
-
-        d = containers.DeclarationDict(dict(one=one, two=two, four=four))
-
-        self.assertEqual(set(['two', 'one', 'four']), set(d))
-
-        d['three'] = three
-        self.assertEqual(set(['two', 'one', 'three', 'four']), set(d))
-
-    def test_replace(self):
-        one = OrderedDeclarationMock()
-        two = 2
-        three = OrderedDeclarationMock()
-        four = OrderedDeclarationMock()
-
-        d = containers.DeclarationDict(dict(one=one, two=two, three=three))
-
-        self.assertEqual(set(['two', 'one', 'three']), set(d))
-
-        d['three'] = four
-        self.assertEqual(set(['two', 'one', 'three']), set(d))
-        self.assertEqual(set([two, one, four]), set(d.values()))
-
-    def test_copy(self):
-        one = OrderedDeclarationMock()
-        two = 2
-        three = OrderedDeclarationMock()
-        four = OrderedDeclarationMock()
-
-        d = containers.DeclarationDict(dict(one=one, two=two, three=three))
-        d2 = d.copy({'five': 5})
-
-        self.assertEqual(5, d2['five'])
-        self.assertFalse('five' in d)
-
-        d.pop('one')
-        self.assertEqual(one, d2['one'])
-
-        d2['two'] = four
-        self.assertEqual(four, d2['two'])
-        self.assertEqual(two, d['two'])
-
-    def test_update_with_public(self):
-        d = containers.DeclarationDict()
-        d.update_with_public({
-                'one': 1,
-                '_two': 2,
-                'three': 3,
-                'classmethod': classmethod(lambda c: 1),
-                'staticmethod': staticmethod(lambda: 1),
-                })
-        self.assertEqual(set(['one', 'three']), set(d))
-        self.assertEqual(set([1, 3]), set(d.values()))
-
-    def test_update_with_public_ignores_factory_attributes(self):
-        """Ensure that a DeclarationDict ignores FACTORY_ keys."""
-        d = containers.DeclarationDict()
-        d.update_with_public({
-            'one': 1,
-            'FACTORY_FOR': 2,
-            'FACTORY_ARG_PARAMETERS': 3,
-        })
-        self.assertEqual(['one'], list(d))
-        self.assertEqual([1], list(d.values()))
-
 
 class AttributeBuilderTestCase(unittest.TestCase):
     def test_empty(self):
@@ -320,7 +221,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
         class FakeFactory(object):
             @classmethod
             def declarations(cls, extra):
-                d = containers.DeclarationDict({'one': 1, 'two': la})
+                d = {'one': 1, 'two': la}
                 d.update(extra)
                 return d
 

@@ -121,61 +121,6 @@ class LazyStub(object):
             raise AttributeError('Setting of object attributes is not allowed')
 
 
-class DeclarationDict(dict):
-    """Slightly extended dict to work with OrderedDeclaration."""
-
-    def is_declaration(self, name, value):
-        """Determines if a class attribute is a field value declaration.
-
-        Based on the name and value of the class attribute, return ``True`` if
-        it looks like a declaration of a default field value, ``False`` if it
-        is private (name starts with '_') or a classmethod or staticmethod.
-
-        """
-        if isinstance(value, (classmethod, staticmethod)):
-            return False
-        elif isinstance(value, declarations.OrderedDeclaration):
-            return True
-        return (not name.startswith("_") and not name.startswith("FACTORY_"))
-
-    def update_with_public(self, d):
-        """Updates the DeclarationDict from a class definition dict.
-
-        Takes into account all public attributes and OrderedDeclaration
-        instances; ignores all class/staticmethods and private attributes
-        (starting with '_').
-
-        Returns a dict containing all remaining elements.
-        """
-        remaining = {}
-        for k, v in d.items():
-            if self.is_declaration(k, v):
-                self[k] = v
-            else:
-                remaining[k] = v
-        return remaining
-
-    def copy(self, extra=None):
-        """Copy this DeclarationDict into another one, including extra values.
-
-        Args:
-            extra (dict): additional attributes to include in the copy.
-        """
-        new = self.__class__()
-        new.update(self)
-        if extra:
-            new.update(extra)
-        return new
-
-
-class PostGenerationDeclarationDict(DeclarationDict):
-    """Alternate DeclarationDict for PostGenerationDeclaration."""
-
-    def is_declaration(self, name, value):
-        """Captures instances of PostGenerationDeclaration."""
-        return isinstance(value, declarations.PostGenerationDeclaration)
-
-
 class LazyValue(object):
     """Some kind of "lazy evaluating" object."""
 
