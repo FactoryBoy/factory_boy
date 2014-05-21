@@ -40,12 +40,19 @@ All factories for a Django :class:`~django.db.models.Model` should use the
       attributes, the base object will be :meth:`saved <django.db.models.Model.save>`
       once all post-generation hooks have run.
 
+    .. attribute:: FACTORY_DJANGO_GET_OR_CREATE
+
+        .. deprecated:: 2.4.0
+                        See :attr:`DjangoOptions.django_get_or_create`.
+
 
 .. class:: DjangoOptions(factory.base.FactoryOptions)
 
     The ``class Meta`` on a :class:`~DjangoModelFactory` supports an extra parameter:
 
     .. attribute:: django_get_or_create
+
+        .. versionadded:: 2.4.0
 
         Fields whose name are passed in this list will be used to perform a
         :meth:`Model.objects.get_or_create() <django.db.models.query.QuerySet.get_or_create>`
