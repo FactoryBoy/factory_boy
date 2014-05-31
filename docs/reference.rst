@@ -106,6 +106,13 @@ The :class:`Factory` class
         .. versionadded:: 2.4.0
 
 
+    .. attribute:: strategy
+
+        Use this attribute to change the strategy used by a :class:`Factory`.
+        The default is :data:`BUILD_STRATEGY`.
+
+
+
 .. class:: Factory
 
     .. note:: In previous versions, the fields of :class:`class Meta <factory.FactoryOptions>` were
@@ -131,6 +138,11 @@ The :class:`Factory` class
 
                   .. deprecated:: 2.4.0
                                   See :attr:`FactoryOptions.exclude`.
+
+              .. attribute:: FACTORY_STRATEGY
+
+                  .. deprecated:: 2.4.0
+                                  See :attr:`FactoryOptions.strategy`.
 
 
     **Class-level attributes:**

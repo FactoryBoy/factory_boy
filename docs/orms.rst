@@ -273,7 +273,7 @@ SQLAlchemy
 
 Factoy_boy also supports `SQLAlchemy`_  models through the :class:`SQLAlchemyModelFactory` class.
 
-To work, this class needs an `SQLAlchemy`_ session object affected to the ``Meta.sqlalchemy_session`` attribute.
+To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:`Meta.sqlalchemy_session <SQLAlchemyOptions.sqlalchemy_session>` attribute.
 
 .. _SQLAlchemy: http://www.sqlalchemy.org/
 
@@ -286,6 +286,11 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the ``Meta
     * :func:`~factory.Factory.create()` uses :meth:`sqlalchemy.orm.session.Session.add`
     * :func:`~factory.Factory._setup_next_sequence()` selects the next unused primary key value
 
+    .. attribute:: FACTORY_SESSION
+
+        .. deprecated:: 2.4.0
+                        See :attr:`~SQLAlchemyOptions.sqlalchemy_session`.
+
 .. class:: SQLAlchemyOptions(factory.base.FactoryOptions)
 
     In addition to the usual parameters available in :class:`class Meta <factory.base.FactoryOptions>`,
@@ -293,7 +298,8 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the ``Meta
 
     .. attribute:: sqlalchemy_session
 
-        Fields whose SQLAlchemy session object are passed will be used to communicate with the database
+        SQLAlchemy session to use to communicate with the database when creating
+        an object through this :class:`SQLAlchemyModelFactory`.
 
 A (very) simple exemple:
 
