@@ -12,3 +12,4 @@ from .test_using import *
 from .test_utils import *
 from .test_alchemy import *
 from .test_mongoengine import *
+from .test_peewee import *
