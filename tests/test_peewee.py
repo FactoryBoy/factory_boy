@@ -68,7 +68,7 @@ class PeeweePkSequenceTestCase(unittest.TestCase):
 
     def setUp(self):
         super(PeeweePkSequenceTestCase, self).setUp()
-        StandardFactory.reset_sequence()
+        StandardFactory.reset_sequence(1)
         StandardFactory._meta.database.rollback()
 
     def test_pk_first(self):

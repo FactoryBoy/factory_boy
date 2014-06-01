@@ -35,7 +35,7 @@ database.connect()
 
 class StandardModel(Model):
     id = PrimaryKeyField()
-    foo = CharField()
+    foo = CharField(max_length=20)
 
 
 class NonIntegerPk(Model):
