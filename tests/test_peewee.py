@@ -34,7 +34,6 @@ if peewee:
     from factory.peewee import PeeweeModelFactory
     from .peeweeapp import models
 else:
-
     class Fake(object):
         class Meta:
             database = None

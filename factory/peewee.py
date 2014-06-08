@@ -21,7 +21,6 @@
 from __future__ import unicode_literals
 from __future__ import absolute_import
 import peewee
-from playhouse.test_utils import test_database
 
 from . import base
 
@@ -51,11 +50,10 @@ class PeeweeModelFactory(base.Factory):
         db = cls._meta.database
         model = cls._meta.model
         pk = getattr(model, model._meta.primary_key.name)
-        with test_database(db, (model,), create_tables=False):
-            max_pk = model.select(
+        max_pk = model.select(
                 model, peewee.fn.Max(pk).alias('maxpk')
             ).limit(1).execute()
-            max_pk = [mp.maxpk for mp in max_pk][0]
+        max_pk = [mp.maxpk for mp in max_pk][0]
         if isinstance(max_pk, int):
             return max_pk + 1 if max_pk else 1
         else:
@@ -65,6 +63,5 @@ class PeeweeModelFactory(base.Factory):
     def _create(cls, target_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
         db = cls._meta.database
-        with test_database(db, (target_class,), create_tables=False):
-            obj = target_class.create(**kwargs)
+        obj = target_class.create(**kwargs)
         return obj

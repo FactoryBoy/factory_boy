@@ -22,11 +22,7 @@
 
 """Helpers for testing peewee apps."""
 
-from peewee import (
-    Model, PrimaryKeyField, SqliteDatabase, CharField
-)
-from playhouse.test_utils import test_database
-
+from peewee import Model, PrimaryKeyField, SqliteDatabase, CharField
 
 database = SqliteDatabase(':memory:', autocommit=False)
 
@@ -34,18 +30,23 @@ database.connect()
 
 
 class StandardModel(Model):
+    class Meta:
+        database = database
+
     id = PrimaryKeyField()
     foo = CharField(max_length=20)
 
 
 class NonIntegerPk(Model):
+    class Meta:
+        database = database
+
     id = CharField(primary_key=True)
 
 
-with test_database(database, (StandardModel, NonIntegerPk,), create_tables=False):
-    if StandardModel.table_exists():
-        StandardModel.drop_table()
-    StandardModel.create_table()
-    if NonIntegerPk.table_exists():
-        NonIntegerPk.drop_table()
-    NonIntegerPk.create_table()
+if StandardModel.table_exists():
+    StandardModel.drop_table()
+StandardModel.create_table()
+if NonIntegerPk.table_exists():
+    NonIntegerPk.drop_table()
+NonIntegerPk.create_table()
