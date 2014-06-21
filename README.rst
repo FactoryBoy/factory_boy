@@ -159,7 +159,7 @@ It is also possible to create a bunch of objects in a single call:
 
 .. code-block:: pycon
 
-    >>> users = USerFactory.build(10, first_name="Joe")
+    >>> users = UserFactory.build(10, first_name="Joe")
     >>> len(users)
     10
     >>> [user.first_name for user in users]
