@@ -167,6 +167,15 @@ class WithSignalsFactory(factory.django.DjangoModelFactory):
 
 
 @unittest.skipIf(django is None, "Django not installed.")
+class ModelTests(django_test.TestCase):
+    def test_unset_model(self):
+        class UnsetModelFactory(factory.django.DjangoModelFactory):
+            pass
+
+        self.assertRaises(factory.FactoryError, UnsetModelFactory.create)
+
+
+@unittest.skipIf(django is None, "Django not installed.")
 class DjangoPkSequenceTestCase(django_test.TestCase):
     def setUp(self):
         super(DjangoPkSequenceTestCase, self).setUp()

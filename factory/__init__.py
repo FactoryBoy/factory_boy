@@ -32,6 +32,8 @@ from .base import (
     ListFactory,
     StubFactory,
 
+    FactoryError,
+
     BUILD_STRATEGY,
     CREATE_STRATEGY,
     STUB_STRATEGY,

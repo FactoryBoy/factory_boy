@@ -101,6 +101,9 @@ class DjangoModelFactory(base.Factory):
 
     @classmethod
     def _get_manager(cls, model_class):
+        if model_class is None:
+            raise base.AssociatedClassError("No model set on %s.%s.Meta"
+                    % (cls.__module__, cls.__name__))
         try:
             return model_class._default_manager   # pylint: disable=W0212
         except AttributeError:
