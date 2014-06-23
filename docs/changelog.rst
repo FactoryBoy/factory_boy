@@ -2,6 +2,15 @@ ChangeLog
 =========
 
 
+.. _v2.4.1:
+
+2.4.1 (2014-06-23)
+------------------
+
+*Bugfix:*
+
+    - Fix overriding deeply inherited attributes (set in one factory, overridden in a subclass, used in a sub-sub-class).
+
 .. _v2.4.0:
 
 2.4.0 (2014-06-21)
