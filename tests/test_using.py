@@ -766,6 +766,37 @@ class UsingFactoryTestCase(unittest.TestCase):
         test_object_alt = TestObjectFactory.build()
         self.assertEqual(None, test_object_alt.three)
 
+    def test_override_inherited(self):
+        """Overriding inherited declarations"""
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            one = 'one'
+
+        class TestObjectFactory2(TestObjectFactory):
+            one = 'two'
+
+        test_object = TestObjectFactory2.build()
+        self.assertEqual('two', test_object.one)
+
+    def test_override_inherited_deep(self):
+        """Overriding inherited declarations"""
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            one = 'one'
+
+        class TestObjectFactory2(TestObjectFactory):
+            one = 'two'
+
+        class TestObjectFactory3(TestObjectFactory2):
+            pass
+
+        test_object = TestObjectFactory3.build()
+        self.assertEqual('two', test_object.one)
+
     def test_inheritance_and_sequences(self):
         """Sequence counters should be kept within an inheritance chain."""
         class TestObjectFactory(factory.Factory):

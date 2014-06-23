@@ -231,7 +231,7 @@ class FactoryOptions(object):
 
         self.counter_reference = self._get_counter_reference()
 
-        for parent in self.factory.__mro__[1:]:
+        for parent in reversed(self.factory.__mro__[1:]):
             if not hasattr(parent, '_meta'):
                 continue
             self.declarations.update(parent._meta.declarations)
