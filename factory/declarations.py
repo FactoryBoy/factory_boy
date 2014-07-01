@@ -195,7 +195,7 @@ class Sequence(OrderedDeclaration):
         self.type = type
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
-        logger.debug("Sequence: Computing next value of %r for seq=%d", self.function, sequence)
+        logger.debug("Sequence: Computing next value of %r for seq=%r", self.function, sequence)
         return self.function(self.type(sequence))
 
 
@@ -209,7 +209,7 @@ class LazyAttributeSequence(Sequence):
             of counter for the 'function' attribute.
     """
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
-        logger.debug("LazyAttributeSequence: Computing next value of %r for seq=%d, obj=%r",
+        logger.debug("LazyAttributeSequence: Computing next value of %r for seq=%r, obj=%r",
                 self.function, sequence, obj)
         return self.function(obj, self.type(sequence))
 
