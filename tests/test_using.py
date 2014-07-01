@@ -977,6 +977,12 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual((), obj.args)
         self.assertEqual({'y': 2, 't': 4}, obj.kwargs)
 
+        stub = TestObjectFactory.stub(x=42, z=5)
+        self.assertFalse(hasattr(stub, 'x'))
+        self.assertFalse(hasattr(stub, 'z'))
+        self.assertTrue(hasattr(stub, 'y'))
+        self.assertTrue(hasattr(stub, 't'))
+
     def test_exclude_and_inline_args(self):
         class TestObject(object):
             def __init__(self, *args, **kwargs):
