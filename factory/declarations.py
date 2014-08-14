@@ -378,11 +378,12 @@ class SubFactory(ParameteredAttribute):
                 override the wrapped factory's defaults
         """
         subfactory = self.get_factory()
-        logger.debug("SubFactory: Instantiating %s.%s(%s), create=%r",
-            subfactory.__module__, subfactory.__name__,
-            utils.log_pprint(kwargs=params),
-            create,
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("SubFactory: Instantiating %s.%s(%s), create=%r",
+                subfactory.__module__, subfactory.__name__,
+                utils.log_pprint(kwargs=params),
+                create,
+            )
         return subfactory.simple_generate(create, **params)
 
 
@@ -394,7 +395,8 @@ class Dict(SubFactory):
 
     def generate(self, sequence, obj, create, params):
         dict_factory = self.get_factory()
-        logger.debug("Dict: Building dict(%s)", utils.log_pprint(kwargs=params))
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("Dict: Building dict(%s)", utils.log_pprint(kwargs=params))
         return dict_factory.simple_generate(create,
             __sequence=sequence,
             **params)
@@ -409,9 +411,10 @@ class List(SubFactory):
 
     def generate(self, sequence, obj, create, params):
         list_factory = self.get_factory()
-        logger.debug('List: Building list(%s)',
-            utils.log_pprint(args=[v for _i, v in sorted(params.items())]),
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('List: Building list(%s)',
+                utils.log_pprint(args=[v for _i, v in sorted(params.items())]),
+            )
         return list_factory.simple_generate(create,
             __sequence=sequence,
             **params)
@@ -478,14 +481,15 @@ class PostGeneration(PostGenerationDeclaration):
         self.function = function
 
     def call(self, obj, create, extraction_context):
-        logger.debug('PostGeneration: Calling %s.%s(%s)',
-            self.function.__module__,
-            self.function.__name__,
-            utils.log_pprint(
-                (obj, create, extraction_context.value),
-                extraction_context.extra,
-            ),
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('PostGeneration: Calling %s.%s(%s)',
+                self.function.__module__,
+                self.function.__name__,
+                utils.log_pprint(
+                    (obj, create, extraction_context.value),
+                    extraction_context.extra,
+                ),
+            )
         return self.function(obj, create,
             extraction_context.value, **extraction_context.extra)
 
@@ -536,11 +540,12 @@ class RelatedFactory(PostGenerationDeclaration):
         if self.name:
             passed_kwargs[self.name] = obj
 
-        logger.debug('RelatedFactory: Generating %s.%s(%s)',
-            factory.__module__,
-            factory.__name__,
-            utils.log_pprint((create,), passed_kwargs),
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('RelatedFactory: Generating %s.%s(%s)',
+                factory.__module__,
+                factory.__name__,
+                utils.log_pprint((create,), passed_kwargs),
+            )
         return factory.simple_generate(create, **passed_kwargs)
 
 
@@ -576,9 +581,10 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
         passed_kwargs = dict(self.method_kwargs)
         passed_kwargs.update(extraction_context.extra)
         method = getattr(obj, self.method_name)
-        logger.debug('PostGenerationMethodCall: Calling %r.%s(%s)',
-            obj,
-            self.method_name,
-            utils.log_pprint(passed_args, passed_kwargs),
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('PostGenerationMethodCall: Calling %r.%s(%s)',
+                obj,
+                self.method_name,
+                utils.log_pprint(passed_args, passed_kwargs),
+            )
         return method(*passed_args, **passed_kwargs)

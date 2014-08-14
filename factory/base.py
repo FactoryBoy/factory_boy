@@ -476,11 +476,12 @@ class BaseFactory(object):
         # Extract *args from **kwargs
         args = tuple(kwargs.pop(key) for key in cls._meta.inline_args)
 
-        logger.debug('BaseFactory: Generating %s.%s(%s)',
-            cls.__module__,
-            cls.__name__,
-            utils.log_pprint(args, kwargs),
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('BaseFactory: Generating %s.%s(%s)',
+                cls.__module__,
+                cls.__name__,
+                utils.log_pprint(args, kwargs),
+            )
         if create:
             return cls._create(model_class, *args, **kwargs)
         else:
