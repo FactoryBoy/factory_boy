@@ -45,7 +45,7 @@ while only declaring the test-specific fields:
             )
             # etc.
 
-factory_boy is designed to work well with various ORMs (Django, Mogo, SQLAlchemy),
+factory_boy is designed to work well with various ORMs (Django, Mogo, SQLAlchemy, peewee),
 and can easily be extended for other libraries.
 
 Its main features include:
@@ -287,6 +287,7 @@ factory_boy has specific support for a few ORMs, through specific :class:`~facto
 * Mogo, with :class:`~factory.mogo.MogoFactory`
 * MongoEngine, with :class:`~factory.mongoengine.MongoEngineFactory`
 * SQLAlchemy, with :class:`~factory.alchemy.SQLAlchemyModelFactory`
+* peewee, with :class:`~factory.peewee.PeeweeModelFactory`
 
 Contributing
 ------------

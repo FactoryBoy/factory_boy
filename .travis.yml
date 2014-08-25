@@ -12,7 +12,7 @@ script:
 
 install:
   - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then pip install unittest2 --use-mirrors; fi
-  - pip install Django sqlalchemy --use-mirrors
+  - pip install Django sqlalchemy peewee --use-mirrors
   - if ! python --version 2>&1 | grep -q -i pypy ; then pip install Pillow --use-mirrors; fi
 
 notifications:
