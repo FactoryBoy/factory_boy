@@ -435,7 +435,8 @@ class BaseFactory(object):
                 retrieved DeclarationDict.
         """
         decls = cls._meta.declarations.copy()
-        decls.update(extra_defs)
+        if extra_defs is not None:
+            decls.update(extra_defs)
         return decls
 
     @classmethod
