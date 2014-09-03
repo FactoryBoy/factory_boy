@@ -41,5 +41,6 @@ INSTALLED_APPS = [
     'tests.djapp'
 ]
 
+MIDDLEWARE_CLASSES = ()
 
 SECRET_KEY = 'testing.'

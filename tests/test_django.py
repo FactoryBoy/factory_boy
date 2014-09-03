@@ -61,6 +61,8 @@ if django is not None:
 else:
     django_test = unittest
 
+if django is not None and django.VERSION >= (1, 7, 0):
+    django.setup()
 
 test_state = {}
 
