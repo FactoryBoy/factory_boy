@@ -57,21 +57,9 @@ if django is not None:
     from django.test import utils as django_test_utils
     from django.db.models import signals
     from .djapp import models
-else:  # pragma: no cover
+
+else:
     django_test = unittest
-
-    class Fake(object):
-        pass
-
-    models = Fake()
-    models.StandardModel = Fake
-    models.StandardSon = None
-    models.AbstractBase = Fake
-    models.ConcreteSon = Fake
-    models.NonIntegerPk = Fake
-    models.WithFile = Fake
-    models.WithImage = Fake
-    models.WithSignals = Fake
 
 
 test_state = {}
@@ -98,72 +86,73 @@ def tearDownModule():
     django_test_utils.teardown_test_environment()
 
 
-class StandardFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.StandardModel
+if django is not None:
+    class StandardFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.StandardModel
 
-    foo = factory.Sequence(lambda n: "foo%d" % n)
-
-
-class StandardFactoryWithPKField(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.StandardModel
-        django_get_or_create = ('pk',)
-
-    foo = factory.Sequence(lambda n: "foo%d" % n)
-    pk = None
+        foo = factory.Sequence(lambda n: "foo%d" % n)
 
 
-class NonIntegerPkFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.NonIntegerPk
+    class StandardFactoryWithPKField(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.StandardModel
+            django_get_or_create = ('pk',)
 
-    foo = factory.Sequence(lambda n: "foo%d" % n)
-    bar = ''
-
-
-class AbstractBaseFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.AbstractBase
-        abstract = True
-
-    foo = factory.Sequence(lambda n: "foo%d" % n)
+        foo = factory.Sequence(lambda n: "foo%d" % n)
+        pk = None
 
 
-class ConcreteSonFactory(AbstractBaseFactory):
-    class Meta:
-        model = models.ConcreteSon
+    class NonIntegerPkFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.NonIntegerPk
+
+        foo = factory.Sequence(lambda n: "foo%d" % n)
+        bar = ''
 
 
-class AbstractSonFactory(AbstractBaseFactory):
-    class Meta:
-        model = models.AbstractSon
+    class AbstractBaseFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.AbstractBase
+            abstract = True
+
+        foo = factory.Sequence(lambda n: "foo%d" % n)
 
 
-class ConcreteGrandSonFactory(AbstractBaseFactory):
-    class Meta:
-        model = models.ConcreteGrandSon
+    class ConcreteSonFactory(AbstractBaseFactory):
+        class Meta:
+            model = models.ConcreteSon
 
 
-class WithFileFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.WithFile
-
-    if django is not None:
-        afile = factory.django.FileField()
+    class AbstractSonFactory(AbstractBaseFactory):
+        class Meta:
+            model = models.AbstractSon
 
 
-class WithImageFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.WithImage
-
-    if django is not None:
-        animage = factory.django.ImageField()
+    class ConcreteGrandSonFactory(AbstractBaseFactory):
+        class Meta:
+            model = models.ConcreteGrandSon
 
 
-class WithSignalsFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.WithSignals
+    class WithFileFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.WithFile
+
+        if django is not None:
+            afile = factory.django.FileField()
+
+
+    class WithImageFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.WithImage
+
+        if django is not None:
+            animage = factory.django.ImageField()
+
+
+    class WithSignalsFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.WithSignals
 
 
 @unittest.skipIf(django is None, "Django not installed.")
