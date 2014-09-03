@@ -114,9 +114,9 @@ We can now use our factories, for tests:
         def test_get_profile_stats(self):
             profiles = []
 
-            profiles.extend(factories.ProfileFactory.batch_create(4))
-            profiles.extend(factories.FemaleProfileFactory.batch_create(2))
-            profiles.extend(factories.ProfileFactory.batch_create(2, planet="Tatooine"))
+            profiles.extend(factories.ProfileFactory.create_batch(4))
+            profiles.extend(factories.FemaleProfileFactory.create_batch(2))
+            profiles.extend(factories.ProfileFactory.create_batch(2, planet="Tatooine"))
 
             stats = business_logic.profile_stats(profiles)
             self.assertEqual({'Earth': 6, 'Mars': 2}, stats.planets)
@@ -130,7 +130,7 @@ Or for fixtures:
     from . import factories
 
     def make_objects():
-        factories.ProfileFactory.batch_create(size=50)
+        factories.ProfileFactory.create_batch(size=50)
 
         # Let's create a few, known objects.
         factories.ProfileFactory(
