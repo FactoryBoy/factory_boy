@@ -1938,6 +1938,23 @@ class CircularTestCase(unittest.TestCase):
         self.assertIsNone(b.foo.bar.foo.bar)
 
 
+class SelfReferentialTests(unittest.TestCase):
+    def test_no_parent(self):
+        from .cyclic import self_ref
+
+        obj = self_ref.TreeElementFactory(parent=None)
+        self.assertIsNone(obj.parent)
+
+    def test_deep(self):
+        from .cyclic import self_ref
+
+        obj = self_ref.TreeElementFactory(parent__parent__parent__parent=None)
+        self.assertIsNotNone(obj.parent)
+        self.assertIsNotNone(obj.parent.parent)
+        self.assertIsNotNone(obj.parent.parent.parent)
+        self.assertIsNone(obj.parent.parent.parent.parent)
+
+
 class DictTestCase(unittest.TestCase):
     def test_empty_dict(self):
         class TestObjectFactory(factory.Factory):
