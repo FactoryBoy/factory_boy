@@ -277,3 +277,38 @@ class FuzzyDateTime(BaseFuzzyDateTime):
                 "FuzzyDateTime only handles aware datetimes, got end=%r"
                 % end_dt)
         super(FuzzyDateTime, self)._check_bounds(start_dt, end_dt)
+
+
+class FuzzyPoint(BaseFuzzyAttribute):
+    """Random coordinate pairs (or triples) within a given range."""
+    def __init__(self, min_x, max_x=None, step_x=1,
+                 min_y=None, max_y=None, step_y=None,
+                 min_z=None, max_z=None, step_z=None, use_z=False,
+                 converter=None):
+        if max_x is None:
+            max_x = min_x
+            min_x = 0
+
+        self.min_x = min_x
+        self.max_x = max_x
+        self.step_x = step_x
+        self.min_y = min_x if min_y is None else min_y
+        self.max_y = max_x if max_y is None else max_y
+        self.step_y = step_x if step_y is None else step_y
+        self.min_z = min_x if min_z is None else min_z
+        self.max_z = max_x if max_z is None else max_z
+        self.step_z = step_x if step_z is None else step_z
+        self.use_z = use_z or min_z is not None or max_z is not None
+        self.converter = converter
+
+    def fuzz(self):
+        x = random.randrange(self.min_x, self.max_x + 1, self.step_x)
+        y = random.randrange(self.min_y, self.max_y + 1, self.step_y)
+        coords = [x, y]
+        if self.use_z:
+            z = random.randrange(self.min_z, self.max_z + 1, self.step_z)
+            coords.append(z)
+        if self.converter:
+            return self.converter(*coords)
+        else:
+            return coords

@@ -1,6 +1,12 @@
 ChangeLog
 =========
 
+2.4.2
+-----
+
+*New:*
+
+    - Add :class:`~factory.fuzzy.FuzzyPoint`
 
 .. _v2.4.1:
 
