@@ -327,3 +327,97 @@ default :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>` 
            manager = cls._get_manager(model_class)
            # The default would use ``manager.create(*args, **kwargs)``
            return manager.create_user(*args, **kwargs)
+
+
+Forcing the sequence counter
+----------------------------
+
+A common pattern with factory_boy is to use a :class:`factory.Sequence` declaration
+to provide varying values to attributes declared as unique.
+
+However, it is sometimes useful to force a given value to the counter, for instance
+to ensure that tests are properly reproductible.
+
+factory_boy provides a few hooks for this:
+
+
+Forcing the value on a per-call basis
+    In order to force the counter for a specific :class:`~factory.Factory` instantiation,
+    just pass the value in the ``__sequence=42`` parameter:
+
+    .. code-block:: python
+
+        class AccountFactory(factory.Factory):
+            class Meta:
+                model = Account
+            uid = factory.Sequence(lambda n: n)
+            name = "Test"
+
+    .. code-block:: pycon
+
+        >>> obj1 = AccountFactory(name="John Doe", __sequence=10)
+        >>> obj1.uid  # Taken from the __sequence counter
+        10
+        >>> obj2 = AccountFactory(name="Jane Doe")
+        >>> obj2.uid  # The base sequence counter hasn't changed
+        1
+
+
+Resetting the counter globally
+    If all calls for a factory must start from a deterministic number,
+    use :meth:`factory.Factory.reset_sequence`; this will reset the counter
+    to its initial value (as defined by :meth:`factory.Factory._setup_next_sequence`).
+
+    .. code-block:: pycon
+
+        >>> AccountFactory().uid
+        1
+        >>> AccountFactory().uid
+        2
+        >>> AccountFactory.reset_sequence()
+        >>> AccountFactory().uid  # Reset to the initial value
+        1
+        >>> AccountFactory().uid
+        2
+
+    It is also possible to reset the counter to a specific value:
+
+    .. code-block:: pycon
+
+        >>> AccountFactory.reset_sequence(10)
+        >>> AccountFactory().uid
+        10
+        >>> AccountFactory().uid
+        11
+
+    This recipe is most useful in a :class:`~unittest.TestCase`'s
+    :meth:`~unittest.TestCase.setUp` method.
+
+
+Forcing the initial value for all projects
+    The sequence counter of a :class:`~factory.Factory` can also be set
+    automatically upon the first call through the
+    :meth:`~factory.Factory._setup_next_sequence` method; this helps when the
+    objects's attributes mustn't conflict with pre-existing data.
+
+    A typical example is to ensure that running a Python script twice will create
+    non-conflicting objects, by setting up the counter to "max used value plus one":
+
+    .. code-block:: python
+
+        class AccountFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.Account
+
+            @classmethod
+            def _setup_next_sequence(cls):
+                try:
+                    return models.Accounts.objects.latest('uid').uid + 1
+                except models.Account.DoesNotExist:
+                    return 1
+
+    .. code-block:: pycon
+
+        >>> Account.objects.create(uid=42, name="Blah")
+        >>> AccountFactory.create()  # Sets up the account number based on the latest uid
+        <Account uid=43, name=Test>
