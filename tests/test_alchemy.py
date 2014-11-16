@@ -88,18 +88,18 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
 
         StandardFactory.reset_sequence()
         std2 = StandardFactory.create()
-        self.assertEqual('foo2', std2.foo)
-        self.assertEqual(2, std2.id)
+        self.assertEqual('foo0', std2.foo)
+        self.assertEqual(0, std2.id)
 
     def test_pk_force_value(self):
         std1 = StandardFactory.create(id=10)
-        self.assertEqual('foo1', std1.foo)  # sequence was set before pk
+        self.assertEqual('foo1', std1.foo)  # sequence and pk are unrelated
         self.assertEqual(10, std1.id)
 
         StandardFactory.reset_sequence()
         std2 = StandardFactory.create()
-        self.assertEqual('foo11', std2.foo)
-        self.assertEqual(11, std2.id)
+        self.assertEqual('foo0', std2.foo)  # Sequence doesn't care about pk
+        self.assertEqual(0, std2.id)
 
 
 @unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
@@ -111,22 +111,22 @@ class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
 
     def test_first(self):
         nonint = NonIntegerPkFactory.build()
-        self.assertEqual('foo1', nonint.id)
+        self.assertEqual('foo0', nonint.id)
 
     def test_many(self):
         nonint1 = NonIntegerPkFactory.build()
         nonint2 = NonIntegerPkFactory.build()
 
-        self.assertEqual('foo1', nonint1.id)
-        self.assertEqual('foo2', nonint2.id)
+        self.assertEqual('foo0', nonint1.id)
+        self.assertEqual('foo1', nonint2.id)
 
     def test_creation(self):
         nonint1 = NonIntegerPkFactory.create()
-        self.assertEqual('foo1', nonint1.id)
+        self.assertEqual('foo0', nonint1.id)
 
         NonIntegerPkFactory.reset_sequence()
         nonint2 = NonIntegerPkFactory.build()
-        self.assertEqual('foo1', nonint2.id)
+        self.assertEqual('foo0', nonint2.id)
 
     def test_force_pk(self):
         nonint1 = NonIntegerPkFactory.create(id='foo10')
@@ -134,4 +134,4 @@ class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
 
         NonIntegerPkFactory.reset_sequence()
         nonint2 = NonIntegerPkFactory.create()
-        self.assertEqual('foo1', nonint2.id)
+        self.assertEqual('foo0', nonint2.id)

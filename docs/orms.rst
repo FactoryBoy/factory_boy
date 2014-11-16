@@ -35,7 +35,6 @@ All factories for a Django :class:`~django.db.models.Model` should use the
     * The :attr:`~factory.FactoryOptions.model` attribute also supports the ``'app.Model'``
       syntax
     * :func:`~factory.Factory.create()` uses :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>`
-    * :func:`~factory.Factory._setup_next_sequence()` selects the next unused primary key value
     * When using :class:`~factory.RelatedFactory` or :class:`~factory.PostGeneration`
       attributes, the base object will be :meth:`saved <django.db.models.Model.save>`
       once all post-generation hooks have run.
@@ -284,7 +283,6 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
     This class provides the following features:
 
     * :func:`~factory.Factory.create()` uses :meth:`sqlalchemy.orm.session.Session.add`
-    * :func:`~factory.Factory._setup_next_sequence()` selects the next unused primary key value
 
     .. attribute:: FACTORY_SESSION
 

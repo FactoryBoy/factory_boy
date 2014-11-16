@@ -110,21 +110,6 @@ class DjangoModelFactory(base.Factory):
             return model_class.objects
 
     @classmethod
-    def _setup_next_sequence(cls):
-        """Compute the next available PK, based on the 'pk' database field."""
-
-        model = cls._get_model_class()  # pylint: disable=E1101
-        manager = cls._get_manager(model)
-
-        try:
-            return 1 + manager.values_list('pk', flat=True
-                ).order_by('-pk')[0]
-        except (IndexError, TypeError):
-            # IndexError: No instance exist yet
-            # TypeError: pk isn't an integer type
-            return 1
-
-    @classmethod
     def _get_or_create(cls, model_class, *args, **kwargs):
         """Create an instance of the model through objects.get_or_create."""
         manager = cls._get_manager(model_class)

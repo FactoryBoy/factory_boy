@@ -174,32 +174,32 @@ class DjangoPkSequenceTestCase(django_test.TestCase):
 
     def test_pk_first(self):
         std = StandardFactory.build()
-        self.assertEqual('foo1', std.foo)
+        self.assertEqual('foo0', std.foo)
 
     def test_pk_many(self):
         std1 = StandardFactory.build()
         std2 = StandardFactory.build()
-        self.assertEqual('foo1', std1.foo)
-        self.assertEqual('foo2', std2.foo)
+        self.assertEqual('foo0', std1.foo)
+        self.assertEqual('foo1', std2.foo)
 
     def test_pk_creation(self):
         std1 = StandardFactory.create()
-        self.assertEqual('foo1', std1.foo)
+        self.assertEqual('foo0', std1.foo)
         self.assertEqual(1, std1.pk)
 
         StandardFactory.reset_sequence()
         std2 = StandardFactory.create()
-        self.assertEqual('foo2', std2.foo)
+        self.assertEqual('foo0', std2.foo)
         self.assertEqual(2, std2.pk)
 
     def test_pk_force_value(self):
         std1 = StandardFactory.create(pk=10)
-        self.assertEqual('foo1', std1.foo)  # sequence was set before pk
+        self.assertEqual('foo0', std1.foo)  # sequence is unrelated to pk
         self.assertEqual(10, std1.pk)
 
         StandardFactory.reset_sequence()
         std2 = StandardFactory.create()
-        self.assertEqual('foo11', std2.foo)
+        self.assertEqual('foo0', std2.foo)
         self.assertEqual(11, std2.pk)
 
 
@@ -212,12 +212,12 @@ class DjangoPkForceTestCase(django_test.TestCase):
     def test_no_pk(self):
         std = StandardFactoryWithPKField()
         self.assertIsNotNone(std.pk)
-        self.assertEqual('foo1', std.foo)
+        self.assertEqual('foo0', std.foo)
 
     def test_force_pk(self):
         std = StandardFactoryWithPKField(pk=42)
         self.assertIsNotNone(std.pk)
-        self.assertEqual('foo1', std.foo)
+        self.assertEqual('foo0', std.foo)
 
     def test_reuse_pk(self):
         std1 = StandardFactoryWithPKField(foo='bar')
@@ -286,9 +286,9 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
         self.assertEqual(models.StandardModel, e1.__class__)
         self.assertEqual(models.StandardSon, e2.__class__)
         self.assertEqual(models.StandardModel, e3.__class__)
-        self.assertEqual(1, e1.foo)
-        self.assertEqual(2, e2.foo)
-        self.assertEqual(3, e3.foo)
+        self.assertEqual(0, e1.foo)
+        self.assertEqual(1, e2.foo)
+        self.assertEqual(2, e3.foo)
 
 
 @unittest.skipIf(django is None, "Django not installed.")
@@ -299,23 +299,23 @@ class DjangoNonIntegerPkTestCase(django_test.TestCase):
 
     def test_first(self):
         nonint = NonIntegerPkFactory.build()
-        self.assertEqual('foo1', nonint.foo)
+        self.assertEqual('foo0', nonint.foo)
 
     def test_many(self):
         nonint1 = NonIntegerPkFactory.build()
         nonint2 = NonIntegerPkFactory.build()
 
-        self.assertEqual('foo1', nonint1.foo)
-        self.assertEqual('foo2', nonint2.foo)
+        self.assertEqual('foo0', nonint1.foo)
+        self.assertEqual('foo1', nonint2.foo)
 
     def test_creation(self):
         nonint1 = NonIntegerPkFactory.create()
-        self.assertEqual('foo1', nonint1.foo)
-        self.assertEqual('foo1', nonint1.pk)
+        self.assertEqual('foo0', nonint1.foo)
+        self.assertEqual('foo0', nonint1.pk)
 
         NonIntegerPkFactory.reset_sequence()
         nonint2 = NonIntegerPkFactory.build()
-        self.assertEqual('foo1', nonint2.foo)
+        self.assertEqual('foo0', nonint2.foo)
 
     def test_force_pk(self):
         nonint1 = NonIntegerPkFactory.create(pk='foo10')
@@ -324,8 +324,8 @@ class DjangoNonIntegerPkTestCase(django_test.TestCase):
 
         NonIntegerPkFactory.reset_sequence()
         nonint2 = NonIntegerPkFactory.create()
-        self.assertEqual('foo1', nonint2.foo)
-        self.assertEqual('foo1', nonint2.pk)
+        self.assertEqual('foo0', nonint2.foo)
+        self.assertEqual('foo0', nonint2.pk)
 
 
 @unittest.skipIf(django is None, "Django not installed.")

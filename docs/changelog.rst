@@ -2,6 +2,17 @@ ChangeLog
 =========
 
 
+.. _v2.5.0:
+
+2.5.0 (master)
+--------------
+
+*Deprecation:*
+
+    - Remove deprecated features from :ref:`v2.4.0`
+    - Remove the auto-magical sequence setup (based on the latest primary key value in the database) for Django and SQLAlchemy;
+      this relates to issues :issue:`170`, :issue:`153`, :issue:`111`, :issue:`103`, :issue:`92`, :issue:`78`.
+
 .. _v2.4.1:
 
 2.4.1 (2014-06-23)
@@ -19,7 +30,7 @@ ChangeLog
 *New:*
 
     - Add support for :attr:`factory.fuzzy.FuzzyInteger.step`, thanks to `ilya-pirogov <https://github.com/ilya-pirogov>`_ (:issue:`120`)
-    - Add :meth:`~factory.django.mute_signals` decorator to temporarily disable some signals, thanks to `ilya-pirogov <https://github.com>`_ (:issue:`122`)
+    - Add :meth:`~factory.django.mute_signals` decorator to temporarily disable some signals, thanks to `ilya-pirogov <https://github.com/ilya-pirogov>`_ (:issue:`122`)
     - Add :class:`~factory.fuzzy.FuzzyFloat` (:issue:`124`)
     - Declare target model and other non-declaration fields in a ``class Meta`` section.
 

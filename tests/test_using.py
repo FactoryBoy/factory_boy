@@ -1490,12 +1490,6 @@ class BetterFakeModelManager(object):
         instance.id = 2
         return instance, True
 
-    def values_list(self, *args, **kwargs):
-        return self
-
-    def order_by(self, *args, **kwargs):
-        return [1]
-
 
 class BetterFakeModel(object):
     @classmethod
@@ -1618,14 +1612,14 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         o1 = TestModelFactory()
         o2 = TestModelFactory()
 
-        self.assertEqual('foo_2', o1.a)
-        self.assertEqual('foo_3', o2.a)
+        self.assertEqual('foo_0', o1.a)
+        self.assertEqual('foo_1', o2.a)
 
         o3 = TestModelFactory.build()
         o4 = TestModelFactory.build()
 
-        self.assertEqual('foo_4', o3.a)
-        self.assertEqual('foo_5', o4.a)
+        self.assertEqual('foo_2', o3.a)
+        self.assertEqual('foo_3', o4.a)
 
     def test_no_get_or_create(self):
         class TestModelFactory(factory.django.DjangoModelFactory):
@@ -1636,7 +1630,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
         o = TestModelFactory()
         self.assertEqual(None, o._defaults)
-        self.assertEqual('foo_2', o.a)
+        self.assertEqual('foo_0', o.a)
         self.assertEqual(2, o.id)
 
     def test_get_or_create(self):
@@ -1652,7 +1646,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
         o = TestModelFactory()
         self.assertEqual({'c': 3, 'd': 4}, o._defaults)
-        self.assertEqual('foo_2', o.a)
+        self.assertEqual('foo_0', o.a)
         self.assertEqual(2, o.b)
         self.assertEqual(3, o.c)
         self.assertEqual(4, o.d)
@@ -1672,7 +1666,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
         o = TestModelFactory()
         self.assertEqual({}, o._defaults)
-        self.assertEqual('foo_2', o.a)
+        self.assertEqual('foo_0', o.a)
         self.assertEqual(2, o.b)
         self.assertEqual(3, o.c)
         self.assertEqual(4, o.d)

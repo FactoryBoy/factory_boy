@@ -44,18 +44,6 @@ class SQLAlchemyModelFactory(base.Factory):
     })
 
     @classmethod
-    def _setup_next_sequence(cls, *args, **kwargs):
-        """Compute the next available PK, based on the 'pk' database field."""
-        session = cls._meta.sqlalchemy_session
-        model = cls._meta.model
-        pk = getattr(model, model.__mapper__.primary_key[0].name)
-        max_pk = session.query(max(pk)).one()[0]
-        if isinstance(max_pk, int):
-            return max_pk + 1 if max_pk else 1
-        else:
-            return 1
-
-    @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
         session = cls._meta.sqlalchemy_session
