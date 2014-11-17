@@ -369,7 +369,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
                  when using the ``create`` strategy.
 
                  That policy will be used if the
-                 :attr:`associated class <FactoryOptions.model` has an ``objects``
+                 :attr:`associated class <FactoryOptions.model>` has an ``objects``
                  attribute *and* the :meth:`~Factory._create` classmethod of the
                  :class:`Factory` wasn't overridden.
 
