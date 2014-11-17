@@ -115,35 +115,6 @@ The :class:`Factory` class
 
 .. class:: Factory
 
-    .. note:: In previous versions, the fields of :class:`class Meta <factory.FactoryOptions>` were
-              defined as class attributes on :class:`Factory`. This is now deprecated and will be removed
-              in 2.5.0.
-
-              .. attribute:: FACTORY_FOR
-
-                  .. deprecated:: 2.4.0
-                                  See :attr:`FactoryOptions.model`.
-
-              .. attribute:: ABSTRACT_FACTORY
-
-                  .. deprecated:: 2.4.0
-                                  See :attr:`FactoryOptions.abstract`.
-
-              .. attribute:: FACTORY_ARG_PARAMETERS
-
-                  .. deprecated:: 2.4.0
-                                  See :attr:`FactoryOptions.inline_args`.
-
-              .. attribute:: FACTORY_HIDDEN_ARGS
-
-                  .. deprecated:: 2.4.0
-                                  See :attr:`FactoryOptions.exclude`.
-
-              .. attribute:: FACTORY_STRATEGY
-
-                  .. deprecated:: 2.4.0
-                                  See :attr:`FactoryOptions.strategy`.
-
 
     **Class-level attributes:**
 

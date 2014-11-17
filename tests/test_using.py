@@ -1798,7 +1798,7 @@ class PostGenerationTestCase(unittest.TestCase):
                 model = TestObject
             one = 3
             two = 2
-            three = factory.RelatedFactory(TestRelatedObjectFactory, name='obj')
+            three = factory.RelatedFactory(TestRelatedObjectFactory, 'obj')
 
         obj = TestObjectFactory.build()
         # Normal fields

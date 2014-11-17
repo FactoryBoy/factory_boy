@@ -22,7 +22,6 @@
 
 
 import itertools
-import warnings
 import logging
 
 from . import compat
@@ -502,14 +501,6 @@ class RelatedFactory(PostGenerationDeclaration):
 
     def __init__(self, factory, factory_related_name='', **defaults):
         super(RelatedFactory, self).__init__()
-        if factory_related_name == '' and defaults.get('name') is not None:
-            warnings.warn(
-                "Usage of RelatedFactory(SomeFactory, name='foo') is deprecated"
-                " and will be removed in the future. Please use the"
-                " RelatedFactory(SomeFactory, 'foo') or"
-                " RelatedFactory(SomeFactory, factory_related_name='foo')"
-                " syntax instead", PendingDeprecationWarning, 2)
-            factory_related_name = defaults.pop('name')
 
         self.name = factory_related_name
         self.defaults = defaults

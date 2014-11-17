@@ -28,7 +28,6 @@ import logging
 
 from . import base
 from . import declarations
-from . import django
 
 
 @contextlib.contextmanager

@@ -39,11 +39,6 @@ All factories for a Django :class:`~django.db.models.Model` should use the
       attributes, the base object will be :meth:`saved <django.db.models.Model.save>`
       once all post-generation hooks have run.
 
-    .. attribute:: FACTORY_DJANGO_GET_OR_CREATE
-
-        .. deprecated:: 2.4.0
-                        See :attr:`DjangoOptions.django_get_or_create`.
-
 
 .. class:: DjangoOptions(factory.base.FactoryOptions)
 
@@ -284,10 +279,6 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
 
     * :func:`~factory.Factory.create()` uses :meth:`sqlalchemy.orm.session.Session.add`
 
-    .. attribute:: FACTORY_SESSION
-
-        .. deprecated:: 2.4.0
-                        See :attr:`~SQLAlchemyOptions.sqlalchemy_session`.
 
 .. class:: SQLAlchemyOptions(factory.base.FactoryOptions)
 

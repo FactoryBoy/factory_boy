@@ -38,11 +38,6 @@ class SQLAlchemyModelFactory(base.Factory):
     class Meta:
         abstract = True
 
-    _OLDSTYLE_ATTRIBUTES = base.Factory._OLDSTYLE_ATTRIBUTES.copy()
-    _OLDSTYLE_ATTRIBUTES.update({
-        'FACTORY_SESSION': 'sqlalchemy_session',
-    })
-
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""

@@ -84,11 +84,6 @@ class DjangoModelFactory(base.Factory):
     class Meta:
         abstract = True  # Optional, but explicit.
 
-    _OLDSTYLE_ATTRIBUTES = base.Factory._OLDSTYLE_ATTRIBUTES.copy()
-    _OLDSTYLE_ATTRIBUTES.update({
-        'FACTORY_DJANGO_GET_OR_CREATE': 'django_get_or_create',
-    })
-
     @classmethod
     def _load_model_class(cls, definition):
 
