@@ -1192,7 +1192,7 @@ For instance, a :class:`PostGeneration` hook is declared as ``post``:
             model = SomeObject
 
         @post_generation
-        def post(self, create, extracted, **kwargs):
+        def post(obj, create, extracted, **kwargs):
             obj.set_origin(create)
 
 .. OHAI_VIM**
