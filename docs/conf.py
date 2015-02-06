@@ -247,7 +247,7 @@ intersphinx_mapping = {
         'http://docs.djangoproject.com/en/dev/_objects/',
     ),
     'sqlalchemy': (
-        'http://docs.sqlalchemy.org/en/rel_0_8/',
-        'http://docs.sqlalchemy.org/en/rel_0_8/objects.inv',
+        'http://docs.sqlalchemy.org/en/rel_0_9/',
+        'http://docs.sqlalchemy.org/en/rel_0_9/objects.inv',
     ),
 }

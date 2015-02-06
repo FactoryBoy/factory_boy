@@ -298,9 +298,8 @@ A (very) simple exemple:
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import scoped_session, sessionmaker
 
-    session = scoped_session(sessionmaker())
     engine = create_engine('sqlite://')
-    session.configure(bind=engine)
+    session = scoped_session(sessionmaker(bind=engine))
     Base = declarative_base()
 
 
@@ -330,3 +329,102 @@ A (very) simple exemple:
     <User: User 1>
     >>> session.query(User).all()
     [<User: User 1>]
+
+
+Managing sessions
+"""""""""""""""""
+
+Since `SQLAlchemy`_ is a general purpose library,
+there is no "global" session management system.
+
+The most common pattern when working with unit tests and ``factory_boy``
+is to use `SQLAlchemy`_'s :class:`sqlalchemy.orm.scoping.scoped_session`:
+
+* The test runner configures some project-wide :class:`~sqlalchemy.orm.scoping.scoped_session`
+* Each :class:`~SQLAlchemyModelFactory` subclass uses this
+  :class:`~sqlalchemy.orm.scoping.scoped_session` as its :attr:`~SQLAlchemyOptions.sqlalchemy_session`
+* The :meth:`~unittest.TestCase.tearDown` method of tests calls
+  :meth:`Session.remove <sqlalchemy.orm.scoping.scoped_session.remove>`
+  to reset the session.
+
+
+Here is an example layout:
+
+- A global (test-only?) file holds the :class:`~sqlalchemy.orm.scoping.scoped_session`:
+
+.. code-block:: python
+
+    # myprojet/test/common.py
+
+    from sqlalchemy import orm
+    Session = orm.scoped_session(orm.sessionmaker())
+
+
+- All factory access it:
+
+.. code-block:: python
+
+    # myproject/factories.py
+
+    import factory
+    import factory.alchemy
+
+    from . import models
+    from .test import common
+
+    class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
+        class Meta:
+            model = models.User
+
+            # Use the not-so-global scoped_session
+            # Warning: DO NOT USE common.Session()!
+            sqlalchemy_session = common.Session
+
+        name = factory.Sequence(lambda n: "User %d" % n)
+
+
+- The test runner configures the :class:`~sqlalchemy.orm.scoping.scoped_session` when it starts:
+
+.. code-block:: python
+
+    # myproject/test/runtests.py
+
+    import sqlalchemy
+
+    from . import common
+
+    def runtests():
+        engine = sqlalchemy.create_engine('sqlite://')
+
+        # It's a scoped_session, we can configure it later
+        common.Session.configure(engine=engine)
+
+        run_the_tests
+
+
+- :class:`test cases <unittest.TestCase>` use this ``scoped_session``,
+  and clear it after each test:
+
+.. code-block:: python
+
+    # myproject/test/test_stuff.py
+
+    import unittest
+
+    from . import common
+
+    class MyTest(unittest.TestCase):
+
+        def setUp(self):
+            # Prepare a new, clean session
+            self.session = common.Session()
+
+        def test_something(self):
+            u = factories.UserFactory()
+            self.assertEqual([u], self.session.query(User).all())
+
+        def tearDown(self):
+            # Rollback the session => no changes to the database
+            self.session.rollback()
+            # Remove it, so that the next test gets a new Session()
+            common.Session.remove()
