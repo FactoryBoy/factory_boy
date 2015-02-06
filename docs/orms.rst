@@ -347,6 +347,16 @@ is to use `SQLAlchemy`_'s :class:`sqlalchemy.orm.scoping.scoped_session`:
   :meth:`Session.remove <sqlalchemy.orm.scoping.scoped_session.remove>`
   to reset the session.
 
+.. note:: See the excellent :ref:`SQLAlchemy guide on scoped_session <sqlalchemy:unitofwork_contextual>`
+          for details of :class:`~sqlalchemy.orm.scoping.scoped_session`'s usage.
+
+          The basic idea is that declarative parts of the code (including factories)
+          need a simple way to access the "current session",
+          but that session will only be created and configured at a later point.
+
+          The :class:`~sqlalchemy.orm.scoping.scoped_session` handles this,
+          by virtue of only creating the session when a query is sent to the database.
+
 
 Here is an example layout:
 
@@ -396,14 +406,14 @@ Here is an example layout:
     def runtests():
         engine = sqlalchemy.create_engine('sqlite://')
 
-        # It's a scoped_session, we can configure it later
-        common.Session.configure(engine=engine)
+        # It's a scoped_session, and now is the time to configure it.
+        common.Session.configure(bind=engine)
 
         run_the_tests
 
 
 - :class:`test cases <unittest.TestCase>` use this ``scoped_session``,
-  and clear it after each test:
+  and clear it after each test (for isolation):
 
 .. code-block:: python
 
