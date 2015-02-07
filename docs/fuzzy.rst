@@ -322,6 +322,100 @@ FuzzyNaiveDateTime
         int or None; if set, forces the :attr:`~datetime.datetime.microsecond` of generated datetime.
 
 
+FuzzyPoint
+----------
+
+.. class:: FuzzyPoint(min_x, max_x=None, step_x=1,
+                      min_y=None, max_y=None, step_y=None,
+                      min_z=None, max_z=None, step_z=None,
+                      use_z=False, converter=None)
+
+    The :class:`FuzzyPoint` fuzzer generates random ``(x, y)`` points within
+    a given inclusive range. Range values for ``y`` default to the range values
+    for ``x``, so if you want to use the same range for both, you can just
+    specify the values for ``x``. If only one value is provided, it is treated
+    as :attr:`max_x`, and :attr:`min_x` defaults to 0.
+
+    .. code-block:: pycon
+
+        >>> fp = FuzzyPoint(0, 42)
+        >>> fp.min_x, fp.max_x
+        0, 42
+
+        >>> fp = FuzzyPoint(42)
+        >>> fp.min_x, fp.max_x
+        0, 42
+
+    You can also set :attr:`use_z` to True, in which case :class:`FuzzyPoint`
+    will return ``(x, y, z)`` coordinates. Setting :attr:`min_z` or :attr:`max_z`
+    will automatically set :attr:`use_z` to True.
+
+    If you pass a :attr:`converter` function, the randomly-generated points
+    will be passed to the converter function before being returned. This is
+    useful if you want to use a spatial analysis library like `Shapely`_.
+
+    .. attribute:: min_x
+
+        int or None, the inclusive lower bound of the generated ``x`` value.
+        Defaults to 0.
+
+    .. attribute:: max_x
+
+        int, the inclusive upper bound of the generated ``x`` value.
+
+    .. attribute:: step_x
+
+        int, the step between values in the ``x`` range. Defaults to 1.
+
+    .. attribute:: min_y
+
+        int or None, the inclusive lower bound of the generated ``y`` value.
+        Defaults to the value of :attr:`min_x`.
+
+    .. attribute:: max_y
+
+        int or None, the inclusive upper bound of the generated ``y`` value.
+        Defaults to the value of :attr:`max_x`.
+
+    .. attribute:: step_y
+
+        int or None, the step between values in the ``y`` range. Defaults to
+        value of :attr:`step_x`.
+
+    .. attribute:: min_z
+
+        int or None, the inclusive lower bound of the generated ``z`` value.
+        This causes the :class:`FuzzyPoint` to return ``(x, y, z)`` coordinates
+        instead of ``(x, y)`` coordinates.
+
+    .. attribute:: max_z
+
+        int or None, the inclusive upper bound of the generated ``z`` value.
+        This causes the :class:`FuzzyPoint` to return ``(x, y, z)`` coordinates
+        instead of ``(x, y)`` coordinates.
+
+    .. attribute:: step_z
+
+        int or None, the step between values in the ``z`` range. Defaults to
+        value of :attr:`step_x`.
+
+    .. attribute:: use_z
+
+        bool. If True, this causes the :class:`FuzzyPoint` to return ``(x, y, z)``
+        coordinates instead of ``(x, y)`` coordinates, where the upper and lower
+        bounds for ``z`` default to the upper and lower bounds for ``x``.
+
+    .. attribute:: converter
+
+        function or class. If provided, the coordinates will be passed to the
+        converter and the result will be returned. For example, if you are
+        using `Shapely`_, you can pass the `Point`_ class as a converter to get
+        Point objects.
+
+.. _Shapely: http://toblerity.org/shapely/
+.. _Point: http://toblerity.org/shapely/manual.html#Point
+
+
 Custom fuzzy fields
 -------------------
 

@@ -504,3 +504,101 @@ class FuzzyTextTestCase(unittest.TestCase):
 
         for char in res:
             self.assertIn(char, ['a', 'b', 'c'])
+
+
+class FuzzyPointTestCase(unittest.TestCase):
+    def test_definition(self):
+        """Tests all ways of defining a FuzzyPoint."""
+        fuzz = fuzzy.FuzzyPoint(2, 3)
+        for _i in range(20):
+            x, y = fuzz.evaluate(2, None, False)
+            self.assertIn(x, [2, 3])
+            self.assertIn(y, [2, 3])
+
+        fuzz = fuzzy.FuzzyPoint(4)
+        for _i in range(20):
+            x, y = fuzz.evaluate(2, None, False)
+            self.assertIn(x, [0, 1, 2, 3, 4])
+            self.assertIn(y, [0, 1, 2, 3, 4])
+
+        fuzz = fuzzy.FuzzyPoint(2, 3, min_y=0, max_y=1)
+        for _i in range(20):
+            x, y = fuzz.evaluate(2, None, False)
+            self.assertIn(x, [2, 3])
+            self.assertIn(y, [0, 1])
+
+        fuzz = fuzzy.FuzzyPoint(2, 3, min_z=0, max_z=1)
+        for _i in range(20):
+            x, y, z = fuzz.evaluate(2, None, False)
+            self.assertIn(x, [2, 3])
+            self.assertIn(y, [2, 3])
+            self.assertIn(z, [0, 1])
+
+        fuzz = fuzzy.FuzzyPoint(4, use_z=True)
+        for _i in range(20):
+            x, y, z = fuzz.evaluate(2, None, False)
+            self.assertIn(x, [0, 1, 2, 3, 4])
+            self.assertIn(y, [0, 1, 2, 3, 4])
+            self.assertIn(z, [0, 1, 2, 3, 4])
+
+    def test_biased(self):
+        fuzz = fuzzy.FuzzyPoint(2, 8)
+
+        with mock.patch('random.randrange', side_effect=[1, 2]) as p:
+            x, y = fuzz.evaluate(2, None, False)
+
+        self.assertEqual(p.call_count, 2)
+        self.assertEqual(x, 1)
+        self.assertEqual(y, 2)
+
+    def test_biased_high_only(self):
+        fake_randrange = lambda low, high, step: (low + high) * step
+
+        fuzz = fuzzy.FuzzyPoint(8)
+
+        with mock.patch('random.randrange', fake_randrange):
+            x, y = fuzz.evaluate(2, None, False)
+
+        self.assertEqual((0 + 8 + 1) * 1, x)
+        self.assertEqual((0 + 8 + 1) * 1, y)
+
+    def test_biased_with_step(self):
+        fake_randrange = lambda low, high, step: (low + high) * step
+
+        fuzz = fuzzy.FuzzyPoint(5, 8, 3)
+
+        with mock.patch('random.randrange', fake_randrange):
+            x, y = fuzz.evaluate(2, None, False)
+
+        self.assertEqual((5 + 8 + 1) * 3, x)
+        self.assertEqual((5 + 8 + 1) * 3, y)
+
+    def test_biased_with_z(self):
+        fuzz = fuzzy.FuzzyPoint(2, 8, use_z=True)
+
+        with mock.patch('random.randrange', side_effect=[1,2,3]) as p:
+            x, y, z = fuzz.evaluate(2, None, False)
+
+        self.assertEqual(p.call_count, 3)
+        p.assert_called_with(2, 9, 1)
+        self.assertEqual(x, 1)
+        self.assertEqual(y, 2)
+        self.assertEqual(z, 3)
+
+    def test_biased_with_converter(self):
+        class Point(object):
+            def __init__(self, x, y):
+                self.x = x
+                self.y = y
+
+        fake_randrange = mock.Mock(side_effect=[1,2])
+
+        fuzz = fuzzy.FuzzyPoint(2, 8, converter=Point)
+
+        with mock.patch('random.randrange', fake_randrange) as p:
+            res = fuzz.evaluate(2, None, False)
+
+        self.assertIsInstance(res, Point)
+        self.assertEqual(p.call_count, 2)
+        self.assertEqual(res.x, 1)
+        self.assertEqual(res.y, 2)
