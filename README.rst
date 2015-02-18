@@ -250,7 +250,7 @@ Debugging factory_boy
 Debugging factory_boy can be rather complex due to the long chains of calls.
 Detailed logging is available through the ``factory`` logger.
 
-A helper, :meth:`factory.debug()`, is available to ease debugging:
+A helper, `factory.debug()`, is available to ease debugging:
 
 .. code-block:: python
 
