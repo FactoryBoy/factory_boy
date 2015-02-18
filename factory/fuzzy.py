@@ -34,6 +34,25 @@ from . import compat
 from . import declarations
 
 
+_random = random.Random()
+
+
+def get_random_state():
+    """Retrieve the state of factory.fuzzy's random generator."""
+    return _random.getstate()
+
+
+def set_random_state(state):
+    """Force-set the state of factory.fuzzy's random generator."""
+    return _random.setstate(state)
+
+
+def reseed_random(seed):
+    """Reseed factory.fuzzy's random generator."""
+    r = random.Random(seed)
+    set_random_state(r.getstate())
+
+
 class BaseFuzzyAttribute(declarations.OrderedDeclaration):
     """Base class for fuzzy attributes.
 
@@ -81,7 +100,7 @@ class FuzzyText(BaseFuzzyAttribute):
     """
 
     def __init__(self, prefix='', length=12, suffix='',
-        chars=string.ascii_letters, **kwargs):
+            chars=string.ascii_letters, **kwargs):
         super(FuzzyText, self).__init__(**kwargs)
         self.prefix = prefix
         self.suffix = suffix
@@ -89,7 +108,7 @@ class FuzzyText(BaseFuzzyAttribute):
         self.chars = tuple(chars)  # Unroll iterators
 
     def fuzz(self):
-        chars = [random.choice(self.chars) for _i in range(self.length)]
+        chars = [_random.choice(self.chars) for _i in range(self.length)]
         return self.prefix + ''.join(chars) + self.suffix
 
 
@@ -101,7 +120,7 @@ class FuzzyChoice(BaseFuzzyAttribute):
         super(FuzzyChoice, self).__init__(**kwargs)
 
     def fuzz(self):
-        return random.choice(self.choices)
+        return _random.choice(self.choices)
 
 
 class FuzzyInteger(BaseFuzzyAttribute):
@@ -119,7 +138,7 @@ class FuzzyInteger(BaseFuzzyAttribute):
         super(FuzzyInteger, self).__init__(**kwargs)
 
     def fuzz(self):
-        return random.randrange(self.low, self.high + 1, self.step)
+        return _random.randrange(self.low, self.high + 1, self.step)
 
 
 class FuzzyDecimal(BaseFuzzyAttribute):
@@ -137,7 +156,7 @@ class FuzzyDecimal(BaseFuzzyAttribute):
         super(FuzzyDecimal, self).__init__(**kwargs)
 
     def fuzz(self):
-        base = compat.float_to_decimal(random.uniform(self.low, self.high))
+        base = compat.float_to_decimal(_random.uniform(self.low, self.high))
         return base.quantize(decimal.Decimal(10) ** -self.precision)
 
 
@@ -155,7 +174,7 @@ class FuzzyFloat(BaseFuzzyAttribute):
         super(FuzzyFloat, self).__init__(**kwargs)
 
     def fuzz(self):
-        return random.uniform(self.low, self.high)
+        return _random.uniform(self.low, self.high)
 
 
 class FuzzyDate(BaseFuzzyAttribute):
@@ -175,7 +194,7 @@ class FuzzyDate(BaseFuzzyAttribute):
         self.end_date = end_date.toordinal()
 
     def fuzz(self):
-        return datetime.date.fromordinal(random.randint(self.start_date, self.end_date))
+        return datetime.date.fromordinal(_random.randint(self.start_date, self.end_date))
 
 
 class BaseFuzzyDateTime(BaseFuzzyAttribute):
@@ -215,7 +234,7 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
         delta = self.end_dt - self.start_dt
         microseconds = delta.microseconds + 1000000 * (delta.seconds + (delta.days * 86400))
 
-        offset = random.randint(0, microseconds)
+        offset = _random.randint(0, microseconds)
         result = self.start_dt + datetime.timedelta(microseconds=offset)
 
         if self.force_year is not None:

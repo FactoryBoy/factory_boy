@@ -338,3 +338,33 @@ They should inherit from the :class:`BaseFuzzyAttribute` class, and override its
 
         The method responsible for generating random values.
         *Must* be overridden in subclasses.
+
+
+Managing randomness
+-------------------
+
+Using :mod:`random` in factories allows to "fuzz" a program efficiently.
+However, it's sometimes required to *reproduce* a failing test.
+
+:mod:`factory.fuzzy` uses a separate instance of :class:`random.Random`,
+and provides a few helpers for this:
+
+.. method:: get_random_state()
+
+    Call :meth:`get_random_state` to retrieve the random generator's current
+    state.
+
+.. method:: set_random_state(state)
+
+    Use :meth:`set_random_state` to set a custom state into the random generator
+    (fetched from :meth:`get_random_state` in a previous run, for instance)
+
+.. method:: reseed_random(seed)
+
+    The :meth:`reseed_random` function allows to load a chosen seed into the random generator.
+
+
+Custom :class:`BaseFuzzyAttribute` subclasses **SHOULD**
+use :obj:`factory.fuzzy._random` foras a randomness source; this ensures that
+data they generate can be regenerated using the simple state from
+:meth:`get_random_state`.

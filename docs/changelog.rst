@@ -7,6 +7,10 @@ ChangeLog
 2.5.0 (master)
 --------------
 
+*New:*
+
+    - Add support for getting/setting :mod:`factory.fuzzy`'s random state (see :issue:`175`, :issue:`185`).
+
 *Deprecation:*
 
     - Remove deprecated features from :ref:`v2.4.0`
