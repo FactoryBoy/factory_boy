@@ -409,7 +409,7 @@ class BaseFactory(object):
                 retrieved DeclarationDict.
         """
         decls = cls._meta.declarations.copy()
-        decls.update(extra_defs)
+        decls.update(extra_defs or {})
         return decls
 
     @classmethod
