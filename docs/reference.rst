@@ -109,7 +109,7 @@ The :class:`Factory` class
     .. attribute:: strategy
 
         Use this attribute to change the strategy used by a :class:`Factory`.
-        The default is :data:`BUILD_STRATEGY`.
+        The default is :data:`CREATE_STRATEGY`.
 
 
 
