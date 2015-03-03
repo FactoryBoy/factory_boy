@@ -290,7 +290,7 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
         SQLAlchemy session to use to communicate with the database when creating
         an object through this :class:`SQLAlchemyModelFactory`.
 
-A (very) simple exemple:
+A (very) simple example:
 
 .. code-block:: python
 
