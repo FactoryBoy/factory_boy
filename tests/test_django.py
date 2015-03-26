@@ -592,6 +592,27 @@ class PreventSignalsTestCase(unittest.TestCase):
 
         self.assertSignalsReactivated()
 
+    def test_class_decorator_with_subfactory(self):
+        @factory.django.mute_signals(signals.pre_save, signals.post_save)
+        class WithSignalsDecoratedFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.WithSignals
+
+            @factory.post_generation
+            def post(obj, create, extracted, **kwargs):
+                if not extracted:
+                    WithSignalsDecoratedFactory.create(post=42)
+
+        # This will disable the signals (twice), create two objects,
+        # and reactivate the signals.
+        WithSignalsDecoratedFactory()
+
+        self.assertEqual(self.handlers.pre_init.call_count, 2)
+        self.assertFalse(self.handlers.pre_save.called)
+        self.assertFalse(self.handlers.post_save.called)
+
+        self.assertSignalsReactivated()
+
     def test_class_decorator_build(self):
         @factory.django.mute_signals(signals.pre_save, signals.post_save)
         class WithSignalsDecoratedFactory(factory.django.DjangoModelFactory):

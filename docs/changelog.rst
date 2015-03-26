@@ -12,6 +12,10 @@ ChangeLog
     - Add support for getting/setting :mod:`factory.fuzzy`'s random state (see :issue:`175`, :issue:`185`).
     - Support lazy evaluation of iterables in :class:`factory.fuzzy.FuzzyChoice` (see :issue:`184`).
 
+*Bugfix:*
+
+    - Avoid issues when using :meth:`factory.django.mute_signals` on a base factory class (see :issue:`183`).
+
 *Deprecation:*
 
     - Remove deprecated features from :ref:`v2.4.0`

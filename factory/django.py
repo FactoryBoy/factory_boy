@@ -269,6 +269,9 @@ class mute_signals(object):
             signal.receivers = receivers
         self.paused = {}
 
+    def copy(self):
+        return mute_signals(*self.signals)
+
     def __call__(self, callable_obj):
         if isinstance(callable_obj, base.FactoryMetaClass):
             # Retrieve __func__, the *actual* callable object.
@@ -277,7 +280,8 @@ class mute_signals(object):
             @classmethod
             @functools.wraps(generate_method)
             def wrapped_generate(*args, **kwargs):
-                with self:
+                # A mute_signals() object is not reentrant; use a copy everytime.
+                with self.copy():
                     return generate_method(*args, **kwargs)
 
             callable_obj._generate = wrapped_generate
@@ -286,7 +290,8 @@ class mute_signals(object):
         else:
             @functools.wraps(callable_obj)
             def wrapper(*args, **kwargs):
-                with self:
+                # A mute_signals() object is not reentrant; use a copy everytime.
+                with self.copy():
                     return callable_obj(*args, **kwargs)
             return wrapper
 
