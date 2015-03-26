@@ -289,10 +289,10 @@ class FuzzyDateTime(BaseFuzzyDateTime):
     def _check_bounds(self, start_dt, end_dt):
         if start_dt.tzinfo is None:
             raise ValueError(
-                "FuzzyDateTime only handles aware datetimes, got start=%r"
+                "FuzzyDateTime requires timezone-aware datetimes, got start=%r"
                 % start_dt)
         if end_dt.tzinfo is None:
             raise ValueError(
-                "FuzzyDateTime only handles aware datetimes, got end=%r"
+                "FuzzyDateTime requires timezone-aware datetimes, got end=%r"
                 % end_dt)
         super(FuzzyDateTime, self)._check_bounds(start_dt, end_dt)
