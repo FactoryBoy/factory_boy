@@ -34,6 +34,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
     },
+    'replica': {
+        'ENGINE': 'django.db.backends.sqlite3',
+    },
 }
 
 

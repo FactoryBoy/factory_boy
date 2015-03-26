@@ -42,7 +42,14 @@ All factories for a Django :class:`~django.db.models.Model` should use the
 
 .. class:: DjangoOptions(factory.base.FactoryOptions)
 
-    The ``class Meta`` on a :class:`~DjangoModelFactory` supports an extra parameter:
+    The ``class Meta`` on a :class:`~DjangoModelFactory` supports extra parameters:
+
+    .. attribute:: database
+
+        .. versionadded:: 2.5.0
+
+        All queries to the related model will be routed to the given database.
+        It defaults to ``'default'``.
 
     .. attribute:: django_get_or_create
 

@@ -165,6 +165,16 @@ class ModelTests(django_test.TestCase):
 
         self.assertRaises(factory.FactoryError, UnsetModelFactory.create)
 
+    def test_cross_database(self):
+        class OtherDBFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.StandardModel
+                database = 'replica'
+
+        obj = OtherDBFactory()
+        self.assertFalse(models.StandardModel.objects.exists())
+        self.assertEqual(obj, models.StandardModel.objects.using('replica').get())
+
 
 @unittest.skipIf(django is None, "Django not installed.")
 class DjangoPkSequenceTestCase(django_test.TestCase):

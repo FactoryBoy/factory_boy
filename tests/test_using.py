@@ -69,6 +69,9 @@ class FakeModel(object):
         def order_by(self, *args, **kwargs):
             return [1]
 
+        def using(self, db):
+            return self
+
     objects = FakeModelManager()
 
     def __init__(self, **kwargs):
@@ -1489,6 +1492,9 @@ class BetterFakeModelManager(object):
         instance = FakeModel.create(**kwargs)
         instance.id = 2
         return instance, True
+
+    def using(self, db):
+        return self
 
 
 class BetterFakeModel(object):

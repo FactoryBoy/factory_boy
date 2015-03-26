@@ -56,6 +56,7 @@ class DjangoOptions(base.FactoryOptions):
     def _build_default_options(self):
         return super(DjangoOptions, self)._build_default_options() + [
             base.OptionDefault('django_get_or_create', (), inherit=True),
+            base.OptionDefault('database', 'default', inherit=True),
         ]
 
     def _get_counter_reference(self):
@@ -100,9 +101,12 @@ class DjangoModelFactory(base.Factory):
             raise base.AssociatedClassError("No model set on %s.%s.Meta"
                     % (cls.__module__, cls.__name__))
         try:
-            return model_class._default_manager   # pylint: disable=W0212
+            manager = model_class._default_manager   # pylint: disable=W0212
         except AttributeError:
-            return model_class.objects
+            manager = model_class.objects
+
+        manager = manager.using(cls._meta.database)
+        return manager
 
     @classmethod
     def _get_or_create(cls, model_class, *args, **kwargs):
