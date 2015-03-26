@@ -144,24 +144,23 @@ class DjangoModelFactory(base.Factory):
             obj.save()
 
 
-class FileField(declarations.PostGenerationDeclaration):
+class FileField(declarations.ParameteredAttribute):
     """Helper to fill in django.db.models.FileField from a Factory."""
 
     DEFAULT_FILENAME = 'example.dat'
 
     def __init__(self, **defaults):
         require_django()
-        self.defaults = defaults
-        super(FileField, self).__init__()
+        super(FileField, self).__init__(**defaults)
 
     def _make_data(self, params):
         """Create data for the field."""
         return params.get('data', b'')
 
-    def _make_content(self, extraction_context):
+    def _make_content(self, extra):
         path = ''
         params = dict(self.defaults)
-        params.update(extraction_context.extra)
+        params.update(extra)
 
         if params.get('from_path') and params.get('from_file'):
             raise ValueError(
@@ -169,12 +168,7 @@ class FileField(declarations.PostGenerationDeclaration):
                 "be non-empty when calling factory.django.FileField."
             )
 
-        if extraction_context.did_extract:
-            # Should be a django.core.files.File
-            content = extraction_context.value
-            path = content.name
-
-        elif params.get('from_path'):
+        if params.get('from_path'):
             path = params['from_path']
             f = open(path, 'rb')
             content = django_files.File(f, name=path)
@@ -196,19 +190,12 @@ class FileField(declarations.PostGenerationDeclaration):
         filename = params.get('filename', default_filename)
         return filename, content
 
-    def call(self, obj, create, extraction_context):
+    def evaluate(self, sequence, obj, create, extra=None, containers=()):
         """Fill in the field."""
-        if extraction_context.did_extract and extraction_context.value is None:
-            # User passed an empty value, don't fill
-            return
 
-        filename, content = self._make_content(extraction_context)
-        field_file = getattr(obj, extraction_context.for_field)
-        try:
-            field_file.save(filename, content, save=create)
-        finally:
-            content.file.close()
-        return field_file
+        filename, content = self._make_content(extra)
+        print("Returning file with filename=%r, contents=%r" % (filename, content))
+        return django_files.File(content.file, filename)
 
 
 class ImageField(FileField):

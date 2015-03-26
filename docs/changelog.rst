@@ -12,6 +12,7 @@ ChangeLog
     - Add support for getting/setting :mod:`factory.fuzzy`'s random state (see :issue:`175`, :issue:`185`).
     - Support lazy evaluation of iterables in :class:`factory.fuzzy.FuzzyChoice` (see :issue:`184`).
     - Support non-default databases at the factory level (see :issue:`171`)
+    - Make :class:`factory.django.FileField` and :class:`factory.django.ImageField` non-post_generation, i.e normal fields also available in ``save()`` (see :issue:`141`).
 
 *Bugfix:*
 

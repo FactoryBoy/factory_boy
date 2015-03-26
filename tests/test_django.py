@@ -364,6 +364,9 @@ class DjangoFileFieldTestCase(unittest.TestCase):
         o = WithFileFactory.build()
         self.assertIsNone(o.pk)
         self.assertEqual(b'', o.afile.read())
+        self.assertEqual('example.dat', o.afile.name)
+
+        o.save()
         self.assertEqual('django/example.dat', o.afile.name)
 
     def test_default_create(self):
@@ -375,19 +378,26 @@ class DjangoFileFieldTestCase(unittest.TestCase):
     def test_with_content(self):
         o = WithFileFactory.build(afile__data='foo')
         self.assertIsNone(o.pk)
+
+        # Django only allocates the full path on save()
+        o.save()
         self.assertEqual(b'foo', o.afile.read())
         self.assertEqual('django/example.dat', o.afile.name)
 
     def test_with_file(self):
         with open(testdata.TESTFILE_PATH, 'rb') as f:
             o = WithFileFactory.build(afile__from_file=f)
-        self.assertIsNone(o.pk)
+            o.save()
+
         self.assertEqual(b'example_data\n', o.afile.read())
         self.assertEqual('django/example.data', o.afile.name)
 
     def test_with_path(self):
         o = WithFileFactory.build(afile__from_path=testdata.TESTFILE_PATH)
         self.assertIsNone(o.pk)
+
+        # Django only allocates the full path on save()
+        o.save()
         self.assertEqual(b'example_data\n', o.afile.read())
         self.assertEqual('django/example.data', o.afile.name)
 
@@ -397,7 +407,9 @@ class DjangoFileFieldTestCase(unittest.TestCase):
                 afile__from_file=f,
                 afile__from_path=''
             )
-        self.assertIsNone(o.pk)
+            # Django only allocates the full path on save()
+            o.save()
+
         self.assertEqual(b'example_data\n', o.afile.read())
         self.assertEqual('django/example.data', o.afile.name)
 
@@ -407,6 +419,9 @@ class DjangoFileFieldTestCase(unittest.TestCase):
             afile__from_file=None,
         )
         self.assertIsNone(o.pk)
+
+        # Django only allocates the full path on save()
+        o.save()
         self.assertEqual(b'example_data\n', o.afile.read())
         self.assertEqual('django/example.data', o.afile.name)
 
@@ -422,14 +437,21 @@ class DjangoFileFieldTestCase(unittest.TestCase):
             afile__filename='example.foo',
         )
         self.assertIsNone(o.pk)
+
+        # Django only allocates the full path on save()
+        o.save()
         self.assertEqual(b'example_data\n', o.afile.read())
         self.assertEqual('django/example.foo', o.afile.name)
 
     def test_existing_file(self):
         o1 = WithFileFactory.build(afile__from_path=testdata.TESTFILE_PATH)
+        o1.save()
+        self.assertEqual('django/example.data', o1.afile.name)
 
-        o2 = WithFileFactory.build(afile=o1.afile)
+        o2 = WithFileFactory.build(afile__from_file=o1.afile)
         self.assertIsNone(o2.pk)
+        o2.save()
+
         self.assertEqual(b'example_data\n', o2.afile.read())
         self.assertNotEqual('django/example.data', o2.afile.name)
         self.assertRegexpMatches(o2.afile.name, r'django/example_\w+.data')
@@ -453,6 +475,8 @@ class DjangoImageFieldTestCase(unittest.TestCase):
     def test_default_build(self):
         o = WithImageFactory.build()
         self.assertIsNone(o.pk)
+        o.save()
+
         self.assertEqual(100, o.animage.width)
         self.assertEqual(100, o.animage.height)
         self.assertEqual('django/example.jpg', o.animage.name)
@@ -460,6 +484,8 @@ class DjangoImageFieldTestCase(unittest.TestCase):
     def test_default_create(self):
         o = WithImageFactory.create()
         self.assertIsNotNone(o.pk)
+        o.save()
+
         self.assertEqual(100, o.animage.width)
         self.assertEqual(100, o.animage.height)
         self.assertEqual('django/example.jpg', o.animage.name)
@@ -467,6 +493,8 @@ class DjangoImageFieldTestCase(unittest.TestCase):
     def test_with_content(self):
         o = WithImageFactory.build(animage__width=13, animage__color='red')
         self.assertIsNone(o.pk)
+        o.save()
+
         self.assertEqual(13, o.animage.width)
         self.assertEqual(13, o.animage.height)
         self.assertEqual('django/example.jpg', o.animage.name)
@@ -480,6 +508,8 @@ class DjangoImageFieldTestCase(unittest.TestCase):
     def test_gif(self):
         o = WithImageFactory.build(animage__width=13, animage__color='blue', animage__format='GIF')
         self.assertIsNone(o.pk)
+        o.save()
+
         self.assertEqual(13, o.animage.width)
         self.assertEqual(13, o.animage.height)
         self.assertEqual('django/example.jpg', o.animage.name)
@@ -493,7 +523,8 @@ class DjangoImageFieldTestCase(unittest.TestCase):
     def test_with_file(self):
         with open(testdata.TESTIMAGE_PATH, 'rb') as f:
             o = WithImageFactory.build(animage__from_file=f)
-        self.assertIsNone(o.pk)
+            o.save()
+
         # Image file for a 42x42 green jpeg: 301 bytes long.
         self.assertEqual(301, len(o.animage.read()))
         self.assertEqual('django/example.jpeg', o.animage.name)
@@ -501,6 +532,8 @@ class DjangoImageFieldTestCase(unittest.TestCase):
     def test_with_path(self):
         o = WithImageFactory.build(animage__from_path=testdata.TESTIMAGE_PATH)
         self.assertIsNone(o.pk)
+        o.save()
+
         # Image file for a 42x42 green jpeg: 301 bytes long.
         self.assertEqual(301, len(o.animage.read()))
         self.assertEqual('django/example.jpeg', o.animage.name)
@@ -511,7 +544,8 @@ class DjangoImageFieldTestCase(unittest.TestCase):
                 animage__from_file=f,
                 animage__from_path=''
             )
-        self.assertIsNone(o.pk)
+            o.save()
+
         # Image file for a 42x42 green jpeg: 301 bytes long.
         self.assertEqual(301, len(o.animage.read()))
         self.assertEqual('django/example.jpeg', o.animage.name)
@@ -522,6 +556,8 @@ class DjangoImageFieldTestCase(unittest.TestCase):
             animage__from_file=None,
         )
         self.assertIsNone(o.pk)
+        o.save()
+
         # Image file for a 42x42 green jpeg: 301 bytes long.
         self.assertEqual(301, len(o.animage.read()))
         self.assertEqual('django/example.jpeg', o.animage.name)
@@ -538,15 +574,20 @@ class DjangoImageFieldTestCase(unittest.TestCase):
             animage__filename='example.foo',
         )
         self.assertIsNone(o.pk)
+        o.save()
+
         # Image file for a 42x42 green jpeg: 301 bytes long.
         self.assertEqual(301, len(o.animage.read()))
         self.assertEqual('django/example.foo', o.animage.name)
 
     def test_existing_file(self):
         o1 = WithImageFactory.build(animage__from_path=testdata.TESTIMAGE_PATH)
+        o1.save()
 
-        o2 = WithImageFactory.build(animage=o1.animage)
+        o2 = WithImageFactory.build(animage__from_file=o1.animage)
         self.assertIsNone(o2.pk)
+        o2.save()
+
         # Image file for a 42x42 green jpeg: 301 bytes long.
         self.assertEqual(301, len(o2.animage.read()))
         self.assertNotEqual('django/example.jpeg', o2.animage.name)
