@@ -74,6 +74,24 @@ class FuzzyChoiceTestCase(unittest.TestCase):
         res = d.evaluate(2, None, False)
         self.assertIn(res, [0, 1, 2])
 
+    def test_lazy_generator(self):
+        class Gen(object):
+            def __init__(self, options):
+                self.options = options
+                self.unrolled = False
+
+            def __iter__(self):
+                self.unrolled = True
+                return iter(self.options)
+
+        opts = Gen([1, 2, 3])
+        d = fuzzy.FuzzyChoice(opts)
+        self.assertFalse(opts.unrolled)
+
+        res = d.evaluate(2, None, False)
+        self.assertIn(res, [1, 2, 3])
+        self.assertTrue(opts.unrolled)
+
 
 class FuzzyIntegerTestCase(unittest.TestCase):
     def test_definition(self):

@@ -10,6 +10,7 @@ ChangeLog
 *New:*
 
     - Add support for getting/setting :mod:`factory.fuzzy`'s random state (see :issue:`175`, :issue:`185`).
+    - Support lazy evaluation of iterables in :class:`factory.fuzzy.FuzzyChoice` (see :issue:`184`).
 
 *Deprecation:*
 

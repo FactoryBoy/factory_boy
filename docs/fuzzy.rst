@@ -62,8 +62,11 @@ FuzzyChoice
     The :class:`FuzzyChoice` fuzzer yields random choices from the given
     iterable.
 
-    .. note:: The passed in :attr:`choices` will be converted into a list at
-              declaration time.
+    .. note:: The passed in :attr:`choices` will be converted into a list upon
+              first use, not at declaration time.
+
+              This allows passing in, for instance, a Django queryset that will
+              only hit the database during the database, not at import time.
 
     .. attribute:: choices
 

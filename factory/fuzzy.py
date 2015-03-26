@@ -113,13 +113,21 @@ class FuzzyText(BaseFuzzyAttribute):
 
 
 class FuzzyChoice(BaseFuzzyAttribute):
-    """Handles fuzzy choice of an attribute."""
+    """Handles fuzzy choice of an attribute.
+    
+    Args:
+        choices (iterable): An iterable yielding options; will only be unrolled
+            on the first call.
+    """
 
     def __init__(self, choices, **kwargs):
-        self.choices = list(choices)
+        self.choices = None
+        self.choices_generator = choices
         super(FuzzyChoice, self).__init__(**kwargs)
 
     def fuzz(self):
+        if self.choices is None:
+            self.choices = list(self.choices_generator)
         return _random.choice(self.choices)
 
 
