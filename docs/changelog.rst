@@ -25,11 +25,16 @@ ChangeLog
     - Avoid issues when using :meth:`factory.django.mute_signals` on a base factory class (see :issue:`183`).
     - Fix limitations of :class:`factory.StubFactory`, that can now use :class:`factory.SubFactory` and co (see :issue:`131`).
 
+
 *Deprecation:*
 
     - Remove deprecated features from :ref:`v2.4.0`
     - Remove the auto-magical sequence setup (based on the latest primary key value in the database) for Django and SQLAlchemy;
-      this relates to issues :issue:`170`, :issue:`153`, :issue:`111`, :issue:`103`, :issue:`92`, :issue:`78`.
+      this relates to issues :issue:`170`, :issue:`153`, :issue:`111`, :issue:`103`, :issue:`92`, :issue:`78`. See https://github.com/rbarrois/factory_boy/commit/13d310f for technical details.
+
+.. warning:: Version 2.5.0 removes the 'auto-magical sequence setup' bug-and-feature.
+             This could trigger some bugs when tests expected a non-zero sequence reference.
+
 
 .. _v2.4.1:
 
