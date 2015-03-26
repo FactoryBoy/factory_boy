@@ -683,7 +683,7 @@ class StubFactory(Factory):
 
     @classmethod
     def build(cls, **kwargs):
-        raise UnsupportedStrategy()
+        return cls.stub(**kwargs)
 
     @classmethod
     def create(cls, **kwargs):

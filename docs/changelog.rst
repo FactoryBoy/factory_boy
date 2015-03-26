@@ -16,6 +16,7 @@ ChangeLog
 *Bugfix:*
 
     - Avoid issues when using :meth:`factory.django.mute_signals` on a base factory class (see :issue:`183`).
+    - Fix limitations of :class:`factory.StubFactory`, that can now use :class:`factory.SubFactory` and co (see :issue:`131`).
 
 *Deprecation:*
 

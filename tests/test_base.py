@@ -403,7 +403,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
         self.assertRaises(base.Factory.UnknownStrategy, TestModelFactory)
 
-    def test_stub_with_non_stub_strategy(self):
+    def test_stub_with_create_strategy(self):
         class TestModelFactory(base.StubFactory):
             class Meta:
                 model = TestModel
@@ -414,8 +414,18 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
         self.assertRaises(base.StubFactory.UnsupportedStrategy, TestModelFactory)
 
+    def test_stub_with_build_strategy(self):
+        class TestModelFactory(base.StubFactory):
+            class Meta:
+                model = TestModel
+
+            one = 'one'
+
         TestModelFactory._meta.strategy = base.BUILD_STRATEGY
-        self.assertRaises(base.StubFactory.UnsupportedStrategy, TestModelFactory)
+        obj = TestModelFactory()
+
+        # For stubs, build() is an alias of stub().
+        self.assertFalse(isinstance(obj, TestModel))
 
     def test_change_strategy(self):
         @base.use_strategy(base.CREATE_STRATEGY)
@@ -453,6 +463,23 @@ class FactoryCreationTestCase(unittest.TestCase):
             pass
 
         self.assertEqual(TestFactory._meta.strategy, base.STUB_STRATEGY)
+
+    def test_stub_and_subfactory(self):
+        class StubA(base.StubFactory):
+            class Meta:
+                model = TestObject
+
+            one = 'blah'
+
+        class StubB(base.StubFactory):
+            class Meta:
+                model = TestObject
+
+            stubbed = declarations.SubFactory(StubA, two='two')
+
+        b = StubB()
+        self.assertEqual('blah', b.stubbed.one)
+        self.assertEqual('two', b.stubbed.two)
 
     def test_custom_creation(self):
         class TestModelFactory(FakeModelFactory):
