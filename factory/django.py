@@ -194,7 +194,6 @@ class FileField(declarations.ParameteredAttribute):
         """Fill in the field."""
 
         filename, content = self._make_content(extra)
-        print("Returning file with filename=%r, contents=%r" % (filename, content))
         return django_files.File(content.file, filename)
 
 
