@@ -4,6 +4,8 @@ factory_boy
 .. image:: https://secure.travis-ci.org/rbarrois/factory_boy.png?branch=master
     :target: http://travis-ci.org/rbarrois/factory_boy/
 
+Latest release: `2.5.0 <http://factoryboy.readthedocs.org/en/latest/changelog.html#v2-5-0>`_ (includes breaking changes, see the `ChangeLog <http://factoryboy.readthedocs.org/en/latest/changelog.html>`_)
+
 factory_boy is a fixtures replacement based on thoughtbot's `factory_girl <http://github.com/thoughtbot/factory_girl>`_.
 
 As a fixtures replacement tool, it aims to replace static, hard to maintain fixtures
@@ -281,12 +283,12 @@ This will yield messages similar to those (artificial indentation):
 ORM Support
 """""""""""
 
-factory_boy has specific support for a few ORMs, through specific :class:`~factory.Factory` subclasses:
+factory_boy has specific support for a few ORMs, through specific ``factory.Factory`` subclasses:
 
-* Django, with :class:`~factory.django.DjangoModelFactory`
-* Mogo, with :class:`~factory.mogo.MogoFactory`
-* MongoEngine, with :class:`~factory.mongoengine.MongoEngineFactory`
-* SQLAlchemy, with :class:`~factory.alchemy.SQLAlchemyModelFactory`
+* Django, with ``factory.django.DjangoModelFactory``
+* Mogo, with ``factory.mogo.MogoFactory``
+* MongoEngine, with ``factory.mongoengine.MongoEngineFactory``
+* SQLAlchemy, with ``factory.alchemy.SQLAlchemyModelFactory``
 
 Contributing
 ------------

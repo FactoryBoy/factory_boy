@@ -35,6 +35,36 @@ ChangeLog
 .. warning:: Version 2.5.0 removes the 'auto-magical sequence setup' bug-and-feature.
              This could trigger some bugs when tests expected a non-zero sequence reference.
 
+Upgrading
+"""""""""
+
+.. warning:: Version 2.5.0 removes features that were marked as deprecated in :ref:`v2.4.0 <v2.4.0>`.
+
+All ``FACTORY_*``-style attributes are now declared in a ``class Meta:`` section:
+
+.. code-block:: python
+
+    # Old-style, deprecated
+    class MyFactory(factory.Factory):
+        FACTORY_FOR = models.MyModel
+        FACTORY_HIDDEN_ARGS = ['a', 'b', 'c']
+
+    # New-style
+    class MyFactory(factory.Factory):
+        class Meta:
+            model = models.MyModel
+            exclude = ['a', 'b', 'c']
+
+A simple shell command to upgrade the code would be:
+
+.. code-block:: sh
+
+    # sed -i: inplace update
+    # grep -l: only file names, not matching lines
+    sed -i 's/FACTORY_FOR =/class Meta:\n        model =/' $(grep -l FACTORY_FOR $(find . -name '*.py'))
+
+This takes care of all ``FACTORY_FOR`` occurences; the files containing other attributes to rename can be found with ``grep -R  FACTORY .``
+
 
 .. _v2.4.1:
 
