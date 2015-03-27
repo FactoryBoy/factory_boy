@@ -147,6 +147,7 @@ class FileField(declarations.ParameteredAttribute):
     """Helper to fill in django.db.models.FileField from a Factory."""
 
     DEFAULT_FILENAME = 'example.dat'
+    EXTEND_CONTAINERS = True
 
     def __init__(self, **defaults):
         require_django()
@@ -156,10 +157,8 @@ class FileField(declarations.ParameteredAttribute):
         """Create data for the field."""
         return params.get('data', b'')
 
-    def _make_content(self, extra):
+    def _make_content(self, params):
         path = ''
-        params = dict(self.defaults)
-        params.update(extra)
 
         if params.get('from_path') and params.get('from_file'):
             raise ValueError(
@@ -189,10 +188,12 @@ class FileField(declarations.ParameteredAttribute):
         filename = params.get('filename', default_filename)
         return filename, content
 
-    def evaluate(self, sequence, obj, create, extra=None, containers=()):
+    def generate(self, sequence, obj, create, params):
         """Fill in the field."""
 
-        filename, content = self._make_content(extra)
+        params.setdefault('__sequence', sequence)
+        params = base.DictFactory.simple_generate(create, **params)
+        filename, content = self._make_content(params)
         return django_files.File(content.file, filename)
 
 

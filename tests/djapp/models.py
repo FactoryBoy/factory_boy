@@ -79,6 +79,7 @@ if Image is not None:  # PIL is available
 
     class WithImage(models.Model):
         animage = models.ImageField(upload_to=WITHFILE_UPLOAD_TO)
+        size = models.IntegerField(default=0)
 
 else:
     class WithImage(models.Model):

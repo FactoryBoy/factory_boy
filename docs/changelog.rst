@@ -10,6 +10,8 @@ ChangeLog
 *Bugfix:*
 
     - Respect custom managers in :class:`~factory.django.DjangoModelFactory` (see :issue:`192`)
+    - Allow passing declarations (e.g :class:`~factory.Sequence`) as parameters to :class:`~factory.django.FileField`
+      and :class:`~factory.django.ImageField`.
 
 .. _v2.5.0:
 

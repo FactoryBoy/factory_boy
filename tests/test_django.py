@@ -497,6 +497,17 @@ class DjangoImageFieldTestCase(unittest.TestCase):
         self.assertEqual(100, o.animage.height)
         self.assertEqual('django/example.jpg', o.animage.name)
 
+    def test_complex_create(self):
+        o = WithImageFactory.create(
+            size=10,
+            animage__filename=factory.Sequence(lambda n: 'img%d.jpg' % n),
+            __sequence=42,
+            animage__width=factory.SelfAttribute('..size'),
+            animage__height=factory.SelfAttribute('width'),
+        )
+        self.assertIsNotNone(o.pk)
+        self.assertEqual('django/img42.jpg', o.animage.name)
+
     def test_with_content(self):
         o = WithImageFactory.build(animage__width=13, animage__color='red')
         self.assertIsNone(o.pk)
