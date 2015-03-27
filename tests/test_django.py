@@ -157,6 +157,13 @@ if django is not None:
             model = models.WithSignals
 
 
+    class WithCustomManagerFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.WithCustomManager
+
+        foo = factory.Sequence(lambda n: "foo%d" % n)
+
+
 @unittest.skipIf(django is None, "Django not installed.")
 class ModelTests(django_test.TestCase):
     def test_unset_model(self):
@@ -705,6 +712,11 @@ class PreventSignalsTestCase(unittest.TestCase):
         self.assertFalse(self.handlers.post_save.called)
 
         self.assertSignalsReactivated()
+
+class DjangoCustomManagerTestCase(django_test.TestCase):
+
+    def test_extra_args(self):
+        model = WithCustomManagerFactory(arg='foo')
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

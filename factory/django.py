@@ -45,6 +45,8 @@ from .compat import BytesIO, is_string
 logger = logging.getLogger('factory.generate')
 
 
+DEFAULT_DB_ALIAS = 'default'  # Same as django.db.DEFAULT_DB_ALIAS
+
 
 def require_django():
     """Simple helper to ensure Django is available."""
@@ -56,7 +58,7 @@ class DjangoOptions(base.FactoryOptions):
     def _build_default_options(self):
         return super(DjangoOptions, self)._build_default_options() + [
             base.OptionDefault('django_get_or_create', (), inherit=True),
-            base.OptionDefault('database', 'default', inherit=True),
+            base.OptionDefault('database', DEFAULT_DB_ALIAS, inherit=True),
         ]
 
     def _get_counter_reference(self):
@@ -100,12 +102,9 @@ class DjangoModelFactory(base.Factory):
         if model_class is None:
             raise base.AssociatedClassError("No model set on %s.%s.Meta"
                     % (cls.__module__, cls.__name__))
-        try:
-            manager = model_class._default_manager   # pylint: disable=W0212
-        except AttributeError:
-            manager = model_class.objects
-
-        manager = manager.using(cls._meta.database)
+        manager = model_class.objects
+        if cls._meta.database != DEFAULT_DB_ALIAS:
+            manager = manager.using(cls._meta.database)
         return manager
 
     @classmethod

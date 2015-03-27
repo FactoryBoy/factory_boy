@@ -7,6 +7,9 @@ ChangeLog
 2.5.1 (master)
 --------------
 
+*Bugfix:*
+
+    - Respect custom managers in :class:`~factory.django.DjangoModelFactory` (see :issue:`192`)
 
 .. _v2.5.0:
 

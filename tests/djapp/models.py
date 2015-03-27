@@ -87,3 +87,20 @@ else:
 
 class WithSignals(models.Model):
     foo = models.CharField(max_length=20)
+
+
+class CustomQuerySet(models.QuerySet):
+    pass
+
+
+class CustomManager(models.Manager):
+
+    def create(self, arg=None, **kwargs):
+        return super(CustomManager, self).create(**kwargs)
+
+
+class WithCustomManager(models.Model):
+
+    foo = models.CharField(max_length=20)
+
+    objects = CustomManager.from_queryset(CustomQuerySet)()
