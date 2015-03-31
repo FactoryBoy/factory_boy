@@ -42,7 +42,7 @@ The :class:`Factory` class
         It will be automatically set to ``True`` if neither the :class:`Factory`
         subclass nor its parents define the :attr:`~FactoryOptions.model` attribute.
 
-        .. warning:: This flag is reset to ``False`` When a :class:`Factory` subclasses
+        .. warning:: This flag is reset to ``False`` when a :class:`Factory` subclasses
                      another one if a :attr:`~FactoryOptions.model` is set.
 
         .. versionadded:: 2.4.0
