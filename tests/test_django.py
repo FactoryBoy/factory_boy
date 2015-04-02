@@ -53,7 +53,10 @@ if django is not None:
     from django import test as django_test
     from django.conf import settings
     from django.db import models as django_models
-    from django.test import simple as django_test_simple
+    if django.VERSION <= (1, 8, 0):
+        from django.test.simple import DjangoTestSuiteRunner
+    else:
+        from django.test.runner import DiscoverRunner as DjangoTestSuiteRunner
     from django.test import utils as django_test_utils
     from django.db.models import signals
     from .djapp import models
@@ -71,7 +74,7 @@ def setUpModule():
     if django is None:  # pragma: no cover
         raise unittest.SkipTest("Django not installed")
     django_test_utils.setup_test_environment()
-    runner = django_test_simple.DjangoTestSuiteRunner()
+    runner = DjangoTestSuiteRunner()
     runner_state = runner.setup_databases()
     test_state.update({
         'runner': runner,
