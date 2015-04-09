@@ -31,6 +31,7 @@ import functools
 
 """factory_boy extensions for use with the Django framework."""
 
+import django
 try:
     from django.core import files as django_files
 except ImportError as e:  # pragma: no cover
@@ -92,8 +93,12 @@ class DjangoModelFactory(base.Factory):
 
         if is_string(definition) and '.' in definition:
             app, model = definition.split('.', 1)
-            from django.db.models import loading as django_loading
-            return django_loading.get_model(app, model)
+            if django.VERSION >= (1, 7, 0):
+                from django.apps import apps as django_apps
+                get_model = django_apps.get_model
+            else:
+                from django.db.models.loading import get_model
+            return get_model(app, model)
 
         return definition
 
