@@ -61,7 +61,7 @@ class MongoEngineTestCase(unittest.TestCase):
     db_name = os.environ.get('MONGO_DATABASE', 'factory_boy_test')
     db_host = os.environ.get('MONGO_HOST', 'localhost')
     db_port = int(os.environ.get('MONGO_PORT', '27017'))
-    MONGOD_TIMEOUT_MS = 100
+    server_timeout_ms = int(os.environ.get('MONGO_TIMEOUT', '300'))
 
     @classmethod
     def setUpClass(cls):
