@@ -50,6 +50,8 @@ from . import tools
 if django is not None:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests.djapp.settings')
 
+    if django.VERSION >= (1, 7, 0):
+        django.setup()
     from django import test as django_test
     from django.conf import settings
     from django.db import models as django_models
@@ -64,8 +66,6 @@ if django is not None:
 else:
     django_test = unittest
 
-if django is not None and django.VERSION >= (1, 7, 0):
-    django.setup()
 
 test_state = {}
 
