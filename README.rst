@@ -2,7 +2,7 @@ factory_boy
 ===========
 
 .. image:: https://pypip.in/version/factory_boy/badge.svg
-    :target: https://pypi.python.org/pypi/factory_boy/
+    :target: http://factoryboy.readthedocs.org/en/latest/changelog.html
     :alt: Latest Version
 
 .. image:: https://pypip.in/py_versions/factory_boy/badge.svg
@@ -15,8 +15,6 @@ factory_boy
 
 .. image:: https://secure.travis-ci.org/rbarrois/factory_boy.png?branch=master
     :target: http://travis-ci.org/rbarrois/factory_boy/
-
-Latest release: `2.5.0 <http://factoryboy.readthedocs.org/en/latest/changelog.html#v2-5-0>`_ (includes breaking changes, see the `ChangeLog <http://factoryboy.readthedocs.org/en/latest/changelog.html>`_)
 
 factory_boy is a fixtures replacement based on thoughtbot's `factory_girl <http://github.com/thoughtbot/factory_girl>`_.
 
