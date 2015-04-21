@@ -4,3 +4,4 @@ Pillow
 sqlalchemy
 mongoengine
 mock
+wheel
