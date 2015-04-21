@@ -1,6 +1,18 @@
 factory_boy
 ===========
 
+.. image:: https://pypip.in/version/factory_boy/badge.svg
+    :target: https://pypi.python.org/pypi/factory_boy/
+    :alt: Latest Version
+
+.. image:: https://pypip.in/py_versions/factory_boy/badge.svg
+    :target: https://pypi.python.org/pypi/factory_boy/
+    :alt: Supported Python versions
+
+.. image:: https://pypip.in/wheel/factory_boy/badge.svg
+    :target: https://pypi.python.org/pypi/factory_boy/
+    :alt: Wheel status
+
 .. image:: https://secure.travis-ci.org/rbarrois/factory_boy.png?branch=master
     :target: http://travis-ci.org/rbarrois/factory_boy/
 
