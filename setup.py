@@ -35,7 +35,7 @@ PACKAGE = 'factory'
 setup(
     name='factory_boy',
     version=get_version(PACKAGE),
-    description="A verstile test fixtures replacement based on thoughtbot's factory_girl for Ruby.",
+    description="A versatile test fixtures replacement based on thoughtbot's factory_girl for Ruby.",
     author='Mark Sandstrom',
     author_email='mark@deliciouslynerdy.com',
     maintainer='Raphaël Barrois',
