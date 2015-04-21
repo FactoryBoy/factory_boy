@@ -1,6 +1,15 @@
 ChangeLog
 =========
 
+.. _v2.5.2:
+
+2.5.2 (2015-04-21)
+------------------
+
+*Bugfix:*
+
+    - Add support for Django 1.7/1.8
+    - Add support for mongoengine>=0.9.0 / pymongo>=2.1
 
 .. _v2.5.1:
 
