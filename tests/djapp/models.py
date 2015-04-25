@@ -68,6 +68,15 @@ class StandardSon(StandardModel):
     pass
 
 
+class PointedModel(models.Model):
+    foo = models.CharField(max_length=20)
+
+
+class PointingModel(models.Model):
+    foo = models.CharField(max_length=20)
+    pointed = models.OneToOneField(PointedModel, related_name='pointer', null=True)
+
+
 WITHFILE_UPLOAD_TO = 'django'
 WITHFILE_UPLOAD_DIR = os.path.join(settings.MEDIA_ROOT, WITHFILE_UPLOAD_TO)
 

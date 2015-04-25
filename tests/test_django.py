@@ -362,6 +362,32 @@ class DjangoAbstractBaseSequenceTestCase(django_test.TestCase):
 
 
 @unittest.skipIf(django is None, "Django not installed.")
+class DjangoRelatedFieldTestCase(django_test.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super(DjangoRelatedFieldTestCase, cls).setUpClass()
+        class PointedFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointedModel
+            foo = 'ahah'
+
+        class PointerFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointingModel
+            pointed = factory.SubFactory(PointedFactory, foo='hihi')
+            foo = 'bar'
+
+        cls.PointedFactory = PointedFactory
+        cls.PointerFactory = PointerFactory
+
+    def test_direct_related_create(self):
+        ptr = self.PointerFactory()
+        self.assertEqual('hihi', ptr.pointed.foo)
+        self.assertEqual(ptr.pointed, models.PointedModel.objects.get())
+
+
+@unittest.skipIf(django is None, "Django not installed.")
 class DjangoFileFieldTestCase(unittest.TestCase):
 
     def tearDown(self):
