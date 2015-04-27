@@ -22,31 +22,13 @@
 
 import os
 
-import factory
-import factory.django
-
 
 try:
     import django
 except ImportError:  # pragma: no cover
     django = None
 
-try:
-    from PIL import Image
-except ImportError:  # pragma: no cover
-    # Try PIL alternate name
-    try:
-        import Image
-    except ImportError:
-        # OK, not installed
-        Image = None
-
-
-from .compat import is_python2, unittest, mock
-from . import testdata
-from . import tools
-
-
+# Setup Django as soon as possible
 if django is not None:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests.djapp.settings')
 
@@ -65,6 +47,26 @@ if django is not None:
 
 else:
     django_test = unittest
+
+
+
+try:
+    from PIL import Image
+except ImportError:  # pragma: no cover
+    # Try PIL alternate name
+    try:
+        import Image
+    except ImportError:
+        # OK, not installed
+        Image = None
+
+
+import factory
+import factory.django
+
+from .compat import is_python2, unittest, mock
+from . import testdata
+from . import tools
 
 
 test_state = {}

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2011-2015 Raphaël Barrois
 
+# factory.django needs a configured Django.
+from .test_django import *
+
 from .test_base import *
 from .test_containers import *
 from .test_declarations import *
-from .test_django import *
 from .test_fuzzy import *
 from .test_helpers import *
 from .test_using import *
