@@ -6,7 +6,7 @@ python:
   - "pypy"
 
 script:
-  - python setup.py test
+  - SKIP_MONGOENGINE=1 python setup.py test
 
 install:
   - make install-deps

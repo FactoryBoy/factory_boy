@@ -31,6 +31,9 @@ try:
 except ImportError:
     mongoengine = None
 
+if os.environ.get('SKIP_MONGOENGINE') == 1:
+    mongoengine = None
+
 if mongoengine:
     from factory.mongoengine import MongoEngineFactory
 
