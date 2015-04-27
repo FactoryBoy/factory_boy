@@ -326,13 +326,13 @@ To test with a specific framework version, you may use:
 
 .. code-block:: sh
 
-    $ make DJANGO_VERSION=1.7 test
+    $ make DJANGO=1.7 test
 
 Valid options are:
 
-* ``DJANGO_VERSION`` for ``Django``
-* ``MONGOENGINE_VERSION`` for ``mongoengine``
-* ``ALCHEMY_VERSION`` for ``SQLAlchemy``
+* ``DJANGO`` for ``Django``
+* ``MONGOENGINE`` for ``mongoengine``
+* ``ALCHEMY`` for ``SQLAlchemy``
 
 
 Contents, indices and tables

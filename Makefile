@@ -6,16 +6,16 @@ DOC_DIR=docs
 COVERAGE = python $(shell which coverage)
 
 # Dependencies
-DJANGO_VERSION ?= 1.8
-NEXT_DJANGO_VERSION = $(shell python -c "v='$(DJANGO_VERSION)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
+DJANGO ?= 1.8
+NEXT_DJANGO = $(shell python -c "v='$(DJANGO)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
 
-ALCHEMY_VERSION ?= 1.0
-NEXT_ALCHEMY_VERSION = $(shell python -c "v='$(ALCHEMY_VERSION)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
+ALCHEMY ?= 1.0
+NEXT_ALCHEMY = $(shell python -c "v='$(ALCHEMY)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
 
-MONGOENGINE_VERSION ?= 0.9
-NEXT_MONGOENGINE_VERSION = $(shell python -c "v='$(MONGOENGINE_VERSION)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
+MONGOENGINE ?= 0.9
+NEXT_MONGOENGINE = $(shell python -c "v='$(MONGOENGINE)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
 
-REQ_FILE = auto_dev_requirements_django$(DJANGO_VERSION)_alchemy$(ALCHEMY_VERSION)_mongoengine$(MONGOENGINE_VERSION).txt
+REQ_FILE = auto_dev_requirements_django$(DJANGO)_alchemy$(ALCHEMY)_mongoengine$(MONGOENGINE).txt
 
 all: default
 
@@ -30,9 +30,9 @@ install-deps: $(REQ_FILE)
 
 $(REQ_FILE): dev_requirements.txt requirements.txt
 	grep --no-filename "^[^#-]" $^ | egrep -v "^(Django|SQLAlchemy|mongoengine)" > $@
-	echo "Django>=$(DJANGO_VERSION),<$(NEXT_DJANGO_VERSION)" >> $@
-	echo "SQLAlchemy>=$(ALCHEMY_VERSION),<$(NEXT_ALCHEMY_VERSION)" >> $@
-	echo "mongoengine>=$(MONGOENGINE_VERSION),<$(NEXT_MONGOENGINE_VERSION)" >> $@
+	echo "Django>=$(DJANGO),<$(NEXT_DJANGO)" >> $@
+	echo "SQLAlchemy>=$(ALCHEMY),<$(NEXT_ALCHEMY)" >> $@
+	echo "mongoengine>=$(MONGOENGINE),<$(NEXT_MONGOENGINE)" >> $@
 
 
 clean:
