@@ -5,11 +5,16 @@ python:
   - "3.4"
   - "pypy"
 
+env:
+  - DJANGO=1.6
+  - DJANGO=1.7
+  - DJANGO=1.8
+
 script:
   - python setup.py test
 
 install:
-  - pip install Django
+  - pip install "Django>=$DJANGO,<$DJANGO.99"
   - pip install sqlalchemy --use-mirrors
   - if ! python --version 2>&1 | grep -q -i pypy ; then pip install Pillow --use-mirrors; fi
 

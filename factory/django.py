@@ -50,22 +50,25 @@ logger = logging.getLogger('factory.generate')
 DEFAULT_DB_ALIAS = 'default'  # Same as django.db.DEFAULT_DB_ALIAS
 
 
+def get_model(*args, **kwargs):
+    if django is None:
+        def _get_model(app, model):
+            raise import_failure
+
+    elif django.VERSION[:2] < (1, 7):
+        from django.db.models.loading import get_model as _get_model
+
+    else:
+        from django import apps as django_apps
+        _get_model = django_apps.apps.get_model
+
+    return _get_model(*args, **kwargs)
+
+
 def require_django():
     """Simple helper to ensure Django is available."""
     if django_files is None:  # pragma: no cover
         raise import_failure
-
-
-if django is None:
-    def get_model(app, model):
-        raise import_failure
-
-elif django.VERSION[:2] < (1, 7):
-    from django.db.models.loading import get_model
-
-else:
-    from django import apps as django_apps
-    get_model = django_apps.apps.get_model
 
 
 class DjangoOptions(base.FactoryOptions):
