@@ -311,20 +311,28 @@ All pull request should pass the test suite, which can be launched simply with:
 
 .. code-block:: sh
 
-    $ python setup.py test
+    $ make test
 
-
-.. note::
-
-    Running test requires the unittest2 (standard in Python 2.7+) and mock libraries.
 
 
 In order to test coverage, please use:
 
 .. code-block:: sh
 
-    $ pip install coverage
-    $ coverage erase; coverage run --branch setup.py test; coverage report
+    $ make coverage
+
+
+To test with a specific framework version, you may use:
+
+.. code-block:: sh
+
+    $ make DJANGO_VERSION=1.7 test
+
+Valid options are:
+
+* ``DJANGO_VERSION`` for ``Django``
+* ``MONGOENGINE_VERSION`` for ``mongoengine``
+* ``ALCHEMY_VERSION`` for ``SQLAlchemy``
 
 
 Contents, indices and tables
