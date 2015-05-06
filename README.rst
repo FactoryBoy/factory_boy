@@ -64,7 +64,7 @@ Its main features include:
 
 - Straightforward declarative syntax
 - Chaining factory calls while retaining the global context
-- Support for multiple build strategies (saved/unsaved instances, attribute dicts, stubbed objects)
+- Support for multiple build strategies (saved/unsaved instances, stubbed objects)
 - Multiple factories per class support, including inheritance
 
 
@@ -135,7 +135,7 @@ The class of the object must be defined in the ``model`` field of a ``class Meta
 Using factories
 """""""""""""""
 
-factory_boy supports several different build strategies: build, create, attributes and stub:
+factory_boy supports several different build strategies: build, create, and stub:
 
 .. code-block:: python
 
@@ -145,8 +145,8 @@ factory_boy supports several different build strategies: build, create, attribut
     # Returns a saved User instance
     user = UserFactory.create()
 
-    # Returns a dict of attributes that can be used to build a User instance
-    attributes = UserFactory.attributes()
+    # Returns a stub object (just a bunch of attributes)
+    obj = UserFactory.stub()
 
 
 You can use the Factory class as a shortcut for the default build strategy:
