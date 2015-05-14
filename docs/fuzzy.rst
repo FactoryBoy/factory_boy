@@ -368,6 +368,6 @@ and provides a few helpers for this:
 
 
 Custom :class:`BaseFuzzyAttribute` subclasses **SHOULD**
-use :obj:`factory.fuzzy._random` foras a randomness source; this ensures that
+use :obj:`factory.fuzzy._random` as a randomness source; this ensures that
 data they generate can be regenerated using the simple state from
 :meth:`get_random_state`.
