@@ -1,6 +1,15 @@
 ChangeLog
 =========
 
+.. _v2.6.0:
+
+2.6.0 (XXXX-XX-XX)
+------------------
+
+*New:*
+
+    - Add :attr:`factory.FactoryOptions.rename` to help handle conflicting names (:issue:`206`)
+
 .. _v2.5.2:
 
 2.5.2 (2015-04-21)

@@ -176,6 +176,7 @@ class FactoryOptions(object):
             OptionDefault('strategy', CREATE_STRATEGY, inherit=True),
             OptionDefault('inline_args', (), inherit=True),
             OptionDefault('exclude', (), inherit=True),
+            OptionDefault('rename', {}, inherit=True),
         ]
 
     def _fill_from_meta(self, meta, base_meta):
@@ -413,6 +414,12 @@ class BaseFactory(object):
         return decls
 
     @classmethod
+    def _rename_fields(cls, **kwargs):
+        for old_name, new_name in cls._meta.rename.items():
+            kwargs[new_name] = kwargs.pop(old_name)
+        return kwargs
+
+    @classmethod
     def _adjust_kwargs(cls, **kwargs):
         """Extension point for custom kwargs adjustment."""
         return kwargs
@@ -441,6 +448,7 @@ class BaseFactory(object):
             **kwargs: arguments to pass to the creation function
         """
         model_class = cls._get_model_class()
+        kwargs = cls._rename_fields(**kwargs)
         kwargs = cls._adjust_kwargs(**kwargs)
 
         # Remove 'hidden' arguments.

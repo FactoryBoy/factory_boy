@@ -1076,6 +1076,21 @@ class KwargAdjustTestCase(unittest.TestCase):
         self.assertEqual({'x': 1, 'y': 2, 'z': 3, 'foo': 3}, obj.kwargs)
         self.assertEqual((), obj.args)
 
+    def test_rename(self):
+        class TestObject(object):
+            def __init__(self, attributes=None):
+                self.attributes = attributes
+
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+                rename = {'attributes_': 'attributes'}
+
+            attributes_ = 42
+
+        obj = TestObjectFactory.build()
+        self.assertEqual(42, obj.attributes)
+
 
 class SubFactoryTestCase(unittest.TestCase):
     def test_sub_factory(self):

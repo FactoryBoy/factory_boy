@@ -106,6 +106,28 @@ The :class:`Factory` class
         .. versionadded:: 2.4.0
 
 
+    .. attribute:: rename
+
+        Sometimes, a model expect a field with a name already used by one
+        of :class:`Factory`'s methods.
+
+        In this case, the :attr:`rename` attributes allows to define renaming
+        rules: the keys of the :attr:`rename` dict are those used in the
+        :class:`Factory` declarations, and their values the new name:
+
+        .. code-block:: python
+
+            class ImageFactory(factory.Factory):
+                # The model expects "attributes"
+                form_attributes = ['thumbnail', 'black-and-white']
+
+                class Meta:
+                    model = Image
+                    rename = {'form_attributes': 'attributes'}
+
+        .. versionadded: 2.6.0
+
+
     .. attribute:: strategy
 
         Use this attribute to change the strategy used by a :class:`Factory`.
@@ -228,7 +250,6 @@ The :class:`Factory` class
                     return kwargs
 
         .. OHAI_VIM**
-
 
     .. classmethod:: _setup_next_sequence(cls)
 
