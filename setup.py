@@ -47,6 +47,9 @@ setup(
     setup_requires=[
         'setuptools>=0.8',
     ],
+    install_requires=[
+        'fake-factory>=0.5.0',
+    ],
     tests_require=[
         #'mock',
     ],

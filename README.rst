@@ -177,6 +177,28 @@ It is also possible to create a bunch of objects in a single call:
     >>> [user.first_name for user in users]
     ["Joe", "Joe", "Joe", "Joe", "Joe", "Joe", "Joe", "Joe", "Joe", "Joe"]
 
+
+Realistic, random values
+""""""""""""""""""""""""
+
+Tests look better with random yet realistic values.
+For this, factory_boy relies on the excellent `fake-factory <https://pypi.python.org/pypi/fake-factory>`_ library:
+
+.. code-block:: python
+
+    class RandomUserFactory(factory.Factory):
+        class Meta:
+            model = models.User
+
+        first_name = factory.Faker('first_name')
+        last_name = factory.Faker('last_name')
+
+.. code-block:: pycon
+
+    >>> UserFactory()
+    <User: Lucy Murray>
+
+
 Lazy Attributes
 """""""""""""""
 

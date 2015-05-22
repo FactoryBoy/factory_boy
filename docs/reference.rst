@@ -474,6 +474,66 @@ factory_boy supports two main strategies for generating instances, plus stubs.
 Declarations
 ------------
 
+
+Faker
+"""""
+
+.. class:: Faker(provider, locale=None, **kwargs)
+
+    .. OHAIVIM**
+
+    In order to easily define realistic-looking factories,
+    use the :class:`Faker` attribute declaration.
+
+    This is a wrapper around `fake-factory <https://pypi.python.org/pypi/fake-factory>`_;
+    its argument is the name of a ``fake-factory`` provider:
+
+    .. code-block:: python
+
+        class UserFactory(factory.Factory):
+            class Meta:
+                model = User
+
+            first_name = factory.Faker('name')
+
+    .. code-block:: pycon
+
+        >>> user = UserFactory()
+        >>> user.name
+        'Lucy Cechtelar'
+
+
+    .. attribute:: locale
+
+        If a custom locale is required for one specific field,
+        use the ``locale`` parameter:
+
+        .. code-block:: python
+
+            class UserFactory(factory.Factory):
+                class Meta:
+                    model = User
+
+                first_name = factory.Faker('name', locale='fr_FR')
+
+        .. code-block:: pycon
+
+            >>> user = UserFactory()
+            >>> user.name
+            'Jean Valjean'
+
+
+    .. classmethod:: override_default_locale(cls, locale)
+
+        If the locale needs to be overridden for a whole test,
+        use :meth:`~factory.Faker.override_default_locale`:
+
+        .. code-block:: pycon
+
+            >>> with factory.Faker.override_default_locale('de_DE'):
+            ...     UserFactory()
+            <User: Johannes Brahms>
+
 LazyAttribute
 """""""""""""
 

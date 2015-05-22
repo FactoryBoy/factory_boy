@@ -9,6 +9,8 @@ ChangeLog
 *New:*
 
     - Add :attr:`factory.FactoryOptions.rename` to help handle conflicting names (:issue:`206`)
+    - Add support for random-yet-realistic values through `fake-factory <https://pypi.python.org/pypi/fake-factory>`_,
+      through the :class:`factory.Faker` class.
 
 .. _v2.5.2:
 
