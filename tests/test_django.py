@@ -21,6 +21,7 @@
 """Tests for factory_boy/Django interactions."""
 
 import os
+from .compat import is_python2, unittest, mock
 
 
 try:
@@ -64,7 +65,6 @@ except ImportError:  # pragma: no cover
 import factory
 import factory.django
 
-from .compat import is_python2, unittest, mock
 from . import testdata
 from . import tools
 

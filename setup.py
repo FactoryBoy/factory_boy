@@ -44,11 +44,11 @@ setup(
     keywords=['factory_boy', 'factory', 'fixtures'],
     packages=['factory'],
     license='MIT',
-    setup_requires=[
-        'setuptools>=0.8',
-    ],
     install_requires=[
         'fake-factory>=0.5.0',
+    ],
+    setup_requires=[
+        'setuptools>=0.8',
     ],
     tests_require=[
         #'mock',
@@ -69,7 +69,7 @@ setup(
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Topic :: Software Development :: Testing",
-        "Topic :: Software Development :: Libraries :: Python Modules"
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     test_suite='tests',
     test_loader=test_loader,

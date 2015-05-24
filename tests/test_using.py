@@ -1493,6 +1493,38 @@ class IteratorTestCase(unittest.TestCase):
         for i, obj in enumerate(objs):
             self.assertEqual(i + 10, obj.one)
 
+    def test_iterator_late_loading(self):
+        """Ensure that Iterator doesn't unroll on class creation.
+
+        This allows, for Django objects, to call:
+        foo = factory.Iterator(models.MyThingy.objects.all())
+        """
+        class DBRequest(object):
+            def __init__(self):
+                self.ready = False
+
+            def __iter__(self):
+                if not self.ready:
+                    raise ValueError("Not ready!!")
+                return iter([1, 2, 3])
+
+        # calling __iter__() should crash
+        req1 = DBRequest()
+        with self.assertRaises(ValueError):
+            iter(req1)
+
+        req2 = DBRequest()
+
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            one = factory.Iterator(req2)
+
+        req2.ready = True
+        obj = TestObjectFactory()
+        self.assertEqual(1, obj.one)
+
 
 class BetterFakeModelManager(object):
     def __init__(self, keys, instance):

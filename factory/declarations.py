@@ -160,12 +160,19 @@ class Iterator(OrderedDeclaration):
     def __init__(self, iterator, cycle=True, getter=None):
         super(Iterator, self).__init__()
         self.getter = getter
+        self.iterator = None
 
         if cycle:
-            iterator = itertools.cycle(iterator)
-        self.iterator = utils.ResetableIterator(iterator)
+            self.iterator_builder = lambda: utils.ResetableIterator(itertools.cycle(iterator))
+        else:
+            self.iterator_builder = lambda: utils.ResetableIterator(iterator)
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
+        # Begin unrolling as late as possible.
+        # This helps with ResetableIterator(MyModel.objects.all())
+        if self.iterator is None:
+            self.iterator = self.iterator_builder()
+
         logger.debug("Iterator: Fetching next value from %r", self.iterator)
         value = next(iter(self.iterator))
         if self.getter is None:

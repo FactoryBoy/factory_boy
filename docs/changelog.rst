@@ -11,6 +11,9 @@ ChangeLog
     - Add :attr:`factory.FactoryOptions.rename` to help handle conflicting names (:issue:`206`)
     - Add support for random-yet-realistic values through `fake-factory <https://pypi.python.org/pypi/fake-factory>`_,
       through the :class:`factory.Faker` class.
+    - :class:`factory.Iterator` no longer begins iteration of its argument at import time,
+      thus allowing to pass in a lazy iterator such as a Django queryset
+      (i.e ``factory.Iterator(models.MyThingy.objects.all())``).
 
 .. _v2.5.2:
 

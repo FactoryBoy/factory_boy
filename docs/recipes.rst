@@ -33,6 +33,29 @@ use the :class:`~factory.SubFactory` declaration:
         group = factory.SubFactory(GroupFactory)
 
 
+Choosing from a populated table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the target of the :class:`~django.db.models.ForeignKey` should be
+chosen from a pre-populated table
+(e.g :class:`django.contrib.contenttypes.models.ContentType`),
+simply use a :class:`factory.Iterator` on the chosen queryset:
+
+.. code-block:: python
+
+    import factory, factory.django
+    from . import models
+
+    class UserFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.User
+
+        language = factory.Iterator(models.Language.objects.all())
+
+Here, ``models.Language.objects.all()`` won't be evaluated until the
+first call to ``UserFactory``; thus avoiding DB queries at import time.
+
+
 Reverse dependencies (reverse ForeignKey)
 -----------------------------------------
 
