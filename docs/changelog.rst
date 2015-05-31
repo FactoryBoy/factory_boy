@@ -15,6 +15,10 @@ ChangeLog
       thus allowing to pass in a lazy iterator such as a Django queryset
       (i.e ``factory.Iterator(models.MyThingy.objects.all())``).
 
+*Bugfix:*
+
+    - :issue:`201`: Properly handle custom Django managers when dealing with abstract Django models.
+
 .. _v2.5.2:
 
 2.5.2 (2015-04-21)

@@ -755,10 +755,21 @@ class PreventSignalsTestCase(unittest.TestCase):
 
         self.assertSignalsReactivated()
 
-class DjangoCustomManagerTestCase(django_test.TestCase):
+@unittest.skipIf(django is None, "Django not installed.")
+class DjangoCustomManagerTestCase(unittest.TestCase):
 
     def test_extra_args(self):
+        # Our CustomManager will remove the 'arg=' argument.
         model = WithCustomManagerFactory(arg='foo')
+
+    def test_with_manager_on_abstract(self):
+        class ObjFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.FromAbstractWithCustomManager
+
+        # Our CustomManager will remove the 'arg=' argument,
+        # invalid for the actual model.
+        ObjFactory.create(arg='invalid')
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

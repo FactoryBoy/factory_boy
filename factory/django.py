@@ -115,7 +115,14 @@ class DjangoModelFactory(base.Factory):
         if model_class is None:
             raise base.AssociatedClassError("No model set on %s.%s.Meta"
                     % (cls.__module__, cls.__name__))
-        manager = model_class.objects
+
+        try:
+            manager = model_class.objects
+        except AttributeError:
+            # When inheriting from an abstract model with a custom
+            # manager, the class has no 'objects' field.
+            manager = model_class._default_manager
+
         if cls._meta.database != DEFAULT_DB_ALIAS:
             manager = manager.using(cls._meta.database)
         return manager

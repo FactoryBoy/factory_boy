@@ -110,3 +110,14 @@ class WithCustomManager(models.Model):
     foo = models.CharField(max_length=20)
 
     objects = CustomManager()
+
+
+class AbstractWithCustomManager(models.Model):
+    custom_objects = CustomManager()
+
+    class Meta:
+        abstract = True
+
+
+class FromAbstractWithCustomManager(AbstractWithCustomManager):
+    pass
