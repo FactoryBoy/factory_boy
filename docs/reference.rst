@@ -494,7 +494,7 @@ Faker
             class Meta:
                 model = User
 
-            first_name = factory.Faker('name')
+            name = factory.Faker('name')
 
     .. code-block:: pycon
 
@@ -514,7 +514,7 @@ Faker
                 class Meta:
                     model = User
 
-                first_name = factory.Faker('name', locale='fr_FR')
+                name = factory.Faker('name', locale='fr_FR')
 
         .. code-block:: pycon
 
