@@ -40,9 +40,6 @@ from .base import (
     use_strategy,
 )
 
-# Backward compatibility; this should be removed soon.
-from .mogo import MogoFactory
-from .django import DjangoModelFactory
 from .faker import Faker
 
 from .declarations import (
@@ -83,4 +80,13 @@ from .helpers import (
     container_attribute,
     post_generation,
 )
+
+# Backward compatibility; this should be removed soon.
+from . import alchemy
+from . import django
+from . import mogo
+from . import mongoengine
+
+MogoFactory = mogo.MogoFactory
+DjangoModelFactory = django.DjangoModelFactory
 

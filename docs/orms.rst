@@ -273,6 +273,34 @@ factory_boy supports `MongoEngine`_-style models, through the :class:`MongoEngin
 
               This feature makes it possible to use :class:`~factory.SubFactory` to create embedded document.
 
+A minimalist example:
+
+.. code-block:: python
+
+    import mongoengine
+
+    class Address(mongoengine.EmbeddedDocument):
+        street = mongoengine.StringField()
+
+    class Person(mongoengine.Document):
+        name = mongoengine.StringField()
+        address = mongoengine.EmbeddedDocumentField(Address)
+
+    import factory
+
+    class AddressFactory(factory.mongoengine.MongoEngineFactory):
+        class Meta:
+            model = Address
+
+        street = factory.Sequence(lambda n: 'street%d' % n)
+
+    class PersonFactory(factory.mongoengine.MongoEngineFactory):
+        class Meta:
+            model = Person
+
+        name = factory.Sequence(lambda n: 'name%d' % n)
+        address = factory.SubFactory(AddressFactory)
+
 
 SQLAlchemy
 ----------
@@ -327,8 +355,9 @@ A (very) simple example:
 
     Base.metadata.create_all(engine)
 
+    import factory
 
-    class UserFactory(SQLAlchemyModelFactory):
+    class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
         class Meta:
             model = User
             sqlalchemy_session = session   # the SQLAlchemy session object

@@ -14,6 +14,8 @@ ChangeLog
     - :class:`factory.Iterator` no longer begins iteration of its argument at import time,
       thus allowing to pass in a lazy iterator such as a Django queryset
       (i.e ``factory.Iterator(models.MyThingy.objects.all())``).
+    - Simplify imports for ORM layers, now available through a simple ``factory`` import,
+      at ``factory.alchemy.SQLAlchemyModelFactory`` / ``factory.django.DjangoModelFactory`` / ``factory.mongoengine.MongoEngineFactory``.
 
 *Bugfix:*
 
