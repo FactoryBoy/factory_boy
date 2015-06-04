@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import collections
 import logging
 
 from . import containers
@@ -138,31 +139,169 @@ class BaseMeta:
 
 
 class OptionDefault(object):
-    def __init__(self, name, value, inherit=False):
+    """Simple manager to handle default options.
+
+    The goal of this class is to make it easy to declare options
+    for a ``class Meta``.
+
+    Args:
+        name (str): the name of the option
+        default_value: the default value
+        inherit (bool): whether to pick defined values from a parent
+        merger (callable or None): how to merge the new value and the inherited one.
+            Mostly useful when the value is a dict
+    """
+
+    def __init__(self, name, default_value, inherit=False, merger=None):
         self.name = name
-        self.value = value
+        self.default_value = default_value
         self.inherit = inherit
+        if merger is not None and not inherit:
+            raise ValueError("A merger should only be provided to inheritable OptionDefault.")
+        self.merger = merger
 
     def apply(self, meta, base_meta):
-        value = self.value
+        """Compute the option value based on the new meta class and the parent one."""
+        class EMPTY:
+            pass
+
+        old_value = EMPTY
+        new_value = EMPTY
         if self.inherit and base_meta is not None:
-            value = getattr(base_meta, self.name, value)
+            old_value = getattr(base_meta, self.name, EMPTY)
         if meta is not None:
-            value = getattr(meta, self.name, value)
-        return value
+            new_value = getattr(meta, self.name, EMPTY)
+
+        if old_value is EMPTY:
+            if new_value is EMPTY:
+                return self.default_value
+            else:
+                return new_value
+        else:
+            if new_value is EMPTY:
+                return old_value
+            elif self.merger is not None:
+                # We have an old value and a new value; use the merger.
+                return self.merger(old=old_value, new=new_value)
+            else:
+                return new_value
 
     def __str__(self):
         return '%s(%r, %r, inherit=%r)' % (
             self.__class__.__name__,
-            self.name, self.value, self.inherit)
+            self.name, self.default_value, self.inherit)
+
+    @staticmethod
+    def dict_merge(old, new):
+        """Simple merger for dictionaries."""
+        result = {}
+        result.update(old)
+        result.update(new)
+        return result
+
+
+FieldContext = collections.namedtuple('FieldContext',
+    ['field', 'field_name', 'model', 'factory', 'skips'])
+
+
+class BaseIntrospector(object):
+    """Introspector for models.
+
+    Extracts declarations from a model.
+
+    Attributes:
+        DEFAULT_BUILDERS ((field_class, callable) list): maps a field_class
+            to a callable able to build a declaration from it
+    """
+
+    DEFAULT_BUILDERS = []
+
+    def __init__(self, factory_class):
+        # Don't use a dict as DEFAULT_BUILDERS to avoid issues
+        # when inheriting an Introspector.
+        self.builders = dict(self.DEFAULT_BUILDERS)
+        self._factory_class = factory_class
+        self._model = self._factory_class._meta.model
+
+    def get_field_names(self, model):
+        """Fetch all "auto-declarable" field names from a model."""
+        raise NotImplementedError("Introspector %r doesn't know how to extract fields from %s" % (self, model))
+
+    def get_field_by_name(self, model, field_name):
+        """Get the actual "field descriptor" for a given field name"""
+        raise NotImplementedError("Introspector %r doesn't know how to fetch field %s from %r"
+            % (self._factory_class, field_name, model))
+
+    def build_declaration(self, field_name, field, sub_skips):
+        """Build a factory.Declaration from a field_name/field combination.
+
+        Relies on ``self.DEFAULT_BUILDERS``.
+
+        Returns:
+            factory.Declaration or None.
+        """
+        if field.__class__ not in self.builders:
+            raise NotImplementedError(
+                    "Introspector %r lacks recipe for building field %r; add it to %s.Meta.auto_fields_rules."
+                    % (self, field, self._factory_class.__name__))
+        field_ctxt = FieldContext(
+            field=field,
+            field_name=field_name,
+            model=self._model,
+            factory=self._factory_class,
+            skips=sub_skips,
+        )
+        builder = self.builders[field.__class__]
+        return builder(field_ctxt)
+
+    def build_declarations(self, for_fields, skip_fields=()):
+        """Build declarations for a set of fields.
+
+        Args:
+            for_fields (str iterable): list of fields to build (can be '*' to build all fields)
+            skip_fields (str iterable): list of fields that should *NOT* be built.
+
+        Returns:
+            (str, factory.Declaration) list: the new declarations.
+        """
+        if '*' in for_fields:
+            if len(for_fields) != 1:
+                raise ValueError("If %s._meta.auto_fields contains '*', it cannot contain other values; found %r."
+                    % (for_fields, self._factory_class))
+            for_fields = self.get_field_names(self._model)
+        
+        declarations = {}
+        for field_name in for_fields:
+            if field_name in skip_fields:
+                continue
+
+            sub_skip_pattern = '%s__' % field_name
+            sub_skips = [
+                sk[len(sub_skip_pattern):]
+                for sk in skip_fields
+                if sk.startswith(sub_skip_pattern)
+            ]
+
+            field = self.get_field_by_name(self._model, field_name)
+            declaration = self.build_declaration(field_name, field, sub_skips)
+            if declaration is not None:
+                declarations[field_name] = declaration
+
+        return declarations
+
+    def __repr__(self):
+        return '<%s for %s>' % (self.__class__.__name__, self._factory_class.__name__)
 
 
 class FactoryOptions(object):
+    DEFAULT_INTROSPECTOR_CLASS = BaseIntrospector
+
     def __init__(self):
         self.factory = None
         self.base_factory = None
         self.declarations = {}
         self.postgen_declarations = {}
+        self.introspector = None
 
     def _build_default_options(self):
         """"Provide the default value for all allowed fields.
@@ -171,12 +310,24 @@ class FactoryOptions(object):
         to update() its return value.
         """
         return [
+            # The model this factory build
             OptionDefault('model', None, inherit=True),
+            # Whether this factory is allowed to build objects
             OptionDefault('abstract', False, inherit=False),
+            # The default strategy (BUILD_STRATEGY or CREATE_STRATEGY)
             OptionDefault('strategy', CREATE_STRATEGY, inherit=True),
+            # Declarations that should be passed as *args instead
             OptionDefault('inline_args', (), inherit=True),
+            # Declarations that shouldn't be passed to the object
             OptionDefault('exclude', (), inherit=True),
+            # Declarations that should be used under another name
+            # to the target model (for name conflict handling)
             OptionDefault('rename', {}, inherit=True),
+            # The introspector class to use; if None (the default),
+            # uses self.DEFAULT_INTROSPECTOR_CLASS
+            OptionDefault('introspector_class', None, inherit=True),
+            # The list of fields to auto-generate
+            OptionDefault('auto_fields', (), inherit=False),
         ]
 
     def _fill_from_meta(self, meta, base_meta):
@@ -208,6 +359,14 @@ class FactoryOptions(object):
 
         self._fill_from_meta(meta=meta, base_meta=base_meta)
 
+        if self.introspector_class is None:
+            # Due to OptionDefault inheritance handling,
+            # we don't want to set self.introspector_class
+            # as that would break the default.
+            self.introspector = self.DEFAULT_INTROSPECTOR_CLASS(factory)
+        else:
+            self.introspector = self.introspector_class(factory)
+
         self.model = self.factory._load_model_class(self.model)
         if self.model is None:
             self.abstract = True
@@ -220,7 +379,14 @@ class FactoryOptions(object):
             self.declarations.update(parent._meta.declarations)
             self.postgen_declarations.update(parent._meta.postgen_declarations)
 
-        for k, v in vars(self.factory).items():
+        raw_declarations = dict(vars(self.factory))
+        auto_declarations = self.introspector.build_declarations(
+            for_fields=self.auto_fields,
+            skip_fields=raw_declarations.keys(),
+        )
+        raw_declarations.update(auto_declarations)
+
+        for k, v in raw_declarations.items():
             if self._is_declaration(k, v):
                 self.declarations[k] = v
             if self._is_postgen_declaration(k, v):
@@ -667,6 +833,31 @@ class BaseFactory(object):
         """
         strategy = CREATE_STRATEGY if create else BUILD_STRATEGY
         return cls.generate_batch(strategy, size, **kwargs)
+
+    @classmethod
+    def auto_factory(cls, target_model, for_fields=('*',), **field_overrides):
+        """Introspect the target_model and build a factory for it.
+
+        Args:
+            target_model (type): the model for which a factory should be built
+            for_fields (str list): name of fields to introspect on the model
+            field_overrides (dict): extra declarations to include in the factory,
+                e.g default values
+
+        Returns:
+            Factory subclass: the generated factory
+        """
+        factory_name = '%sAutoFactory' % target_model.__name__
+        class Meta:
+            model = target_model
+            auto_fields = for_fields
+        attrs = {}
+        attrs.update(field_overrides)
+        attrs['Meta'] = Meta
+        # We want to force the name of the Factory subclass.
+        factory_class = type(factory_name, (cls,), attrs)
+        return factory_class
+
 
 
 Factory = FactoryMetaClass('Factory', (BaseFactory,), {

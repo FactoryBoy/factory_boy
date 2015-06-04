@@ -32,6 +32,7 @@ except ImportError:
     except ImportError:
         Image = None
 
+import django
 from django.conf import settings
 from django.db import models
 
@@ -121,3 +122,96 @@ class AbstractWithCustomManager(models.Model):
 
 class FromAbstractWithCustomManager(AbstractWithCustomManager):
     pass
+
+
+# For auto_fields
+# ===============
+
+
+class MultiFieldModel(models.Model):
+    # Text
+    chars = models.CharField(max_length=4)  # Below FuzzyText' boundary
+    text = models.TextField()
+    slug = models.SlugField()
+
+    # Misc
+    binary = models.BinaryField()
+    boolean = models.BooleanField(default=False)
+    nullboolean = models.NullBooleanField()
+    if django.VERSION[:2] >= (1, 8):
+        uu = models.UUIDField()
+
+    # Date and time
+    dt = models.DateField()
+    ts = models.DateTimeField()
+    time = models.TimeField()
+    if django.VERSION[:2] >= (1, 8):
+        duration = models.DurationField()
+
+    # Numbers
+    nb = models.IntegerField()
+    dec = models.DecimalField(max_digits=10, decimal_places=4)
+    bigint = models.BigIntegerField()
+    posint = models.PositiveIntegerField()
+    smallint = models.SmallIntegerField()
+    smallposint = models.PositiveSmallIntegerField()
+    fl = models.FloatField()
+
+    # Filed
+    attached = models.FileField()
+    img = models.ImageField()
+
+    # Internet
+    ipv4 = models.GenericIPAddressField(protocol='ipv4')
+    ipv6 = models.GenericIPAddressField(protocol='ipv6')
+    ipany = models.GenericIPAddressField()
+    email = models.EmailField()
+    url = models.URLField()
+
+
+class OptionalModel(models.Model):
+    req = models.CharField(max_length=10)
+    opt = models.CharField(max_length=3, blank=True)
+
+
+class ForeignKeyModel(models.Model):
+    name = models.CharField(max_length=20)
+    target = models.ForeignKey(MultiFieldModel)
+
+
+class OneToOneModel(models.Model):
+    name = models.CharField(max_length=20)
+    relates_to = models.OneToOneField(ForeignKeyModel)
+
+
+class ManyToManySourceModel(models.Model):
+    name = models.CharField(max_length=20)
+    targets = models.ManyToManyField(MultiFieldModel)
+
+
+class ManyToManyThroughModel(models.Model):
+    name = models.CharField(max_length=20)
+    multi = models.ForeignKey(MultiFieldModel)
+    source = models.ForeignKey('ManyToManyWithThroughSourceModel')
+
+
+class ManyToManyWithThroughSourceModel(models.Model):
+    name = models.CharField(max_length=20)
+    targets = models.ManyToManyField(MultiFieldModel, through=ManyToManyThroughModel)
+
+
+class CycleAModel(models.Model):
+    a_name = models.CharField(max_length=10)
+    c_fkey = models.ForeignKey('CycleCModel', null=True)
+
+
+class CycleBModel(models.Model):
+    b_name = models.CharField(max_length=10)
+    a_fkey = models.ForeignKey(CycleAModel)
+
+
+class CycleCModel(models.Model):
+    c_name = models.CharField(max_length=10)
+    b_fkey = models.ForeignKey(CycleBModel)
+
+

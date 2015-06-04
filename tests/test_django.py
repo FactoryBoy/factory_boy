@@ -771,5 +771,93 @@ class DjangoCustomManagerTestCase(unittest.TestCase):
         # invalid for the actual model.
         ObjFactory.create(arg='invalid')
 
+@unittest.skipIf(django is None, "Django not installed.")
+class AutoDjangoFactoryTestCase(unittest.TestCase):
+
+    def test_auto_factory(self):
+        AutoFactory = factory.django.DjangoModelFactory.auto_factory(models.MultiFieldModel)
+
+        obj = AutoFactory.create()
+        self.assertLess(-1000, obj.nb)
+        self.assertLess(obj.nb, 1000)
+        self.assertEqual(4, len(obj.chars))
+        self.assertIsNotNone(obj.ts.year)
+
+    def test_auto_factory_with_override(self):
+        AutoFactory = factory.django.DjangoModelFactory.auto_factory(models.MultiFieldModel,
+            nb=factory.Sequence(lambda n: n * 2),
+        )
+        obj1 = AutoFactory.create()
+        obj2 = AutoFactory.create()
+
+        self.assertEqual(0, obj1.nb)
+        self.assertEqual(2, obj2.nb)
+
+    def test_auto_factory_partial(self):
+        class AutoFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.MultiFieldModel
+                auto_fields = [
+                    'nb',
+                    'dec', 'bigint', 'smallposint', 'fl', 'smallint',
+                    'dt', 'ts', 'time',
+                    'ipv4', 'ipv6', 'ipany',
+                ]
+
+        obj = AutoFactory.create(posint=0)
+        self.assertLessEqual(-1000, obj.nb)
+        self.assertLess(obj.nb, 1000)
+        self.assertEqual('', obj.chars)
+        self.assertIsNotNone(obj.ts.year)
+
+    def test_auto_factory_foreignkey(self):
+        class AutoFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.ForeignKeyModel
+                auto_fields = ['*']
+
+        obj = AutoFactory.create()
+        self.assertEqual(20, len(obj.name))
+        self.assertIsNotNone(obj.target)
+
+    def test_auto_factory_one_to_one(self):
+        AutoFactory = factory.django.DjangoModelFactory.auto_factory(models.OneToOneModel)
+
+        obj = AutoFactory.create()
+        self.assertIsNotNone(obj.relates_to)
+        self.assertIsNotNone(obj.relates_to.target)
+
+    def test_auto_factory_manytomany(self):
+        AutoFactory = factory.django.DjangoModelFactory.auto_factory(models.ManyToManySourceModel)
+
+        obj = AutoFactory.create()
+        self.assertEqual(20, len(obj.name))
+        self.assertEqual(2, len(obj.targets.all()))
+
+    def test_auto_factory_manytomany_with_through(self):
+        AutoFactory = factory.django.DjangoModelFactory.auto_factory(models.ManyToManyWithThroughSourceModel)
+
+        obj = AutoFactory.create()
+        self.assertEqual(20, len(obj.name))
+        self.assertEqual(1, len(obj.targets.all()))
+
+    def test_auto_factory_foreignkey_cycle(self):
+        AutoFactory = factory.django.DjangoModelFactory.auto_factory(
+            models.CycleCModel,
+            b_fkey__a_fkey__c_fkey=None,
+        )
+
+        obj = AutoFactory.create()
+        self.assertIsNotNone(obj.b_fkey)
+        self.assertIsNotNone(obj.b_fkey.a_fkey)
+        self.assertIsNone(obj.b_fkey.a_fkey.c_fkey)
+
+    def test_optional_field(self):
+        AutoFactory = factory.django.DjangoModelFactory.auto_factory(models.OptionalModel)
+        obj = AutoFactory.create()
+        self.assertEqual(10, len(obj.req))
+        self.assertEqual('', obj.opt)
+
+
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

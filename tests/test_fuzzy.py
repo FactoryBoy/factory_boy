@@ -101,11 +101,6 @@ class FuzzyIntegerTestCase(unittest.TestCase):
             res = fuzz.evaluate(2, None, False)
             self.assertIn(res, [2, 3])
 
-        fuzz = fuzzy.FuzzyInteger(4)
-        for _i in range(20):
-            res = fuzz.evaluate(2, None, False)
-            self.assertIn(res, [0, 1, 2, 3, 4])
-
     def test_biased(self):
         fake_randrange = lambda low, high, step: (low + high) * step
 
@@ -115,16 +110,6 @@ class FuzzyIntegerTestCase(unittest.TestCase):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual((2 + 8 + 1) * 1, res)
-
-    def test_biased_high_only(self):
-        fake_randrange = lambda low, high, step: (low + high) * step
-
-        fuzz = fuzzy.FuzzyInteger(8)
-
-        with mock.patch('factory.fuzzy._random.randrange', fake_randrange):
-            res = fuzz.evaluate(2, None, False)
-
-        self.assertEqual((0 + 8 + 1) * 1, res)
 
     def test_biased_with_step(self):
         fake_randrange = lambda low, high, step: (low + high) * step
@@ -146,7 +131,7 @@ class FuzzyDecimalTestCase(unittest.TestCase):
             self.assertTrue(decimal.Decimal('2.0') <= res <= decimal.Decimal('3.0'),
                     "value %d is not between 2.0 and 3.0" % res)
 
-        fuzz = fuzzy.FuzzyDecimal(4.0)
+        fuzz = fuzzy.FuzzyDecimal(0.0, 4.0)
         for _i in range(20):
             res = fuzz.evaluate(2, None, False)
             self.assertTrue(decimal.Decimal('0.0') <= res <= decimal.Decimal('4.0'),
@@ -169,20 +154,10 @@ class FuzzyDecimalTestCase(unittest.TestCase):
 
         self.assertEqual(decimal.Decimal('10.0'), res)
 
-    def test_biased_high_only(self):
-        fake_uniform = lambda low, high: low + high
-
-        fuzz = fuzzy.FuzzyDecimal(8.0)
-
-        with mock.patch('factory.fuzzy._random.uniform', fake_uniform):
-            res = fuzz.evaluate(2, None, False)
-
-        self.assertEqual(decimal.Decimal('8.0'), res)
-
     def test_precision(self):
         fake_uniform = lambda low, high: low + high + 0.001
 
-        fuzz = fuzzy.FuzzyDecimal(8.0, precision=3)
+        fuzz = fuzzy.FuzzyDecimal(0.0, 8.0, precision=3)
 
         with mock.patch('factory.fuzzy._random.uniform', fake_uniform):
             res = fuzz.evaluate(2, None, False)
@@ -247,6 +222,58 @@ class FuzzyDateTestCase(unittest.TestCase):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(datetime.date(2013, 1, 2), res)
+
+
+class FuzzyTimeTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Setup useful constants
+        cls.midnight = datetime.time()
+        cls.noon = datetime.time(12)
+        cls.last_msec = datetime.time(23, 59, 59, 999999)
+
+    def test_accurate_definition(self):
+        """Tests all ways of defining a FuzzyTime."""
+        fuzz = fuzzy.FuzzyTime(self.midnight, self.noon)
+
+        for _i in range(20):
+            res = fuzz.evaluate(2, None, False)
+            self.assertLessEqual(self.midnight, res)
+            self.assertLessEqual(res, self.noon)
+
+    def test_partial_definition(self):
+        """Test defining a FuzzyTime without passing an end time."""
+        fuzz = fuzzy.FuzzyTime(self.noon)
+
+        for _i in range(20):
+            res = fuzz.evaluate(2, None, False)
+            self.assertLessEqual(self.noon, res)
+            self.assertLessEqual(res, self.last_msec)
+
+    def test_invalid_definition(self):
+        self.assertRaises(ValueError, fuzzy.FuzzyTime,
+            self.noon, self.midnight)
+
+    def test_biased(self):
+        """Tests a FuzzyTime with a biased random.randint."""
+
+        fake_randint = lambda low, high: (low + high) // 2
+        fuzz = fuzzy.FuzzyTime(self.midnight, self.noon)
+
+        with mock.patch('factory.fuzzy._random.randint', fake_randint):
+            res = fuzz.evaluate(2, None, False)
+
+        self.assertEqual(datetime.time(6), res)
+
+    def test_biased_partial(self):
+        """Tests a FuzzyTime with a biased random and implicit upper bound."""
+        fuzz = fuzzy.FuzzyTime(self.noon)
+
+        fake_randint = lambda low, high: (low + high) // 2
+        with mock.patch('factory.fuzzy._random.randint', fake_randint):
+            res = fuzz.evaluate(2, None, False)
+
+        self.assertEqual(datetime.time(17, 59, 59, 999999), res)
 
 
 class FuzzyNaiveDateTimeTestCase(unittest.TestCase):

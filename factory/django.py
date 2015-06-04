@@ -24,24 +24,31 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import os
-import types
-import logging
 import functools
+import logging
+import os
+import string
+import types
 
 """factory_boy extensions for use with the Django framework."""
 
 try:
     import django
     from django.core import files as django_files
+    from django.db import models
+    from django.utils import timezone
 except ImportError as e:  # pragma: no cover
     django = None
     django_files = None
+    models = None
+    timezone = None
     import_failure = e
 
 
 from . import base
 from . import declarations
+from . import faker
+from . import fuzzy
 from .compat import BytesIO, is_string
 
 logger = logging.getLogger('factory.generate')
@@ -68,7 +75,135 @@ else:
     get_model = django_apps.apps.get_model
 
 
+def build_foreign_key(field_context):
+    factory_class = DjangoModelFactory.auto_factory(
+        field_context.field.rel.to,
+        **dict((sk, None) for sk in field_context.skips))
+    return declarations.SubFactory(factory_class)
+
+
+def build_manytomany(field_context):
+    field = field_context.field
+    if field.rel.through._meta.auto_created:
+        # ManyToManyField without a through
+        factory_class = DjangoModelFactory.auto_factory(field.rel.to)
+        def add_relateds(obj, create, _extracted, **_kwargs):
+            manager = getattr(obj, field.name)
+            for related in factory_class.create_batch(2):
+                manager.add(related)
+        return declarations.PostGeneration(add_relateds)
+    else:
+        # ManyToManyField with a through
+        extra_fields = {field.m2m_field_name(): None}
+        factory_class = DjangoModelFactory.auto_factory(
+            field.rel.through,
+            **extra_fields)
+        return declarations.RelatedFactory(factory_class, field.m2m_field_name())
+
+
+def build_charfield(field_context):
+    faker_rules = {
+        'first_name': ['firstname', 'first_name'],
+        'last_name': ['lastname', 'last_name'],
+        'email': ['email'],
+        'zipcode': ['zip', 'zipcode', 'postcode'],
+    }
+    for provider, names in faker_rules.items():
+        if any(name in field_context.field_name for name in names):
+            return faker.Faker(provider)
+    return fuzzy.FuzzyText(length=field_context.field.max_length)
+
+
+def build_datetime(field_context):
+    from django.conf import settings
+    if settings.USE_TZ:
+        return fuzzy.FuzzyDateTime(start_dt=timezone.now())
+    else:
+        return fuzzy.FuzzyNaiveDateTime(start_dt=timezone.now())
+
+
+class DjangoIntrospector(base.BaseIntrospector):
+    DEFAULT_BUILDERS = base.BaseIntrospector.DEFAULT_BUILDERS + [
+        # Integers
+        (models.IntegerField, lambda _ctxt: fuzzy.FuzzyInteger(low=-1000, high=1000)),
+        (models.PositiveIntegerField, lambda _ctxt: fuzzy.FuzzyInteger(low=0, high=10000000)),
+        (models.BigIntegerField, lambda _ctxt: fuzzy.FuzzyInteger(low=-9223372036854775808, high=9223372036854775807)),
+        (models.PositiveSmallIntegerField, lambda _ctxt: fuzzy.FuzzyInteger(low=0, high=32767)),
+        (models.SmallIntegerField, lambda _ctxt: fuzzy.FuzzyInteger(low=-32768, high=32767)),
+        (models.DecimalField, lambda ctxt: fuzzy.FuzzyDecimal(
+            low=-10 ** (ctxt.field.max_digits - ctxt.field.decimal_places) + 1,
+            high=10 ** (ctxt.field.max_digits - ctxt.field.decimal_places) - 1,
+            precision=ctxt.field.decimal_places,
+        )),
+        (models.FloatField, lambda _ctxt: fuzzy.FuzzyFloat()),
+
+        # Text
+        (models.CharField, build_charfield),
+        (models.TextField, lambda _ctxt: fuzzy.FuzzyText(length=3000, chars=string.ascii_letters + ' .,?!\n')),
+        (models.SlugField, lambda ctxt: fuzzy.FuzzyText(
+            length=ctxt.field.max_length,
+            chars=string.ascii_letters + string.digits + '.-_',
+        )),
+
+        # Internet
+        (models.EmailField, lambda _ctxt: faker.Faker('email')),
+        (models.URLField, lambda _ctxt: faker.Faker('url')),
+        (models.GenericIPAddressField, lambda ctxt: faker.Faker('ipv4' if ctxt.field.protocol == 'ipv4' else 'ipv6')),
+
+
+        # Misc
+        (models.BinaryField, lambda _ctxt: fuzzy.FuzzyBytes()),
+        (models.BooleanField, lambda _ctxt: fuzzy.FuzzyChoice([True, False])),
+        (models.NullBooleanField, lambda _ctxt: fuzzy.FuzzyChoice([None, True, False])),
+        (models.FileField, lambda _ctxt: FileField()),
+        (models.ImageField, lambda _ctxt: ImageField()),
+
+        # Date / Time
+        (models.DateField, lambda _ctxt: fuzzy.FuzzyDate()),
+        (models.DateTimeField, build_datetime),
+        (models.TimeField, lambda _ctxt: fuzzy.FuzzyTime()),
+
+        # Relational
+        (models.ForeignKey, build_foreign_key),
+        (models.OneToOneField, build_foreign_key),
+        (models.ManyToManyField, build_manytomany),
+    ]
+
+    @classmethod
+    def _is_concrete_field(cls, field):
+        return field.__class__ not in [
+            models.AutoField,
+            models.ManyToOneRel,
+            models.ManyToManyRel,
+        ]
+
+    def _compat_get_fields(self, model):
+        if django.VERSION[:2] < (1, 8):
+            return [
+                field for field, _model in model._meta.get_fields_with_model()
+            ] + [
+                field for field, _model in model._meta.get_m2m_with_model()
+            ]
+        else:
+            return model._meta.get_fields()
+
+    def get_field_names(self, model):
+        return [
+            field.name
+            for field in self._compat_get_fields(model)
+            if self._is_concrete_field(field) and not field.blank
+        ]
+
+    def get_field_by_name(self, model, field_name):
+        if django.VERSION[:2] < (1, 8):
+            return model._meta.get_field_by_name(field_name)[0]
+        else:
+            return model._meta.get_field(field_name)
+
+
 class DjangoOptions(base.FactoryOptions):
+    DEFAULT_INTROSPECTOR_CLASS = DjangoIntrospector
+
     def _build_default_options(self):
         return super(DjangoOptions, self)._build_default_options() + [
             base.OptionDefault('django_get_or_create', (), inherit=True),

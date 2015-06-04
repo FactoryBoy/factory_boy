@@ -36,6 +36,8 @@ from . import declarations
 
 _random = random.Random()
 
+DEFAULT_LOW = -10000000
+DEFAULT_HIGH = 10000000
 
 def get_random_state():
     """Retrieve the state of factory.fuzzy's random generator."""
@@ -112,6 +114,25 @@ class FuzzyText(BaseFuzzyAttribute):
         return self.prefix + ''.join(chars) + self.suffix
 
 
+class FuzzyBytes(BaseFuzzyAttribute):
+    """Random bytes.
+
+    Args:
+        length (int): the length (in bytes) of the random part
+        min_byte (int): the minimal byte to use
+        max_byte (int): the maximal byte to use
+    """
+    def __init__(self, length=12, min_byte=0x00, max_byte=0xFF, **kwargs):
+        super(FuzzyBytes, self).__init__(**kwargs)
+        self.min_byte = min_byte
+        self.max_byte = max_byte
+        self.length = length
+        self.byte_choices = bytes(range(self.min_byte, self.max_byte + 1))
+
+    def fuzz(self):
+        return bytes(_random.choice(self.byte_choices) for _i in range(self.length))
+
+
 class FuzzyChoice(BaseFuzzyAttribute):
     """Handles fuzzy choice of an attribute.
     
@@ -134,11 +155,7 @@ class FuzzyChoice(BaseFuzzyAttribute):
 class FuzzyInteger(BaseFuzzyAttribute):
     """Random integer within a given range."""
 
-    def __init__(self, low, high=None, step=1, **kwargs):
-        if high is None:
-            high = low
-            low = 0
-
+    def __init__(self, low=DEFAULT_LOW, high=DEFAULT_HIGH, step=1, **kwargs):
         self.low = low
         self.high = high
         self.step = step
@@ -152,11 +169,7 @@ class FuzzyInteger(BaseFuzzyAttribute):
 class FuzzyDecimal(BaseFuzzyAttribute):
     """Random decimal within a given range."""
 
-    def __init__(self, low, high=None, precision=2, **kwargs):
-        if high is None:
-            high = low
-            low = 0.0
-
+    def __init__(self, low=DEFAULT_LOW, high=DEFAULT_HIGH, precision=2, **kwargs):
         self.low = low
         self.high = high
         self.precision = precision
@@ -171,11 +184,7 @@ class FuzzyDecimal(BaseFuzzyAttribute):
 class FuzzyFloat(BaseFuzzyAttribute):
     """Random float within a given range."""
 
-    def __init__(self, low, high=None, **kwargs):
-        if high is None:
-            high = low
-            low = 0
-
+    def __init__(self, low=DEFAULT_LOW, high=DEFAULT_HIGH, **kwargs):
         self.low = low
         self.high = high
 
@@ -188,8 +197,10 @@ class FuzzyFloat(BaseFuzzyAttribute):
 class FuzzyDate(BaseFuzzyAttribute):
     """Random date within a given date range."""
 
-    def __init__(self, start_date, end_date=None, **kwargs):
+    def __init__(self, start_date=None, end_date=None, **kwargs):
         super(FuzzyDate, self).__init__(**kwargs)
+        if start_date is None:
+            start_date = datetime.date.today() - datetime.timedelta(days=100)
         if end_date is None:
             end_date = datetime.date.today()
 
@@ -203,6 +214,42 @@ class FuzzyDate(BaseFuzzyAttribute):
 
     def fuzz(self):
         return datetime.date.fromordinal(_random.randint(self.start_date, self.end_date))
+
+
+class FuzzyTime(BaseFuzzyAttribute):
+    """Random date within a given date range."""
+
+    def __init__(self, start_time=None, end_time=None, **kwargs):
+        super(FuzzyTime, self).__init__(**kwargs)
+        if start_time is None:
+            start_time = datetime.time()
+        if end_time is None:
+            end_time = datetime.time(23, 59, 59, 999999)
+
+        if start_time > end_time:
+            raise ValueError(
+                "FuzzyTime boundaries should have start <= end; got %r > %r."
+                % (start_time, end_time))
+
+        self.start_time = start_time
+        self._start_time_int = self._time_as_int(self.start_time)
+        self.end_time = end_time
+        self._end_time_int = self._time_as_int(self.end_time)
+
+    def _time_as_int(self, t):
+        return (
+            t.microsecond
+            + 1000000 * (t.second
+                + 60 * (t.minute
+                    + 60 * t.hour
+                )
+            )
+        )
+
+    def fuzz(self):
+        msec = _random.randint(self._start_time_int, self._end_time_int)
+        dt = datetime.datetime(1, 1, 1) + datetime.timedelta(microseconds=msec)
+        return dt.time()
 
 
 class BaseFuzzyDateTime(BaseFuzzyAttribute):
