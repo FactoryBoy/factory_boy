@@ -678,6 +678,19 @@ class PreventSignalsTestCase(unittest.TestCase):
 
         self.assertSignalsReactivated()
 
+    def test_signal_cache(self):
+        with factory.django.mute_signals(signals.pre_save, signals.post_save):
+            signals.post_save.connect(self.handlers.mute_block_receiver)
+            WithSignalsFactory()
+
+        self.assertTrue(self.handlers.mute_block_receiver.call_count, 1)
+        self.assertEqual(self.handlers.pre_init.call_count, 1)
+        self.assertFalse(self.handlers.pre_save.called)
+        self.assertFalse(self.handlers.post_save.called)
+
+        self.assertSignalsReactivated()
+        self.assertTrue(self.handlers.mute_block_receiver.call_count, 1)
+
     def test_class_decorator(self):
         @factory.django.mute_signals(signals.pre_save, signals.post_save)
         class WithSignalsDecoratedFactory(factory.django.DjangoModelFactory):
