@@ -277,6 +277,8 @@ class mute_signals(object):
                          receivers)
 
             signal.receivers = receivers
+            with signal.lock:
+                signal.sender_receivers_cache.clear()
         self.paused = {}
 
     def copy(self):

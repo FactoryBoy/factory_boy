@@ -20,6 +20,7 @@ ChangeLog
 *Bugfix:*
 
     - :issue:`201`: Properly handle custom Django managers when dealing with abstract Django models.
+    - :issue:`212`: Fix :meth:`factory.django.mute_signals` to handle Django's signal caching
 
 .. _v2.5.2:
 
