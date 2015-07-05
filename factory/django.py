@@ -268,6 +268,9 @@ class mute_signals(object):
             logger.debug('mute_signals: Disabling signal handlers %r',
                          signal.receivers)
 
+            # Note that we're using implementation details of
+            # django.signals, since arguments to signal.connect()
+            # are lost in signal.receivers
             self.paused[signal] = signal.receivers
             signal.receivers = []
 
@@ -277,8 +280,12 @@ class mute_signals(object):
                          receivers)
 
             signal.receivers = receivers
-            with signal.lock:
-                signal.sender_receivers_cache.clear()
+            if django.VERSION[:2] >= (1, 6):
+                with signal.lock:
+                    # Django uses some caching for its signals.
+                    # Since we're bypassing signal.connect and signal.disconnect,
+                    # we have to keep messing with django's internals.
+                    signal.sender_receivers_cache.clear()
         self.paused = {}
 
     def copy(self):
