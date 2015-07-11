@@ -110,15 +110,29 @@ def _safe_repr(obj):
         return obj_repr.decode('utf-8')
 
 
-def log_pprint(args=(), kwargs=None):
-    kwargs = kwargs or {}
-    return ', '.join(
-        [_safe_repr(arg) for arg in args] +
-        [
-            '%s=%s' % (key, _safe_repr(value))
-            for key, value in kwargs.items()
-        ]
-    )
+class log_pprint(object):
+    """Helper for properly printing args / kwargs passed to an object.
+
+    Since it is only used with factory.debug(), the computation is
+    performed lazily.
+    """
+    __slots__ = ['args', 'kwargs']
+
+    def __init__(self, args=(), kwargs=None):
+        self.args = args
+        self.kwargs = kwargs or {}
+
+    def __repr__(self):
+        return repr(str(self))
+
+    def __str__(self):
+        return ', '.join(
+            [_safe_repr(arg) for arg in self.args] +
+            [
+                '%s=%s' % (key, _safe_repr(value))
+                for key, value in self.kwargs.items()
+            ]
+        )
 
 
 class ResetableIterator(object):

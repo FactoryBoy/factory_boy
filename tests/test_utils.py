@@ -238,33 +238,33 @@ class ImportObjectTestCase(unittest.TestCase):
 
 class LogPPrintTestCase(unittest.TestCase):
     def test_nothing(self):
-        txt = utils.log_pprint()
+        txt = str(utils.log_pprint())
         self.assertEqual('', txt)
 
     def test_only_args(self):
-        txt = utils.log_pprint((1, 2, 3))
+        txt = str(utils.log_pprint((1, 2, 3)))
         self.assertEqual('1, 2, 3', txt)
 
     def test_only_kwargs(self):
-        txt = utils.log_pprint(kwargs={'a': 1, 'b': 2})
+        txt = str(utils.log_pprint(kwargs={'a': 1, 'b': 2}))
         self.assertIn(txt, ['a=1, b=2', 'b=2, a=1'])
 
     def test_bytes_args(self):
-        txt = utils.log_pprint((b'\xe1\xe2',))
+        txt = str(utils.log_pprint((b'\xe1\xe2',)))
         expected = "b'\\xe1\\xe2'"
         if is_python2:
             expected = expected.lstrip('b')
         self.assertEqual(expected, txt)
 
     def test_text_args(self):
-        txt = utils.log_pprint(('ŧêßŧ',))
+        txt = str(utils.log_pprint(('ŧêßŧ',)))
         expected = "'ŧêßŧ'"
         if is_python2:
             expected = "u'\\u0167\\xea\\xdf\\u0167'"
         self.assertEqual(expected, txt)
 
     def test_bytes_kwargs(self):
-        txt = utils.log_pprint(kwargs={'x': b'\xe1\xe2', 'y': b'\xe2\xe1'})
+        txt = str(utils.log_pprint(kwargs={'x': b'\xe1\xe2', 'y': b'\xe2\xe1'}))
         expected1 = "x=b'\\xe1\\xe2', y=b'\\xe2\\xe1'"
         expected2 = "y=b'\\xe2\\xe1', x=b'\\xe1\\xe2'"
         if is_python2:
@@ -273,7 +273,7 @@ class LogPPrintTestCase(unittest.TestCase):
         self.assertIn(txt, (expected1, expected2))
 
     def test_text_kwargs(self):
-        txt = utils.log_pprint(kwargs={'x': 'ŧêßŧ', 'y': 'ŧßêŧ'})
+        txt = str(utils.log_pprint(kwargs={'x': 'ŧêßŧ', 'y': 'ŧßêŧ'}))
         expected1 = "x='ŧêßŧ', y='ŧßêŧ'"
         expected2 = "y='ŧßêŧ', x='ŧêßŧ'"
         if is_python2:
