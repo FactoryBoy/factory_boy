@@ -76,14 +76,16 @@ class LazyStub(object):
             dict: map of attribute name => computed value
         """
         res = {}
-        logger.debug("LazyStub: Computing values for %s(%s)",
-            self.__log_ctx, utils.log_pprint(kwargs=self.__attrs),
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("LazyStub: Computing values for %s(%s)",
+                self.__log_ctx, utils.log_pprint(kwargs=self.__attrs),
+            )
         for attr in self.__attrs:
             res[attr] = getattr(self, attr)
-        logger.debug("LazyStub: Computed values, got %s(%s)",
-            self.__log_ctx, utils.log_pprint(kwargs=res),
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("LazyStub: Computed values, got %s(%s)",
+                self.__log_ctx, utils.log_pprint(kwargs=res),
+            )
         return res
 
     def __getattr__(self, name):
