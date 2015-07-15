@@ -57,8 +57,9 @@ class Faker(declarations.OrderedDeclaration):
     Usage:
         >>> foo = factory.Faker('name')
     """
-    def __init__(self, provider, locale=None, **kwargs):
+    def __init__(self, provider, locale=None, *args, **kwargs):
         self.provider = provider
+        self.provider_args = args
         self.provider_kwargs = kwargs
         self.locale = locale
 
@@ -66,8 +67,10 @@ class Faker(declarations.OrderedDeclaration):
         kwargs = {}
         kwargs.update(self.provider_kwargs)
         kwargs.update(extra_kwargs)
+
         faker = self._get_faker(self.locale)
-        return faker.format(self.provider, **kwargs)
+
+        return faker.format(self.provider, *self.provider_args, **kwargs)
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
         return self.generate(extra or {})

@@ -112,12 +112,12 @@ class FakerTests(unittest.TestCase):
 
         class BookFactory(factory.Factory):
             title = factory.Faker('bs')
-            bookmarked_pages = factory.Faker('pylist', 10, False, int, locale=None)
+            bookmarked_pages = factory.Faker('pylist', 'en_us', 6, False, int)
 
             class Meta:
                 model = Book
 
         book = BookFactory()
 
-        self.assertEqual(10, len(book.bookmarked_pages))
+        self.assertEqual(6, len(book.bookmarked_pages))
         self.assertTrue(all([isinstance(element, int) for element in book.bookmarked_pages]))
