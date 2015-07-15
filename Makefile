@@ -1,6 +1,7 @@
 PACKAGE=factory
 TESTS_DIR=tests
 DOC_DIR=docs
+EXAMPLES_DIR=examples
 
 # Use current python binary instead of system default.
 COVERAGE = python $(shell which coverage)
@@ -43,8 +44,11 @@ clean:
 	@rm -rf tmp_test/
 
 
-test: install-deps
+test: install-deps example-test
 	python -W default setup.py test
+
+example-test:
+	$(MAKE) -C $(EXAMPLES_DIR) test
 
 pylint:
 	pylint --rcfile=.pylintrc --report=no $(PACKAGE)/
