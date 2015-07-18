@@ -94,3 +94,8 @@ class Faker(declarations.OrderedDeclaration):
             cls._FAKER_REGISTRY[locale] = faker.Faker(locale=locale)
 
         return cls._FAKER_REGISTRY[locale]
+
+    @classmethod
+    def add_provider(cls, provider, locale=None):
+        """Add a new Faker provider for the specified locale"""
+        cls._get_faker(locale).add_provider(provider)
