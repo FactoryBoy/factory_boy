@@ -21,8 +21,11 @@
 # THE SOFTWARE.
 
 
-import factory
 import unittest
+
+import faker.providers
+
+import factory
 
 
 class MockFaker(object):
@@ -103,3 +106,30 @@ class FakerTests(unittest.TestCase):
         self.assertEqual("John", profile.first_name)
         self.assertEqual("Valjean", profile.last_name)
 
+    def test_add_provider(self):
+        class Face(object):
+            def __init__(self, smiley, french_smiley):
+                self.smiley = smiley
+                self.french_smiley = french_smiley
+
+        class FaceFactory(factory.Factory):
+            class Meta:
+                model = Face
+
+            smiley = factory.Faker('smiley')
+            french_smiley = factory.Faker('smiley', locale='fr_FR')
+
+        class SmileyProvider(faker.providers.BaseProvider):
+            def smiley(self):
+                return ':)'
+
+        class FrenchSmileyProvider(faker.providers.BaseProvider):
+            def smiley(self):
+                return '(:'
+
+        factory.Faker.add_provider(SmileyProvider)
+        factory.Faker.add_provider(FrenchSmileyProvider, 'fr_FR')
+
+        face = FaceFactory()
+        self.assertEqual(":)", face.smiley)
+        self.assertEqual("(:", face.french_smiley)
