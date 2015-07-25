@@ -8,6 +8,8 @@ Some tests may be interested in testing with fuzzy, random values.
 This is handled by the :mod:`factory.fuzzy` module, which provides a few
 random declarations.
 
+.. note:: Use ``import factory.fuzzy`` to load this module.
+
 
 FuzzyAttribute
 --------------
