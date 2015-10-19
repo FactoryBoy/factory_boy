@@ -101,6 +101,14 @@ if django is not None:
         foo = factory.Sequence(lambda n: "foo%d" % n)
 
 
+    class StandardFactoryWithRenamedField(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.StandardModel
+            rename = {'foo_': 'foo'}
+
+        foo_ = factory.Sequence(lambda n: "foo%d" % n)
+
+
     class StandardFactoryWithPKField(factory.django.DjangoModelFactory):
         class Meta:
             model = models.StandardModel
@@ -223,6 +231,17 @@ class DjangoPkSequenceTestCase(django_test.TestCase):
         std2 = StandardFactory.create()
         self.assertEqual('foo0', std2.foo)
         self.assertEqual(11, std2.pk)
+
+
+@unittest.skipIf(django is None, "Django not installed.")
+class DjangoRenamedFieldTestCase(django_test.TestCase):
+    def setUp(self):
+        super(DjangoRenamedFieldTestCase, self).setUp()
+        StandardFactoryWithRenamedField.reset_sequence()
+
+    def test_renamed_field(self):
+        std = StandardFactoryWithRenamedField.build()
+        self.assertEqual('foo0', std.foo_)
 
 
 @unittest.skipIf(django is None, "Django not installed.")
