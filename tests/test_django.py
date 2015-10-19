@@ -241,7 +241,7 @@ class DjangoRenamedFieldTestCase(django_test.TestCase):
 
     def test_renamed_field(self):
         std = StandardFactoryWithRenamedField.build()
-        self.assertEqual('foo0', std.foo_)
+        self.assertEqual('foo0', std.foo)
 
 
 @unittest.skipIf(django is None, "Django not installed.")
