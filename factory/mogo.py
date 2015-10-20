@@ -37,7 +37,7 @@ class MogoFactory(base.Factory):
 
     @classmethod
     def _build(cls, model_class, *args, **kwargs):
-        return model_class.new(*args, **kwargs)
+        return model_class(*args, **kwargs)
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
