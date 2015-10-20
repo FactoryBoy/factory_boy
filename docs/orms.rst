@@ -40,12 +40,12 @@ All factories for a Django :class:`~django.db.models.Model` should use the
       once all post-generation hooks have run.
 
 
-.. note:: Starting with Django 1.8, it is no longer possible to call ``.build()``
-          on a factory if this factory uses a :class:`~factory.SubFactory` pointing
-          to another model: Django refuses to set a :class:`~djang.db.models.ForeignKey`
+.. note:: With Django versions 1.8.0 to 1.8.3, it was no longer possible to call ``.build()``
+          on a factory if this factory used a :class:`~factory.SubFactory` pointing
+          to another model: Django refused to set a :class:`~djang.db.models.ForeignKey`
           to an unsaved :class:`~django.db.models.Model` instance.
 
-          See https://code.djangoproject.com/ticket/10811 for details.
+          See https://code.djangoproject.com/ticket/10811 and https://code.djangoproject.com/ticket/25160 for details.
 
 
 .. class:: DjangoOptions(factory.base.FactoryOptions)
