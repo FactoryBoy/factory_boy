@@ -56,16 +56,34 @@ def require_django():
         raise import_failure
 
 
-if django is None:
-    def get_model(app, model):
-        raise import_failure
+_LAZY_LOADS = {}
 
-elif django.VERSION[:2] < (1, 7):
-    from django.db.models.loading import get_model
+def get_model(app, model):
+    """Wrapper around django's get_model."""
+    if 'get_model' not in _LAZY_LOADS:
+        _lazy_load_get_model()
 
-else:
-    from django import apps as django_apps
-    get_model = django_apps.apps.get_model
+    _get_model = _LAZY_LOADS['get_model']
+    return _get_model(app, model)
+
+
+def _lazy_load_get_model():
+    """Lazy loading of get_model.
+
+    get_model loads django.conf.settings, which may fail if
+    the settings haven't been configured yet.
+    """
+    if django is None:
+        def get_model(app, model):
+            raise import_failure
+
+    elif django.VERSION[:2] < (1, 7):
+        from django.db.models.loading import get_model
+
+    else:
+        from django import apps as django_apps
+        get_model = django_apps.apps.get_model
+    _LAZY_LOADS['get_model'] = get_model
 
 
 class DjangoOptions(base.FactoryOptions):

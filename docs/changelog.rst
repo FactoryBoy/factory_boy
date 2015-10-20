@@ -21,6 +21,7 @@ ChangeLog
 
     - :issue:`201`: Properly handle custom Django managers when dealing with abstract Django models.
     - :issue:`212`: Fix :meth:`factory.django.mute_signals` to handle Django's signal caching
+    - :issue:`228`: Don't load :func:`django.apps.apps.get_model()` until required
 
 .. _v2.5.2:
 
