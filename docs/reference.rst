@@ -534,6 +534,23 @@ Faker
             ...     UserFactory()
             <User: Johannes Brahms>
 
+    .. classmethod:: add_provider(cls, locale=None)
+
+        Some projects may need to fake fields beyond those provided by ``fake-factory``;
+        in such cases, use :meth:`factory.Faker.add_provider` to declare additional providers
+        for those fields:
+
+        .. code-block:: python
+
+            factory.Faker.add_provider(SmileyProvider)
+
+            class FaceFactory(factory.Factory):
+                class Meta:
+                    model = Face
+
+                smiley = factory.Faker('smiley')
+
+
 LazyAttribute
 """""""""""""
 
