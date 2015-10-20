@@ -148,8 +148,8 @@ factory_boy related factories.
           method.
 
 
-Simple ManyToMany
------------------
+Simple Many-to-many
+-------------------
 
 Building the adequate link between two models depends heavily on the use case;
 factory_boy doesn't provide a "all in one tools" as for :class:`~factory.SubFactory`
@@ -167,7 +167,7 @@ hook:
 
     class User(models.Model):
         name = models.CharField()
-        groups = models.ManyToMany(Group)
+        groups = models.ManyToManyField(Group)
 
 
     # factories.py
@@ -204,8 +204,8 @@ the ``groups`` declaration will add passed in groups to the set of groups for th
 user.
 
 
-ManyToMany with a 'through'
----------------------------
+Many-to-many with a 'through'
+-----------------------------
 
 
 If only one link is required, this can be simply performed with a :class:`RelatedFactory`.
@@ -219,7 +219,7 @@ If more links are needed, simply add more :class:`RelatedFactory` declarations:
 
     class Group(models.Model):
         name = models.CharField()
-        members = models.ManyToMany(User, through='GroupLevel')
+        members = models.ManyToManyField(User, through='GroupLevel')
 
     class GroupLevel(models.Model):
         user = models.ForeignKey(User)
