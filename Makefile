@@ -17,6 +17,7 @@ MONGOENGINE ?= 0.9
 NEXT_MONGOENGINE = $(shell python -c "v='$(MONGOENGINE)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
 
 REQ_FILE = auto_dev_requirements_django$(DJANGO)_alchemy$(ALCHEMY)_mongoengine$(MONGOENGINE).txt
+EXAMPLES_REQ_FILES = $(shell find $(EXAMPLES_DIR) -name requirements.txt)
 
 all: default
 
@@ -29,7 +30,7 @@ install-deps: $(REQ_FILE)
 	pip install --upgrade -r $<
 	pip freeze
 
-$(REQ_FILE): dev_requirements.txt requirements.txt
+$(REQ_FILE): dev_requirements.txt requirements.txt $(EXAMPLES_REQ_FILES)
 	grep --no-filename "^[^#-]" $^ | egrep -v "^(Django|SQLAlchemy|mongoengine)" > $@
 	echo "Django>=$(DJANGO),<$(NEXT_DJANGO)" >> $@
 	echo "SQLAlchemy>=$(ALCHEMY),<$(NEXT_ALCHEMY)" >> $@
