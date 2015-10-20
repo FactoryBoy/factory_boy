@@ -41,6 +41,6 @@ class MogoFactory(base.Factory):
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
-        instance = model_class.new(*args, **kwargs)
+        instance = model_class(*args, **kwargs)
         instance.save()
         return instance
