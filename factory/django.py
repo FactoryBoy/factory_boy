@@ -81,6 +81,7 @@ def _lazy_load_get_model():
         from django.db.models.loading import get_model
 
     else:
+        django.setup()
         from django import apps as django_apps
         get_model = django_apps.apps.get_model
     _LAZY_LOADS['get_model'] = get_model
