@@ -62,15 +62,15 @@ class Faker(declarations.OrderedDeclaration):
         self.provider_kwargs = kwargs
         self.locale = locale
 
-    def generate(self, extra_kwargs):
+    def generate(self, **extra_kwargs):
         kwargs = {}
         kwargs.update(self.provider_kwargs)
-        kwargs.update(extra_kwargs)
+        kwargs.update(**extra_kwargs)
         faker = self._get_faker(self.locale)
         return faker.format(self.provider, **kwargs)
 
-    def evaluate(self, sequence, obj, create, extra=None, containers=()):
-        return self.generate(extra or {})
+    def evaluate(self, sequence, obj, create, extra=(), containers=()):
+        return self.generate(**extra)
 
     _FAKER_REGISTRY = {}
     _DEFAULT_LOCALE = faker.config.DEFAULT_LOCALE

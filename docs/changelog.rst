@@ -1,6 +1,14 @@
 ChangeLog
 =========
 
+.. _v2.6.2:
+
+2.6.2 (TBD)
+------------------
+*Refactoring:*
+
+    - Refactor :meth:`factory.faker.Faker.generate` so it can be called with no arguments. The behaviour is the same as when calling with an empty dict.
+
 .. _v2.6.1:
 
 2.6.1 (2016-02-10)
