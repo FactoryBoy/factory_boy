@@ -1,5 +1,4 @@
 import factory
-import factory.alchemy
 import factory.fuzzy
 
 import demoapp
