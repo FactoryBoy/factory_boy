@@ -132,8 +132,6 @@ This takes care of all ``FACTORY_FOR`` occurences; the files containing other at
       For :class:`factory.Factory`:
 
       * Rename :attr:`~factory.Factory.FACTORY_FOR` to :attr:`~factory.FactoryOptions.model`
-
-      * Rename :attr:`~factory.Factory.FACTORY_FOR` to :attr:`~factory.FactoryOptions.model`
       * Rename :attr:`~factory.Factory.ABSTRACT_FACTORY` to :attr:`~factory.FactoryOptions.abstract`
       * Rename :attr:`~factory.Factory.FACTORY_STRATEGY` to :attr:`~factory.FactoryOptions.strategy`
       * Rename :attr:`~factory.Factory.FACTORY_ARG_PARAMETERS` to :attr:`~factory.FactoryOptions.inline_args`
