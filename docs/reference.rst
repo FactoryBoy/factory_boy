@@ -634,7 +634,7 @@ This declaration takes a single argument, a function accepting a single paramete
 
 
 .. note:: An extra kwarg argument, ``type``, may be provided.
-          This feature is deprecated in 1.3.0 and will be removed in 2.0.0.
+          This feature was deprecated in 1.3.0 and removed in 2.0.0.
 
 
 .. code-block:: python
