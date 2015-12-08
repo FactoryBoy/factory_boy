@@ -78,17 +78,39 @@ class LazyStubTestCase(unittest.TestCase):
         self.assertEqual(2, stub.factory_parent.rank)
         self.assertEqual(1, stub.factory_parent.factory_parent.rank)
 
+    class LazyAttr(containers.LazyValue):
+        def __init__(self, attrname):
+            self.attrname = attrname
+
+        def evaluate(self, obj, container=None):
+            return 1 + getattr(obj, self.attrname)
+
     def test_cyclic_definition(self):
-        class LazyAttr(containers.LazyValue):
-            def __init__(self, attrname):
-                self.attrname = attrname
-
-            def evaluate(self, obj, container=None):
-                return 1 + getattr(obj, self.attrname)
-
-        stub = containers.LazyStub({'one': LazyAttr('two'), 'two': LazyAttr('one')})
+        stub = containers.LazyStub({
+            'one': self.LazyAttr('two'),
+            'two': self.LazyAttr('one'),
+        })
 
         self.assertRaises(containers.CyclicDefinitionError, getattr, stub, 'one')
+
+    def test_cyclic_definition_rescue(self):
+        class LazyAttrDefault(self.LazyAttr):
+            def __init__(self, attname, defvalue):
+                super(LazyAttrDefault, self).__init__(attname)
+                self.defvalue = defvalue
+            def evaluate(self, obj, container=None):
+                try:
+                    return super(LazyAttrDefault, self).evaluate(obj, container)
+                except containers.CyclicDefinitionError:
+                    return self.defvalue
+
+        stub = containers.LazyStub({
+            'one': LazyAttrDefault('two', 10),
+            'two': self.LazyAttr('one'),
+        })
+
+        self.assertEqual(10, stub.one)
+        self.assertEqual(11, stub.two)
 
     def test_representation(self):
         class RandomObj(object):
