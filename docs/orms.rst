@@ -15,7 +15,7 @@ Django
 
 
 The first versions of factory_boy were designed specifically for Django,
-but the library has now evolved to be framework-independant.
+but the library has now evolved to be framework-independent.
 
 Most features should thus feel quite familiar to Django users.
 
