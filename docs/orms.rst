@@ -333,6 +333,10 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
         SQLAlchemy session to use to communicate with the database when creating
         an object through this :class:`SQLAlchemyModelFactory`.
 
+    .. attribute:: force_flush
+
+        Force a session flush() at the end of :func:`~factory.alchemy.SQLAlchemyModelFactory._create()`.
+
 A (very) simple example:
 
 .. code-block:: python
