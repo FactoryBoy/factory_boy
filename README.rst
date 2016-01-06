@@ -181,7 +181,7 @@ It is also possible to create a bunch of objects in a single call:
 Realistic, random values
 """"""""""""""""""""""""
 
-Tests look better with random yet realistic values.
+Demos look better with random yet realistic values; and those realistic values can also help discover bugs.
 For this, factory_boy relies on the excellent `fake-factory <https://pypi.python.org/pypi/fake-factory>`_ library:
 
 .. code-block:: python
@@ -197,6 +197,10 @@ For this, factory_boy relies on the excellent `fake-factory <https://pypi.python
 
     >>> UserFactory()
     <User: Lucy Murray>
+
+
+.. note:: Use of fully randomized data in tests is quickly a problem for reproducing broken builds.
+          To that purpose, factory_boy provides helpers to handle the random seeds it uses.
 
 
 Lazy Attributes
