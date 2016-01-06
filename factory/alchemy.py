@@ -27,6 +27,7 @@ class SQLAlchemyOptions(base.FactoryOptions):
     def _build_default_options(self):
         return super(SQLAlchemyOptions, self)._build_default_options() + [
             base.OptionDefault('sqlalchemy_session', None, inherit=True),
+            base.OptionDefault('force_flush', False, inherit=True),
         ]
 
 
@@ -43,4 +44,6 @@ class SQLAlchemyModelFactory(base.Factory):
         session = cls._meta.sqlalchemy_session
         obj = model_class(*args, **kwargs)
         session.add(obj)
+        if cls._meta.force_flush:
+            session.flush()
         return obj
