@@ -23,6 +23,7 @@
 
 import factory
 from .compat import unittest
+import mock
 
 
 try:
@@ -50,6 +51,16 @@ class StandardFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.StandardModel
         sqlalchemy_session = models.session
+
+    id = factory.Sequence(lambda n: n)
+    foo = factory.Sequence(lambda n: 'foo%d' % n)
+
+
+class ForceFlushingStandardFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.StandardModel
+        sqlalchemy_session = mock.MagicMock()
+        force_flush = True
 
     id = factory.Sequence(lambda n: n)
     foo = factory.Sequence(lambda n: 'foo%d' % n)
@@ -100,6 +111,27 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
         std2 = StandardFactory.create()
         self.assertEqual('foo0', std2.foo)  # Sequence doesn't care about pk
         self.assertEqual(0, std2.id)
+
+
+@unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
+class SQLAlchemyForceFlushTestCase(unittest.TestCase):
+    def setUp(self):
+        super(SQLAlchemyForceFlushTestCase, self).setUp()
+        ForceFlushingStandardFactory.reset_sequence(1)
+        ForceFlushingStandardFactory._meta.sqlalchemy_session.rollback()
+        ForceFlushingStandardFactory._meta.sqlalchemy_session.reset_mock()
+
+    def test_force_flush_called(self):
+        self.assertFalse(ForceFlushingStandardFactory._meta.sqlalchemy_session.flush.called)
+        ForceFlushingStandardFactory.create()
+        self.assertTrue(ForceFlushingStandardFactory._meta.sqlalchemy_session.flush.called)
+
+    def test_force_flush_not_called(self):
+        ForceFlushingStandardFactory._meta.force_flush = False
+        self.assertFalse(ForceFlushingStandardFactory._meta.sqlalchemy_session.flush.called)
+        ForceFlushingStandardFactory.create()
+        self.assertFalse(ForceFlushingStandardFactory._meta.sqlalchemy_session.flush.called)
+        ForceFlushingStandardFactory._meta.force_flush = True
 
 
 @unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
