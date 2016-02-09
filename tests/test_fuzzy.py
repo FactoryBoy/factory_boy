@@ -189,6 +189,18 @@ class FuzzyDecimalTestCase(unittest.TestCase):
 
         self.assertEqual(decimal.Decimal('8.001').quantize(decimal.Decimal(10) ** -3), res)
 
+    def test_no_approximation(self):
+        """We should not go through floats in our fuzzy calls unless actually needed."""
+        fuzz = fuzzy.FuzzyDecimal(0, 10)
+
+        decimal_context = decimal.getcontext()
+        old_traps = decimal_context.traps[decimal.FloatOperation]
+        try:
+            decimal_context.traps[decimal.FloatOperation] = True
+            fuzz.evaluate(2, None, None)
+        finally:
+            decimal_context.traps[decimal.FloatOperation] = old_traps
+
 
 class FuzzyDateTestCase(unittest.TestCase):
     @classmethod
