@@ -8,3 +8,6 @@ SQLAlchemy
 mongoengine
 mock
 wheel
+
+Sphinx
+sphinx_rtd_theme
