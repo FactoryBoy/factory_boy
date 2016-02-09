@@ -1,20 +1,24 @@
 factory_boy
 ===========
 
-.. image:: https://pypip.in/version/factory_boy/badge.svg
+.. image:: https://secure.travis-ci.org/rbarrois/factory_boy.png?branch=master
+    :target: http://travis-ci.org/rbarrois/factory_boy/
+
+.. image:: https://img.shields.io/pypi/v/factory_boy.svg
     :target: http://factoryboy.readthedocs.org/en/latest/changelog.html
     :alt: Latest Version
 
-.. image:: https://pypip.in/py_versions/factory_boy/badge.svg
+.. image:: https://img.shields.io/pypi/pyversions/factory_boy.svg
     :target: https://pypi.python.org/pypi/factory_boy/
     :alt: Supported Python versions
 
-.. image:: https://pypip.in/wheel/factory_boy/badge.svg
+.. image:: https://img.shields.io/pypi/wheel/factory_boy.svg
     :target: https://pypi.python.org/pypi/factory_boy/
     :alt: Wheel status
 
-.. image:: https://secure.travis-ci.org/rbarrois/factory_boy.png?branch=master
-    :target: http://travis-ci.org/rbarrois/factory_boy/
+.. image:: https://img.shields.io/pypi/l/factory_boy.svg
+    :target: https://pypi.python.org/pypi/factory_boy/
+    :alt: License
 
 factory_boy is a fixtures replacement based on thoughtbot's `factory_girl <http://github.com/thoughtbot/factory_girl>`_.
 
