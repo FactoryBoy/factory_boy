@@ -189,6 +189,7 @@ class FuzzyDecimalTestCase(unittest.TestCase):
 
         self.assertEqual(decimal.Decimal('8.001').quantize(decimal.Decimal(10) ** -3), res)
 
+    @unittest.skipIf(compat.PY2, "decimal.FloatOperation was added in Py3")
     def test_no_approximation(self):
         """We should not go through floats in our fuzzy calls unless actually needed."""
         fuzz = fuzzy.FuzzyDecimal(0, 10)
