@@ -1412,6 +1412,23 @@ If a value if passed for the :class:`RelatedFactory` attribute, this disables
     1
 
 
+.. note:: The target of the :class:`RelatedFactory` is evaluated *after* the initial factory has been instantiated.
+          This means that calls to :class:`factory.SelfAttribute` cannot go higher than this :class:`RelatedFactory`:
+
+          .. code-block:: python
+
+              class CountryFactory(factory.Factory):
+                  class Meta:
+                      model = Country
+
+                  lang = 'fr'
+                  capital_city = factory.RelatedFactory(CityFactory, 'capital_of',
+                      # factory.SelfAttribute('..lang') will crash, since the context of
+                      # ``CountryFactory`` has already been evaluated.
+                      main_lang=factory.SelfAttribute('capital_of.lang'),
+                  )
+
+
 PostGeneration
 """"""""""""""
 
