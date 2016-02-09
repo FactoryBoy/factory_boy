@@ -7,13 +7,13 @@ EXAMPLES_DIR=examples
 COVERAGE = python $(shell which coverage)
 
 # Dependencies
-DJANGO ?= 1.8
+DJANGO ?= 1.9
 NEXT_DJANGO = $(shell python -c "v='$(DJANGO)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
 
 ALCHEMY ?= 1.0
 NEXT_ALCHEMY = $(shell python -c "v='$(ALCHEMY)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
 
-MONGOENGINE ?= 0.9
+MONGOENGINE ?= 0.10
 NEXT_MONGOENGINE = $(shell python -c "v='$(MONGOENGINE)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
 
 REQ_FILE = auto_dev_requirements_django$(DJANGO)_alchemy$(ALCHEMY)_mongoengine$(MONGOENGINE).txt
