@@ -126,7 +126,7 @@ Extra fields
         :param str from_path: Use data from the file located at ``from_path``,
                               and keep its filename
         :param file from_file: Use the contents of the provided file object; use its filename
-                               if available
+                               if available, unless ``filename`` is also provided.
         :param bytes data: Use the provided bytes as file contents
         :param str filename: The filename for the FileField
 
