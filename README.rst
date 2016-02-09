@@ -78,6 +78,7 @@ Links
 * Documentation: http://factoryboy.readthedocs.org/
 * Repository: https://github.com/rbarrois/factory_boy
 * Package: https://pypi.python.org/pypi/factory_boy/
+* Mailing-list: `factoryboy@googlegroups.com <mailto:factoryboy@googlegroups.com>`_ | https://groups.google.com/forum/#!forum/factoryboy
 
 factory_boy supports Python 2.6, 2.7, 3.2 to 3.5, as well as PyPy; it requires only the standard Python library.
 
@@ -336,6 +337,7 @@ Contributing
 factory_boy is distributed under the MIT License.
 
 Issues should be opened through `GitHub Issues <http://github.com/rbarrois/factory_boy/issues/>`_; whenever possible, a pull request should be included.
+Questions and suggestions are welcome on the `mailing-list <mailto:factoryboy@googlegroups.com>`_.
 
 All pull request should pass the test suite, which can be launched simply with:
 
@@ -356,13 +358,20 @@ To test with a specific framework version, you may use:
 
 .. code-block:: sh
 
-    $ make DJANGO=1.7 test
+    $ make DJANGO=1.9 test
 
 Valid options are:
 
 * ``DJANGO`` for ``Django``
 * ``MONGOENGINE`` for ``mongoengine``
 * ``ALCHEMY`` for ``SQLAlchemy``
+
+
+To avoid running ``mongoengine`` tests (e.g no mongo server installed), run:
+
+.. code-block:: sh
+
+    $ make SKIP_MONGOENGINE=1 test
 
 
 Contents, indices and tables
