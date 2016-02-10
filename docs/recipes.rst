@@ -88,7 +88,7 @@ When a :class:`UserFactory` is instantiated, factory_boy will call
 
 
 Example: Django's Profile
-"""""""""""""""""""""""""
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Django (<1.5) provided a mechanism to attach a ``Profile`` to a ``User`` instance,
 using a :class:`~django.db.models.OneToOneField` from the ``Profile`` to the ``User``.

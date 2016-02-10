@@ -1,6 +1,15 @@
 ChangeLog
 =========
 
+.. _v2.6.1:
+
+2.6.1 (2016-02-10)
+------------------
+
+*New:*
+
+    - :issue:`262`: Allow optional forced flush on SQLAlchemy, courtesy of `Minjung <https://github.com/Minjung>`_.
+
 .. _v2.6.0:
 
 2.6.0 (2015-10-20)
