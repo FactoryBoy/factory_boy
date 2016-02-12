@@ -49,6 +49,7 @@ And now, we'll define the related factories:
 
 .. code-block:: python
 
+    import datetime
     import factory
     import random
 
@@ -61,6 +62,7 @@ And now, we'll define the related factories:
 
         username = factory.Sequence(lambda n: 'john%s' % n)
         email = factory.LazyAttribute(lambda o: '%s@example.org' % o.username)
+        date_joined = factory.LazyFunction(datetime.datetime.now)
 
 
     class ProfileFactory(factory.Factory):

@@ -90,7 +90,7 @@ The :class:`Factory` class
                     model = Order
                     exclude = ('now',)
 
-                now = factory.LazyAttribute(lambda o: datetime.datetime.utcnow())
+                now = factory.LazyFunction(datetime.datetime.utcnow)
                 started_at = factory.LazyAttribute(lambda o: o.now - datetime.timedelta(hours=1))
                 paid_at = factory.LazyAttribute(lambda o: o.now - datetime.timedelta(minutes=50))
 
@@ -550,6 +550,42 @@ Faker
 
                 smiley = factory.Faker('smiley')
 
+
+LazyFunction
+""""""""""""
+
+.. class:: LazyFunction(method_to_call)
+
+The :class:`LazyFunction` is the simplest case where the value of an attribute
+does not depend on the object being built.
+
+It takes as argument a method to call (function, lambda...); that method should
+not take any argument, though keyword arguments are safe but unused,
+and return a value.
+
+.. code-block:: python
+
+    class LogFactory(factory.Factory):
+        class Meta:
+            model = models.Log
+
+        timestamp = factory.LazyFunction(datetime.now)
+
+.. code-block:: pycon
+
+    >>> LogFactory()
+    <Log: log at 2016-02-12 17:02:34>
+
+    >>> # The LazyFunction can be overriden
+    >>> LogFactory(timestamp=now - timedelta(days=1))
+    <Log: log at 2016-02-11 17:02:34>
+
+Decorator
+~~~~~~~~~
+
+The class :class:`LazyFunction` does not provide a decorator.
+
+For complex cases, use :meth:`LazyAttribute.lazy_attribute` directly.
 
 LazyAttribute
 """""""""""""
@@ -1041,7 +1077,7 @@ gains an "upward" semantic through the double-dot notation, as used in Python im
     >>> company.owner.language
     'fr'
 
-Obviously, this "follow parents" hability also handles overriding some attributes on call:
+Obviously, this "follow parents" ability also handles overriding some attributes on call:
 
 .. code-block:: pycon
 

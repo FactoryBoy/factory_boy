@@ -57,6 +57,23 @@ class OrderedDeclaration(object):
         raise NotImplementedError('This is an abstract method')
 
 
+class LazyFunction(OrderedDeclaration):
+    """Simplest OrderedDeclaration computed by calling the given function.
+
+    Attributes:
+        function (function): a function without arguments and
+            returning the computed value.
+    """
+
+    def __init__(self, function, *args, **kwargs):
+        super(LazyFunction, self).__init__(*args, **kwargs)
+        self.function = function
+
+    def evaluate(self, sequence, obj, create, extra=None, containers=()):
+        logger.debug("LazyFunction: Evaluating %r on %r", self.function, obj)
+        return self.function()
+
+
 class LazyAttribute(OrderedDeclaration):
     """Specific OrderedDeclaration computed using a lambda.
 
