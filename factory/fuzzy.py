@@ -217,6 +217,9 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
                 """%s boundaries should have start <= end, got %r > %r""" % (
                     self.__class__.__name__, start_dt, end_dt))
 
+    def _now(self):
+        raise NotImplementedError()
+
     def __init__(self, start_dt, end_dt=None,
                  force_year=None, force_month=None, force_day=None,
                  force_hour=None, force_minute=None, force_second=None,
