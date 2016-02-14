@@ -199,7 +199,7 @@ FuzzyDate
 FuzzyDateTime
 -------------
 
-.. class:: FuzzyDateTime(start_dt[, end_dt], tz=UTC, force_year=None, force_month=None, force_day=None, force_hour=None, force_minute=None, force_second=None, force_microsecond=None)
+.. class:: FuzzyDateTime(start_dt[, end_dt], force_year=None, force_month=None, force_day=None, force_hour=None, force_minute=None, force_second=None, force_microsecond=None)
 
     The :class:`FuzzyDateTime` fuzzer generates random timezone-aware datetime within a given
     inclusive range.
