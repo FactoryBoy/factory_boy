@@ -215,6 +215,29 @@ class AttributeBuilderTestCase(unittest.TestCase):
         ab = containers.AttributeBuilder(FakeFactory, extra={'one': seq2})
         self.assertEqual({'one': 'yy1'}, ab.build(create=False))
 
+    def test_lazy_function(self):
+        lf = declarations.LazyFunction(int)
+
+        class FakeFactory(object):
+            @classmethod
+            def declarations(cls, extra):
+                d = {'one': 1, 'two': lf}
+                d.update(extra)
+                return d
+
+            @classmethod
+            def _generate_next_sequence(cls):
+                return 1
+
+        ab = containers.AttributeBuilder(FakeFactory)
+        self.assertEqual({'one': 1, 'two': 0}, ab.build(create=False))
+
+        ab = containers.AttributeBuilder(FakeFactory, {'one': 4})
+        self.assertEqual({'one': 4, 'two': 0}, ab.build(create=False))
+
+        ab = containers.AttributeBuilder(FakeFactory, {'one': 4, 'three': lf})
+        self.assertEqual({'one': 4, 'two': 0, 'three': 0}, ab.build(create=False))
+
     def test_lazy_attribute(self):
         la = declarations.LazyAttribute(lambda a: a.one * 2)
 

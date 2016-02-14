@@ -134,25 +134,28 @@ class OptionsTests(unittest.TestCase):
         self.assertEqual(AbstractFactory, AbstractFactory._meta.counter_reference)
 
     def test_declaration_collecting(self):
-        lazy = declarations.LazyAttribute(lambda _o: 1)
+        lazy = declarations.LazyFunction(int)
+        lazy2 = declarations.LazyAttribute(lambda _o: 1)
         postgen = declarations.PostGenerationDeclaration()
 
         class AbstractFactory(base.Factory):
             x = 1
             y = lazy
+            y2 = lazy2
             z = postgen
 
         # Declarations aren't removed
         self.assertEqual(1, AbstractFactory.x)
         self.assertEqual(lazy, AbstractFactory.y)
+        self.assertEqual(lazy2, AbstractFactory.y2)
         self.assertEqual(postgen, AbstractFactory.z)
 
         # And are available in class Meta
-        self.assertEqual({'x': 1, 'y': lazy}, AbstractFactory._meta.declarations)
+        self.assertEqual({'x': 1, 'y': lazy, 'y2': lazy2}, AbstractFactory._meta.declarations)
         self.assertEqual({'z': postgen}, AbstractFactory._meta.postgen_declarations)
 
     def test_inherited_declaration_collecting(self):
-        lazy = declarations.LazyAttribute(lambda _o: 1)
+        lazy = declarations.LazyFunction(int)
         lazy2 = declarations.LazyAttribute(lambda _o: 2)
         postgen = declarations.PostGenerationDeclaration()
         postgen2 = declarations.PostGenerationDeclaration()
@@ -178,7 +181,7 @@ class OptionsTests(unittest.TestCase):
         self.assertEqual({'z': postgen, 'b': postgen2}, OtherFactory._meta.postgen_declarations)
 
     def test_inherited_declaration_shadowing(self):
-        lazy = declarations.LazyAttribute(lambda _o: 1)
+        lazy = declarations.LazyFunction(int)
         lazy2 = declarations.LazyAttribute(lambda _o: 2)
         postgen = declarations.PostGenerationDeclaration()
         postgen2 = declarations.PostGenerationDeclaration()

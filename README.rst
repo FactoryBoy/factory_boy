@@ -226,11 +226,16 @@ These "lazy" attributes can be added as follows:
         first_name = 'Joe'
         last_name = 'Blow'
         email = factory.LazyAttribute(lambda a: '{0}.{1}@example.com'.format(a.first_name, a.last_name).lower())
+        date_joined = factory.LazyFunction(datetime.now)
 
 .. code-block:: pycon
 
     >>> UserFactory().email
     "joe.blow@example.com"
+
+
+.. note:: ``LazyAttribute`` calls the function with the object being constructed as an argument, when
+          ``LazyFunction`` does not send any argument.
 
 
 Sequences

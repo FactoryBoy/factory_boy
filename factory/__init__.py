@@ -43,6 +43,7 @@ from .base import (
 from .faker import Faker
 
 from .declarations import (
+    LazyFunction,
     LazyAttribute,
     Iterator,
     Sequence,

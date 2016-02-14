@@ -117,6 +117,35 @@ This is achieved with the :class:`~factory.Sequence` declaration:
                     return 'user%d' % n
 
 
+LazyFunction
+------------
+
+In simple cases, calling a function is enough to compute the value. If that function doesn't depend on the object
+being built, use :class:`~factory.LazyFunction` to call that function; it should receive a function taking no
+argument and returning the value for the field:
+
+.. code-block:: python
+
+    class LogFactory(factory.Factory):
+        class Meta:
+            model = models.Log
+
+        timestamp = factory.LazyFunction(datetime.now)
+
+.. code-block:: pycon
+
+    >>> LogFactory()
+    <Log: log at 2016-02-12 17:02:34>
+
+    >>> # The LazyFunction can be overriden
+    >>> LogFactory(timestamp=now - timedelta(days=1))
+    <Log: log at 2016-02-11 17:02:34>
+
+
+.. note:: For complex cases when you happen to write a specific function,
+          the :meth:`~factory.@lazy_attribute` decorator should be more appropriate.
+
+
 LazyAttribute
 -------------
 
