@@ -3,6 +3,12 @@ Fuzzy attributes
 
 .. module:: factory.fuzzy
 
+.. note:: Now that FactoryBoy includes the :class:`factory.Faker` class, most of
+          these built-in fuzzers are deprecated in favor of their
+          `Faker <http://www.joke2k.net/faker/>`_ equivalents. Further
+          discussion here:
+          `<https://github.com/rbarrois/factory_boy/issues/271/>`_
+
 Some tests may be interested in testing with fuzzy, random values.
 
 This is handled by the :mod:`factory.fuzzy` module, which provides a few
