@@ -52,7 +52,26 @@ class FakerTests(unittest.TestCase):
     def test_simple_biased(self):
         self._setup_mock_faker(name="John Doe")
         faker_field = factory.Faker('name')
-        self.assertEqual("John Doe", faker_field.generate({}))
+        self.assertEqual("John Doe", faker_field.generate())
+
+    def test_calling_generate_with_extra_kwargs(self):
+        class StringId(object):
+            def __init__(self, string_id):
+                self.string_id = string_id
+
+        class StringIdFactory(factory.Factory):
+            class Meta:
+                model = StringId
+
+            string_id = factory.Sequence(
+                lambda n: str(
+                    factory.Faker('random_int', min=1).generate(max=100)))
+
+        string_id = StringIdFactory()
+
+        self.assertIsInstance(string_id.string_id, str)
+        self.assertLess(0, int(string_id.string_id))
+        self.assertGreater(101, int(string_id.string_id))
 
     def test_full_factory(self):
         class Profile(object):
