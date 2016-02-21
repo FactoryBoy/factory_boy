@@ -747,8 +747,9 @@ The sequence counter is shared across all :class:`Sequence` attributes of the
 Inheritance
 ~~~~~~~~~~~
 
-When a :class:`Factory` inherits from another :class:`Factory`, their
-sequence counter is shared:
+When a :class:`Factory` inherits from another :class:`Factory` and the `model`
+of the subclass inherits from the `model` of the parent, the sequence counter
+is shared across the :class:`Factory` classes:
 
 .. code-block:: python
 
