@@ -292,6 +292,19 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.three, 5)
         self.assertEqual(obj.four, None)
 
+    def test_build_to_dict(self):
+        # We have a generic factory
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            one = 'one'
+            two = factory.LazyAttribute(lambda o: o.one * 2)
+
+        # Now, get a dict out of it
+        obj = factory.build(dict, FACTORY_CLASS=TestObjectFactory)
+        self.assertEqual({'one': 'one', 'two': 'oneone'}, obj)
+
 
 class UsingFactoryTestCase(unittest.TestCase):
     def test_attribute(self):
