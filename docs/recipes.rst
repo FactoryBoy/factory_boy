@@ -444,3 +444,34 @@ Forcing the initial value for all projects
         >>> Account.objects.create(uid=42, name="Blah")
         >>> AccountFactory.create()  # Sets up the account number based on the latest uid
         <Account uid=43, name=Test>
+
+
+Converting a factory's output to a dict
+---------------------------------------
+
+In order to inject some data to, say, a REST API, it can be useful to fetch the factory's data
+as a dict.
+
+Internally, a factory will:
+
+1. Merge declarations and overrides from all sources (class definition, call parameters, ...)
+2. Resolve them into a dict
+3. Pass that dict as keyword arguments to the model's ``build`` / ``create`` function
+
+
+In order to get a dict, we'll just have to swap the model; the easiest way is to use
+:meth:`factory.build`:
+
+.. code-block:: python
+
+    class UserFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.User
+
+        first_name = factory.Sequence(lambda n: "Agent %03d" % n)
+        username = factory.Faker('username')
+
+.. code-block:: pycon
+
+    >>> factory.build(dict, FACTORY_CLASS=UserFactory)
+    {'first_name': "Agent 001", 'username': 'john_doe'}
