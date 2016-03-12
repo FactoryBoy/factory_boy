@@ -96,22 +96,6 @@ All factories for a Django :class:`~django.db.models.Model` should use the
             [<User: john>, <User: jack>]
 
 
-.. note:: If a :class:`DjangoModelFactory` relates to an :obj:`~django.db.models.Options.abstract`
-          model, be sure to declare the :class:`DjangoModelFactory` as abstract:
-
-          .. code-block:: python
-
-              class MyAbstractModelFactory(factory.django.DjangoModelFactory):
-                  class Meta:
-                      model = models.MyAbstractModel
-                      abstract = True
-
-              class MyConcreteModelFactory(MyAbstractModelFactory):
-                  class Meta:
-                      model = models.MyConcreteModel
-
-          Otherwise, factory_boy will try to get the 'next PK' counter from the abstract model.
-
 
 Extra fields
 """"""""""""
