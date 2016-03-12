@@ -362,6 +362,22 @@ class DjangoAbstractBaseSequenceTestCase(django_test.TestCase):
         obj = ConcreteGrandSonFactory()
         self.assertEqual(1, obj.pk)
 
+    def test_optional_abstract(self):
+        """Users need not describe the factory for an abstract model as abstract."""
+        class AbstractBaseFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.AbstractBase
+
+            foo = factory.Sequence(lambda n: "foo%d" % n)
+
+        class ConcreteSonFactory(AbstractBaseFactory):
+            class Meta:
+                model = models.ConcreteSon
+
+        obj = ConcreteSonFactory()
+        self.assertEqual(1, obj.pk)
+        self.assertEqual("foo0", obj.foo)
+
 
 @unittest.skipIf(django is None, "Django not installed.")
 class DjangoRelatedFieldTestCase(django_test.TestCase):
