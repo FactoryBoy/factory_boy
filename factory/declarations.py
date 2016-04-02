@@ -469,6 +469,22 @@ class ComplexParameter(object):
         return []
 
 
+class Trait(ComplexParameter):
+    """The simplest complex parameter, it enables a bunch of new declarations based on a boolean flag."""
+    def __init__(self, **overrides):
+        self.overrides = overrides
+
+    def compute(self, field_name, declarations):
+        if declarations.get(field_name):
+            return self.overrides
+        else:
+            return {}
+
+    def get_revdeps(self, parameters):
+        """This might alter fields it's injecting."""
+        return [param for param in parameters if param in self.overrides]
+
+
 # Post-generation
 # ===============
 

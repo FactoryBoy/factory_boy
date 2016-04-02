@@ -52,6 +52,7 @@ from .declarations import (
     Sequence,
     LazyAttributeSequence,
     SelfAttribute,
+    Trait,
     ContainerAttribute,
     SubFactory,
     Dict,

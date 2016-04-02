@@ -266,6 +266,61 @@ This is handled by the :data:`~factory.FactoryOptions.inline_args` attribute:
     <MyClass(1, 4, z=3)>
 
 
+Altering a factory's behaviour: parameters and traits
+-----------------------------------------------------
+
+Some classes are better described with a few, simple parameters, that aren't fields on the actual model.
+In that case, use a :attr:`~factory.Factory.Params` declaration:
+
+.. code-block:: python
+
+    class RentalFactory(factory.Factory):
+        class Meta:
+            model = Rental
+
+        begin = factory.fuzzy.FuzzyDate(start_date=datetime.date(2000, 1, 1))
+        end = factory.LazyAttribute(lambda o: o.begin + o.duration)
+
+        class Params:
+            duration = 12
+
+.. code-block:: pycon
+
+    >>> RentalFactory(duration=0)
+    <Rental: 2012-03-03 -> 2012-03-03>
+    >>> RentalFactory(duration=10)
+    <Rental: 2008-12-16 -> 2012-12-26>
+
+
+When many fields should be updated based on a flag, use :class:`Traits <factory.Trait>` instead:
+
+.. code-block:: python
+
+    class OrderFactory(factory.Factory):
+        status = 'pending'
+        shipped_by = None
+        shipped_on = None
+
+        class Meta:
+            model = Order
+
+        class Params:
+            shipped = factory.Trait(
+                status='shipped',
+                shipped_by=factory.SubFactory(EmployeeFactory),
+                shipped_on=factory.LazyFunction(datetime.date.today),
+            )
+
+A trait is toggled by a single boolean value:
+
+.. code-block:: pycon
+
+    >>> OrderFactory()
+    <Order: pending>
+    >>> OrderFactory(shipped=True)
+    <Order: shipped by John Doe on 2016-04-02>
+
+
 Strategies
 ----------
 

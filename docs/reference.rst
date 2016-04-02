@@ -11,6 +11,9 @@ For internals and customization points, please refer to the :doc:`internals` sec
 The :class:`Factory` class
 --------------------------
 
+Meta options
+""""""""""""
+
 .. class:: FactoryOptions
 
     .. versionadded:: 2.4.0
@@ -135,17 +138,30 @@ The :class:`Factory` class
 
 
 
+Attributes and methods
+""""""""""""""""""""""
+
+
 .. class:: Factory
 
 
     **Class-level attributes:**
 
+    .. attribute:: Meta
     .. attribute:: _meta
 
         .. versionadded:: 2.4.0
 
         The :class:`FactoryOptions` instance attached to a :class:`Factory` class is available
         as a :attr:`_meta` attribute.
+
+    .. attribute:: Params
+
+        .. versionadded:: 2.7.0
+
+        The extra parameters attached to a :class:`Factory` are declared through a :attr:`Params`
+        class.
+        See :ref:`the "Parameters" section <parameters>` for more information.
 
     .. attribute:: _options_class
 
@@ -351,6 +367,175 @@ The :class:`Factory` class
 
         This is equivalent to calling :meth:`reset_sequence` on the base
         factory in the chain.
+
+
+.. _parameters:
+
+Parameters
+""""""""""
+
+.. versionadded:: 2.7.0
+
+Some models have many fields that can be summarized by a few parameters; for instance,
+a train with many cars — each complete with serial number, manufacturer, ...;
+or an order that can be pending/shipped/received, with a few fields to describe each step.
+
+When building instances of such models, a couple of parameters can be enough to determine
+all other fields; this is handled by the :class:`~Factory.Params` section of a :class:`Factory` declaration.
+
+
+Simple parameters
+~~~~~~~~~~~~~~~~~
+
+Some factories only need little data:
+
+.. code-block:: python
+
+    class ConferenceFactory(factory.Factory):
+        class Meta:
+            model = Conference
+
+        class Params:
+            duration = 'short' # Or 'long'
+
+        start_date = factory.fuzzy.FuzzyDate()
+        end_date = factory.LazyAttribute(
+            lambda o: o.start_date + datetime.timedelta(days=2 if o.duration == 'short' else 7)
+        )
+        sprints_start = factory.LazyAttribute(
+            lambda o: o.end_date - datetime.timedelta(days=0 if o.duration == 'short' else 1)
+        )
+
+.. code-block:: pycon
+
+    >>> Conference(duration='short')
+    <Conference: DUTH 2015 (2015-11-05 - 2015-11-08, sprints 2015-11-08)>
+    >>> Conference(duration='long')
+    <Conference: DjangoConEU 2016 (2016-03-30 - 2016-04-03, sprints 2016-04-02)>
+
+
+Any simple parameter provided to the :class:`Factory.Params` section is available to the whole factory,
+but not passed to the final class (similar to the :attr:`~FactoryOptions.exclude` behavior).
+
+
+Traits
+~~~~~~
+
+.. class:: Trait(**kwargs)
+
+    .. OHAI VIM**
+
+    .. versionadded:: 2.7.0
+
+    A trait's parameters are the fields it sohuld alter when enabled.
+
+
+For more complex situations, it is helpful to override a few fields at once:
+
+.. code-block:: python
+
+    class OrderFactory(factory.Factory):
+        class Meta:
+            model = Order
+
+        state = 'pending'
+        shipped_on = None
+        shipped_by = None
+
+        class Params:
+            shipped = factory.Trait(
+                state='shipped',
+                shipped_on=datetime.date.today,
+                shipped_by=factory.SubFactory(EmployeeFactory),
+            )
+
+Such a :class:`Trait` is activated or disabled by a single boolean field:
+
+
+.. code-block:: pycon
+
+    >>> OrderFactory()
+    <Order: pending>
+    Order(state='pending')
+    >>> OrderFactory(shipped=True)
+    <Order: shipped by John Doe on 2016-04-02>
+
+
+A :class:`Trait` can be enabled/disabled by a :class:`Factory` subclass:
+
+.. code-block:: python
+
+    class ShippedOrderFactory(OrderFactory):
+        shipped = True
+
+
+Values set in a :class:`Trait` can be overridden by call-time values:
+
+.. code-block:: pycon
+
+    >>> OrderFactory(shipped=True, shipped_on=last_year)
+    <Order: shipped by John Doe on 2015-04-20>
+
+
+:class:`Traits <Trait>` can be chained:
+
+.. code-block:: python
+
+    class OrderFactory(factory.Factory):
+        class Meta:
+            model = Order
+
+        # Can be pending/shipping/received
+        state = 'pending'
+        shipped_on = None
+        shipped_by = None
+        received_on = None
+        received_by = None
+
+        class Params:
+            shipped = factory.Trait(
+                state='shipped',
+                shipped_on=datetime.date.today,
+                shipped_by=factory.SubFactory(EmployeeFactory),
+            )
+            received = factory.Trait(
+                shipped=True,
+                state='received',
+                shipped_on=datetime.date.today - datetime.timedelta(days=4),
+                received_on=datetime.date.today,
+                received_by=factory.SubFactory(CustomerFactory),
+            )
+
+.. code-block:: pycon
+
+    >>> OrderFactory(received=True)
+    <Order: shipped by John Doe on 2016-03-20, received by Joan Smith on 2016-04-02>
+
+
+
+A :class:`Trait` might be overridden in :class:`Factory` subclasses:
+
+.. code-block:: python
+
+    class LocalOrderFactory(OrderFactory):
+
+        class Params:
+            received = factory.Trait(
+                shipped=True,
+                state='received',
+                shipped_on=datetime.date.today - datetime.timedelta(days=1),
+                received_on=datetime.date.today,
+                received_by=factory.SubFactory(CustomerFactory),
+            )
+
+
+.. code-block:: pycon
+
+    >>> LocalOrderFactory(received=True)
+    <Order: shipped by John Doe on 2016-04-01, received by Joan Smith on 2016-04-02>
+
+
+.. note:: When overriding a :class:`Trait`, the whole declaration **MUST** be replaced.
 
 
 .. _strategies:
@@ -1297,51 +1482,6 @@ with the :class:`Dict` and :class:`List` attributes:
 
         The actual factory to use for generating the list can be set as a keyword
         argument, if another type (tuple, set, ...) is required.
-
-
-Parameters
-""""""""""
-
-Some models have many fields that can be summarized by a few parameters; for instance,
-a train with many cars — each complete with serial number, manufacturer, ...;
-or an order that can be pending/shipped/received, with a few fields to describe each step.
-
-When building instances of such models, a couple of parameters can be enough to determine
-all other fields; this is handled by the :class:`~Factory.Params` section of a :class:`Factory` declaration.
-
-
-Simple parameters
-~~~~~~~~~~~~~~~~~
-
-Some factories only need little data:
-
-.. code-block:: python
-
-    class ConferenceFactory(factory.Factory):
-        class Meta:
-            model = Conference
-
-        class Params:
-            duration = 'short' # Or 'long'
-
-        start_date = factory.fuzzy.FuzzyDate()
-        end_date = factory.LazyAttribute(
-            lambda o: o.start_date + datetime.timedelta(days=2 if o.duration == 'short' else 7)
-        )
-        sprints_start = factory.LazyAttribute(
-            lambda o: o.end_date - datetime.timedelta(days=0 if o.duration == 'short' else 1)
-        )
-
-.. code-block:: pycon
-
-    >>> Conference(duration='short')
-    <Conference: DUTH 2015 (2015-11-05 - 2015-11-08, sprints 2015-11-08)>
-    >>> Conference(duration='long')
-    <Conference: DjangoConEU 2016 (2016-03-30 - 2016-04-03, sprints 2016-04-02)>
-
-
-Any simple parameter provided to the :class:`Factory.Params` section is available to the whole factory,
-but not passed to the final class (similar to the :attr:`~FactoryOptions.exclude` behavior).
 
 
 

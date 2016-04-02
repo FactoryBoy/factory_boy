@@ -27,6 +27,7 @@ import sys
 import warnings
 
 import factory
+from factory import errors
 
 from .compat import is_python2, unittest
 from . import tools
@@ -1112,6 +1113,119 @@ class KwargAdjustTestCase(unittest.TestCase):
 
         obj = TestObjectFactory.build()
         self.assertEqual(42, obj.attributes)
+
+
+class TraitTestCase(unittest.TestCase):
+    def test_traits(self):
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            class Params:
+                even = factory.Trait(two=True, four=True)
+                odd = factory.Trait(one=True, three=True, five=True)
+
+        obj1 = TestObjectFactory()
+        self.assertEqual(obj1.as_dict(),
+            dict(one=None, two=None, three=None, four=None, five=None))
+
+        obj2 = TestObjectFactory(even=True)
+        self.assertEqual(obj2.as_dict(),
+            dict(one=None, two=True, three=None, four=True, five=None))
+
+        obj3 = TestObjectFactory(odd=True)
+        self.assertEqual(obj3.as_dict(),
+            dict(one=True, two=None, three=True, four=None, five=True))
+
+        obj4 = TestObjectFactory(even=True, odd=True)
+        self.assertEqual(obj4.as_dict(),
+            dict(one=True, two=True, three=True, four=True, five=True))
+
+        obj5 = TestObjectFactory(odd=True, two=True)
+        self.assertEqual(obj5.as_dict(),
+            dict(one=True, two=True, three=True, four=None, five=True))
+
+    def test_traits_inheritance(self):
+        """A trait can be set in an inherited class."""
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            class Params:
+                even = factory.Trait(two=True, four=True)
+                odd = factory.Trait(one=True, three=True, five=True)
+
+        class EvenObjectFactory(TestObjectFactory):
+            even = True
+
+        # Simple call
+        obj1 = EvenObjectFactory()
+        self.assertEqual(obj1.as_dict(),
+            dict(one=None, two=True, three=None, four=True, five=None))
+
+        # Force-disable it
+        obj2 = EvenObjectFactory(even=False)
+        self.assertEqual(obj2.as_dict(),
+            dict(one=None, two=None, three=None, four=None, five=None))
+
+    def test_traits_override(self):
+        """Override a trait in a subclass."""
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            class Params:
+                even = factory.Trait(two=True, four=True)
+                odd = factory.Trait(one=True, three=True, five=True)
+
+        class WeirdMathFactory(TestObjectFactory):
+            class Params:
+                # Here, one is even.
+                even = factory.Trait(two=True, four=True, one=True)
+
+        obj = WeirdMathFactory(even=True)
+        self.assertEqual(obj.as_dict(),
+            dict(one=True, two=True, three=None, four=True, five=None))
+
+    def test_traits_chaining(self):
+        """Use a trait to enable other traits."""
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            class Params:
+                even = factory.Trait(two=True, four=True)
+                odd = factory.Trait(one=True, three=True, five=True)
+                full = factory.Trait(even=True, odd=True)
+
+        # Setting "full" should enable all fields.
+        obj = TestObjectFactory(full=True)
+        self.assertEqual(obj.as_dict(),
+            dict(one=True, two=True, three=True, four=True, five=True))
+
+        # Does it break usual patterns?
+        obj1 = TestObjectFactory()
+        self.assertEqual(obj1.as_dict(),
+            dict(one=None, two=None, three=None, four=None, five=None))
+
+        obj2 = TestObjectFactory(even=True)
+        self.assertEqual(obj2.as_dict(),
+            dict(one=None, two=True, three=None, four=True, five=None))
+
+        obj3 = TestObjectFactory(odd=True)
+        self.assertEqual(obj3.as_dict(),
+            dict(one=True, two=None, three=True, four=None, five=True))
+
+    def test_prevent_cyclic_traits(self):
+
+        with self.assertRaises(errors.CyclicDefinitionError):
+            class TestObjectFactory(factory.Factory):
+                class Meta:
+                    model = TestObject
+
+                class Params:
+                    a = factory.Trait(b=True, one=True)
+                    b = factory.Trait(a=True, two=True)
 
 
 class SubFactoryTestCase(unittest.TestCase):

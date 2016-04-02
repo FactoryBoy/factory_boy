@@ -292,6 +292,17 @@ The associated object's strategy will be used:
     True
 
 
+ORM Support
+"""""""""""
+
+factory_boy has specific support for a few ORMs, through specific ``factory.Factory`` subclasses:
+
+* Django, with ``factory.django.DjangoModelFactory``
+* Mogo, with ``factory.mogo.MogoFactory``
+* MongoEngine, with ``factory.mongoengine.MongoEngineFactory``
+* SQLAlchemy, with ``factory.alchemy.SQLAlchemyModelFactory``
+
+
 Debugging factory_boy
 """""""""""""""""""""
 
@@ -325,16 +336,6 @@ This will yield messages similar to those (artificial indentation):
       LazyStub: Computed values, got tests.test_using.TestModel2Factory(two=<tests.test_using.TestModel object at 0x1e15410>)
     BaseFactory: Generating tests.test_using.TestModel2Factory(two=<tests.test_using.TestModel object at 0x1e15410>)
 
-
-ORM Support
-"""""""""""
-
-factory_boy has specific support for a few ORMs, through specific ``factory.Factory`` subclasses:
-
-* Django, with ``factory.django.DjangoModelFactory``
-* Mogo, with ``factory.mogo.MogoFactory``
-* MongoEngine, with ``factory.mongoengine.MongoEngineFactory``
-* SQLAlchemy, with ``factory.alchemy.SQLAlchemyModelFactory``
 
 Contributing
 ------------
