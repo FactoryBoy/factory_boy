@@ -25,11 +25,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 from . import declarations
+from . import errors
 from . import utils
-
-
-class CyclicDefinitionError(Exception):
-    """Raised when cyclic definition were found."""
 
 
 class LazyStub(object):
@@ -93,7 +90,7 @@ class LazyStub(object):
         attributes being computed.
         """
         if name in self.__pending:
-            raise CyclicDefinitionError(
+            raise errors.CyclicDefinitionError(
                 "Cyclic lazy attribute definition for %s; cycle found in %r." %
                 (name, self.__pending))
         elif name in self.__values:
@@ -111,7 +108,6 @@ class LazyStub(object):
             raise AttributeError(
                 "The parameter %s is unknown. Evaluated attributes are %r, "
                 "definitions are %r." % (name, self.__values, self.__attrs))
-
 
     def __setattr__(self, name, value):
         """Prevent setting attributes once __init__ is done."""

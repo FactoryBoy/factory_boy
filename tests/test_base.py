@@ -24,6 +24,7 @@ import warnings
 
 from factory import base
 from factory import declarations
+from factory import errors
 
 from .compat import unittest
 
@@ -63,7 +64,7 @@ class TestModel(FakeDjangoModel):
 
 class SafetyTestCase(unittest.TestCase):
     def test_base_factory(self):
-        self.assertRaises(base.FactoryError, base.BaseFactory)
+        self.assertRaises(errors.FactoryError, base.BaseFactory)
 
 
 class AbstractFactoryTestCase(unittest.TestCase):
@@ -88,8 +89,8 @@ class AbstractFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(base.Factory):
             pass
 
-        self.assertRaises(base.FactoryError, TestObjectFactory.build)
-        self.assertRaises(base.FactoryError, TestObjectFactory.create)
+        self.assertRaises(errors.FactoryError, TestObjectFactory.build)
+        self.assertRaises(errors.FactoryError, TestObjectFactory.create)
 
     def test_abstract_factory_not_inherited(self):
         """abstract=True isn't propagated to child classes."""
@@ -110,8 +111,8 @@ class AbstractFactoryTestCase(unittest.TestCase):
                 abstract = False
                 model = None
 
-        self.assertRaises(base.FactoryError, TestObjectFactory.build)
-        self.assertRaises(base.FactoryError, TestObjectFactory.create)
+        self.assertRaises(errors.FactoryError, TestObjectFactory.build)
+        self.assertRaises(errors.FactoryError, TestObjectFactory.create)
 
 
 class OptionsTests(unittest.TestCase):

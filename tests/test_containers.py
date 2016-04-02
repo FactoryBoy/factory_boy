@@ -23,6 +23,7 @@
 from factory import base
 from factory import containers
 from factory import declarations
+from factory import errors
 
 from .compat import unittest
 
@@ -88,7 +89,7 @@ class LazyStubTestCase(unittest.TestCase):
 
         stub = containers.LazyStub({'one': LazyAttr('two'), 'two': LazyAttr('one')})
 
-        self.assertRaises(containers.CyclicDefinitionError, getattr, stub, 'one')
+        self.assertRaises(errors.CyclicDefinitionError, getattr, stub, 'one')
 
     def test_representation(self):
         class RandomObj(object):

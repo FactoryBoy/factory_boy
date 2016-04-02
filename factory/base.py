@@ -24,6 +24,7 @@ import logging
 
 from . import containers
 from . import declarations
+from . import errors
 from . import utils
 
 logger = logging.getLogger('factory.generate')
@@ -33,22 +34,6 @@ BUILD_STRATEGY = 'build'
 CREATE_STRATEGY = 'create'
 STUB_STRATEGY = 'stub'
 
-
-
-class FactoryError(Exception):
-    """Any exception raised by factory_boy."""
-
-
-class AssociatedClassError(FactoryError):
-    """Exception for Factory subclasses lacking Meta.model."""
-
-
-class UnknownStrategy(FactoryError):
-    """Raised when a factory uses an unknown strategy."""
-
-
-class UnsupportedStrategy(FactoryError):
-    """Raised when trying to use a strategy on an incompatible Factory."""
 
 
 # Factory metaclasses
@@ -82,7 +67,7 @@ class FactoryMetaClass(type):
         elif cls._meta.strategy == STUB_STRATEGY:
             return cls.stub(**kwargs)
         else:
-            raise UnknownStrategy('Unknown Meta.strategy: {0}'.format(
+            raise errors.UnknownStrategy('Unknown Meta.strategy: {0}'.format(
                 cls._meta.strategy))
 
     def __new__(mcs, class_name, bases, attrs):
@@ -296,12 +281,12 @@ class BaseFactory(object):
     """Factory base support for sequences, attributes and stubs."""
 
     # Backwards compatibility
-    UnknownStrategy = UnknownStrategy
-    UnsupportedStrategy = UnsupportedStrategy
+    UnknownStrategy = errors.UnknownStrategy
+    UnsupportedStrategy = errors.UnsupportedStrategy
 
     def __new__(cls, *args, **kwargs):
         """Would be called if trying to instantiate the class."""
-        raise FactoryError('You cannot instantiate BaseFactory')
+        raise errors.FactoryError('You cannot instantiate BaseFactory')
 
     _meta = FactoryOptions()
 
@@ -477,7 +462,7 @@ class BaseFactory(object):
             attrs (dict): attributes to use for generating the object
         """
         if cls._meta.abstract:
-            raise FactoryError(
+            raise errors.FactoryError(
                 "Cannot generate instances of abstract factory %(f)s; "
                 "Ensure %(f)s.Meta.model is set and %(f)s.Meta.abstract "
                 "is either not set or False." % dict(f=cls.__name__))
@@ -680,7 +665,7 @@ Factory = FactoryMetaClass('Factory', (BaseFactory,), {
 
 
 # Backwards compatibility
-Factory.AssociatedClassError = AssociatedClassError  # pylint: disable=W0201
+Factory.AssociatedClassError = errors.AssociatedClassError  # pylint: disable=W0201
 
 
 class StubFactory(Factory):
@@ -695,7 +680,7 @@ class StubFactory(Factory):
 
     @classmethod
     def create(cls, **kwargs):
-        raise UnsupportedStrategy()
+        raise errors.UnsupportedStrategy()
 
 
 class BaseDictFactory(Factory):
