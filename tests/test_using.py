@@ -40,6 +40,15 @@ class TestObject(object):
         self.four = four
         self.five = five
 
+    def as_dict(self):
+        return dict(
+            one=self.one,
+            two=self.two,
+            three=self.three,
+            four=self.four,
+            five=self.five,
+        )
+
 
 class FakeModel(object):
     @classmethod

@@ -35,7 +35,7 @@ def extract_dict(prefix, kwargs, pop=True, exclude=()):
 
     Args:
         prefix (str): the prefix to use for lookups
-        kwargs (dict): the dict from which values should be extracted
+        kwargs (dict): the dict from which values should be extracted; WILL BE MODIFIED.
         pop (bool): whether to use pop (True) or get (False)
         exclude (iterable): list of prefixed keys that shouldn't be extracted
 
@@ -68,7 +68,7 @@ def multi_extract_dict(prefixes, kwargs, pop=True, exclude=()):
 
     Args:
         prefixes (str list): the prefixes to use for lookups
-        kwargs (dict): the dict from which values should be extracted
+        kwargs (dict): the dict from which values should be extracted; WILL BE MODIFIED.
         pop (bool): whether to use pop (True) or get (False)
         exclude (iterable): list of prefixed keys that shouldn't be extracted
 

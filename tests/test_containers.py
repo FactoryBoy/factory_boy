@@ -103,97 +103,56 @@ class LazyStubTestCase(unittest.TestCase):
 
 
 class AttributeBuilderTestCase(unittest.TestCase):
-    def test_empty(self):
-        """Tests building attributes from an empty definition."""
+
+    def make_fake_factory(self, decls):
+        class Meta:
+            declarations = decls
+            parameters = {}
+            parameters_dependencies = {}
 
         class FakeFactory(object):
-            @classmethod
-            def declarations(cls, extra):
-                return extra
+            _meta = Meta
 
             @classmethod
             def _generate_next_sequence(cls):
                 return 1
 
+        return FakeFactory
+
+    def test_empty(self):
+        """Tests building attributes from an empty definition."""
+
+        FakeFactory = self.make_fake_factory({})
         ab = containers.AttributeBuilder(FakeFactory)
 
         self.assertEqual({}, ab.build(create=False))
 
     def test_factory_defined(self):
-        class FakeFactory(object):
-            @classmethod
-            def declarations(cls, extra):
-                d = {'one': 1}
-                d.update(extra)
-                return d
-
-            @classmethod
-            def _generate_next_sequence(cls):
-                return 1
-
+        FakeFactory = self.make_fake_factory({'one': 1})
         ab = containers.AttributeBuilder(FakeFactory)
+
         self.assertEqual({'one': 1}, ab.build(create=False))
 
     def test_extended(self):
-        class FakeFactory(object):
-            @classmethod
-            def declarations(cls, extra):
-                d = {'one': 1}
-                d.update(extra)
-                return d
-
-            @classmethod
-            def _generate_next_sequence(cls):
-                return 1
-
+        FakeFactory = self.make_fake_factory({'one': 1})
         ab = containers.AttributeBuilder(FakeFactory, {'two': 2})
         self.assertEqual({'one': 1, 'two': 2}, ab.build(create=False))
 
     def test_overridden(self):
-        class FakeFactory(object):
-            @classmethod
-            def declarations(cls, extra):
-                d = {'one': 1}
-                d.update(extra)
-                return d
-
-            @classmethod
-            def _generate_next_sequence(cls):
-                return 1
-
+        FakeFactory = self.make_fake_factory({'one': 1})
         ab = containers.AttributeBuilder(FakeFactory, {'one': 2})
         self.assertEqual({'one': 2}, ab.build(create=False))
 
     def test_factory_defined_sequence(self):
         seq = declarations.Sequence(lambda n: 'xx%d' % n)
-
-        class FakeFactory(object):
-            @classmethod
-            def declarations(cls, extra):
-                d = {'one': seq}
-                d.update(extra)
-                return d
-
-            @classmethod
-            def _generate_next_sequence(cls):
-                return 1
+        FakeFactory = self.make_fake_factory({'one': seq})
 
         ab = containers.AttributeBuilder(FakeFactory)
         self.assertEqual({'one': 'xx1'}, ab.build(create=False))
 
     def test_additionnal_sequence(self):
         seq = declarations.Sequence(lambda n: 'xx%d' % n)
-
-        class FakeFactory(object):
-            @classmethod
-            def declarations(cls, extra):
-                d = {'one': 1}
-                d.update(extra)
-                return d
-
-            @classmethod
-            def _generate_next_sequence(cls):
-                return 1
+        FakeFactory = self.make_fake_factory({'one': 1})
 
         ab = containers.AttributeBuilder(FakeFactory, extra={'two': seq})
         self.assertEqual({'one': 1, 'two': 'xx1'}, ab.build(create=False))
@@ -201,34 +160,14 @@ class AttributeBuilderTestCase(unittest.TestCase):
     def test_replaced_sequence(self):
         seq = declarations.Sequence(lambda n: 'xx%d' % n)
         seq2 = declarations.Sequence(lambda n: 'yy%d' % n)
-
-        class FakeFactory(object):
-            @classmethod
-            def declarations(cls, extra):
-                d = {'one': seq}
-                d.update(extra)
-                return d
-
-            @classmethod
-            def _generate_next_sequence(cls):
-                return 1
+        FakeFactory = self.make_fake_factory({'one': seq})
 
         ab = containers.AttributeBuilder(FakeFactory, extra={'one': seq2})
         self.assertEqual({'one': 'yy1'}, ab.build(create=False))
 
     def test_lazy_function(self):
         lf = declarations.LazyFunction(int)
-
-        class FakeFactory(object):
-            @classmethod
-            def declarations(cls, extra):
-                d = {'one': 1, 'two': lf}
-                d.update(extra)
-                return d
-
-            @classmethod
-            def _generate_next_sequence(cls):
-                return 1
+        FakeFactory = self.make_fake_factory({'one': 1, 'two': lf})
 
         ab = containers.AttributeBuilder(FakeFactory)
         self.assertEqual({'one': 1, 'two': 0}, ab.build(create=False))
@@ -241,17 +180,7 @@ class AttributeBuilderTestCase(unittest.TestCase):
 
     def test_lazy_attribute(self):
         la = declarations.LazyAttribute(lambda a: a.one * 2)
-
-        class FakeFactory(object):
-            @classmethod
-            def declarations(cls, extra):
-                d = {'one': 1, 'two': la}
-                d.update(extra)
-                return d
-
-            @classmethod
-            def _generate_next_sequence(cls):
-                return 1
+        FakeFactory = self.make_fake_factory({'one': 1, 'two': la})
 
         ab = containers.AttributeBuilder(FakeFactory)
         self.assertEqual({'one': 1, 'two': 2}, ab.build(create=False))
@@ -267,18 +196,12 @@ class AttributeBuilderTestCase(unittest.TestCase):
             pass
 
         sf = declarations.SubFactory(FakeInnerFactory)
-
-        class FakeFactory(object):
-            @classmethod
-            def declarations(cls, extra):
-                d = {'one': sf, 'two': 2}
-                d.update(extra)
-                return d
+        FakeFactory = self.make_fake_factory({'one': sf, 'two': 2})
 
         ab = containers.AttributeBuilder(FakeFactory, {'one__blah': 1, 'two__bar': 2})
         self.assertTrue(ab.has_subfields(sf))
         self.assertEqual(['one'], list(ab._subfields.keys()))
-        self.assertEqual(2, ab._attrs['two__bar'])
+        self.assertEqual(2, ab._declarations['two__bar'])
 
     def test_sub_factory(self):
         pass

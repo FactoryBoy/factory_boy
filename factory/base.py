@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import collections
 import logging
 
 from . import containers
@@ -92,6 +93,7 @@ class FactoryMetaClass(type):
             base_factory = None
 
         attrs_meta = attrs.pop('Meta', None)
+        attrs_params = attrs.pop('Params', None)
 
         base_meta = resolve_attribute('_meta', bases)
         options_class = resolve_attribute('_options_class', bases, FactoryOptions)
@@ -106,6 +108,7 @@ class FactoryMetaClass(type):
             meta=attrs_meta,
             base_meta=base_meta,
             base_factory=base_factory,
+            params=attrs_params,
         )
 
         return new_class
@@ -148,6 +151,8 @@ class FactoryOptions(object):
         self.base_factory = None
         self.declarations = {}
         self.postgen_declarations = {}
+        self.parameters = {}
+        self.parameters_dependencies = {}
 
     def _build_default_options(self):
         """"Provide the default value for all allowed fields.
@@ -186,7 +191,7 @@ class FactoryOptions(object):
                     % (self.factory, ','.join(sorted(meta_attrs.keys()))))
 
     def contribute_to_class(self, factory,
-            meta=None, base_meta=None, base_factory=None):
+            meta=None, base_meta=None, base_factory=None, params=None):
 
         self.factory = factory
         self.base_factory = base_factory
@@ -204,12 +209,20 @@ class FactoryOptions(object):
                 continue
             self.declarations.update(parent._meta.declarations)
             self.postgen_declarations.update(parent._meta.postgen_declarations)
+            self.parameters.update(parent._meta.parameters)
 
         for k, v in vars(self.factory).items():
             if self._is_declaration(k, v):
                 self.declarations[k] = v
             if self._is_postgen_declaration(k, v):
                 self.postgen_declarations[k] = v
+
+        if params is not None:
+            for k, v in vars(params).items():
+                if not k.startswith('_'):
+                    self.parameters[k] = v
+
+        self.parameters_dependencies = self._compute_parameter_dependencies(self.parameters)
 
     def _get_counter_reference(self):
         """Identify which factory should be used for a shared counter."""
@@ -241,6 +254,32 @@ class FactoryOptions(object):
     def _is_postgen_declaration(self, name, value):
         """Captures instances of PostGenerationDeclaration."""
         return isinstance(value, declarations.PostGenerationDeclaration)
+
+    def _compute_parameter_dependencies(self, parameters):
+        """Find out in what order parameters should be called."""
+        # Warning: parameters only provide reverse dependencies; we reverse them into standard dependencies.
+        # deep_revdeps: set of fields a field depend indirectly upon
+        deep_revdeps = collections.defaultdict(set)
+        # Actual, direct dependencies
+        deps = collections.defaultdict(set)
+
+        for name, parameter in parameters.items():
+            if isinstance(parameter, declarations.ComplexParameter):
+                field_revdeps = parameter.get_revdeps(parameters)
+                if not field_revdeps:
+                    continue
+                deep_revdeps[name] = set.union(*(deep_revdeps[dep] for dep in field_revdeps))
+                deep_revdeps[name] |= set(field_revdeps)
+                for dep in field_revdeps:
+                    deps[dep].add(name)
+
+        # Check for cyclical dependencies
+        cyclic = [name for name, field_deps in deep_revdeps.items() if name in field_deps]
+        if cyclic:
+            raise errors.CyclicDefinitionError(
+                    "Cyclic definition detected on %s' Params around %s"
+                    % (self.factory, ', '.join(cyclic)))
+        return deps
 
     def __str__(self):
         return "<%s for %s>" % (self.__class__.__name__, self.factory.__class__.__name__)
@@ -439,6 +478,9 @@ class BaseFactory(object):
         # Remove 'hidden' arguments.
         for arg in cls._meta.exclude:
             del kwargs[arg]
+        # Remove parameters, if defined
+        for arg in cls._meta.parameters:
+            kwargs.pop(arg, None)
 
         # Extract *args from **kwargs
         args = tuple(kwargs.pop(key) for key in cls._meta.inline_args)

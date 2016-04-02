@@ -440,6 +440,39 @@ class List(SubFactory):
             **params)
 
 
+# Parameters
+# ==========
+
+
+class ComplexParameter(object):
+    """A complex parameter, to be used in a Factory.Params section.
+
+    Must implement:
+    - A "compute" function, performing the actual declaration override
+    - Optionally, a get_revdeps() function (to compute other parameters it may alter)
+    """
+
+    def compute(self, field_name, declarations):
+        """Compute the overrides for this parameter.
+
+        Args:
+        - field_name (str): the field this parameter is installed at
+        - declarations (dict): the global factory declarations
+
+        Returns:
+            dict: the declarations to override
+        """
+        raise NotImplementedError()
+
+    def get_revdeps(self, parameters):
+        """Retrieve the list of other parameters modified by this one."""
+        return []
+
+
+# Post-generation
+# ===============
+
+
 class ExtractionContext(object):
     """Private class holding all required context from extraction to postgen."""
     def __init__(self, value=None, did_extract=False, extra=None, for_field=''):

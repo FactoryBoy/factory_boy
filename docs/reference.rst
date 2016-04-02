@@ -1299,6 +1299,52 @@ with the :class:`Dict` and :class:`List` attributes:
         argument, if another type (tuple, set, ...) is required.
 
 
+Parameters
+""""""""""
+
+Some models have many fields that can be summarized by a few parameters; for instance,
+a train with many cars — each complete with serial number, manufacturer, ...;
+or an order that can be pending/shipped/received, with a few fields to describe each step.
+
+When building instances of such models, a couple of parameters can be enough to determine
+all other fields; this is handled by the :class:`~Factory.Params` section of a :class:`Factory` declaration.
+
+
+Simple parameters
+~~~~~~~~~~~~~~~~~
+
+Some factories only need little data:
+
+.. code-block:: python
+
+    class ConferenceFactory(factory.Factory):
+        class Meta:
+            model = Conference
+
+        class Params:
+            duration = 'short' # Or 'long'
+
+        start_date = factory.fuzzy.FuzzyDate()
+        end_date = factory.LazyAttribute(
+            lambda o: o.start_date + datetime.timedelta(days=2 if o.duration == 'short' else 7)
+        )
+        sprints_start = factory.LazyAttribute(
+            lambda o: o.end_date - datetime.timedelta(days=0 if o.duration == 'short' else 1)
+        )
+
+.. code-block:: pycon
+
+    >>> Conference(duration='short')
+    <Conference: DUTH 2015 (2015-11-05 - 2015-11-08, sprints 2015-11-08)>
+    >>> Conference(duration='long')
+    <Conference: DjangoConEU 2016 (2016-03-30 - 2016-04-03, sprints 2016-04-02)>
+
+
+Any simple parameter provided to the :class:`Factory.Params` section is available to the whole factory,
+but not passed to the final class (similar to the :attr:`~FactoryOptions.exclude` behavior).
+
+
+
 Post-generation hooks
 """""""""""""""""""""
 
