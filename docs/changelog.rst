@@ -1,6 +1,21 @@
 ChangeLog
 =========
 
+.. _v2.7.0:
+
+2.7.0 (2016-04-03)
+------------------
+
+*New:*
+
+    - :issue:`267`: Add :class:`factory.LazyFunction` to remove unneeded lambada parameters,
+      thanks to `Hervé Cauwelier <https://github.com/bors-ltd>`_.
+    - :issue:`251`: Add :ref:`parameterized factories <parameters>` and :class:`traits <factory.Trait>`
+
+*Removed:*
+
+    - :issue:`278`: Formally drop support for Python2.6
+
 .. _v2.6.1:
 
 2.6.1 (2016-02-10)
