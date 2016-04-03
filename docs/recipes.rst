@@ -327,7 +327,21 @@ Here, we want:
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory, country=factory.SelfAttribute('..country'))
 
+If the value of a field on the child factory is indirectly derived from a field on the parent factory, you will need to use LazyAttribute and poke the "factory_parent" attribute.
 
+This time, we want the company owner to live in a country neighboring the country of the company:
+
+.. code-block:: python
+
+    class CompanyFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.Company
+
+        name = "ACME, Inc."
+        country = factory.SubFactory(CountryFactory)
+        owner = factory.SubFactory(UserFactory,
+            country=factory.LazyAttribute(lambda o: get_random_neighbor(o.factory_parent.country)))
+ 
 Custom manager methods
 ----------------------
 
