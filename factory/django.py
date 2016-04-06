@@ -29,6 +29,8 @@ import types
 import logging
 import functools
 
+from . import errors
+
 """factory_boy extensions for use with the Django framework."""
 
 try:
@@ -157,6 +159,11 @@ class DjangoModelFactory(base.Factory):
 
         key_fields = {}
         for field in cls._meta.django_get_or_create:
+            if field not in kwargs:
+                raise errors.FactoryError(
+                    "django_get_or_create - "
+                    "Unable to find field named '%s' in model %s" %
+                    (field, model_class.__name__))
             key_fields[field] = kwargs.pop(field)
         key_fields['defaults'] = kwargs
 
