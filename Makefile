@@ -34,6 +34,7 @@ example-test:
 	$(MAKE) -C $(EXAMPLES_DIR) test
 
 lint:
+	check-manifest
 	pylint --rcfile=.pylintrc --report=no $(PACKAGE)/
 
 coverage:

@@ -1,8 +1,12 @@
-include README.rst
+include ChangeLog LICENSE README.rst
 include requirements*.txt
 
-include docs/Makefile
-recursive-include docs *.py *.rst
-include docs/_static/.keep_dir
-prune docs/_build
-recursive-include tests *.py *.data
+graft factory
+
+prune docs
+prune examples
+prune tests
+
+global-exclude .py[cod] __pycache__
+
+exclude Makefile tox.ini .pylintrc
