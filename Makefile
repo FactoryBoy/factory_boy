@@ -6,55 +6,37 @@ EXAMPLES_DIR=examples
 # Use current python binary instead of system default.
 COVERAGE = python $(shell which coverage)
 
-# Dependencies
-DJANGO ?= 1.9
-NEXT_DJANGO = $(shell python -c "v='$(DJANGO)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
-
-ALCHEMY ?= 1.0
-NEXT_ALCHEMY = $(shell python -c "v='$(ALCHEMY)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
-
-MONGOENGINE ?= 0.10
-NEXT_MONGOENGINE = $(shell python -c "v='$(MONGOENGINE)'; parts=v.split('.'); parts[-1]=str(int(parts[-1])+1); print('.'.join(parts))")
-
-REQ_FILE = auto_dev_requirements_django$(DJANGO)_alchemy$(ALCHEMY)_mongoengine$(MONGOENGINE).txt
-EXAMPLES_REQ_FILES = $(shell find $(EXAMPLES_DIR) -name requirements.txt)
-
 all: default
 
 
 default:
 
 
-install-deps: $(REQ_FILE)
-	pip install --upgrade pip setuptools
-	pip install --upgrade -r $<
-	pip freeze
-
-$(REQ_FILE): dev_requirements.txt requirements.txt $(EXAMPLES_REQ_FILES)
-	grep --no-filename "^[^#-]" $^ | egrep -v "^(Django|SQLAlchemy|mongoengine)" > $@
-	echo "Django>=$(DJANGO),<$(NEXT_DJANGO)" >> $@
-	echo "SQLAlchemy>=$(ALCHEMY),<$(NEXT_ALCHEMY)" >> $@
-	echo "mongoengine>=$(MONGOENGINE),<$(NEXT_MONGOENGINE)" >> $@
-
-
 clean:
 	find . -type f -name '*.pyc' -delete
 	find . -type f -path '*/__pycache__/*' -delete
 	find . -type d -empty -delete
-	@rm -f auto_dev_requirements_*
 	@rm -rf tmp_test/
 
 
-test: install-deps example-test
-	python -W default setup.py test
+install-deps:
+	pip install --upgrade pip setuptools
+	pip install --upgrade -r requirements_dev.txt
+	pip freeze
+
+testall:
+	tox
+
+test:
+	python -Wdefault -m unittest $(TESTS_DIR)
 
 example-test:
 	$(MAKE) -C $(EXAMPLES_DIR) test
 
-pylint:
+lint:
 	pylint --rcfile=.pylintrc --report=no $(PACKAGE)/
 
-coverage: install-deps
+coverage:
 	$(COVERAGE) erase
 	$(COVERAGE) run "--include=$(PACKAGE)/*.py,$(TESTS_DIR)/*.py" --branch setup.py test
 	$(COVERAGE) report "--include=$(PACKAGE)/*.py,$(TESTS_DIR)/*.py"

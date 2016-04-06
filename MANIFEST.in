@@ -1,4 +1,6 @@
 include README.rst
+include requirements*.txt
+
 include docs/Makefile
 recursive-include docs *.py *.rst
 include docs/_static/.keep_dir
