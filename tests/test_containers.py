@@ -102,7 +102,7 @@ class LazyStubTestCase(unittest.TestCase):
             def evaluate(self, obj, container=None):
                 try:
                     return super(LazyAttrDefault, self).evaluate(obj, container)
-                except containers.CyclicDefinitionError:
+                except errors.CyclicDefinitionError:
                     return self.defvalue
 
         stub = containers.LazyStub({
