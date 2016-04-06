@@ -1268,6 +1268,26 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual('x0x', test_model.two.one)
         self.assertEqual('x0xx0x', test_model.two.two)
 
+    def test_sub_factory_with_lazy_fields_access_factory_parent(self):
+        class TestModel2(FakeModel):
+            pass
+
+        class TestModelFactory(FakeModelFactory):
+            class Meta:
+                model = TestModel
+            one = 3
+
+        class TestModel2Factory(FakeModelFactory):
+            class Meta:
+                model = TestModel2
+            one = 'parent'
+            child = factory.SubFactory(TestModelFactory,
+                one=factory.LazyAttribute(lambda o: '%s child' % o.factory_parent.one),
+            )
+
+        test_model = TestModel2Factory()
+        self.assertEqual('parent child', test_model.child.one)
+
     def test_sub_factory_and_sequence(self):
         class TestObject(object):
             def __init__(self, **kwargs):

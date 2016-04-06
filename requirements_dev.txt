@@ -1,4 +1,5 @@
--r requirements.txt
+-e .
+-r requirements_test.txt
 -r examples/requirements.txt
 
 coverage
@@ -6,8 +7,8 @@ Django
 Pillow
 SQLAlchemy
 mongoengine
-mock
 wheel
+tox
 
 Sphinx
 sphinx_rtd_theme
