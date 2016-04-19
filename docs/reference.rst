@@ -111,7 +111,7 @@ Meta options
 
     .. attribute:: rename
 
-        Sometimes, a model expect a field with a name already used by one
+        Sometimes, a model expects a field with a name already used by one
         of :class:`Factory`'s methods.
 
         In this case, the :attr:`rename` attributes allows to define renaming
