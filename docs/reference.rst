@@ -111,7 +111,7 @@ Meta options
 
     .. attribute:: rename
 
-        Sometimes, a model expect a field with a name already used by one
+        Sometimes, a model expects a field with a name already used by one
         of :class:`Factory`'s methods.
 
         In this case, the :attr:`rename` attributes allows to define renaming
@@ -427,7 +427,7 @@ Traits
 
     .. versionadded:: 2.7.0
 
-    A trait's parameters are the fields it sohuld alter when enabled.
+    A trait's parameters are the fields it should alter when enabled.
 
 
 For more complex situations, it is helpful to override a few fields at once:

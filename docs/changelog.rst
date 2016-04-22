@@ -3,14 +3,15 @@ ChangeLog
 
 .. _v2.7.0:
 
-2.7.0 (2016-04-03)
+2.7.0 (2016-04-19)
 ------------------
 
 *New:*
 
-    - :issue:`267`: Add :class:`factory.LazyFunction` to remove unneeded lambada parameters,
+    - :issue:`267`: Add :class:`factory.LazyFunction` to remove unneeded lambda parameters,
       thanks to `Hervé Cauwelier <https://github.com/bors-ltd>`_.
     - :issue:`251`: Add :ref:`parameterized factories <parameters>` and :class:`traits <factory.Trait>`
+    - :issue:`256`, :issue:`292`: Improve error messages in corner cases
 
 *Removed:*
 
