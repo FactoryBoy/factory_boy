@@ -101,6 +101,14 @@ if django is not None:
         foo = factory.Sequence(lambda n: "foo%d" % n)
 
 
+    class StandardFactoryGetOrCreate(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.StandardModel
+            django_get_or_create = ('foo',)
+
+        pk = None
+
+
     class StandardFactoryWithPKField(factory.django.DjangoModelFactory):
         class Meta:
             model = models.StandardModel
@@ -224,6 +232,29 @@ class DjangoPkSequenceTestCase(django_test.TestCase):
         self.assertEqual('foo0', std2.foo)
         self.assertEqual(11, std2.pk)
 
+
+@unittest.skipIf(django is None, "Django not installed.")
+class DjangoGetOrCreateTestCase(django_test.TestCase):
+    def setUp(self):
+        super(DjangoGetOrCreateTestCase, self).setUp()
+
+    def test_foo_set(self):
+        std = StandardFactoryGetOrCreate(foo='foofoo')
+        self.assertIsNotNone(std.pk)
+        self.assertEqual('foofoo', std.foo)
+
+    def test_foo_not_set(self):
+        with self.assertRaises(factory.FactoryError):
+            StandardFactoryGetOrCreate()
+
+    def test_duplicate(self):
+        std1 = StandardFactoryGetOrCreate(foo='foofoo')
+        self.assertIsNotNone(std1.pk)
+        self.assertEqual('foofoo', std1.foo)
+        std2 = StandardFactoryGetOrCreate(foo='foofoo')
+        self.assertIsNotNone(std2.pk)
+        self.assertEqual('foofoo', std2.foo)
+        self.assertEqual(std1.pk, std2.pk)
 
 @unittest.skipIf(django is None, "Django not installed.")
 class DjangoPkForceTestCase(django_test.TestCase):
