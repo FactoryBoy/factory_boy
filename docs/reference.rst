@@ -445,7 +445,7 @@ For more complex situations, it is helpful to override a few fields at once:
         class Params:
             shipped = factory.Trait(
                 state='shipped',
-                shipped_on=datetime.date.today,
+                shipped_on=datetime.date.today(),
                 shipped_by=factory.SubFactory(EmployeeFactory),
             )
 
