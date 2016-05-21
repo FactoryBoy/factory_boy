@@ -24,19 +24,18 @@
 """Compatibility tools"""
 
 import datetime
-import decimal
 import sys
 
 PY2 = (sys.version_info[0] == 2)
 
 if PY2:  # pragma: no cover
     def is_string(obj):
-        return isinstance(obj, (str, unicode))
+        return isinstance(obj, (str, unicode))  # noqa
 
-    from StringIO import StringIO as BytesIO
+    from StringIO import StringIO as BytesIO  # noqa
 
     def force_text(str_or_unicode):
-        if isinstance(str_or_unicode, unicode):
+        if isinstance(str_or_unicode, unicode):  # noqa
             return str_or_unicode
         return str_or_unicode.decode('utf-8')
 
@@ -44,7 +43,7 @@ else:  # pragma: no cover
     def is_string(obj):
         return isinstance(obj, str)
 
-    from io import BytesIO
+    from io import BytesIO  # noqa
 
     def force_text(text):
         return text

@@ -24,11 +24,11 @@ from __future__ import unicode_literals
 
 import logging
 
-logger = logging.getLogger(__name__)
-
 from . import declarations
 from . import errors
 from . import utils
+
+logger = logging.getLogger(__name__)
 
 
 class LazyStub(object):
@@ -75,12 +75,15 @@ class LazyStub(object):
             dict: map of attribute name => computed value
         """
         res = {}
-        logger.debug("LazyStub: Computing values for %s(%s)",
+        logger.debug(
+            "LazyStub: Computing values for %s(%s)",
             self.__log_ctx, utils.log_pprint(kwargs=self.__attrs),
         )
         for attr in self.__attrs:
             res[attr] = getattr(self, attr)
-        logger.debug("LazyStub: Computed values, got %s(%s)",
+
+        logger.debug(
+            "LazyStub: Computed values, got %s(%s)",
             self.__log_ctx, utils.log_pprint(kwargs=res),
         )
         return res
@@ -217,10 +220,11 @@ class DeclarationWrapper(LazyValue):
             containers (object list): the chain of containers of the object
                 being built, its immediate holder being first.
         """
-        return self.declaration.evaluate(self.sequence, obj,
-                create=self.create,
-                extra=self.extra,
-                containers=containers,
+        return self.declaration.evaluate(
+            self.sequence, obj,
+            create=self.create,
+            extra=self.extra,
+            containers=containers,
         )
 
     def __repr__(self):
@@ -306,14 +310,16 @@ class AttributeBuilder(object):
         wrapped_attrs = {}
         for k, v in self._declarations.items():
             if isinstance(v, declarations.OrderedDeclaration):
-                v = DeclarationWrapper(v,
+                v = DeclarationWrapper(
+                    v,
                     sequence=sequence,
                     create=create,
                     extra=self._subfields.get(k, {}),
                 )
             wrapped_attrs[k] = v
 
-        stub = LazyStub(wrapped_attrs, containers=self._containers,
+        stub = LazyStub(
+            wrapped_attrs, containers=self._containers,
             model_class=self.factory, log_ctx=self._log_ctx)
         return stub.__fill__()
 

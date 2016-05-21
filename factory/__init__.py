@@ -20,10 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__version__ = '2.7.0'
-__author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
-
-
 from .base import (
     Factory,
     BaseDictFactory,
@@ -92,6 +88,10 @@ from . import django
 from . import mogo
 from . import mongoengine
 
+
+__version__ = '2.7.0'
+__author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
+
+
 MogoFactory = mogo.MogoFactory
 DjangoModelFactory = django.DjangoModelFactory
-

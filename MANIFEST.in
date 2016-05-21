@@ -9,4 +9,4 @@ prune tests
 
 global-exclude .py[cod] __pycache__
 
-exclude Makefile tox.ini .pylintrc
+exclude Makefile tox.ini .flake8

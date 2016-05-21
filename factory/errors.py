@@ -38,5 +38,3 @@ class UnsupportedStrategy(FactoryError):
 
 class CyclicDefinitionError(FactoryError):
     """Raised when a cyclical declaration occurs."""
-
-

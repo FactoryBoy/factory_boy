@@ -5,6 +5,7 @@ EXAMPLES_DIR=examples
 
 # Use current python binary instead of system default.
 COVERAGE = python $(shell which coverage)
+FLAKE8 = flake8
 
 all: default
 
@@ -33,9 +34,13 @@ test:
 example-test:
 	$(MAKE) -C $(EXAMPLES_DIR) test
 
+
+
+# Note: we run the linter in two runs, because our __init__.py files has specific warnings we want to exclude
 lint:
 	check-manifest
-	pylint --rcfile=.pylintrc --report=no $(PACKAGE)/
+	$(FLAKE8) --config .flake8 --exclude $(PACKAGE)/__init__.py $(PACKAGE)
+	$(FLAKE8) --config .flake8 --ignore F401 $(PACKAGE)/__init__.py
 
 coverage:
 	$(COVERAGE) erase
@@ -47,4 +52,4 @@ doc:
 	$(MAKE) -C $(DOC_DIR) html
 
 
-.PHONY: all default clean coverage doc install-deps pylint test
+.PHONY: all default clean coverage doc install-deps lint test

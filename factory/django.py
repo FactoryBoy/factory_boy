@@ -21,17 +21,14 @@
 # THE SOFTWARE.
 
 
+"""factory_boy extensions for use with the Django framework."""
+
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import os
-import types
 import logging
 import functools
-
-from . import errors
-
-"""factory_boy extensions for use with the Django framework."""
 
 try:
     import django
@@ -44,6 +41,7 @@ except ImportError as e:  # pragma: no cover
 
 from . import base
 from . import declarations
+from . import errors
 from .compat import BytesIO, is_string
 
 logger = logging.getLogger('factory.generate')
@@ -59,6 +57,7 @@ def require_django():
 
 
 _LAZY_LOADS = {}
+
 
 def get_model(app, model):
     """Wrapper around django's get_model."""
@@ -76,16 +75,16 @@ def _lazy_load_get_model():
     the settings haven't been configured yet.
     """
     if django is None:
-        def get_model(app, model):
+        def _get_model(app, model):
             raise import_failure
 
     elif django.VERSION[:2] < (1, 7):
-        from django.db.models.loading import get_model
+        from django.db.models.loading import get_model as _get_model
 
     else:
         from django import apps as django_apps
-        get_model = django_apps.apps.get_model
-    _LAZY_LOADS['get_model'] = get_model
+        _get_model = django_apps.apps.get_model
+    _LAZY_LOADS['get_model'] = _get_model
 
 
 class DjangoOptions(base.FactoryOptions):
@@ -118,6 +117,7 @@ class DjangoModelFactory(base.Factory):
     """
 
     _options_class = DjangoOptions
+
     class Meta:
         abstract = True  # Optional, but explicit.
 
@@ -133,8 +133,8 @@ class DjangoModelFactory(base.Factory):
     @classmethod
     def _get_manager(cls, model_class):
         if model_class is None:
-            raise base.AssociatedClassError("No model set on %s.%s.Meta"
-                    % (cls.__module__, cls.__name__))
+            raise errors.AssociatedClassError(
+                "No model set on %s.%s.Meta" % (cls.__module__, cls.__name__))
 
         try:
             manager = model_class.objects
@@ -338,4 +338,3 @@ class mute_signals(object):
                 with self.copy():
                     return callable_obj(*args, **kwargs)
             return wrapper
-

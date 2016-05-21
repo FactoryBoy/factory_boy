@@ -21,11 +21,10 @@
 # THE SOFTWARE.
 
 
-from __future__ import unicode_literals
-
-
 """factory_boy extensions for use with the mogo library (pymongo wrapper)."""
 
+
+from __future__ import unicode_literals
 
 from . import base
 

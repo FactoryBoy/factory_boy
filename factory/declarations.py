@@ -140,7 +140,7 @@ class SelfAttribute(OrderedDeclaration):
 
     def __init__(self, attribute_name, default=_UNSPECIFIED, *args, **kwargs):
         super(SelfAttribute, self).__init__(*args, **kwargs)
-        depth = len(attribute_name) -  len(attribute_name.lstrip('.'))
+        depth = len(attribute_name) - len(attribute_name.lstrip('.'))
         attribute_name = attribute_name[depth:]
 
         self.depth = depth
@@ -213,7 +213,7 @@ class Sequence(OrderedDeclaration):
         type (function): A function converting an integer into the expected kind
             of counter for the 'function' attribute.
     """
-    def __init__(self, function, type=int):  # pylint: disable=W0622
+    def __init__(self, function, type=int):
         super(Sequence, self).__init__()
         self.function = function
         self.type = type
@@ -233,8 +233,9 @@ class LazyAttributeSequence(Sequence):
             of counter for the 'function' attribute.
     """
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
-        logger.debug("LazyAttributeSequence: Computing next value of %r for seq=%s, obj=%s",
-                self.function, sequence, utils.log_repr(obj))
+        logger.debug(
+            "LazyAttributeSequence: Computing next value of %r for seq=%s, obj=%s",
+            self.function, sequence, utils.log_repr(obj))
         return self.function(obj, self.type(sequence))
 
 
@@ -353,9 +354,9 @@ class _FactoryWrapper(object):
         else:
             if not (compat.is_string(factory_or_path) and '.' in factory_or_path):
                 raise ValueError(
-                        "A factory= argument must receive either a class "
-                        "or the fully qualified path to a Factory subclass; got "
-                        "%r instead." % factory_or_path)
+                    "A factory= argument must receive either a class "
+                    "or the fully qualified path to a Factory subclass; got "
+                    "%r instead." % factory_or_path)
             self.module, self.name = factory_or_path.rsplit('.', 1)
 
     def get(self):
@@ -402,7 +403,8 @@ class SubFactory(ParameteredAttribute):
                 override the wrapped factory's defaults
         """
         subfactory = self.get_factory()
-        logger.debug("SubFactory: Instantiating %s.%s(%s), create=%r",
+        logger.debug(
+            "SubFactory: Instantiating %s.%s(%s), create=%r",
             subfactory.__module__, subfactory.__name__,
             utils.log_pprint(kwargs=params),
             create,
@@ -419,7 +421,8 @@ class Dict(SubFactory):
     def generate(self, sequence, obj, create, params):
         dict_factory = self.get_factory()
         logger.debug("Dict: Building dict(%s)", utils.log_pprint(kwargs=params))
-        return dict_factory.simple_generate(create,
+        return dict_factory.simple_generate(
+            create,
             __sequence=sequence,
             **params)
 
@@ -433,10 +436,12 @@ class List(SubFactory):
 
     def generate(self, sequence, obj, create, params):
         list_factory = self.get_factory()
-        logger.debug('List: Building list(%s)',
+        logger.debug(
+            "List: Building list(%s)",
             utils.log_pprint(args=[v for _i, v in sorted(params.items())]),
         )
-        return list_factory.simple_generate(create,
+        return list_factory.simple_generate(
+            create,
             __sequence=sequence,
             **params)
 
@@ -551,7 +556,8 @@ class PostGeneration(PostGenerationDeclaration):
         self.function = function
 
     def call(self, obj, create, extraction_context):
-        logger.debug('PostGeneration: Calling %s.%s(%s)',
+        logger.debug(
+            "PostGeneration: Calling %s.%s(%s)",
             self.function.__module__,
             self.function.__name__,
             utils.log_pprint(
@@ -559,7 +565,8 @@ class PostGeneration(PostGenerationDeclaration):
                 extraction_context.extra,
             ),
         )
-        return self.function(obj, create,
+        return self.function(
+            obj, create,
             extraction_context.value, **extraction_context.extra)
 
 
@@ -589,10 +596,10 @@ class RelatedFactory(PostGenerationDeclaration):
 
         if extraction_context.did_extract:
             # The user passed in a custom value
-            logger.debug('RelatedFactory: Using provided %s instead of '
-                    'generating %s.%s.',
-                    utils.log_repr(extraction_context.value),
-                    factory.__module__, factory.__name__,
+            logger.debug(
+                "RelatedFactory: Using provided %s instead of generating %s.%s.",
+                utils.log_repr(extraction_context.value),
+                factory.__module__, factory.__name__,
             )
             return extraction_context.value
 
@@ -601,7 +608,8 @@ class RelatedFactory(PostGenerationDeclaration):
         if self.name:
             passed_kwargs[self.name] = obj
 
-        logger.debug('RelatedFactory: Generating %s.%s(%s)',
+        logger.debug(
+            "RelatedFactory: Generating %s.%s(%s)",
             factory.__module__,
             factory.__name__,
             utils.log_pprint((create,), passed_kwargs),
@@ -641,7 +649,8 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
         passed_kwargs = dict(self.method_kwargs)
         passed_kwargs.update(extraction_context.extra)
         method = getattr(obj, self.method_name)
-        logger.debug('PostGenerationMethodCall: Calling %s.%s(%s)',
+        logger.debug(
+            "PostGenerationMethodCall: Calling %s.%s(%s)",
             utils.log_repr(obj),
             self.method_name,
             utils.log_pprint(passed_args, passed_kwargs),

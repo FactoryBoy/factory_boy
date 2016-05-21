@@ -38,8 +38,8 @@ CREATE_STRATEGY = 'create'
 STUB_STRATEGY = 'stub'
 
 
-
 # Factory metaclasses
+
 
 def get_factory_bases(bases):
     """Retrieve all FactoryMetaClass-derived bases from a list."""
@@ -106,7 +106,8 @@ class FactoryMetaClass(type):
         new_class = super(FactoryMetaClass, mcs).__new__(
             mcs, class_name, bases, attrs)
 
-        meta.contribute_to_class(new_class,
+        meta.contribute_to_class(
+            new_class,
             meta=attrs_meta,
             base_meta=base_meta,
             base_factory=base_factory,
@@ -176,7 +177,8 @@ class FactoryOptions(object):
         if meta is None:
             meta_attrs = {}
         else:
-            meta_attrs = dict((k, v)
+            meta_attrs = dict(
+                (k, v)
                 for (k, v) in vars(meta).items()
                 if not k.startswith('_')
             )
@@ -189,11 +191,11 @@ class FactoryOptions(object):
 
         if meta_attrs:
             # Some attributes in the Meta aren't allowed here
-            raise TypeError("'class Meta' for %r got unknown attribute(s) %s"
-                    % (self.factory, ','.join(sorted(meta_attrs.keys()))))
+            raise TypeError(
+                "'class Meta' for %r got unknown attribute(s) %s"
+                % (self.factory, ','.join(sorted(meta_attrs.keys()))))
 
-    def contribute_to_class(self, factory,
-            meta=None, base_meta=None, base_factory=None, params=None):
+    def contribute_to_class(self, factory, meta=None, base_meta=None, base_factory=None, params=None):
 
         self.factory = factory
         self.base_factory = base_factory
@@ -279,8 +281,8 @@ class FactoryOptions(object):
         cyclic = [name for name, field_deps in deep_revdeps.items() if name in field_deps]
         if cyclic:
             raise errors.CyclicDefinitionError(
-                    "Cyclic definition detected on %s' Params around %s"
-                    % (self.factory, ', '.join(cyclic)))
+                "Cyclic definition detected on %s' Params around %s"
+                % (self.factory, ', '.join(cyclic)))
         return deps
 
     def __str__(self):
@@ -417,7 +419,8 @@ class BaseFactory(object):
         if extra:
             force_sequence = extra.pop('__sequence', None)
         log_ctx = '%s.%s' % (cls.__module__, cls.__name__)
-        logger.debug('BaseFactory: Preparing %s.%s(extra=%s)',
+        logger.debug(
+            "BaseFactory: Preparing %s.%s(extra=%s)",
             cls.__module__,
             cls.__name__,
             utils.log_repr(extra),
@@ -487,7 +490,8 @@ class BaseFactory(object):
         # Extract *args from **kwargs
         args = tuple(kwargs.pop(key) for key in cls._meta.inline_args)
 
-        logger.debug('BaseFactory: Generating %s.%s(%s)',
+        logger.debug(
+            "BaseFactory: Generating %s.%s(%s)",
             cls.__module__,
             cls.__name__,
             utils.log_pprint(args, kwargs),
@@ -711,7 +715,7 @@ Factory = FactoryMetaClass(str('Factory'), (BaseFactory,), {
 
 
 # Backwards compatibility
-Factory.AssociatedClassError = errors.AssociatedClassError  # pylint: disable=W0201
+Factory.AssociatedClassError = errors.AssociatedClassError
 
 
 class StubFactory(Factory):

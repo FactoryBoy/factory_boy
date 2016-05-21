@@ -1,0 +1,4 @@
+[flake8]
+# Ignore "and" at start of line.
+ignore = W503
+max-line-length = 120

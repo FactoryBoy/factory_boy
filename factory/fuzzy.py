@@ -99,8 +99,7 @@ class FuzzyText(BaseFuzzyAttribute):
     not important.
     """
 
-    def __init__(self, prefix='', length=12, suffix='',
-            chars=string.ascii_letters, **kwargs):
+    def __init__(self, prefix='', length=12, suffix='', chars=string.ascii_letters, **kwargs):
         super(FuzzyText, self).__init__(**kwargs)
         self.prefix = prefix
         self.suffix = suffix
@@ -114,7 +113,7 @@ class FuzzyText(BaseFuzzyAttribute):
 
 class FuzzyChoice(BaseFuzzyAttribute):
     """Handles fuzzy choice of an attribute.
-    
+
     Args:
         choices (iterable): An iterable yielding options; will only be unrolled
             on the first call.

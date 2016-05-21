@@ -30,6 +30,7 @@ from . import compat
 #: (subfactory_name, subfactory_field) tuple.
 ATTR_SPLITTER = '__'
 
+
 def extract_dict(prefix, kwargs, pop=True, exclude=()):
     """Extracts all values beginning with a given prefix from a dict.
 
@@ -103,11 +104,9 @@ def import_object(module_name, attribute_name):
 
 def _safe_repr(obj):
     try:
-        obj_repr = repr(obj)
+        return log_repr(obj)
     except Exception:
         return '<bad_repr object at %s>' % id(obj)
-
-    return log_repr(obj)
 
 
 class log_pprint(object):

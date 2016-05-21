@@ -43,6 +43,7 @@ import faker.config
 
 from . import declarations
 
+
 class Faker(declarations.OrderedDeclaration):
     """Wrapper for 'faker' values.
 
@@ -66,8 +67,8 @@ class Faker(declarations.OrderedDeclaration):
         kwargs = {}
         kwargs.update(self.provider_kwargs)
         kwargs.update(extra_kwargs)
-        faker = self._get_faker(self.locale)
-        return faker.format(self.provider, **kwargs)
+        subfaker = self._get_faker(self.locale)
+        return subfaker.format(self.provider, **kwargs)
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
         return self.generate(extra or {})
