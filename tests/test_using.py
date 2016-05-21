@@ -2109,6 +2109,40 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(1, obj.related.one)
         self.assertEqual(4, obj.related.two)
 
+    def test_parameterized_related_factory(self):
+        class TestRelatedObject(object):
+            def __init__(self, obj=None, one=None, two=None):
+                obj.related = self
+                self.one = one
+                self.two = two
+                self.three = obj
+
+        class TestRelatedObjectFactory(factory.Factory):
+            class Meta:
+                model = TestRelatedObject
+            one = 1
+            two = factory.LazyAttribute(lambda o: o.one + 1)
+
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            class Params:
+                blah = 1
+
+            one = 3
+            two = 2
+            three = factory.RelatedFactory(TestRelatedObjectFactory, 'obj')
+            three__two = factory.SelfAttribute('blah')
+
+        obj = TestObjectFactory.build()
+        self.assertEqual(3, obj.one)
+        self.assertEqual(2, obj.two)
+        self.assertEqual(1, obj.related.one)
+        self.assertEqual(1, obj.related.two)
+
+        obj2 = TestObjectFactory.build(blah='blah')
+        self.assertEqual('blah', obj2.related.two)
 
 
 class RelatedFactoryExtractionTestCase(unittest.TestCase):
