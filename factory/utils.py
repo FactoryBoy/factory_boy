@@ -24,6 +24,8 @@ from __future__ import unicode_literals
 
 import collections
 
+from . import compat
+
 #: String for splitting an attribute name into a
 #: (subfactory_name, subfactory_field) tuple.
 ATTR_SPLITTER = '__'
@@ -104,10 +106,7 @@ def _safe_repr(obj):
     except Exception:
         return '<bad_repr object at %s>' % id(obj)
 
-    try:  # Convert to "text type" (= unicode)
-        return '%s' % obj_repr
-    except UnicodeError:  # non-ascii bytes repr on Py2
-        return obj_repr.decode('utf-8')
+    return log_repr(obj)
 
 
 class log_pprint(object):
@@ -133,6 +132,14 @@ class log_pprint(object):
                 for key, value in self.kwargs.items()
             ]
         )
+
+
+def log_repr(obj):
+    """Generate a text-compatible repr of an object.
+
+    Some projects have a tendency to generate bytes-style repr in Python2.
+    """
+    return compat.force_text(repr(obj))
 
 
 class ResetableIterator(object):

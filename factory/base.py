@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import unicode_literals
+
 import collections
 import logging
 
@@ -377,7 +379,7 @@ class BaseFactory(object):
         if cls._counter is None or cls._counter.for_class != cls:
             first_seq = cls._setup_next_sequence()
             cls._counter = _Counter(for_class=cls, seq=first_seq)
-            logger.debug("%r: Setting up next sequence (%d)", cls, first_seq)
+            logger.debug("%s: Setting up next sequence (%d)", cls, first_seq)
 
     @classmethod
     def _generate_next_sequence(cls):
@@ -415,10 +417,10 @@ class BaseFactory(object):
         if extra:
             force_sequence = extra.pop('__sequence', None)
         log_ctx = '%s.%s' % (cls.__module__, cls.__name__)
-        logger.debug('BaseFactory: Preparing %s.%s(extra=%r)',
+        logger.debug('BaseFactory: Preparing %s.%s(extra=%s)',
             cls.__module__,
             cls.__name__,
-            extra,
+            utils.log_repr(extra),
         )
         return containers.AttributeBuilder(cls, extra, log_ctx=log_ctx).build(
             create=create,

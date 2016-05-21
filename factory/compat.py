@@ -35,11 +35,19 @@ if PY2:  # pragma: no cover
 
     from StringIO import StringIO as BytesIO
 
+    def force_text(str_or_unicode):
+        if isinstance(str_or_unicode, unicode):
+            return str_or_unicode
+        return str_or_unicode.decode('utf-8')
+
 else:  # pragma: no cover
     def is_string(obj):
         return isinstance(obj, str)
 
     from io import BytesIO
+
+    def force_text(text):
+        return text
 
 
 try:  # pragma: no cover

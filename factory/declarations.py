@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import unicode_literals
 
 import itertools
 import logging
@@ -70,7 +71,7 @@ class LazyFunction(OrderedDeclaration):
         self.function = function
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
-        logger.debug("LazyFunction: Evaluating %r on %r", self.function, obj)
+        logger.debug("LazyFunction: Evaluating %s on %s", utils.log_repr(self.function), utils.log_repr(obj))
         return self.function()
 
 
@@ -87,7 +88,7 @@ class LazyAttribute(OrderedDeclaration):
         self.function = function
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
-        logger.debug("LazyAttribute: Evaluating %r on %r", self.function, obj)
+        logger.debug("LazyAttribute: Evaluating %s on %s", utils.log_repr(self.function), utils.log_repr(obj))
         return self.function(obj)
 
 
@@ -153,7 +154,7 @@ class SelfAttribute(OrderedDeclaration):
         else:
             target = obj
 
-        logger.debug("SelfAttribute: Picking attribute %r on %r", self.attribute_name, target)
+        logger.debug("SelfAttribute: Picking attribute %r on %s", self.attribute_name, utils.log_repr(target))
         return deepgetattr(target, self.attribute_name, self.default)
 
     def __repr__(self):
@@ -190,7 +191,7 @@ class Iterator(OrderedDeclaration):
         if self.iterator is None:
             self.iterator = self.iterator_builder()
 
-        logger.debug("Iterator: Fetching next value from %r", self.iterator)
+        logger.debug("Iterator: Fetching next value from %s", utils.log_repr(self.iterator))
         value = next(iter(self.iterator))
         if self.getter is None:
             return value
@@ -232,8 +233,8 @@ class LazyAttributeSequence(Sequence):
             of counter for the 'function' attribute.
     """
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
-        logger.debug("LazyAttributeSequence: Computing next value of %r for seq=%s, obj=%r",
-                self.function, sequence, obj)
+        logger.debug("LazyAttributeSequence: Computing next value of %r for seq=%s, obj=%s",
+                self.function, sequence, utils.log_repr(obj))
         return self.function(obj, self.type(sequence))
 
 
@@ -588,9 +589,9 @@ class RelatedFactory(PostGenerationDeclaration):
 
         if extraction_context.did_extract:
             # The user passed in a custom value
-            logger.debug('RelatedFactory: Using provided %r instead of '
+            logger.debug('RelatedFactory: Using provided %s instead of '
                     'generating %s.%s.',
-                    extraction_context.value,
+                    utils.log_repr(extraction_context.value),
                     factory.__module__, factory.__name__,
             )
             return extraction_context.value
@@ -640,8 +641,8 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
         passed_kwargs = dict(self.method_kwargs)
         passed_kwargs.update(extraction_context.extra)
         method = getattr(obj, self.method_name)
-        logger.debug('PostGenerationMethodCall: Calling %r.%s(%s)',
-            obj,
+        logger.debug('PostGenerationMethodCall: Calling %s.%s(%s)',
+            utils.log_repr(obj),
             self.method_name,
             utils.log_pprint(passed_args, passed_kwargs),
         )
