@@ -118,6 +118,14 @@ if django is not None:
         bar = ''
 
 
+    class MultifieldModelFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.MultifieldModel
+            django_get_or_create = ['slug']
+
+        text = factory.Faker('text')
+
+
     class AbstractBaseFactory(factory.django.DjangoModelFactory):
         class Meta:
             model = models.AbstractBase
@@ -223,6 +231,29 @@ class DjangoPkSequenceTestCase(django_test.TestCase):
         std2 = StandardFactory.create()
         self.assertEqual('foo0', std2.foo)
         self.assertEqual(11, std2.pk)
+
+
+@unittest.skipIf(django is None, "Django not installed.")
+class DjangoGetOrCreateTests(django_test.TestCase):
+    def test_simple_call(self):
+        obj1 = MultifieldModelFactory(slug='slug1')
+        obj2 = MultifieldModelFactory(slug='slug1')
+        obj3 = MultifieldModelFactory(slug='alt')
+
+        self.assertEqual(obj1, obj2)
+        self.assertEqual(2, models.MultifieldModel.objects.count())
+
+    def test_missing_arg(self):
+        with self.assertRaises(factory.FactoryError):
+            MultifieldModelFactory()
+
+    def test_multicall(self):
+        objs = MultifieldModelFactory.create_batch(6,
+            slug=factory.Iterator(['main', 'alt']),
+        )
+        self.assertEqual(6, len(objs))
+        self.assertEqual(2, len(set(objs)))
+        self.assertEqual(2, models.MultifieldModel.objects.count())
 
 
 @unittest.skipIf(django is None, "Django not installed.")
@@ -784,6 +815,7 @@ class PreventSignalsTestCase(unittest.TestCase):
 
         self.assertSignalsReactivated()
 
+
 @unittest.skipIf(django is None, "Django not installed.")
 class DjangoCustomManagerTestCase(unittest.TestCase):
 
@@ -799,6 +831,7 @@ class DjangoCustomManagerTestCase(unittest.TestCase):
         # Our CustomManager will remove the 'arg=' argument,
         # invalid for the actual model.
         ObjFactory.create(arg='invalid')
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

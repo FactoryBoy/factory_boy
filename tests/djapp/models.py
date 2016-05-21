@@ -44,6 +44,11 @@ class NonIntegerPk(models.Model):
     bar = models.CharField(max_length=20, blank=True)
 
 
+class MultifieldModel(models.Model):
+    slug = models.SlugField(max_length=20, unique=True)
+    text = models.CharField(max_length=20)
+
+
 class AbstractBase(models.Model):
     foo = models.CharField(max_length=20)
 
