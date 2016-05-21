@@ -698,7 +698,9 @@ class BaseFactory(object):
         return cls.generate_batch(strategy, size, **kwargs)
 
 
-Factory = FactoryMetaClass('Factory', (BaseFactory,), {
+# Note: we're calling str() on the class name to avoid issues with Py2's type() expecting bytes
+# instead of unicode.
+Factory = FactoryMetaClass(str('Factory'), (BaseFactory,), {
     'Meta': BaseMeta,
     '__doc__': """Factory base with build and create support.
 

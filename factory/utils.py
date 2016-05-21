@@ -96,8 +96,9 @@ def import_object(module_name, attribute_name):
         >>> import_object('datetime', 'datetime')
         <type 'datetime.datetime'>
     """
-    module = __import__(module_name, {}, {}, [attribute_name], 0)
-    return getattr(module, attribute_name)
+    # Py2 compatibility: force str (i.e bytes) when importing.
+    module = __import__(str(module_name), {}, {}, [str(attribute_name)], 0)
+    return getattr(module, str(attribute_name))
 
 
 def _safe_repr(obj):
