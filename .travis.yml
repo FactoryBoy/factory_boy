@@ -1,17 +1,33 @@
 sudo: false
 language: python
 
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "pypy"
-
 script:
-  - SKIP_MONGOENGINE=1 python setup.py test
+  - tox
 
 install:
-  - make install-deps
+  - pip install tox
+
+matrix:
+  include:
+    - python: "2.7"
+      env: TOXENV=py27-django19-alchemy10-mongoengine010
+    - python: "3.4"
+      env: TOXENV=py34-django19-alchemy10-mongoengine010
+    - python: "3.5"
+      env: TOXENV=py35-django19-alchemy10-mongoengine010
+
+    # Pypy
+    - python: "pypy"
+      env: TOXENV=py27-django19-alchemy10-mongoengine010
+
+    # Linting
+    - python: "3.5"
+      env: TOXENV=examples
+    - python: "3.5"
+      env: TOXENV=lint
+
+services:
+  - mongodb
 
 notifications:
   email: false
