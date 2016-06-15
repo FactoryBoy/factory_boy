@@ -5,7 +5,7 @@ factory_boy
     :target: http://travis-ci.org/rbarrois/factory_boy/
 
 .. image:: https://img.shields.io/pypi/v/factory_boy.svg
-    :target: http://factoryboy.readthedocs.org/en/latest/changelog.html
+    :target: https://factoryboy.readthedocs.io/en/latest/changelog.html
     :alt: Latest Version
 
 .. image:: https://img.shields.io/pypi/pyversions/factory_boy.svg
@@ -75,7 +75,7 @@ Its main features include:
 Links
 -----
 
-* Documentation: http://factoryboy.readthedocs.org/
+* Documentation: https://factoryboy.readthedocs.io/
 * Repository: https://github.com/rbarrois/factory_boy
 * Package: https://pypi.python.org/pypi/factory_boy/
 * Mailing-list: `factoryboy@googlegroups.com <mailto:factoryboy@googlegroups.com>`_ | https://groups.google.com/forum/#!forum/factoryboy
