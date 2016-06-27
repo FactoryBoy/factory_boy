@@ -23,12 +23,20 @@ from __future__ import unicode_literals
 
 from . import base
 
+SESSION_ACTION_COMMIT = 'commit'
+SESSION_ACTION_FLUSH = 'flush'
+VALID_SESSION_ACTIONS = [
+    None,
+    SESSION_ACTION_COMMIT,
+    SESSION_ACTION_FLUSH,
+]
+
 
 class SQLAlchemyOptions(base.FactoryOptions):
     def _build_default_options(self):
         return super(SQLAlchemyOptions, self)._build_default_options() + [
             base.OptionDefault('sqlalchemy_session', None, inherit=True),
-            base.OptionDefault('force_flush', False, inherit=True),
+            base.OptionDefault('sqlalchemy_session_action', None, inherit=True),
         ]
 
 
@@ -44,8 +52,17 @@ class SQLAlchemyModelFactory(base.Factory):
     def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
         session = cls._meta.sqlalchemy_session
+        session_action = cls._meta.sqlalchemy_session_action
+        if session_action not in VALID_SESSION_ACTIONS:
+            raise TypeError(
+                "'sqlalchemy_session_action' must be 'flush' or 'commit', got '%s'"
+                % session_action
+            )
+
         obj = model_class(*args, **kwargs)
         session.add(obj)
-        if cls._meta.force_flush:
+        if session_action == 'flush':
             session.flush()
+        elif session_action == 'commit':
+            session.commit()
         return obj
