@@ -56,11 +56,10 @@ class StandardFactory(SQLAlchemyModelFactory):
     foo = factory.Sequence(lambda n: 'foo%d' % n)
 
 
-class ForceFlushingStandardFactory(SQLAlchemyModelFactory):
+class SessionActionStandardFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.StandardModel
         sqlalchemy_session = mock.MagicMock()
-        force_flush = True
 
     id = factory.Sequence(lambda n: n)
     foo = factory.Sequence(lambda n: 'foo%d' % n)
@@ -114,24 +113,48 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
 
 
 @unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
-class SQLAlchemyForceFlushTestCase(unittest.TestCase):
+class SQLAlchemySessionActionTestCase(unittest.TestCase):
     def setUp(self):
-        super(SQLAlchemyForceFlushTestCase, self).setUp()
-        ForceFlushingStandardFactory.reset_sequence(1)
-        ForceFlushingStandardFactory._meta.sqlalchemy_session.rollback()
-        ForceFlushingStandardFactory._meta.sqlalchemy_session.reset_mock()
+        super(SQLAlchemySessionActionTestCase, self).setUp()
+        SessionActionStandardFactory.reset_sequence(1)
+        SessionActionStandardFactory._meta.sqlalchemy_session.rollback()
+        SessionActionStandardFactory._meta.sqlalchemy_session.reset_mock()
+        SessionActionStandardFactory._meta.sqlalchemy_session_action = None
 
-    def test_force_flush_called(self):
-        self.assertFalse(ForceFlushingStandardFactory._meta.sqlalchemy_session.flush.called)
-        ForceFlushingStandardFactory.create()
-        self.assertTrue(ForceFlushingStandardFactory._meta.sqlalchemy_session.flush.called)
+    def test_flush_called(self):
+        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.flush.called)
+        SessionActionStandardFactory._meta.sqlalchemy_session_action = 'flush'
+        SessionActionStandardFactory.create()
+        self.assertTrue(SessionActionStandardFactory._meta.sqlalchemy_session.flush.called)
 
-    def test_force_flush_not_called(self):
-        ForceFlushingStandardFactory._meta.force_flush = False
-        self.assertFalse(ForceFlushingStandardFactory._meta.sqlalchemy_session.flush.called)
-        ForceFlushingStandardFactory.create()
-        self.assertFalse(ForceFlushingStandardFactory._meta.sqlalchemy_session.flush.called)
-        ForceFlushingStandardFactory._meta.force_flush = True
+    def test_flush_not_called(self):
+        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.flush.called)
+        SessionActionStandardFactory.create()
+        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.flush.called)
+
+        SessionActionStandardFactory._meta.sqlalchemy_session_action = 'commit'
+        SessionActionStandardFactory.create()
+        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.flush.called)
+
+    def test_commit_called(self):
+        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.commit.called)
+        SessionActionStandardFactory._meta.sqlalchemy_session_action = 'commit'
+        SessionActionStandardFactory.create()
+        self.assertTrue(SessionActionStandardFactory._meta.sqlalchemy_session.commit.called)
+
+    def test_commit_not_called(self):
+        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.commit.called)
+        SessionActionStandardFactory.create()
+        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.commit.called)
+
+        SessionActionStandardFactory._meta.sqlalchemy_session_action = 'flush'
+        SessionActionStandardFactory.create()
+        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.commit.called)
+
+    def test_type_error(self):
+        SessionActionStandardFactory._meta.sqlalchemy_session_action = 'invalid_action'
+        with self.assertRaises(TypeError):
+            SessionActionStandardFactory.create()
 
 
 @unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
