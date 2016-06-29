@@ -514,6 +514,13 @@ class ExtractionContext(object):
 class PostGenerationDeclaration(object):
     """Declarations to be called once the model object has been generated."""
 
+    creation_counter = 0
+    """Global creation counter of the declaration."""
+
+    def __init__(self, *args, **kwargs):
+        self.creation_counter = PostGenerationDeclaration.creation_counter
+        PostGenerationDeclaration.creation_counter += 1
+
     def extract(self, name, attrs):
         """Extract relevant attributes from a dict.
 

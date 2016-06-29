@@ -1,6 +1,17 @@
 ChangeLog
 =========
 
+.. _v2.7.1:
+
+2.7.1 (2016-07-10)
+------------------
+
+*New:*
+
+    - :issue:`240`: Call post-generation declarations in the order they were declared,
+      thanks to `Oleg Pidsadnyi <https://github.com/olegpidsadnyi>`_.
+
+
 .. _v2.7.0:
 
 2.7.0 (2016-04-19)

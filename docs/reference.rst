@@ -1497,6 +1497,9 @@ To support this pattern, factory_boy provides the following tools:
   - :func:`post_generation`: decorator performing the same functions as :class:`PostGeneration`
   - :class:`RelatedFactory`: this builds or creates a given factory *after* building/creating the first Factory.
 
+Post-generation hooks are called in the same order they are declared in the factory class, so that
+functions can rely on the side effects applied by the previous post-generation hook.
+
 
 Extracting parameters
 """""""""""""""""""""

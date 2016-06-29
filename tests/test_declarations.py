@@ -23,6 +23,7 @@
 import datetime
 import itertools
 
+from factory import base
 from factory import declarations
 from factory import helpers
 
@@ -279,6 +280,43 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
         decl.call(self.obj, False, self.ctx(extra={'x': 2}))
         self.obj.method.assert_called_once_with('arg1', 'arg2', x=2)
 
+
+class PostGenerationOrdering(unittest.TestCase):
+
+    def test_post_generation_declaration_order(self):
+        postgen_results = []
+
+        class Related(base.Factory):
+            class Meta:
+                model = mock.MagicMock()
+
+        class Ordered(base.Factory):
+            class Meta:
+                model = mock.MagicMock()
+
+            a = declarations.RelatedFactory(Related)
+            z = declarations.RelatedFactory(Related)
+
+            @helpers.post_generation
+            def a1(*args, **kwargs):
+                postgen_results.append('a1')
+
+            @helpers.post_generation
+            def zz(*args, **kwargs):
+                postgen_results.append('zz')
+
+            @helpers.post_generation
+            def aa(*args, **kwargs):
+                postgen_results.append('aa')
+
+        postgen_names = [
+            k for k, v in Ordered._meta.sorted_postgen_declarations
+        ]
+        self.assertEqual(postgen_names, ['a', 'z', 'a1', 'zz', 'aa'])
+
+        # Test generation happens in desired order
+        Ordered()
+        self.assertEqual(postgen_results, ['a1', 'zz', 'aa'])
 
 
 if __name__ == '__main__':  # pragma: no cover
