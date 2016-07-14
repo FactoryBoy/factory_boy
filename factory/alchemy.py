@@ -22,13 +22,14 @@
 from __future__ import unicode_literals
 
 from . import base
+import warnings
 
-SESSION_ACTION_COMMIT = 'commit'
-SESSION_ACTION_FLUSH = 'flush'
-VALID_SESSION_ACTIONS = [
+SESSION_PERSISTENCE_COMMIT = 'commit'
+SESSION_PERSISTENCE_FLUSH = 'flush'
+VALID_SESSION_PERSISTENCE_TYPES = [
     None,
-    SESSION_ACTION_COMMIT,
-    SESSION_ACTION_FLUSH,
+    SESSION_PERSISTENCE_COMMIT,
+    SESSION_PERSISTENCE_FLUSH,
 ]
 
 
@@ -36,7 +37,10 @@ class SQLAlchemyOptions(base.FactoryOptions):
     def _build_default_options(self):
         return super(SQLAlchemyOptions, self)._build_default_options() + [
             base.OptionDefault('sqlalchemy_session', None, inherit=True),
-            base.OptionDefault('sqlalchemy_session_action', None, inherit=True),
+            base.OptionDefault('sqlalchemy_session_persistence', None, inherit=True),
+
+            # DEPRECATED as of 2.8.0, remove in 3.0.0
+            base.OptionDefault('force_flush', False, inherit=True),
         ]
 
 
@@ -52,17 +56,20 @@ class SQLAlchemyModelFactory(base.Factory):
     def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
         session = cls._meta.sqlalchemy_session
-        session_action = cls._meta.sqlalchemy_session_action
-        if session_action not in VALID_SESSION_ACTIONS:
+        session_persistence = cls._meta.sqlalchemy_session_persistence
+        if cls._meta.force_flush:
+            session_persistence = SESSION_PERSISTENCE_FLUSH
+            warnings.warn("force_flush has been deprecated as of 2.8.0 and will be removed in 3.0.0. Please use `sqlalchemy_session_persistence='flush'` insead.", DeprecationWarning)
+        if session_persistence not in VALID_SESSION_PERSISTENCE_TYPES:
             raise TypeError(
-                "'sqlalchemy_session_action' must be 'flush' or 'commit', got '%s'"
-                % session_action
+                "'sqlalchemy_session_persistence' must be 'flush' or 'commit', got '%s'"
+                % session_persistence
             )
 
         obj = model_class(*args, **kwargs)
         session.add(obj)
-        if session_action == 'flush':
+        if session_persistence == 'flush':
             session.flush()
-        elif session_action == 'commit':
+        elif session_persistence == 'commit':
             session.commit()
         return obj

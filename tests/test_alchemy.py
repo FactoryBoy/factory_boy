@@ -56,7 +56,7 @@ class StandardFactory(SQLAlchemyModelFactory):
     foo = factory.Sequence(lambda n: 'foo%d' % n)
 
 
-class SessionActionStandardFactory(SQLAlchemyModelFactory):
+class SessionPersistenceStandardFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.StandardModel
         sqlalchemy_session = mock.MagicMock()
@@ -113,48 +113,48 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
 
 
 @unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
-class SQLAlchemySessionActionTestCase(unittest.TestCase):
+class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
     def setUp(self):
-        super(SQLAlchemySessionActionTestCase, self).setUp()
-        SessionActionStandardFactory.reset_sequence(1)
-        SessionActionStandardFactory._meta.sqlalchemy_session.rollback()
-        SessionActionStandardFactory._meta.sqlalchemy_session.reset_mock()
-        SessionActionStandardFactory._meta.sqlalchemy_session_action = None
+        super(SQLAlchemySessionPersistenceTestCase, self).setUp()
+        SessionPersistenceStandardFactory.reset_sequence(1)
+        SessionPersistenceStandardFactory._meta.sqlalchemy_session.rollback()
+        SessionPersistenceStandardFactory._meta.sqlalchemy_session.reset_mock()
+        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = None
 
     def test_flush_called(self):
-        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.flush.called)
-        SessionActionStandardFactory._meta.sqlalchemy_session_action = 'flush'
-        SessionActionStandardFactory.create()
-        self.assertTrue(SessionActionStandardFactory._meta.sqlalchemy_session.flush.called)
+        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
+        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = 'flush'
+        SessionPersistenceStandardFactory.create()
+        self.assertTrue(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
 
     def test_flush_not_called(self):
-        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.flush.called)
-        SessionActionStandardFactory.create()
-        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.flush.called)
+        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
+        SessionPersistenceStandardFactory.create()
+        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
 
-        SessionActionStandardFactory._meta.sqlalchemy_session_action = 'commit'
-        SessionActionStandardFactory.create()
-        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.flush.called)
+        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = 'commit'
+        SessionPersistenceStandardFactory.create()
+        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
 
     def test_commit_called(self):
-        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.commit.called)
-        SessionActionStandardFactory._meta.sqlalchemy_session_action = 'commit'
-        SessionActionStandardFactory.create()
-        self.assertTrue(SessionActionStandardFactory._meta.sqlalchemy_session.commit.called)
+        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.commit.called)
+        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = 'commit'
+        SessionPersistenceStandardFactory.create()
+        self.assertTrue(SessionPersistenceStandardFactory._meta.sqlalchemy_session.commit.called)
 
     def test_commit_not_called(self):
-        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.commit.called)
-        SessionActionStandardFactory.create()
-        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.commit.called)
+        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.commit.called)
+        SessionPersistenceStandardFactory.create()
+        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.commit.called)
 
-        SessionActionStandardFactory._meta.sqlalchemy_session_action = 'flush'
-        SessionActionStandardFactory.create()
-        self.assertFalse(SessionActionStandardFactory._meta.sqlalchemy_session.commit.called)
+        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = 'flush'
+        SessionPersistenceStandardFactory.create()
+        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.commit.called)
 
     def test_type_error(self):
-        SessionActionStandardFactory._meta.sqlalchemy_session_action = 'invalid_action'
+        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = 'invalid_persistence_option'
         with self.assertRaises(TypeError):
-            SessionActionStandardFactory.create()
+            SessionPersistenceStandardFactory.create()
 
 
 @unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
