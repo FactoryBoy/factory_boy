@@ -24,6 +24,7 @@
 import factory
 from .compat import unittest
 import mock
+import warnings
 
 
 try:
@@ -120,6 +121,7 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
         SessionPersistenceStandardFactory._meta.sqlalchemy_session.rollback()
         SessionPersistenceStandardFactory._meta.sqlalchemy_session.reset_mock()
         SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = None
+        SessionPersistenceStandardFactory._meta.force_flush = False
 
     def test_flush_called(self):
         self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
@@ -155,6 +157,14 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
         SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = 'invalid_persistence_option'
         with self.assertRaises(TypeError):
             SessionPersistenceStandardFactory.create()
+
+    def test_force_flush_deprecation(self):
+        SessionPersistenceStandardFactory._meta.force_flush = True
+        with warnings.catch_warnings(record=True) as warning_list:
+            SessionPersistenceStandardFactory.create()
+            assert len(warning_list) == 1
+            assert issubclass(warning_list[0].category, DeprecationWarning)
+        self.assertTrue(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
 
 
 @unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
