@@ -157,6 +157,14 @@ class FactoryOptions(object):
         self.parameters = {}
         self.parameters_dependencies = {}
 
+    @property
+    def sorted_postgen_declarations(self):
+        """Get sorted postgen declaration items."""
+        return sorted(
+            self.postgen_declarations.items(),
+            key=lambda item: item[1].creation_counter,
+        )
+
     def _build_default_options(self):
         """"Provide the default value for all allowed fields.
 
@@ -516,9 +524,9 @@ class BaseFactory(object):
                 "is either not set or False." % dict(f=cls.__name__))
 
         # Extract declarations used for post-generation
-        postgen_declarations = cls._meta.postgen_declarations
         postgen_attributes = {}
-        for name, decl in sorted(postgen_declarations.items()):
+
+        for name, decl in cls._meta.sorted_postgen_declarations:
             postgen_attributes[name] = decl.extract(name, attrs)
 
         # Generate the object
@@ -526,7 +534,7 @@ class BaseFactory(object):
 
         # Handle post-generation attributes
         results = {}
-        for name, decl in sorted(postgen_declarations.items()):
+        for name, decl in cls._meta.sorted_postgen_declarations:
             extraction_context = postgen_attributes[name]
             results[name] = decl.call(obj, create, extraction_context)
 
