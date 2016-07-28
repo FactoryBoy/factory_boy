@@ -59,7 +59,11 @@ class SQLAlchemyModelFactory(base.Factory):
         session_persistence = cls._meta.sqlalchemy_session_persistence
         if cls._meta.force_flush:
             session_persistence = SESSION_PERSISTENCE_FLUSH
-            warnings.warn("force_flush has been deprecated as of 2.8.0 and will be removed in 3.0.0. Please use `sqlalchemy_session_persistence='flush'` insead.", DeprecationWarning)
+            warnings.warn(
+                "force_flush has been deprecated as of 2.8.0 and will be removed in 3.0.0." \
+                "lease use `sqlalchemy_session_persistence='flush'` insead.",
+                DeprecationWarning,
+            )
         if session_persistence not in VALID_SESSION_PERSISTENCE_TYPES:
             raise TypeError(
                 "'sqlalchemy_session_persistence' must be 'flush' or 'commit', got '%s'"
@@ -68,8 +72,8 @@ class SQLAlchemyModelFactory(base.Factory):
 
         obj = model_class(*args, **kwargs)
         session.add(obj)
-        if session_persistence == 'flush':
+        if session_persistence == SESSION_PERSISTENCE_FLUSH:
             session.flush()
-        elif session_persistence == 'commit':
+        elif session_persistence == SESSION_PERSISTENCE_COMMIT:
             session.commit()
         return obj
