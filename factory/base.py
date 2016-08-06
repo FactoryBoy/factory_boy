@@ -129,10 +129,21 @@ class BaseMeta:
 
 
 class OptionDefault(object):
-    def __init__(self, name, value, inherit=False):
+    """The default for an option.
+
+    Attributes:
+        name: str, the name of the option ('class Meta' attribute)
+        value: object, the default value for the option
+        inherit: bool, whether to inherit the value from the parent factory's `class Meta`
+            when no value is provided
+        checker: callable or None, an optional function used to detect invalid option
+            values at declaration time
+    """
+    def __init__(self, name, value, inherit=False, checker=None):
         self.name = name
         self.value = value
         self.inherit = inherit
+        self.checker = checker
 
     def apply(self, meta, base_meta):
         value = self.value
@@ -140,6 +151,10 @@ class OptionDefault(object):
             value = getattr(base_meta, self.name, value)
         if meta is not None:
             value = getattr(meta, self.name, value)
+
+        if self.checker is not None:
+            self.checker(meta, value)
+
         return value
 
     def __str__(self):
