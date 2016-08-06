@@ -34,13 +34,40 @@ VALID_SESSION_PERSISTENCE_TYPES = [
 
 
 class SQLAlchemyOptions(base.FactoryOptions):
+    def _check_sqlalchemy_session_persistence(self, meta, value):
+        if value not in VALID_SESSION_PERSISTENCE_TYPES:
+            raise TypeError(
+                "%s.sqlalchemy_session_persistence must be one of %s, got %r" %
+                (meta, VALID_SESSION_PERSISTENCE_TYPES, value)
+            )
+
+    def _check_force_flush(self, meta, value):
+        if value:
+            warnings.warn(
+                "%(meta)s.force_flush has been deprecated as of 2.8.0 and will be removed in 3.0.0. "
+                "Please set ``%(meta)s.sqlalchemy_session_persistence = 'flush'`` instead."
+                % dict(meta=meta),
+                DeprecationWarning,
+                stacklevel=6,
+            )
+
     def _build_default_options(self):
         return super(SQLAlchemyOptions, self)._build_default_options() + [
             base.OptionDefault('sqlalchemy_session', None, inherit=True),
-            base.OptionDefault('sqlalchemy_session_persistence', None, inherit=True),
+            base.OptionDefault(
+                'sqlalchemy_session_persistence',
+                None,
+                inherit=True,
+                checker=self._check_sqlalchemy_session_persistence,
+            ),
 
             # DEPRECATED as of 2.8.0, remove in 3.0.0
-            base.OptionDefault('force_flush', False, inherit=True),
+            base.OptionDefault(
+                'force_flush',
+                False,
+                inherit=True,
+                checker=self._check_force_flush,
+            ),
         ]
 
 
@@ -59,16 +86,6 @@ class SQLAlchemyModelFactory(base.Factory):
         session_persistence = cls._meta.sqlalchemy_session_persistence
         if cls._meta.force_flush:
             session_persistence = SESSION_PERSISTENCE_FLUSH
-            warnings.warn(
-                "force_flush has been deprecated as of 2.8.0 and will be removed in 3.0.0." \
-                "lease use `sqlalchemy_session_persistence='flush'` insead.",
-                DeprecationWarning,
-            )
-        if session_persistence not in VALID_SESSION_PERSISTENCE_TYPES:
-            raise TypeError(
-                "'sqlalchemy_session_persistence' must be 'flush' or 'commit', got '%s'"
-                % session_persistence
-            )
 
         obj = model_class(*args, **kwargs)
         session.add(obj)
