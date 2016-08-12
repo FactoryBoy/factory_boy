@@ -23,7 +23,7 @@
 
 import factory
 from .compat import unittest
-import mock
+from .compat import mock
 import warnings
 
 
@@ -52,15 +52,6 @@ class StandardFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.StandardModel
         sqlalchemy_session = models.session
-
-    id = factory.Sequence(lambda n: n)
-    foo = factory.Sequence(lambda n: 'foo%d' % n)
-
-
-class SessionPersistenceStandardFactory(SQLAlchemyModelFactory):
-    class Meta:
-        model = models.StandardModel
-        sqlalchemy_session = mock.MagicMock()
 
     id = factory.Sequence(lambda n: n)
     foo = factory.Sequence(lambda n: 'foo%d' % n)
@@ -117,54 +108,79 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
 class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
     def setUp(self):
         super(SQLAlchemySessionPersistenceTestCase, self).setUp()
-        SessionPersistenceStandardFactory.reset_sequence(1)
-        SessionPersistenceStandardFactory._meta.sqlalchemy_session.rollback()
-        SessionPersistenceStandardFactory._meta.sqlalchemy_session.reset_mock()
-        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = None
-        SessionPersistenceStandardFactory._meta.force_flush = False
+        self.mock_session = mock.NonCallableMagicMock(spec=models.session)
 
-    def test_flush_called(self):
-        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
-        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = 'flush'
-        SessionPersistenceStandardFactory.create()
-        self.assertTrue(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
+    def test_flushing(self):
+        class FlushingPersistenceFactory(StandardFactory):
+            class Meta:
+                sqlalchemy_session = self.mock_session
+                sqlalchemy_session_persistence = 'flush'
 
-    def test_flush_not_called(self):
-        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
-        SessionPersistenceStandardFactory.create()
-        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
+        self.mock_session.commit.assert_not_called()
+        self.mock_session.flush.assert_not_called()
 
-        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = 'commit'
-        SessionPersistenceStandardFactory.create()
-        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
+        FlushingPersistenceFactory.create()
+        self.mock_session.commit.assert_not_called()
+        self.mock_session.flush.assert_called_once_with()
 
-    def test_commit_called(self):
-        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.commit.called)
-        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = 'commit'
-        SessionPersistenceStandardFactory.create()
-        self.assertTrue(SessionPersistenceStandardFactory._meta.sqlalchemy_session.commit.called)
+    def test_committing(self):
+        class CommittingPersistenceFactory(StandardFactory):
+            class Meta:
+                sqlalchemy_session = self.mock_session
+                sqlalchemy_session_persistence = 'commit'
 
-    def test_commit_not_called(self):
-        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.commit.called)
-        SessionPersistenceStandardFactory.create()
-        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.commit.called)
+        self.mock_session.commit.assert_not_called()
+        self.mock_session.flush.assert_not_called()
 
-        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = 'flush'
-        SessionPersistenceStandardFactory.create()
-        self.assertFalse(SessionPersistenceStandardFactory._meta.sqlalchemy_session.commit.called)
+        CommittingPersistenceFactory.create()
+        self.mock_session.commit.assert_called_once_with()
+        self.mock_session.flush.assert_not_called()
+
+    def test_noflush_nocommit(self):
+        class InactivePersistenceFactory(StandardFactory):
+            class Meta:
+                sqlalchemy_session = self.mock_session
+                sqlalchemy_session_persistence = None
+
+        self.mock_session.commit.assert_not_called()
+        self.mock_session.flush.assert_not_called()
+
+        InactivePersistenceFactory.create()
+        self.mock_session.commit.assert_not_called()
+        self.mock_session.flush.assert_not_called()
+
 
     def test_type_error(self):
-        SessionPersistenceStandardFactory._meta.sqlalchemy_session_persistence = 'invalid_persistence_option'
         with self.assertRaises(TypeError):
-            SessionPersistenceStandardFactory.create()
+            class BadPersistenceFactory(StandardFactory):
+                class Meta:
+                    sqlalchemy_session_persistence = 'invalid_persistence_option'
+                    model = models.StandardModel
 
     def test_force_flush_deprecation(self):
-        SessionPersistenceStandardFactory._meta.force_flush = True
         with warnings.catch_warnings(record=True) as warning_list:
-            SessionPersistenceStandardFactory.create()
-            assert len(warning_list) == 1
-            assert issubclass(warning_list[0].category, DeprecationWarning)
-        self.assertTrue(SessionPersistenceStandardFactory._meta.sqlalchemy_session.flush.called)
+            class OutdatedPersistenceFactory(StandardFactory):
+                class Meta:
+                    force_flush = True
+                    sqlalchemy_session = self.mock_session
+
+        # There should be *1* DeprecationWarning
+        self.assertEqual(len(warning_list), 1)
+        warning = warning_list[0]
+        self.assertTrue(issubclass(warning.category, DeprecationWarning))
+
+        # The warning text should point to the class declaration.
+        text = warnings.formatwarning(warning.message, warning.category, warning.filename, warning.lineno)
+        self.assertIn('test_alchemy.py', text)
+        self.assertIn('class OutdatedPersistenceFactory', text)
+
+        # However, we shall keep the old-style behavior.
+        self.mock_session.commit.assert_not_called()
+        self.mock_session.flush.assert_not_called()
+
+        OutdatedPersistenceFactory.create()
+        self.mock_session.commit.assert_not_called()
+        self.mock_session.flush.assert_called_once_with()
 
 
 @unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
