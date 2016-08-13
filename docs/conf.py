@@ -34,7 +34,7 @@ extensions = [
 ]
 
 extlinks = {
-    'issue': ('https://github.com/rbarrois/factory_boy/issues/%s', 'issue #'),
+    'issue': ('https://github.com/FactoryBoy/factory_boy/issues/%s', 'issue #'),
 }
 
 # Add any paths that contain templates here, relative to this directory.

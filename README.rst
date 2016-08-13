@@ -1,8 +1,8 @@
 factory_boy
 ===========
 
-.. image:: https://secure.travis-ci.org/rbarrois/factory_boy.png?branch=master
-    :target: http://travis-ci.org/rbarrois/factory_boy/
+.. image:: https://secure.travis-ci.org/FactoryBoy/factory_boy.png?branch=master
+    :target: http://travis-ci.org/FactoryBoy/factory_boy/
 
 .. image:: https://img.shields.io/pypi/v/factory_boy.svg
     :target: https://factoryboy.readthedocs.io/en/latest/changelog.html
@@ -76,7 +76,7 @@ Links
 -----
 
 * Documentation: https://factoryboy.readthedocs.io/
-* Repository: https://github.com/rbarrois/factory_boy
+* Repository: https://github.com/FactoryBoy/factory_boy
 * Package: https://pypi.python.org/pypi/factory_boy/
 * Mailing-list: `factoryboy@googlegroups.com <mailto:factoryboy@googlegroups.com>`_ | https://groups.google.com/forum/#!forum/factoryboy
 
@@ -92,11 +92,11 @@ PyPI: https://pypi.python.org/pypi/factory_boy/
 
     $ pip install factory_boy
 
-Source: https://github.com/rbarrois/factory_boy/
+Source: https://github.com/FactoryBoy/factory_boy/
 
 .. code-block:: sh
 
-    $ git clone git://github.com/rbarrois/factory_boy/
+    $ git clone git://github.com/FactoryBoy/factory_boy/
     $ python setup.py install
 
 
@@ -342,7 +342,7 @@ Contributing
 
 factory_boy is distributed under the MIT License.
 
-Issues should be opened through `GitHub Issues <http://github.com/rbarrois/factory_boy/issues/>`_; whenever possible, a pull request should be included.
+Issues should be opened through `GitHub Issues <http://github.com/FactoryBoy/factory_boy/issues/>`_; whenever possible, a pull request should be included.
 Questions and suggestions are welcome on the `mailing-list <mailto:factoryboy@googlegroups.com>`_.
 
 All pull request should pass the test suite, which can be launched simply with:

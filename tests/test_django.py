@@ -304,7 +304,7 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
     def test_inherited_loading(self):
         """Proper loading of a model within 'child' factories.
 
-        See https://github.com/rbarrois/factory_boy/issues/109.
+        See https://github.com/FactoryBoy/factory_boy/issues/109.
         """
         class ExampleFactory(factory.DjangoModelFactory):
             class Meta:
@@ -319,7 +319,7 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
     def test_inherited_loading_and_sequence(self):
         """Proper loading of a model within 'child' factories.
 
-        See https://github.com/rbarrois/factory_boy/issues/109.
+        See https://github.com/FactoryBoy/factory_boy/issues/109.
         """
         class ExampleFactory(factory.DjangoModelFactory):
             class Meta:

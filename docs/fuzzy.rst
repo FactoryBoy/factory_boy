@@ -7,7 +7,7 @@ Fuzzy attributes
           these built-in fuzzers are deprecated in favor of their
           `Faker <http://www.joke2k.net/faker/>`_ equivalents. Further
           discussion here:
-          `<https://github.com/rbarrois/factory_boy/issues/271/>`_
+          `<https://github.com/FactoryBoy/factory_boy/issues/271/>`_
 
 Some tests may be interested in testing with fuzzy, random values.
 

@@ -871,7 +871,7 @@ class UsingFactoryTestCase(unittest.TestCase):
     def test_inheritance_sequence_unrelated_objects(self):
         """Sequence counters are kept with inheritance, unrelated objects.
 
-        See issue https://github.com/rbarrois/factory_boy/issues/93
+        See issue https://github.com/FactoryBoy/factory_boy/issues/93
 
         Problem: sequence counter is somewhat shared between factories
         until the "slave" factory has been called.
