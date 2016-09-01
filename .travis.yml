@@ -10,15 +10,15 @@ install:
 matrix:
   include:
     - python: "2.7"
-      env: TOXENV=py27-django19-alchemy10-mongoengine010
+      env: TOXENV=py27-django110-alchemy10-mongoengine010
     - python: "3.4"
-      env: TOXENV=py34-django19-alchemy10-mongoengine010
+      env: TOXENV=py34-django110-alchemy10-mongoengine010
     - python: "3.5"
-      env: TOXENV=py35-django19-alchemy10-mongoengine010
+      env: TOXENV=py35-django110-alchemy10-mongoengine010
 
     # Pypy
     - python: "pypy"
-      env: TOXENV=py27-django19-alchemy10-mongoengine010
+      env: TOXENV=py27-django110-alchemy10-mongoengine010
 
     # Linting
     - python: "3.5"
