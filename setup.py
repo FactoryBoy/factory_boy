@@ -45,7 +45,7 @@ setup(
     packages=['factory'],
     license='MIT',
     install_requires=[
-        'fake-factory>=0.5.0',
+        'Faker>=0.7.0',
     ],
     setup_requires=[
         'setuptools>=0.8',
