@@ -111,6 +111,7 @@ Extra fields
                               and keep its filename
         :param file from_file: Use the contents of the provided file object; use its filename
                                if available, unless ``filename`` is also provided.
+        :param func from_func: Use function that returns a file object
         :param bytes data: Use the provided bytes as file contents
         :param str filename: The filename for the FileField
 
