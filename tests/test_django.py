@@ -64,6 +64,7 @@ except ImportError:  # pragma: no cover
 
 import factory
 import factory.django
+from factory.compat import BytesIO
 
 from . import testdata
 from . import tools
@@ -693,6 +694,21 @@ class DjangoImageFieldTestCase(unittest.TestCase):
         o = WithImageFactory.build(animage=None)
         self.assertIsNone(o.pk)
         self.assertFalse(o.animage)
+
+    def _img_test_func(self):
+        img = Image.new('RGB', (32,32), 'blue')
+        img_io = BytesIO()
+        img.save(img_io, format='JPEG')
+        img_io.seek(0)
+        return img_io
+
+    def test_with_func(self):
+        o = WithImageFactory.build(animage__from_func=self._img_test_func)
+        self.assertIsNone(o.pk)
+        i = Image.open(o.animage.file)
+        self.assertEqual('JPEG', i.format)
+        self.assertEqual(32, i.width)
+        self.assertEqual(32, i.height)
 
 
 @unittest.skipIf(django is None, "Django not installed.")
