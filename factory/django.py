@@ -205,9 +205,10 @@ class FileField(declarations.ParameteredAttribute):
     def _make_content(self, params):
         path = ''
 
-        if params.get('from_path') and params.get('from_file'):
+        _content_params = [params.get('from_path'), params.get('from_file'), params.get('from_func')]
+        if len([p for p in _content_params if p]) > 1:
             raise ValueError(
-                "At most one argument from 'from_file' and 'from_path' should "
+                "At most one argument from 'from_file', 'from_path', and 'from_func' should "
                 "be non-empty when calling factory.django.FileField."
             )
 
@@ -219,6 +220,11 @@ class FileField(declarations.ParameteredAttribute):
         elif params.get('from_file'):
             f = params['from_file']
             content = django_files.File(f)
+            path = content.name
+
+        elif params.get('from_func'):
+            func = params['from_func']
+            content = django_files.File(func())
             path = content.name
 
         else:

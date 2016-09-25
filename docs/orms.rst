@@ -111,6 +111,7 @@ Extra fields
                               and keep its filename
         :param file from_file: Use the contents of the provided file object; use its filename
                                if available, unless ``filename`` is also provided.
+        :param func from_func: Use function that returns a file object
         :param bytes data: Use the provided bytes as file contents
         :param str filename: The filename for the FileField
 
@@ -143,6 +144,7 @@ Extra fields
                               and keep its filename
         :param file from_file: Use the contents of the provided file object; use its filename
                                if available
+        :param func from_func: Use function that returns a file object
         :param str filename: The filename for the ImageField
         :param int width: The width of the generated image (default: ``100``)
         :param int height: The height of the generated image (default: ``100``)
