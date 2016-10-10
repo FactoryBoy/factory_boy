@@ -5,7 +5,7 @@ Fuzzy attributes
 
 .. note:: Now that FactoryBoy includes the :class:`factory.Faker` class, most of
           these built-in fuzzers are deprecated in favor of their
-          `Faker <http://faker.rtfd.org>`_ equivalents. Further
+          `Faker <https://faker.readthedocs.io/>`_ equivalents. Further
           discussion here:
           `<https://github.com/FactoryBoy/factory_boy/issues/271/>`_
 
