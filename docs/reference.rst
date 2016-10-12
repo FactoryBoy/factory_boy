@@ -1780,7 +1780,7 @@ Thus, by default, our users will have a password set to ``'defaultpassword'``.
     True
 
 If the :class:`PostGenerationMethodCall` declaration contained no
-arguments or one argument, an overriding the value can be passed
+arguments or one argument, an overriding value can be passed
 directly to the method through a keyword argument matching the attribute name.
 For example we can override the default password specified in the declaration
 above by simply passing in the desired password as a keyword argument to the
