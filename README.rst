@@ -61,7 +61,7 @@ while only declaring the test-specific fields:
             )
             # etc.
 
-factory_boy is designed to work well with various ORMs (Django, Mogo, SQLAlchemy),
+factory_boy is designed to work well with various ORMs (Django, Mongo, SQLAlchemy),
 and can easily be extended for other libraries.
 
 Its main features include:
