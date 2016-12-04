@@ -402,7 +402,10 @@ class BaseFactory(object):
         not one of its parents.
         """
         if cls._counter is None or cls._counter.for_class != cls:
-            first_seq = cls._setup_next_sequence()
+            if cls._abstract_factory:
+                first_seq = BaseFactory._setup_next_sequence()
+            else:
+                first_seq = cls._setup_next_sequence()
             cls._counter = _Counter(for_class=cls, seq=first_seq)
             logger.debug("%s: Setting up next sequence (%d)", cls, first_seq)
 
