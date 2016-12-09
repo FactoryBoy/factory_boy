@@ -29,12 +29,21 @@ import decimal
 import random
 import string
 import datetime
+import warnings
 
 from . import compat
 from . import declarations
 
 
 _random = random.Random()
+_random.state_set = False
+
+
+random_seed_warning = (
+    "Setting a specific random seed for {} can still have varying results "
+    "unless you also set a specific end date. For details and potential solutions "
+    "see https://github.com/FactoryBoy/factory_boy/issues/331"
+)
 
 
 def get_random_state():
@@ -44,6 +53,7 @@ def get_random_state():
 
 def set_random_state(state):
     """Force-set the state of factory.fuzzy's random generator."""
+    _random.state_set = True
     return _random.setstate(state)
 
 
@@ -190,6 +200,9 @@ class FuzzyDate(BaseFuzzyAttribute):
     def __init__(self, start_date, end_date=None, **kwargs):
         super(FuzzyDate, self).__init__(**kwargs)
         if end_date is None:
+            if _random.state_set:
+                cls_name = self.__class__.__name__
+                warnings.warn(random_seed_warning.format(cls_name))
             end_date = datetime.date.today()
 
         if start_date > end_date:
@@ -226,6 +239,9 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
         super(BaseFuzzyDateTime, self).__init__(**kwargs)
 
         if end_dt is None:
+            if _random.state_set:
+                cls_name = self.__class__.__name__
+                warnings.warn(random_seed_warning.format(cls_name))
             end_dt = self._now()
 
         self._check_bounds(start_dt, end_dt)

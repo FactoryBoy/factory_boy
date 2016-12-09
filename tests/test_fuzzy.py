@@ -23,6 +23,7 @@
 
 import datetime
 import decimal
+import warnings
 
 from factory import compat
 from factory import fuzzy
@@ -547,6 +548,13 @@ class FuzzyRandomTestCase(unittest.TestCase):
         fuzzy.reseed_random(42)
         value2 = fuzz.evaluate(sequence=1, obj=None, create=False)
         self.assertEqual(value, value2)
+
+    def test_seeding_warning(self):
+        with warnings.catch_warnings(record=True) as w:
+            fuzz = fuzzy.FuzzyDate(datetime.date(2013, 1, 1))
+            fuzz.evaluate(None, None, None)
+            self.assertEqual(1, len(w))
+            self.assertIn('factory_boy/issues/331', str(w[-1].message))
 
     def test_reset_state(self):
         fuzz = fuzzy.FuzzyInteger(1, 1000)
