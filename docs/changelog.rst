@@ -1,15 +1,20 @@
 ChangeLog
 =========
 
-.. _v2.7.1:
+.. _v2.8.0:
 
-2.7.1 (2016-07-10)
+2.8.0 (2016-12-17)
 ------------------
 
 *New:*
 
     - :issue:`240`: Call post-generation declarations in the order they were declared,
       thanks to `Oleg Pidsadnyi <https://github.com/olegpidsadnyi>`_.
+    - :issue:`309`: Provide new options for SQLAlchemy session persistence
+
+*Bugfix:*
+
+    - :issue:`334`: Adjust for the package change in ``faker``
 
 
 .. _v2.7.0:
