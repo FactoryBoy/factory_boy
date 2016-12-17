@@ -379,24 +379,3 @@ To avoid running ``mongoengine`` tests (e.g no mongo server installed), run:
 
     $ make SKIP_MONGOENGINE=1 test
 
-
-Contents, indices and tables
-----------------------------
-
-.. toctree::
-    :maxdepth: 2
-
-    introduction
-    reference
-    orms
-    recipes
-    fuzzy
-    examples
-    internals
-    changelog
-    ideas
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-

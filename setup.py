@@ -36,6 +36,7 @@ setup(
     name='factory_boy',
     version=get_version(PACKAGE),
     description="A versatile test fixtures replacement based on thoughtbot's factory_girl for Ruby.",
+    long_description=codecs.open(os.path.join(root_dir, 'README.rst'), 'r', 'utf-8').read(),
     author='Mark Sandstrom',
     author_email='mark@deliciouslynerdy.com',
     maintainer='Raphaël Barrois',
