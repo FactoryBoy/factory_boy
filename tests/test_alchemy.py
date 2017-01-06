@@ -65,6 +65,14 @@ class NonIntegerPkFactory(SQLAlchemyModelFactory):
     id = factory.Sequence(lambda n: 'foo%d' % n)
 
 
+class NoSessionFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.StandardModel
+        sqlalchemy_session = None
+
+    id = factory.Sequence(lambda n: n)
+
+
 @unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
 class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
 
@@ -149,7 +157,6 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
         self.mock_session.commit.assert_not_called()
         self.mock_session.flush.assert_not_called()
 
-
     def test_type_error(self):
         with self.assertRaises(TypeError):
             class BadPersistenceFactory(StandardFactory):
@@ -216,3 +223,17 @@ class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
         NonIntegerPkFactory.reset_sequence()
         nonint2 = NonIntegerPkFactory.create()
         self.assertEqual('foo0', nonint2.id)
+
+
+@unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
+class SQLAlchemyNoSessionTestCase(unittest.TestCase):
+
+    def test_create_raises_exception_when_no_session_was_set(self):
+        with self.assertRaises(RuntimeError):
+            NoSessionFactory.create()
+
+    def test_build_does_not_raises_exception_when_no_session_was_set(self):
+        inst0 = NoSessionFactory.build()
+        inst1 = NoSessionFactory.build()
+        self.assertEqual(inst0.id, 0)
+        self.assertEqual(inst1.id, 1)
