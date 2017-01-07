@@ -92,7 +92,7 @@ class SQLAlchemyModelFactory(base.Factory):
 
         obj = model_class(*args, **kwargs)
         if session is None:
-            raise RuntimeError('No session provided.')
+            raise RuntimeError("No session provided.")
         session.add(obj)
         if session_persistence == SESSION_PERSISTENCE_FLUSH:
             session.flush()
