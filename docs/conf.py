@@ -127,6 +127,10 @@ html_theme = 'sphinx_rtd_theme'
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
 #html_title = None
+if 'READTHEDOCS_VERSION' in os.environ:
+    # Use the readthedocs version string in preference to our known version.
+    html_title = u"{} {} documentation".format(
+        project, os.environ['READTHEDOCS_VERSION'])
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
