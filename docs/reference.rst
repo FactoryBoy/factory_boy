@@ -670,8 +670,8 @@ Faker
     In order to easily define realistic-looking factories,
     use the :class:`Faker` attribute declaration.
 
-    This is a wrapper around `fake-factory <https://pypi.python.org/pypi/fake-factory>`_;
-    its argument is the name of a ``fake-factory`` provider:
+    This is a wrapper around `faker <https://pypi.python.org/pypi/faker>`_;
+    its argument is the name of a ``faker`` provider:
 
     .. code-block:: python
 
@@ -721,7 +721,7 @@ Faker
 
     .. classmethod:: add_provider(cls, locale=None)
 
-        Some projects may need to fake fields beyond those provided by ``fake-factory``;
+        Some projects may need to fake fields beyond those provided by ``faker``;
         in such cases, use :meth:`factory.Faker.add_provider` to declare additional providers
         for those fields:
 
