@@ -50,7 +50,6 @@ import factory.django
 from factory.compat import BytesIO
 
 from . import testdata
-from . import tools
 
 
 test_state = {}
