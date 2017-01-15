@@ -1529,19 +1529,19 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModelFactory(FakeModelFactory):
             class Meta:
                 model = TestModel
-            one = 3
-            two = factory.ContainerAttribute(lambda obj, containers: len(containers or []), strict=True)
+            sample_int = 3
+            container_len = factory.ContainerAttribute(lambda obj, containers: len(containers or []), strict=True)
 
         class TestModel2Factory(FakeModelFactory):
             class Meta:
                 model = TestModel2
-            one = 1
-            two = factory.SubFactory(TestModelFactory, one=1)
+            sample_int = 1
+            descendant = factory.SubFactory(TestModelFactory, sample_int=1)
 
         obj = TestModel2Factory.build()
-        self.assertEqual(1, obj.one)
-        self.assertEqual(1, obj.two.one)
-        self.assertEqual(1, obj.two.two)
+        self.assertEqual(1, obj.sample_int)
+        self.assertEqual(1, obj.descendant.sample_int)
+        self.assertEqual(1, obj.descendant.container_len)
 
         self.assertRaises(TypeError, TestModelFactory.build)
 
@@ -1552,10 +1552,10 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModelFactory(FakeModelFactory):
             class Meta:
                 model = TestModel
-            one = 3
+            sample_int = 3
 
             @factory.container_attribute
-            def two(self, containers):
+            def container_len(self, containers):
                 if containers:
                     return len(containers)
                 return 42
@@ -1563,17 +1563,17 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModel2Factory(FakeModelFactory):
             class Meta:
                 model = TestModel2
-            one = 1
-            two = factory.SubFactory(TestModelFactory, one=1)
+            sample_int = 1
+            descendant = factory.SubFactory(TestModelFactory, sample_int=1)
 
         obj = TestModel2Factory.build()
-        self.assertEqual(1, obj.one)
-        self.assertEqual(1, obj.two.one)
-        self.assertEqual(1, obj.two.two)
+        self.assertEqual(1, obj.sample_int)
+        self.assertEqual(1, obj.descendant.sample_int)
+        self.assertEqual(1, obj.descendant.container_len)
 
         obj = TestModelFactory()
-        self.assertEqual(3, obj.one)
-        self.assertEqual(42, obj.two)
+        self.assertEqual(3, obj.sample_int)
+        self.assertEqual(42, obj.container_len)
 
 
 class IteratorTestCase(unittest.TestCase):
@@ -2115,7 +2115,7 @@ class PostGenerationTestCase(unittest.TestCase):
                 obj.related = self
                 self.one = one
                 self.two = two
-                self.three = obj
+                self.related = obj
 
         class TestRelatedObjectFactory(factory.Factory):
             class Meta:
