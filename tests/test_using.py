@@ -14,7 +14,7 @@ import factory
 from factory import errors
 
 from .compat import is_python2, unittest
-from . import tools
+from . import utils
 
 
 class TestObject(object):
@@ -1591,7 +1591,7 @@ class IteratorTestCase(unittest.TestCase):
             self.assertEqual(i + 10, obj.one)
 
     @unittest.skipUnless(is_python2, "Scope bleeding fixed in Python3+")
-    @tools.disable_warnings
+    @utils.disable_warnings
     def test_iterator_list_comprehension_scope_bleeding(self):
         class TestObjectFactory(factory.Factory):
             class Meta:
@@ -1603,7 +1603,7 @@ class IteratorTestCase(unittest.TestCase):
 
         self.assertRaises(TypeError, TestObjectFactory.build)
 
-    @tools.disable_warnings
+    @utils.disable_warnings
     def test_iterator_list_comprehension_protected(self):
         class TestObjectFactory(factory.Factory):
             class Meta:

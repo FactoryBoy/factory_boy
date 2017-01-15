@@ -2,9 +2,22 @@
 # Copyright: See the LICENSE file.
 
 import datetime
+import functools
+import warnings
+
+import factory
 
 from .compat import mock
 from . import alter_time
+
+
+def disable_warnings(fun):
+    @functools.wraps(fun)
+    def decorated(*args, **kwargs):
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            return fun(*args, **kwargs)
+    return decorated
 
 
 class MultiModulePatcher(object):
@@ -47,3 +60,11 @@ class mocked_datetime_now(MultiModulePatcher):
     def _build_patcher(self, target_module):
         module_datetime = getattr(target_module, 'datetime')
         return alter_time.mock_datetime_now(self.target_dt, module_datetime)
+
+
+def evaluate_declaration(declaration, force_sequence=None):
+    kwargs = {'attr': declaration}
+    if force_sequence is not None:
+        kwargs['__sequence'] = force_sequence
+
+    return factory.build(dict, **kwargs)['attr']
