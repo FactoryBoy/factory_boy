@@ -136,6 +136,15 @@ class WithCustomManagerFactory(factory.django.DjangoModelFactory):
     foo = factory.Sequence(lambda n: "foo%d" % n)
 
 
+class WithMultipleGetOrCreateFieldsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.MultifieldUniqueModel
+        django_get_or_create = ("slug", "text",)
+
+    slug = factory.Sequence(lambda n: "slug%s" % n)
+    text = factory.Sequence(lambda n: "text%s" % n)
+
+
 class ModelTests(django_test.TestCase):
     databases = {'default', 'replica'}
 
@@ -213,6 +222,18 @@ class DjangoGetOrCreateTests(django_test.TestCase):
         self.assertEqual(6, len(objs))
         self.assertEqual(2, len(set(objs)))
         self.assertEqual(2, models.MultifieldModel.objects.count())
+
+    def test_multiple_get_or_create_fields_one_defined(self):
+        obj1 = WithMultipleGetOrCreateFieldsFactory()
+        obj2 = WithMultipleGetOrCreateFieldsFactory(slug=obj1.slug)
+        self.assertEqual(obj1, obj2)
+
+    def test_multiple_get_or_create_fields_both_defined(self):
+        obj1 = WithMultipleGetOrCreateFieldsFactory()
+        self.assertRaises(
+            ValueError,
+            lambda: WithMultipleGetOrCreateFieldsFactory(
+                slug=obj1.slug, text="alt"))
 
 
 class DjangoPkForceTestCase(django_test.TestCase):

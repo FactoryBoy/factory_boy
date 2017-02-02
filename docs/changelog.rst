@@ -16,6 +16,7 @@ ChangeLog
 *Bugfix:*
 
     - Allow renamed arguments to be optional, thanks to `Justin Crown <https://github.com/mrname>`_.
+    - Fix `django_get_or_create` behavior when using multiple fields with `unique=True`, thanks to `@YPCrumble <https://github.com/YPCrumble>`
 
 
 2.11.1 (2018-05-05)

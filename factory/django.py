@@ -15,6 +15,7 @@ import functools
 try:
     import django
     from django.core import files as django_files
+    from django.db import IntegrityError
 except ImportError as e:  # pragma: no cover
     django = None
     django_files = None
@@ -133,6 +134,13 @@ class DjangoModelFactory(base.Factory):
         return manager
 
     @classmethod
+    def _generate(cls, strategy, params):
+        # Original params are used in _get_or_create if it cannot build an
+        # object initially due to an IntegrityError being raised
+        cls._original_params = params
+        return super(DjangoModelFactory, cls)._generate(strategy, params)
+
+    @classmethod
     def _get_or_create(cls, model_class, *args, **kwargs):
         """Create an instance of the model through objects.get_or_create."""
         manager = cls._get_manager(model_class)
@@ -152,7 +160,19 @@ class DjangoModelFactory(base.Factory):
             key_fields[field] = kwargs.pop(field)
         key_fields['defaults'] = kwargs
 
-        instance, _created = manager.get_or_create(*args, **key_fields)
+        try:
+            instance, _created = manager.get_or_create(*args, **key_fields)
+        except IntegrityError:
+            try:
+                instance = manager.get(**cls._original_params)
+            except manager.model.DoesNotExist:
+                raise ValueError(
+                    "django_get_or_create - Unable to create a new object "
+                    "due an IntegrityError raised based on "
+                    "your model's uniqueness constraints. "
+                    "DoesNotExist: Unable to find an existing object based on "
+                    "the fields specified in your factory instance.")
+
         return instance
 
     @classmethod
