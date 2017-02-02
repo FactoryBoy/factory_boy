@@ -39,6 +39,7 @@ class FactoryMetaClass(type):
 
         Returns an instance of the associated class.
         """
+        cls.original_kwargs = kwargs
 
         if cls._meta.strategy == enums.BUILD_STRATEGY:
             return cls.build(**kwargs)
