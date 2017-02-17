@@ -319,10 +319,28 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
         SQLAlchemy session to use to communicate with the database when creating
         an object through this :class:`SQLAlchemyModelFactory`.
 
+    .. attribute:: sqlalchemy_session_persistence
+
+        Control the action taken by sqlalchemy session at the end of a create call.
+        
+        Valid values are:
+        
+        * ``None``: do nothing
+        * ``'flush'``: perform a session :meth:`~sqlalchemy.orm.session.Session.flush`
+        * ``'commit'``: perform a session :meth:`~sqlalchemy.orm.session.Session.commit`
+        
+        The default value is ``None``.
+        
+        If ``force_flush`` is set to ``True``, it overrides this option.
+
     .. attribute:: force_flush
 
-        Force a session flush() at the end of :func:`~factory.alchemy.SQLAlchemyModelFactory._create()`.
-
+        Force a session ``flush()`` at the end of :func:`~factory.alchemy.SQLAlchemyModelFactory._create()`.
+        
+        .. note::
+        
+            This option is deprecated. Use ``sqlalchemy_session_persistence`` instead.
+    
 A (very) simple example:
 
 .. code-block:: python
