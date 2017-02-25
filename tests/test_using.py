@@ -21,6 +21,7 @@
 """Tests using factory."""
 
 
+import datetime
 import functools
 import os
 import sys
@@ -1680,6 +1681,22 @@ class IteratorTestCase(unittest.TestCase):
         req2.ready = True
         obj = TestObjectFactory()
         self.assertEqual(1, obj.one)
+
+    def test_iterator_time_manipulation(self):
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            @factory.iterator
+            def one():
+                now = datetime.datetime.now()
+                yield now + datetime.timedelta(hours=1)
+                yield now + datetime.timedelta(hours=2)
+
+        obj1, obj2, obj3 = TestObjectFactory.create_batch(3)
+        # Timers should be t+1H, t+2H, t+1H, t+2H, etc.
+        self.assertEqual(datetime.timedelta(hours=1), obj2.one - obj1.one)
+        self.assertEqual(obj1.one, obj3.one)
 
 
 class BetterFakeModelManager(object):

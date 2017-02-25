@@ -1344,6 +1344,7 @@ When a value is passed in for the argument, the iterator will *not* be advanced:
     >>> UserFactory().lang
     'fr'
 
+
 .. _iterator-getter:
 
 Getter
@@ -1387,6 +1388,15 @@ use the :func:`iterator` decorator:
             with open('test/data/names.dat', 'r') as f:
                 for line in f:
                     yield line
+
+
+.. warning:: Values from the underlying iterator are *kept* in memory; once the
+             initial iterator has been emptied, saved values are used instead of
+             executing the function instead.
+
+             Use ``factory.Iterator(my_func, cycle=False)`` to disable value
+             recycling.
+
 
 
 Resetting
