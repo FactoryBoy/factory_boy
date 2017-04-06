@@ -231,9 +231,10 @@ class FactoryOptions(object):
         if params is not None:
             for k, v in vars(params).items():
                 if not k.startswith('_'):
-                    self.parameters[k] = v
+                    self.parameters[k] = declarations.SimpleParameter.wrap(v)
 
-        self.parameters_dependencies = self._compute_parameter_dependencies(self.parameters)
+        self._check_parameter_dependencies(self.parameters)
+
 
     def _get_counter_reference(self):
         """Identify which factory should be used for a shared counter."""
@@ -346,7 +347,7 @@ class FactoryOptions(object):
         """Captures instances of PostGenerationDeclaration."""
         return isinstance(value, declarations.PostGenerationDeclaration)
 
-    def _compute_parameter_dependencies(self, parameters):
+    def _check_parameter_dependencies(self, parameters):
         """Find out in what order parameters should be called."""
         # Warning: parameters only provide reverse dependencies; we reverse them into standard dependencies.
         # deep_revdeps: set of fields a field depend indirectly upon
@@ -368,7 +369,7 @@ class FactoryOptions(object):
         cyclic = [name for name, field_deps in deep_revdeps.items() if name in field_deps]
         if cyclic:
             raise errors.CyclicDefinitionError(
-                "Cyclic definition detected on %s' Params around %s"
+                "Cyclic definition detected on %r; Params around %s"
                 % (self.factory, ', '.join(cyclic)))
         return deps
 

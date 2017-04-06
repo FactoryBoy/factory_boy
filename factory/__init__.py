@@ -34,6 +34,7 @@ from .declarations import (
     SubFactory,
     Dict,
     List,
+    Maybe,
     PostGeneration,
     PostGenerationMethodCall,
     RelatedFactory,

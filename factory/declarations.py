@@ -20,6 +20,7 @@ class BaseDeclaration(object):
     This allows them to refer to attributes defined by other BaseDeclarations
     in the same factory.
     """
+
     creation_counter = 0
 
     def __init__(self, **kwargs):
@@ -443,6 +444,36 @@ class List(SubFactory):
 # ==========
 
 
+class UNDEFINED(object):
+    pass
+
+
+class Maybe(BaseDeclaration):
+    def __init__(self, decider, yes_declaration, no_declaration=None):
+        self.decider = decider
+        self.yes = yes_declaration
+        self.no = no_declaration
+
+    def evaluate(self, sequence, obj, create, extra=None, containers=()):
+        decider = getattr(obj, self.decider, None)
+        target = self.yes if decider else self.no
+
+        if isinstance(target, BaseDeclaration):
+            return target.evaluate(
+                sequence=sequence,
+                obj=obj,
+                create=create,
+                extra=extra,
+                containers=containers,
+            )
+        else:
+            # Flat value
+            return target
+
+    def __repr__(self):
+        return 'Maybe(%r, yes=%r, no=%r)' % (self.decider, self.yes, self.no)
+
+
 class Parameter(object):
     """A complex parameter, to be used in a Factory.Params section.
 
@@ -451,7 +482,7 @@ class Parameter(object):
     - Optionally, a get_revdeps() function (to compute other parameters it may alter)
     """
 
-    def compute(self, field_name, declarations):
+    def as_declarations(self, field_name, declarations):
         """Compute the overrides for this parameter.
 
         Args:
@@ -468,16 +499,36 @@ class Parameter(object):
         return []
 
 
+class SimpleParameter(Parameter):
+    def __init__(self, value):
+        self.value = value
+
+    def as_declarations(self, field_name, declarations):
+        return {
+            field_name: self.value,
+        }
+
+    @classmethod
+    def wrap(cls, value):
+        if not isinstance(value, Parameter):
+            return cls(value)
+        return value
+
+
 class Trait(Parameter):
     """The simplest complex parameter, it enables a bunch of new declarations based on a boolean flag."""
     def __init__(self, **overrides):
         self.overrides = overrides
 
-    def compute(self, field_name, declarations):
-        if declarations.get(field_name):
-            return self.overrides
-        else:
-            return {}
+    def as_declarations(self, field_name, declarations):
+        overrides = {}
+        for maybe_field, new_value in self.overrides.items():
+            overrides[maybe_field] = Maybe(
+                decider=field_name,
+                yes_declaration=new_value,
+                no_declaration=declarations.get(maybe_field, None),
+            )
+        return overrides
 
     def get_revdeps(self, parameters):
         """This might alter fields it's injecting."""

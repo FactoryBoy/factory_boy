@@ -153,7 +153,7 @@ class ParameterResolver(object):
         """Actually compute the value for a given name."""
         value = self.parameters[name]
         if isinstance(value, declarations.Parameter):
-            overrides = value.compute(name, self.declaration_stack.current())
+            overrides = value.as_declarations(name, self.declaration_stack.current())
         else:
             overrides = {name: value}
         self.declaration_stack['overrides'].update(overrides)
