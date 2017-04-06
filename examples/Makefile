@@ -6,4 +6,4 @@ test: $(TEST_TARGETS)
 
 
 $(TEST_TARGETS): runtest-%:
-	cd $* && PYTHONPATH=../.. python -m unittest
+	cd $* && ./runtests.sh
