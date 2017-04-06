@@ -113,12 +113,12 @@ class AttributeBuilderTestCase(unittest.TestCase):
             parameters = {}
             parameters_dependencies = {}
 
+            @classmethod
+            def next_sequence(cls):
+                return 1
+
         class FakeFactory(object):
             _meta = Meta
-
-            @classmethod
-            def _generate_next_sequence(cls):
-                return 1
 
         return FakeFactory
 

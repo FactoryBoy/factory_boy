@@ -113,7 +113,7 @@ class OptionsTests(unittest.TestCase):
         self.assertEqual({}, AbstractFactory._meta.postgen_declarations)
         self.assertEqual(AbstractFactory, AbstractFactory._meta.factory)
         self.assertEqual(base.Factory, AbstractFactory._meta.base_factory)
-        self.assertEqual(AbstractFactory, AbstractFactory._meta.counter_reference)
+        self.assertEqual(AbstractFactory._meta, AbstractFactory._meta.counter_reference)
 
     def test_declaration_collecting(self):
         lazy = declarations.LazyFunction(int)

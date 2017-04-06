@@ -282,7 +282,7 @@ class AttributeBuilder(object):
         """
         # Setup factory sequence.
         if force_sequence is None:
-            sequence = self.factory._generate_next_sequence()
+            sequence = self.factory._meta.next_sequence()
         else:
             sequence = force_sequence
 

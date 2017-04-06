@@ -153,6 +153,9 @@ class FactoryOptions(object):
         self.parameters = {}
         self.parameters_dependencies = {}
 
+        self._counter = None
+        self.counter_reference = None
+
     @property
     def sorted_postgen_declarations(self):
         """Get sorted postgen declaration items."""
@@ -239,9 +242,47 @@ class FactoryOptions(object):
                 and self.base_factory is not None
                 and self.base_factory._meta.model is not None
                 and issubclass(self.model, self.base_factory._meta.model)):
-            return self.base_factory
+            return self.base_factory._meta.counter_reference
         else:
-            return self.factory
+            return self
+
+    def _initialize_counter(self):
+        """Initialize our counter pointer.
+
+        If we're the top-level factory, instantiate a new counter
+        Otherwise, point to the top-level factory's counter.
+        """
+        if self._counter is not None:
+            return
+
+        if self.counter_reference is self:
+            self._counter = _Counter(seq=self.factory._setup_next_sequence())
+        else:
+            self.counter_reference._initialize_counter()
+            self._counter = self.counter_reference._counter
+
+    def next_sequence(self):
+        """Retrieve a new sequence ID.
+
+        This will call, in order:
+        - next_sequence from the base factory, if provided
+        - _setup_next_sequence, if this is the 'toplevel' factory and the
+            sequence counter wasn't initialized yet; then increase it.
+        """
+        self._initialize_counter()
+        return self._counter.next()
+
+    def reset_sequence(self, value=None, force=False):
+        self._initialize_counter()
+
+        if self.counter_reference is not self and not force:
+            raise ValueError(
+                "Can't reset a sequence on decendant factory %r; reset sequence on %r or use `force=True`."
+                % (self.factory, self.counter_reference.factory))
+
+        if value is None:
+            value = self.counter_reference.factory._setup_next_sequence()
+        self._counter.reset(value)
 
     def _is_declaration(self, name, value):
         """Determines if a class attribute is a field value declaration.
@@ -315,9 +356,8 @@ class _Counter(object):
         seq (int): the next value
     """
 
-    def __init__(self, seq, for_class):
+    def __init__(self, seq):
         self.seq = seq
-        self.for_class = for_class
 
     def next(self):
         value = self.seq
@@ -326,10 +366,6 @@ class _Counter(object):
 
     def reset(self, next_value=0):
         self.seq = next_value
-
-    def __repr__(self):
-        return '<_Counter for %s.%s, next=%d>' % (
-            self.for_class.__module__, self.for_class.__name__, self.seq)
 
 
 class BaseFactory(object):
@@ -358,20 +394,7 @@ class BaseFactory(object):
             force (bool): whether to force-reset parent sequence counters
                 in a factory inheritance chain.
         """
-        if cls._meta.counter_reference is not cls:
-            if force:
-                cls._meta.base_factory.reset_sequence(value=value)
-            else:
-                raise ValueError(
-                    "Cannot reset the sequence of a factory subclass. "
-                    "Please call reset_sequence() on the root factory, "
-                    "or call reset_sequence(force=True)."
-                )
-        else:
-            cls._setup_counter()
-            if value is None:
-                value = cls._setup_next_sequence()
-            cls._counter.reset(value)
+        cls._meta.reset_sequence(value, force=force)
 
     @classmethod
     def _setup_next_sequence(cls):
@@ -381,40 +404,6 @@ class BaseFactory(object):
             int: the first available ID to use for instances of this factory.
         """
         return 0
-
-    @classmethod
-    def _setup_counter(cls):
-        """Ensures cls._counter is set for this class.
-
-        Due to the way inheritance works in Python, we need to ensure that the
-        ``_counter`` attribute has been initialized for *this* Factory subclass,
-        not one of its parents.
-        """
-        if cls._counter is None or cls._counter.for_class != cls:
-            first_seq = cls._setup_next_sequence()
-            cls._counter = _Counter(for_class=cls, seq=first_seq)
-            logger.debug("%s: Setting up next sequence (%d)", cls, first_seq)
-
-    @classmethod
-    def _generate_next_sequence(cls):
-        """Retrieve a new sequence ID.
-
-        This will call, in order:
-        - _generate_next_sequence from the base factory, if provided
-        - _setup_next_sequence, if this is the 'toplevel' factory and the
-            sequence counter wasn't initialized yet; then increase it.
-        """
-
-        # Rely upon our parents
-        if cls._meta.counter_reference is not cls:
-            logger.debug("%r: reusing sequence from %r", cls, cls._meta.base_factory)
-            return cls._meta.base_factory._generate_next_sequence()
-
-        # Make sure _counter is initialized
-        cls._setup_counter()
-
-        # Pick current value, then increase class counter for the next call.
-        return cls._counter.next()
 
     @classmethod
     def attributes(cls, create=False, extra=None):
