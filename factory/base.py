@@ -284,6 +284,48 @@ class FactoryOptions(object):
             value = self.counter_reference.factory._setup_next_sequence()
         self._counter.reset(value)
 
+    def prepare_arguments(self, attributes):
+        """Convert an attributes dict to a (args, kwargs) tuple."""
+        kwargs = dict(attributes)
+        # 1. Extension points
+        kwargs = self.factory._adjust_kwargs(**kwargs)
+
+        # 2. Remove hidden objects
+        kwargs = {
+            k: v for k, v in kwargs.items()
+            if k not in self.exclude and k not in self.parameters
+        }
+
+        # 3. Rename fields
+        for old_name, new_name in self.rename.items():
+            kwargs[new_name] = kwargs.pop(old_name)
+
+        # 4. Extract inline args
+        args = tuple(
+            kwargs.pop(arg_name)
+            for arg_name in self.inline_args
+        )
+
+        return args, kwargs
+
+    def instantiate(self, strategy, args, kwargs):
+        model = self.get_model_class()
+
+        if strategy == BUILD_STRATEGY:
+            return self.factory._build(model, *args, **kwargs)
+        elif strategy == CREATE_STRATEGY:
+            return self.factory._create(model, *args, **kwargs)
+        else:
+            assert strategy == STUB_STRATEGY
+            return StubObject(**kwargs)
+
+    def use_postgeneration_results(self, create, instance, results):
+        self.factory._after_postgeneration(
+            instance=instance,
+            create=create,
+            results=results,
+        )
+
     def _is_declaration(self, name, value):
         """Determines if a class attribute is a field value declaration.
 
@@ -444,56 +486,17 @@ class BaseFactory(object):
         return decls
 
     @classmethod
-    def _rename_fields(cls, **kwargs):
-        for old_name, new_name in cls._meta.rename.items():
-            kwargs[new_name] = kwargs.pop(old_name)
-        return kwargs
-
-    @classmethod
     def _adjust_kwargs(cls, **kwargs):
         """Extension point for custom kwargs adjustment."""
         return kwargs
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
-        """Prepare an object for this factory.
-
-        Args:
-            create: bool, whether to create or to build the object
-            **kwargs: arguments to pass to the creation function
-        """
-        model_class = cls._meta.get_model_class()
-        kwargs = cls._rename_fields(**kwargs)
-        kwargs = cls._adjust_kwargs(**kwargs)
-
-        # Remove 'hidden' arguments.
-        for arg in cls._meta.exclude:
-            del kwargs[arg]
-        # Remove parameters, if defined
-        for arg in cls._meta.parameters:
-            kwargs.pop(arg, None)
-
-        # Extract *args from **kwargs
-        args = tuple(kwargs.pop(key) for key in cls._meta.inline_args)
-
-        logger.debug(
-            "BaseFactory: Generating %s.%s(%s)",
-            cls.__module__,
-            cls.__name__,
-            utils.log_pprint(args, kwargs),
-        )
-        if create:
-            return cls._create(model_class, *args, **kwargs)
-        else:
-            return cls._build(model_class, *args, **kwargs)
-
-    @classmethod
-    def _generate(cls, create, attrs):
+    def _generate(cls, strategy, params):
         """generate the object.
 
         Args:
-            create (bool): whether to 'build' or 'create' the object
-            attrs (dict): attributes to use for generating the object
+            params (dict): attributes to use for generating the object
+            strategy: the strategy to use
         """
         if cls._meta.abstract:
             raise errors.FactoryError(
@@ -501,6 +504,9 @@ class BaseFactory(object):
                 "Ensure %(f)s.Meta.model is set and %(f)s.Meta.abstract "
                 "is either not set or False." % dict(f=cls.__name__))
 
+        create = bool(strategy == CREATE_STRATEGY)
+
+        attrs = cls.attributes(create=create, extra=params)
         # Extract declarations used for post-generation
         postgen_attributes = {}
 
@@ -508,7 +514,8 @@ class BaseFactory(object):
             postgen_attributes[name] = decl.extract(name, attrs)
 
         # Generate the object
-        obj = cls._prepare(create, **attrs)
+        args, kwargs = cls._meta.prepare_arguments(attrs)
+        obj = cls._meta.instantiate(strategy, args, kwargs)
 
         # Handle post-generation attributes
         results = {}
@@ -516,12 +523,12 @@ class BaseFactory(object):
             extraction_context = postgen_attributes[name]
             results[name] = decl.call(obj, create, extraction_context)
 
-        cls._after_postgeneration(obj, create, results)
+        cls._meta.use_postgeneration_results(create, obj, results)
 
         return obj
 
     @classmethod
-    def _after_postgeneration(cls, obj, create, results=None):
+    def _after_postgeneration(cls, instance, create, results=None):
         """Hook called after post-generation declarations have been handled.
 
         Args:
@@ -564,8 +571,7 @@ class BaseFactory(object):
     @classmethod
     def build(cls, **kwargs):
         """Build an instance of the associated class, with overriden attrs."""
-        attrs = cls.attributes(create=False, extra=kwargs)
-        return cls._generate(False, attrs)
+        return cls._generate(BUILD_STRATEGY, kwargs)
 
     @classmethod
     def build_batch(cls, size, **kwargs):
@@ -582,8 +588,7 @@ class BaseFactory(object):
     @classmethod
     def create(cls, **kwargs):
         """Create an instance of the associated class, with overriden attrs."""
-        attrs = cls.attributes(create=True, extra=kwargs)
-        return cls._generate(True, attrs)
+        return cls._generate(CREATE_STRATEGY, kwargs)
 
     @classmethod
     def create_batch(cls, size, **kwargs):
@@ -604,7 +609,7 @@ class BaseFactory(object):
         This will return an object whose attributes are those defined in this
         factory's declarations or in the extra kwargs.
         """
-        return StubObject(**cls.attributes(create=False, extra=kwargs))
+        return cls._generate(STUB_STRATEGY, kwargs)
 
     @classmethod
     def stub_batch(cls, size, **kwargs):

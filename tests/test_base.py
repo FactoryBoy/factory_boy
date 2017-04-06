@@ -472,9 +472,9 @@ class FactoryCreationTestCase(unittest.TestCase):
                 model = TestModel
 
             @classmethod
-            def _prepare(cls, create, **kwargs):
-                kwargs['four'] = 4
-                return super(TestModelFactory, cls)._prepare(create, **kwargs)
+            def _generate(cls, create, attrs):
+                attrs['four'] = 4
+                return super(TestModelFactory, cls)._generate(create, attrs)
 
         b = TestModelFactory.build(one=1)
         self.assertEqual(1, b.one)

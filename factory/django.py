@@ -169,11 +169,11 @@ class DjangoModelFactory(base.Factory):
         return manager.create(*args, **kwargs)
 
     @classmethod
-    def _after_postgeneration(cls, obj, create, results=None):
+    def _after_postgeneration(cls, instance, create, results=None):
         """Save again the instance if creating and at least one hook ran."""
         if create and results:
             # Some post-generation hooks ran, and may have modified us.
-            obj.save()
+            instance.save()
 
 
 class FileField(declarations.ParameteredAttribute):
