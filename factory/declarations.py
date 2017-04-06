@@ -13,13 +13,19 @@ from . import utils
 logger = logging.getLogger('factory.generate')
 
 
-class OrderedDeclaration(object):
+class BaseDeclaration(object):
     """A factory declaration.
 
     Ordered declarations mark an attribute as needing lazy evaluation.
-    This allows them to refer to attributes defined by other OrderedDeclarations
+    This allows them to refer to attributes defined by other BaseDeclarations
     in the same factory.
     """
+    creation_counter = 0
+
+    def __init__(self, **kwargs):
+        super(BaseDeclaration, self).__init__(**kwargs)
+        self.creation_counter = BaseDeclaration.creation_counter
+        BaseDeclaration.creation_counter += 1
 
     def evaluate(self, sequence, obj, create, extra=None, containers=()):
         """Evaluate this declaration.
@@ -39,8 +45,14 @@ class OrderedDeclaration(object):
         raise NotImplementedError('This is an abstract method')
 
 
-class LazyFunction(OrderedDeclaration):
-    """Simplest OrderedDeclaration computed by calling the given function.
+class OrderedDeclaration(BaseDeclaration):
+    """Compatibility"""
+
+    # FIXME(rbarrois)
+
+
+class LazyFunction(BaseDeclaration):
+    """Simplest BaseDeclaration computed by calling the given function.
 
     Attributes:
         function (function): a function without arguments and
@@ -56,8 +68,8 @@ class LazyFunction(OrderedDeclaration):
         return self.function()
 
 
-class LazyAttribute(OrderedDeclaration):
-    """Specific OrderedDeclaration computed using a lambda.
+class LazyAttribute(BaseDeclaration):
+    """Specific BaseDeclaration computed using a lambda.
 
     Attributes:
         function (function): a function, expecting the current LazyStub and
@@ -106,8 +118,8 @@ def deepgetattr(obj, name, default=_UNSPECIFIED):
             return default
 
 
-class SelfAttribute(OrderedDeclaration):
-    """Specific OrderedDeclaration copying values from other fields.
+class SelfAttribute(BaseDeclaration):
+    """Specific BaseDeclaration copying values from other fields.
 
     If the field name starts with two dots or more, the lookup will be anchored
     in the related 'parent'.
@@ -146,7 +158,7 @@ class SelfAttribute(OrderedDeclaration):
         )
 
 
-class Iterator(OrderedDeclaration):
+class Iterator(BaseDeclaration):
     """Fill this value using the values returned by an iterator.
 
     Warning: the iterator should not end !
@@ -183,8 +195,8 @@ class Iterator(OrderedDeclaration):
         self.iterator.reset()
 
 
-class Sequence(OrderedDeclaration):
-    """Specific OrderedDeclaration to use for 'sequenced' fields.
+class Sequence(BaseDeclaration):
+    """Specific BaseDeclaration to use for 'sequenced' fields.
 
     These fields are typically used to generate increasing unique values.
 
@@ -220,7 +232,7 @@ class LazyAttributeSequence(Sequence):
         return self.function(obj, self.type(sequence))
 
 
-class ContainerAttribute(OrderedDeclaration):
+class ContainerAttribute(BaseDeclaration):
     """Variant of LazyAttribute, also receives the containers of the object.
 
     Attributes:
@@ -252,7 +264,7 @@ class ContainerAttribute(OrderedDeclaration):
         return self.function(obj, containers)
 
 
-class ParameteredAttribute(OrderedDeclaration):
+class ParameteredAttribute(BaseDeclaration):
     """Base class for attributes expecting parameters.
 
     Attributes:
@@ -431,7 +443,7 @@ class List(SubFactory):
 # ==========
 
 
-class ComplexParameter(object):
+class Parameter(object):
     """A complex parameter, to be used in a Factory.Params section.
 
     Must implement:
@@ -456,7 +468,7 @@ class ComplexParameter(object):
         return []
 
 
-class Trait(ComplexParameter):
+class Trait(Parameter):
     """The simplest complex parameter, it enables a bunch of new declarations based on a boolean flag."""
     def __init__(self, **overrides):
         self.overrides = overrides

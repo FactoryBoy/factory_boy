@@ -253,7 +253,7 @@ class FactoryOptions(object):
         """
         if isinstance(value, (classmethod, staticmethod)):
             return False
-        elif isinstance(value, declarations.OrderedDeclaration):
+        elif isinstance(value, declarations.BaseDeclaration):
             return True
         elif isinstance(value, declarations.PostGenerationDeclaration):
             return False
@@ -272,7 +272,7 @@ class FactoryOptions(object):
         deps = collections.defaultdict(set)
 
         for name, parameter in parameters.items():
-            if isinstance(parameter, declarations.ComplexParameter):
+            if isinstance(parameter, declarations.Parameter):
                 field_revdeps = parameter.get_revdeps(parameters)
                 if not field_revdeps:
                     continue

@@ -152,7 +152,7 @@ class ParameterResolver(object):
     def compute(self, name):
         """Actually compute the value for a given name."""
         value = self.parameters[name]
-        if isinstance(value, declarations.ComplexParameter):
+        if isinstance(value, declarations.Parameter):
             overrides = value.compute(name, self.declaration_stack.current())
         else:
             overrides = {name: value}
@@ -290,7 +290,7 @@ class AttributeBuilder(object):
         # OrderedDeclaration.
         wrapped_attrs = {}
         for k, v in self._declarations.items():
-            if isinstance(v, declarations.OrderedDeclaration):
+            if isinstance(v, declarations.BaseDeclaration):
                 v = DeclarationWrapper(
                     v,
                     sequence=sequence,

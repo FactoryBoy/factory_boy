@@ -52,7 +52,7 @@ def reseed_random(seed):
     random.reseed_random(seed)
 
 
-class BaseFuzzyAttribute(declarations.OrderedDeclaration):
+class BaseFuzzyAttribute(declarations.BaseDeclaration):
     """Base class for fuzzy attributes.
 
     Custom fuzzers should override the `fuzz()` method.

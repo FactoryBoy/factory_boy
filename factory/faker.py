@@ -26,7 +26,7 @@ from .random import get_random_state
 from . import declarations
 
 
-class Faker(declarations.OrderedDeclaration):
+class Faker(declarations.BaseDeclaration):
     """Wrapper for 'faker' values.
 
     Args:
