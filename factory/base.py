@@ -206,7 +206,7 @@ class FactoryOptions(object):
 
         self._fill_from_meta(meta=meta, base_meta=base_meta)
 
-        self.model = self.factory._load_model_class(self.model)
+        self.model = self.get_model_class()
         if self.model is None:
             self.abstract = True
 
@@ -288,6 +288,14 @@ class FactoryOptions(object):
                 "Cyclic definition detected on %s' Params around %s"
                 % (self.factory, ', '.join(cyclic)))
         return deps
+
+    def get_model_class(self):
+        """Extension point for loading model classes.
+
+        This can be overridden in framework-specific subclasses to hook into
+        existing model repositories, for instance.
+        """
+        return self.model
 
     def __str__(self):
         return "<%s for %s>" % (self.__class__.__name__, self.factory.__class__.__name__)
@@ -458,21 +466,6 @@ class BaseFactory(object):
         return kwargs
 
     @classmethod
-    def _load_model_class(cls, class_definition):
-        """Extension point for loading model classes.
-
-        This can be overridden in framework-specific subclasses to hook into
-        existing model repositories, for instance.
-        """
-        return class_definition
-
-    @classmethod
-    def _get_model_class(cls):
-        """Retrieve the actual, associated model class."""
-        definition = cls._meta.model
-        return cls._load_model_class(definition)
-
-    @classmethod
     def _prepare(cls, create, **kwargs):
         """Prepare an object for this factory.
 
@@ -480,7 +473,7 @@ class BaseFactory(object):
             create: bool, whether to create or to build the object
             **kwargs: arguments to pass to the creation function
         """
-        model_class = cls._get_model_class()
+        model_class = cls._meta.get_model_class()
         kwargs = cls._rename_fields(**kwargs)
         kwargs = cls._adjust_kwargs(**kwargs)
 

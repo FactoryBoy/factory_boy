@@ -87,6 +87,13 @@ class DjangoOptions(base.FactoryOptions):
             return self.factory
         return counter_reference
 
+    def get_model_class(self):
+        if is_string(self.model) and '.' in self.model:
+            app, model_name = self.model.split('.', 1)
+            self.model = get_model(app, model_name)
+
+        return self.model
+
 
 class DjangoModelFactory(base.Factory):
     """Factory for Django models.

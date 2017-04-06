@@ -274,7 +274,7 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
             class Meta:
                 model = 'djapp.StandardModel'
 
-        self.assertEqual(models.StandardModel, ExampleFactory._get_model_class())
+        self.assertEqual(models.StandardModel, ExampleFactory._meta.get_model_class())
 
     def test_building(self):
         class ExampleFactory(factory.DjangoModelFactory):
@@ -313,8 +313,6 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
         class Example2Factory(ExampleFactory):
             class Meta:
                 model = 'djapp.StandardSon'
-
-        self.assertEqual(models.StandardSon, Example2Factory._get_model_class())
 
         e1 = ExampleFactory.build()
         e2 = Example2Factory.build()
