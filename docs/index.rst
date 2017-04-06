@@ -16,6 +16,7 @@ Contents, indices and tables
     examples
     internals
     changelog
+    credits
     ideas
 
 * :ref:`genindex`
