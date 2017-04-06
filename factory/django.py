@@ -155,8 +155,8 @@ class DjangoModelFactory(base.Factory):
             key_fields[field] = kwargs.pop(field)
         key_fields['defaults'] = kwargs
 
-        obj, _created = manager.get_or_create(*args, **key_fields)
-        return obj
+        instance, _created = manager.get_or_create(*args, **key_fields)
+        return instance
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
@@ -169,22 +169,21 @@ class DjangoModelFactory(base.Factory):
         return manager.create(*args, **kwargs)
 
     @classmethod
-    def _after_postgeneration(cls, instance, create, results=None):
+    def _after_postgeneration(cls, instance, step, results=None):
         """Save again the instance if creating and at least one hook ran."""
-        if create and results:
+        if step.builder.strategy == base.CREATE_STRATEGY and results:
             # Some post-generation hooks ran, and may have modified us.
             instance.save()
 
 
-class FileField(declarations.ParameteredAttribute):
+class FileField(declarations.Dict):
     """Helper to fill in django.db.models.FileField from a Factory."""
 
     DEFAULT_FILENAME = 'example.dat'
-    EXTEND_CONTAINERS = True
 
     def __init__(self, **defaults):
         require_django()
-        super(FileField, self).__init__(**defaults)
+        super(FileField, self).__init__(defaults)
 
     def _make_data(self, params):
         """Create data for the field."""
@@ -227,11 +226,9 @@ class FileField(declarations.ParameteredAttribute):
         filename = params.get('filename', default_filename)
         return filename, content
 
-    def generate(self, sequence, obj, create, params):
+    def generate(self, step, params):
         """Fill in the field."""
-
-        params.setdefault('__sequence', sequence)
-        params = base.DictFactory.simple_generate(create, **params)
+        params = super(FileField, self).generate(step, params)
         filename, content = self._make_content(params)
         return django_files.File(content.file, filename)
 

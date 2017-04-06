@@ -5,8 +5,9 @@ from __future__ import unicode_literals
 
 import collections
 import logging
+import warnings
 
-from . import containers
+from . import builder
 from . import declarations
 from . import errors
 from . import utils
@@ -148,21 +149,21 @@ class FactoryOptions(object):
     def __init__(self):
         self.factory = None
         self.base_factory = None
-        self.declarations = {}
-        self.postgen_declarations = {}
+        self.base_declarations = {}
         self.parameters = {}
         self.parameters_dependencies = {}
+        self.pre_declarations = builder.DeclarationSet()
+        self.post_declarations = builder.DeclarationSet()
 
         self._counter = None
         self.counter_reference = None
 
     @property
-    def sorted_postgen_declarations(self):
-        """Get sorted postgen declaration items."""
-        return sorted(
-            self.postgen_declarations.items(),
-            key=lambda item: item[1].creation_counter,
-        )
+    def declarations(self):
+        base_declarations = dict(self.base_declarations)
+        for name, param in self.parameters.items():
+            base_declarations.update(param.as_declarations(name, base_declarations))
+        return base_declarations
 
     def _build_default_options(self):
         """"Provide the default value for all allowed fields.
@@ -215,18 +216,17 @@ class FactoryOptions(object):
 
         self.counter_reference = self._get_counter_reference()
 
+        # Scan the inheritance chain, starting from the furthest point,
+        # excluding the current class, to retrieve all declarations.
         for parent in reversed(self.factory.__mro__[1:]):
             if not hasattr(parent, '_meta'):
                 continue
-            self.declarations.update(parent._meta.declarations)
-            self.postgen_declarations.update(parent._meta.postgen_declarations)
+            self.base_declarations.update(parent._meta.base_declarations)
             self.parameters.update(parent._meta.parameters)
 
         for k, v in vars(self.factory).items():
-            if self._is_declaration(k, v):
-                self.declarations[k] = v
-            if self._is_postgen_declaration(k, v):
-                self.postgen_declarations[k] = v
+            if self._is_declaration(k, v) or self._is_postgen_declaration(k, v):
+                self.base_declarations[k] = v
 
         if params is not None:
             for k, v in vars(params).items():
@@ -235,6 +235,7 @@ class FactoryOptions(object):
 
         self._check_parameter_dependencies(self.parameters)
 
+        self.pre_declarations, self.post_declarations = builder.parse_declarations(self.declarations)
 
     def _get_counter_reference(self):
         """Identify which factory should be used for a shared counter."""
@@ -309,21 +310,21 @@ class FactoryOptions(object):
 
         return args, kwargs
 
-    def instantiate(self, strategy, args, kwargs):
+    def instantiate(self, step, args, kwargs):
         model = self.get_model_class()
 
-        if strategy == BUILD_STRATEGY:
+        if step.builder.strategy == BUILD_STRATEGY:
             return self.factory._build(model, *args, **kwargs)
-        elif strategy == CREATE_STRATEGY:
+        elif step.builder.strategy == CREATE_STRATEGY:
             return self.factory._create(model, *args, **kwargs)
         else:
-            assert strategy == STUB_STRATEGY
+            assert step.builder.strategy == STUB_STRATEGY
             return StubObject(**kwargs)
 
-    def use_postgeneration_results(self, create, instance, results):
+    def use_postgeneration_results(self, step, instance, results):
         self.factory._after_postgeneration(
             instance=instance,
-            create=create,
+            step=step,
             results=results,
         )
 
@@ -459,20 +460,15 @@ class BaseFactory(object):
             applicable; the current list of computed attributes is available
             to the currently processed object.
         """
-        force_sequence = None
-        if extra:
-            force_sequence = extra.pop('__sequence', None)
-        log_ctx = '%s.%s' % (cls.__module__, cls.__name__)
-        logger.debug(
-            "BaseFactory: Preparing %s.%s(extra=%s)",
-            cls.__module__,
-            cls.__name__,
-            utils.log_repr(extra),
+        warnings.warn(
+            "Usage of Factory.attributes() is deprecated.",
+            DeprecationWarning,
+            stacklevel=2,
         )
-        return containers.AttributeBuilder(cls, extra, log_ctx=log_ctx).build(
-            create=create,
-            force_sequence=force_sequence,
-        )
+        declarations = cls._meta.pre_declarations.as_dict()
+        declarations.update(extra or {})
+        from . import helpers
+        return helpers.make_factory(dict, **declarations)
 
     @classmethod
     def declarations(cls, extra_defs=None):
@@ -482,7 +478,12 @@ class BaseFactory(object):
             extra_defs (dict): additional definitions to insert into the
                 retrieved DeclarationDict.
         """
-        decls = cls._meta.declarations.copy()
+        warnings.warn(
+            "Factory.declarations is deprecated; use Factory._meta.pre_declarations instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        decls = cls._meta.pre_declarations.as_dict()
         decls.update(extra_defs or {})
         return decls
 
@@ -505,31 +506,11 @@ class BaseFactory(object):
                 "Ensure %(f)s.Meta.model is set and %(f)s.Meta.abstract "
                 "is either not set or False." % dict(f=cls.__name__))
 
-        create = bool(strategy == CREATE_STRATEGY)
-
-        attrs = cls.attributes(create=create, extra=params)
-        # Extract declarations used for post-generation
-        postgen_attributes = {}
-
-        for name, decl in cls._meta.sorted_postgen_declarations:
-            postgen_attributes[name] = decl.extract(name, attrs)
-
-        # Generate the object
-        args, kwargs = cls._meta.prepare_arguments(attrs)
-        obj = cls._meta.instantiate(strategy, args, kwargs)
-
-        # Handle post-generation attributes
-        results = {}
-        for name, decl in cls._meta.sorted_postgen_declarations:
-            extraction_context = postgen_attributes[name]
-            results[name] = decl.call(obj, create, extraction_context)
-
-        cls._meta.use_postgeneration_results(create, obj, results)
-
-        return obj
+        step = builder.StepBuilder(cls._meta, params, strategy)
+        return step.build()
 
     @classmethod
-    def _after_postgeneration(cls, instance, create, results=None):
+    def _after_postgeneration(cls, instance, step, results=None):
         """Hook called after post-generation declarations have been handled.
 
         Args:

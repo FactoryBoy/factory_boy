@@ -804,7 +804,7 @@ accept the object being built as sole argument, and return a value.
 
 
 The object passed to :class:`LazyAttribute` is not an instance of the target class,
-but instead a :class:`~containers.LazyStub`: a temporary container that computes
+but instead a :class:`~builder.Resolver`: a temporary container that computes
 the value of all declared fields.
 
 
@@ -1273,7 +1273,7 @@ Obviously, this "follow parents" ability also handles overriding some attributes
 
 
 This feature is also available to :class:`LazyAttribute` and :class:`LazyAttributeSequence`,
-through the :attr:`~containers.LazyStub.factory_parent` attribute of the passed-in object:
+through the :attr:`~builder.Resolver.factory_parent` attribute of the passed-in object:
 
 .. code-block:: python
 

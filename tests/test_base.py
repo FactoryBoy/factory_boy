@@ -109,8 +109,8 @@ class OptionsTests(unittest.TestCase):
         self.assertEqual(base.CREATE_STRATEGY, AbstractFactory._meta.strategy)
 
         # Non-declarative attributes
-        self.assertEqual({}, AbstractFactory._meta.declarations)
-        self.assertEqual({}, AbstractFactory._meta.postgen_declarations)
+        self.assertEqual({}, AbstractFactory._meta.pre_declarations.as_dict())
+        self.assertEqual({}, AbstractFactory._meta.post_declarations.as_dict())
         self.assertEqual(AbstractFactory, AbstractFactory._meta.factory)
         self.assertEqual(base.Factory, AbstractFactory._meta.base_factory)
         self.assertEqual(AbstractFactory._meta, AbstractFactory._meta.counter_reference)
@@ -133,8 +133,14 @@ class OptionsTests(unittest.TestCase):
         self.assertEqual(postgen, AbstractFactory.z)
 
         # And are available in class Meta
-        self.assertEqual({'x': 1, 'y': lazy, 'y2': lazy2}, AbstractFactory._meta.declarations)
-        self.assertEqual({'z': postgen}, AbstractFactory._meta.postgen_declarations)
+        self.assertEqual(
+            {'x': 1, 'y': lazy, 'y2': lazy2},
+            AbstractFactory._meta.pre_declarations.as_dict(),
+        )
+        self.assertEqual(
+            {'z': postgen},
+            AbstractFactory._meta.post_declarations.as_dict(),
+        )
 
     def test_inherited_declaration_collecting(self):
         lazy = declarations.LazyFunction(int)
@@ -159,8 +165,14 @@ class OptionsTests(unittest.TestCase):
         self.assertEqual(postgen, OtherFactory.z)
 
         # And are available in class Meta
-        self.assertEqual({'x': 1, 'y': lazy, 'a': lazy2}, OtherFactory._meta.declarations)
-        self.assertEqual({'z': postgen, 'b': postgen2}, OtherFactory._meta.postgen_declarations)
+        self.assertEqual(
+            {'x': 1, 'y': lazy, 'a': lazy2},
+            OtherFactory._meta.pre_declarations.as_dict(),
+        )
+        self.assertEqual(
+            {'z': postgen, 'b': postgen2},
+            OtherFactory._meta.post_declarations.as_dict(),
+        )
 
     def test_inherited_declaration_shadowing(self):
         lazy = declarations.LazyFunction(int)
@@ -183,8 +195,14 @@ class OptionsTests(unittest.TestCase):
         self.assertEqual(postgen2, OtherFactory.z)
 
         # And are available in class Meta
-        self.assertEqual({'x': 1, 'y': lazy2}, OtherFactory._meta.declarations)
-        self.assertEqual({'z': postgen2}, OtherFactory._meta.postgen_declarations)
+        self.assertEqual(
+            {'x': 1, 'y': lazy2},
+            OtherFactory._meta.pre_declarations.as_dict(),
+        )
+        self.assertEqual(
+            {'z': postgen2},
+            OtherFactory._meta.post_declarations.as_dict(),
+        )
 
 
 class DeclarationParsingTests(unittest.TestCase):
@@ -504,7 +522,7 @@ class PostGenerationParsingTestCase(unittest.TestCase):
 
             foo = declarations.PostGenerationDeclaration()
 
-        self.assertIn('foo', TestObjectFactory._meta.postgen_declarations)
+        self.assertIn('foo', TestObjectFactory._meta.post_declarations.as_dict())
 
     def test_classlevel_extraction(self):
         class TestObjectFactory(base.Factory):
@@ -514,8 +532,8 @@ class PostGenerationParsingTestCase(unittest.TestCase):
             foo = declarations.PostGenerationDeclaration()
             foo__bar = 42
 
-        self.assertIn('foo', TestObjectFactory._meta.postgen_declarations)
-        self.assertIn('foo__bar', TestObjectFactory._meta.declarations)
+        self.assertIn('foo', TestObjectFactory._meta.post_declarations.as_dict())
+        self.assertIn('foo__foo__bar', TestObjectFactory._meta.post_declarations.as_dict())
 
 
 

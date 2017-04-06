@@ -52,7 +52,7 @@ class Faker(declarations.BaseDeclaration):
         subfaker = self._get_faker(self.locale)
         return subfaker.format(self.provider, **kwargs)
 
-    def evaluate(self, sequence, obj, create, extra=None, containers=()):
+    def evaluate(self, instance, step, extra):
         return self.generate(extra or {})
 
     _FAKER_REGISTRY = {}

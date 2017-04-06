@@ -61,7 +61,7 @@ class BaseFuzzyAttribute(declarations.BaseDeclaration):
     def fuzz(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def evaluate(self, sequence, obj, create, extra=None, containers=()):
+    def evaluate(self, instance, step, extra):
         return self.fuzz()
 
 

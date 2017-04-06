@@ -292,8 +292,8 @@ This takes care of all ``FACTORY_FOR`` occurences; the files containing other at
 
     - Add :class:`~factory.fuzzy.FuzzyDate` thanks to `saulshanabrook <https://github.com/saulshanabrook>`_
     - Add :class:`~factory.fuzzy.FuzzyDateTime` and :class:`~factory.fuzzy.FuzzyNaiveDateTime`.
-    - Add a :attr:`~factory.containers.LazyStub.factory_parent` attribute to the
-      :class:`~factory.containers.LazyStub` passed to :class:`~factory.LazyAttribute`, in order to access
+    - Add a :attr:`~factory.builder.Resolver.factory_parent` attribute to the
+      :class:`~factory.builder.Resolver` passed to :class:`~factory.LazyAttribute`, in order to access
       fields defined in wrapping factories.
     - Move :class:`~factory.django.DjangoModelFactory` and :class:`~factory.mogo.MogoFactory`
       to their own modules (:mod:`factory.django` and :mod:`factory.mogo`)

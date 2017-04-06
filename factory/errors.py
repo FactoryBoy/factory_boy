@@ -20,3 +20,11 @@ class UnsupportedStrategy(FactoryError):
 
 class CyclicDefinitionError(FactoryError):
     """Raised when a cyclical declaration occurs."""
+
+
+class InvalidDeclarationError(FactoryError):
+    """Raised when a sub-declaration has no related declaration.
+
+    This means that the user declared 'foo__bar' without adding a declaration
+    at 'foo'.
+    """

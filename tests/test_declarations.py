@@ -133,7 +133,7 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
         )
 
         self.assertEqual(2, len(call_params))
-        self.assertEqual(3, len(call_params[0]))  # instance, created, context
+        self.assertEqual(3, len(call_params[0]))  # instance, step, context.value
         self.assertEqual({'bar': 42}, call_params[1])
 
     def test_decorator_simple(self):
@@ -152,7 +152,7 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
         )
 
         self.assertEqual(2, len(call_params))
-        self.assertEqual(3, len(call_params[0]))  # instance, created, context
+        self.assertEqual(3, len(call_params[0]))  # instance, step, context.value
         self.assertEqual({'bar': 42}, call_params[1])
 
 
@@ -304,9 +304,7 @@ class PostGenerationOrdering(unittest.TestCase):
             def aa(*args, **kwargs):
                 postgen_results.append('aa')
 
-        postgen_names = [
-            k for k, v in Ordered._meta.sorted_postgen_declarations
-        ]
+        postgen_names = Ordered._meta.post_declarations.sorted()
         self.assertEqual(postgen_names, ['a', 'z', 'a1', 'zz', 'aa'])
 
         # Test generation happens in desired order
