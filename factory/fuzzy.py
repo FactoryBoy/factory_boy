@@ -6,19 +6,14 @@
 
 from __future__ import unicode_literals
 
-import decimal
-import random
-import string
 import datetime
+import decimal
+import string
 import warnings
 
 from . import compat
 from . import declarations
-
-
-_random = random.Random()
-_random.state_set = False
-
+from . import random
 
 random_seed_warning = (
     "Setting a specific random seed for {} can still have varying results "
@@ -28,20 +23,33 @@ random_seed_warning = (
 
 
 def get_random_state():
-    """Retrieve the state of factory.fuzzy's random generator."""
-    return _random.getstate()
+    warnings.warn(
+        "`factory.fuzzy.get_random_state` is deprecated. "
+        "You should use `factory.random.get_random_state` instead",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    return random.get_random_state()
 
 
 def set_random_state(state):
-    """Force-set the state of factory.fuzzy's random generator."""
-    _random.state_set = True
-    return _random.setstate(state)
+    warnings.warn(
+        "`factory.fuzzy.set_random_state` is deprecated. "
+        "You should use `factory.random.set_random_state` instead",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    return random.set_random_state(state)
 
 
 def reseed_random(seed):
-    """Reseed factory.fuzzy's random generator."""
-    r = random.Random(seed)
-    set_random_state(r.getstate())
+    warnings.warn(
+        "`factory.fuzzy.set_random_state` is deprecated. "
+        "You should use `factory.random.reseed_random` instead",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    random.reseed_random(seed)
 
 
 class BaseFuzzyAttribute(declarations.OrderedDeclaration):
@@ -98,7 +106,7 @@ class FuzzyText(BaseFuzzyAttribute):
         self.chars = tuple(chars)  # Unroll iterators
 
     def fuzz(self):
-        chars = [_random.choice(self.chars) for _i in range(self.length)]
+        chars = [random.randgen.choice(self.chars) for _i in range(self.length)]
         return self.prefix + ''.join(chars) + self.suffix
 
 
@@ -118,7 +126,7 @@ class FuzzyChoice(BaseFuzzyAttribute):
     def fuzz(self):
         if self.choices is None:
             self.choices = list(self.choices_generator)
-        return _random.choice(self.choices)
+        return random.randgen.choice(self.choices)
 
 
 class FuzzyInteger(BaseFuzzyAttribute):
@@ -136,7 +144,7 @@ class FuzzyInteger(BaseFuzzyAttribute):
         super(FuzzyInteger, self).__init__(**kwargs)
 
     def fuzz(self):
-        return _random.randrange(self.low, self.high + 1, self.step)
+        return random.randgen.randrange(self.low, self.high + 1, self.step)
 
 
 class FuzzyDecimal(BaseFuzzyAttribute):
@@ -154,7 +162,7 @@ class FuzzyDecimal(BaseFuzzyAttribute):
         super(FuzzyDecimal, self).__init__(**kwargs)
 
     def fuzz(self):
-        base = decimal.Decimal(str(_random.uniform(self.low, self.high)))
+        base = decimal.Decimal(str(random.randgen.uniform(self.low, self.high)))
         return base.quantize(decimal.Decimal(10) ** -self.precision)
 
 
@@ -172,7 +180,7 @@ class FuzzyFloat(BaseFuzzyAttribute):
         super(FuzzyFloat, self).__init__(**kwargs)
 
     def fuzz(self):
-        return _random.uniform(self.low, self.high)
+        return random.randgen.uniform(self.low, self.high)
 
 
 class FuzzyDate(BaseFuzzyAttribute):
@@ -181,7 +189,7 @@ class FuzzyDate(BaseFuzzyAttribute):
     def __init__(self, start_date, end_date=None, **kwargs):
         super(FuzzyDate, self).__init__(**kwargs)
         if end_date is None:
-            if _random.state_set:
+            if random.randgen.state_set:
                 cls_name = self.__class__.__name__
                 warnings.warn(random_seed_warning.format(cls_name))
             end_date = datetime.date.today()
@@ -195,7 +203,7 @@ class FuzzyDate(BaseFuzzyAttribute):
         self.end_date = end_date.toordinal()
 
     def fuzz(self):
-        return datetime.date.fromordinal(_random.randint(self.start_date, self.end_date))
+        return datetime.date.fromordinal(random.randgen.randint(self.start_date, self.end_date))
 
 
 class BaseFuzzyDateTime(BaseFuzzyAttribute):
@@ -220,7 +228,7 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
         super(BaseFuzzyDateTime, self).__init__(**kwargs)
 
         if end_dt is None:
-            if _random.state_set:
+            if random.randgen.state_set:
                 cls_name = self.__class__.__name__
                 warnings.warn(random_seed_warning.format(cls_name))
             end_dt = self._now()
@@ -241,7 +249,7 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
         delta = self.end_dt - self.start_dt
         microseconds = delta.microseconds + 1000000 * (delta.seconds + (delta.days * 86400))
 
-        offset = _random.randint(0, microseconds)
+        offset = random.randgen.randint(0, microseconds)
         result = self.start_dt + datetime.timedelta(microseconds=offset)
 
         if self.force_year is not None:

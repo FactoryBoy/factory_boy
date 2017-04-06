@@ -8,6 +8,7 @@ import warnings
 
 from factory import compat
 from factory import fuzzy
+from factory import random
 
 from .compat import mock, unittest
 from . import utils
@@ -37,7 +38,7 @@ class FuzzyChoiceTestCase(unittest.TestCase):
 
         d = fuzzy.FuzzyChoice(options)
 
-        with mock.patch('factory.fuzzy._random.choice', fake_choice):
+        with mock.patch('factory.random.randgen.choice', fake_choice):
             res = d.evaluate(2, None, False)
 
         self.assertEqual(6, res)
@@ -93,7 +94,7 @@ class FuzzyIntegerTestCase(unittest.TestCase):
 
         fuzz = fuzzy.FuzzyInteger(2, 8)
 
-        with mock.patch('factory.fuzzy._random.randrange', fake_randrange):
+        with mock.patch('factory.random.randgen.randrange', fake_randrange):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual((2 + 8 + 1) * 1, res)
@@ -103,7 +104,7 @@ class FuzzyIntegerTestCase(unittest.TestCase):
 
         fuzz = fuzzy.FuzzyInteger(8)
 
-        with mock.patch('factory.fuzzy._random.randrange', fake_randrange):
+        with mock.patch('factory.random.randgen.randrange', fake_randrange):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual((0 + 8 + 1) * 1, res)
@@ -113,7 +114,7 @@ class FuzzyIntegerTestCase(unittest.TestCase):
 
         fuzz = fuzzy.FuzzyInteger(5, 8, 3)
 
-        with mock.patch('factory.fuzzy._random.randrange', fake_randrange):
+        with mock.patch('factory.random.randgen.randrange', fake_randrange):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual((5 + 8 + 1) * 3, res)
@@ -146,7 +147,7 @@ class FuzzyDecimalTestCase(unittest.TestCase):
 
         fuzz = fuzzy.FuzzyDecimal(2.0, 8.0)
 
-        with mock.patch('factory.fuzzy._random.uniform', fake_uniform):
+        with mock.patch('factory.random.randgen.uniform', fake_uniform):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(decimal.Decimal('10.0'), res)
@@ -156,7 +157,7 @@ class FuzzyDecimalTestCase(unittest.TestCase):
 
         fuzz = fuzzy.FuzzyDecimal(8.0)
 
-        with mock.patch('factory.fuzzy._random.uniform', fake_uniform):
+        with mock.patch('factory.random.randgen.uniform', fake_uniform):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(decimal.Decimal('8.0'), res)
@@ -166,7 +167,7 @@ class FuzzyDecimalTestCase(unittest.TestCase):
 
         fuzz = fuzzy.FuzzyDecimal(8.0, precision=3)
 
-        with mock.patch('factory.fuzzy._random.uniform', fake_uniform):
+        with mock.patch('factory.random.randgen.uniform', fake_uniform):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(decimal.Decimal('8.001').quantize(decimal.Decimal(10) ** -3), res)
@@ -227,7 +228,7 @@ class FuzzyDateTestCase(unittest.TestCase):
         fake_randint = lambda low, high: (low + high) // 2
         fuzz = fuzzy.FuzzyDate(self.jan1, self.jan31)
 
-        with mock.patch('factory.fuzzy._random.randint', fake_randint):
+        with mock.patch('factory.random.randgen.randint', fake_randint):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(datetime.date(2013, 1, 16), res)
@@ -238,7 +239,7 @@ class FuzzyDateTestCase(unittest.TestCase):
             fuzz = fuzzy.FuzzyDate(self.jan1)
 
         fake_randint = lambda low, high: (low + high) // 2
-        with mock.patch('factory.fuzzy._random.randint', fake_randint):
+        with mock.patch('factory.random.randgen.randint', fake_randint):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(datetime.date(2013, 1, 2), res)
@@ -345,7 +346,7 @@ class FuzzyNaiveDateTimeTestCase(unittest.TestCase):
         fake_randint = lambda low, high: (low + high) // 2
         fuzz = fuzzy.FuzzyNaiveDateTime(self.jan1, self.jan31)
 
-        with mock.patch('factory.fuzzy._random.randint', fake_randint):
+        with mock.patch('factory.random.randgen.randint', fake_randint):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(datetime.datetime(2013, 1, 16), res)
@@ -356,7 +357,7 @@ class FuzzyNaiveDateTimeTestCase(unittest.TestCase):
             fuzz = fuzzy.FuzzyNaiveDateTime(self.jan1)
 
         fake_randint = lambda low, high: (low + high) // 2
-        with mock.patch('factory.fuzzy._random.randint', fake_randint):
+        with mock.patch('factory.random.randgen.randint', fake_randint):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(datetime.datetime(2013, 1, 2), res)
@@ -463,7 +464,7 @@ class FuzzyDateTimeTestCase(unittest.TestCase):
         fake_randint = lambda low, high: (low + high) // 2
         fuzz = fuzzy.FuzzyDateTime(self.jan1, self.jan31)
 
-        with mock.patch('factory.fuzzy._random.randint', fake_randint):
+        with mock.patch('factory.random.randgen.randint', fake_randint):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(datetime.datetime(2013, 1, 16, tzinfo=compat.UTC), res)
@@ -474,7 +475,7 @@ class FuzzyDateTimeTestCase(unittest.TestCase):
             fuzz = fuzzy.FuzzyDateTime(self.jan1)
 
         fake_randint = lambda low, high: (low + high) // 2
-        with mock.patch('factory.fuzzy._random.randint', fake_randint):
+        with mock.patch('factory.random.randgen.randint', fake_randint):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual(datetime.datetime(2013, 1, 2, tzinfo=compat.UTC), res)
@@ -499,7 +500,7 @@ class FuzzyTextTestCase(unittest.TestCase):
 
         chars = ['a', 'b', 'c']
         fuzz = fuzzy.FuzzyText(prefix='pre', suffix='post', chars=chars, length=4)
-        with mock.patch('factory.fuzzy._random.choice', fake_choice):
+        with mock.patch('factory.random.randgen.choice', fake_choice):
             res = fuzz.evaluate(2, None, False)
 
         self.assertEqual('preaaaapost', res)
@@ -523,10 +524,10 @@ class FuzzyRandomTestCase(unittest.TestCase):
     def test_seeding(self):
         fuzz = fuzzy.FuzzyInteger(1, 1000)
 
-        fuzzy.reseed_random(42)
+        random.reseed_random(42)
         value = fuzz.evaluate(sequence=1, obj=None, create=False)
 
-        fuzzy.reseed_random(42)
+        random.reseed_random(42)
         value2 = fuzz.evaluate(sequence=1, obj=None, create=False)
         self.assertEqual(value, value2)
 
@@ -540,9 +541,9 @@ class FuzzyRandomTestCase(unittest.TestCase):
     def test_reset_state(self):
         fuzz = fuzzy.FuzzyInteger(1, 1000)
 
-        state = fuzzy.get_random_state()
+        state = random.get_random_state()
         value = fuzz.evaluate(sequence=1, obj=None, create=False)
 
-        fuzzy.set_random_state(state)
+        random.set_random_state(state)
         value2 = fuzz.evaluate(sequence=1, obj=None, create=False)
         self.assertEqual(value, value2)

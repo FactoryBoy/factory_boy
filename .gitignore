@@ -2,6 +2,7 @@
 .*.swp
 *.pyc
 *.pyo
+.idea/
 
 # Build-related files
 docs/_build/

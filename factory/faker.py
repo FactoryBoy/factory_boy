@@ -22,6 +22,7 @@ import contextlib
 import faker
 import faker.config
 
+from .random import get_random_state
 from . import declarations
 
 
@@ -73,8 +74,10 @@ class Faker(declarations.OrderedDeclaration):
             locale = cls._DEFAULT_LOCALE
 
         if locale not in cls._FAKER_REGISTRY:
-            cls._FAKER_REGISTRY[locale] = faker.Faker(locale=locale)
+            subfaker = faker.Faker(locale=locale)
+            cls._FAKER_REGISTRY[locale] = subfaker
 
+        cls._FAKER_REGISTRY[locale].random.setstate(get_random_state())
         return cls._FAKER_REGISTRY[locale]
 
     @classmethod
