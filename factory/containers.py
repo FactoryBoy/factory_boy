@@ -303,8 +303,3 @@ class AttributeBuilder(object):
             wrapped_attrs, containers=self._containers,
             model_class=self.factory, log_ctx=self._log_ctx)
         return stub.__fill__()
-
-
-class StubObject(object):
-    """A generic container."""
-    pass

@@ -615,10 +615,7 @@ class BaseFactory(object):
         This will return an object whose attributes are those defined in this
         factory's declarations or in the extra kwargs.
         """
-        stub_object = containers.StubObject()
-        for name, value in cls.attributes(create=False, extra=kwargs).items():
-            setattr(stub_object, name, value)
-        return stub_object
+        return StubObject(**cls.attributes(create=False, extra=kwargs))
 
     @classmethod
     def stub_batch(cls, size, **kwargs):
@@ -715,11 +712,18 @@ Factory = FactoryMetaClass(str('Factory'), (BaseFactory,), {
 Factory.AssociatedClassError = errors.AssociatedClassError
 
 
+class StubObject(object):
+    """A generic container."""
+    def __init__(self, **kwargs):
+        for field, value in kwargs.items():
+            setattr(self, field, value)
+
+
 class StubFactory(Factory):
 
     class Meta:
         strategy = STUB_STRATEGY
-        model = containers.StubObject
+        model = StubObject
 
     @classmethod
     def build(cls, **kwargs):
