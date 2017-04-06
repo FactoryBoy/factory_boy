@@ -2205,6 +2205,28 @@ class CircularTestCase(unittest.TestCase):
         self.assertIsNone(b.foo.bar.foo.bar)
 
 
+class RepeatableRandomSeedFakerTests(unittest.TestCase):
+    def test_same_seed_is_used_between_fuzzy_and_faker_generators(self):
+        class StudentFactory(factory.Factory):
+            one = factory.fuzzy.FuzzyDate(datetime.date(1950, 1, 1), )
+            two = factory.Faker('name')
+            three = factory.Faker('name', locale='it')
+
+            class Meta:
+                model = TestObject
+
+        seed = "seed1"
+        factory.random.reseed_random(seed)
+        students_1 = (StudentFactory(), StudentFactory())
+
+        factory.random.reseed_random(seed)
+        students_2 = (StudentFactory(), StudentFactory())
+
+        self.assertEqual(students_1[0].one, students_2[0].one)
+        self.assertEqual(students_1[0].two, students_2[0].two)
+        self.assertEqual(students_1[0].three, students_2[0].three)
+
+
 class SelfReferentialTests(unittest.TestCase):
     def test_no_parent(self):
         from .cyclic import self_ref

@@ -1,6 +1,19 @@
 ChangeLog
 =========
 
+master
+------
+
+*New:*
+
+    - :issue:`275`: `factory.fuzzy` and `factory.faker` now use the same random seed.
+
+*Deprecation:*
+
+    - `factory.fuzzy.get_random_state` is deprecated, `factory.random.get_random_state` should be used instead.
+    - `factory.fuzzy.set_random_state` is deprecated, `factory.random.set_random_state` should be used instead.
+    - `factory.fuzzy.reseed_random` is deprecated, `factory.random.reseed_random` should be used instead.
+
 .. _v2.8.1:
 
 2.8.1 (2016-12-17)
