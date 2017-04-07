@@ -45,8 +45,6 @@ class DeclarationSet(object):
         return other
 
     def update(self, values):
-        deeps = collections.defaultdict(dict)
-        remainder = {}
         for k, v in values.items():
             root, sub = self.split(k)
             if sub is None:

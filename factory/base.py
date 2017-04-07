@@ -11,7 +11,6 @@ from . import builder
 from . import declarations
 from . import enums
 from . import errors
-from . import utils
 
 logger = logging.getLogger('factory.generate')
 
