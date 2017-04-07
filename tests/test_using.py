@@ -2111,7 +2111,6 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(1, obj.related.one)
         self.assertEqual(4, obj.related.two)
 
-    @unittest.expectedFailure  # Broken undocumented hack in refactor
     def test_parameterized_related_factory(self):
         class TestRelatedObject(object):
             def __init__(self, obj=None, one=None, two=None):
@@ -2136,7 +2135,7 @@ class PostGenerationTestCase(unittest.TestCase):
             one = 3
             two = 2
             three = factory.RelatedFactory(TestRelatedObjectFactory, 'obj')
-            three__two = factory.SelfAttribute('blah')
+            three__two = factory.SelfAttribute('..blah')
 
         obj = TestObjectFactory.build()
         self.assertEqual(3, obj.one)

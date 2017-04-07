@@ -1631,7 +1631,7 @@ Extra kwargs may be passed to the related factory, through the usual ``ATTR__SUB
     >>> City.objects.get(capital_of=england)
     <City: London>
 
-If a value if passed for the :class:`RelatedFactory` attribute, this disables
+If a value is passed for the :class:`RelatedFactory` attribute, this disables
 :class:`RelatedFactory` generation:
 
 .. code-block:: pycon
@@ -1649,7 +1649,8 @@ If a value if passed for the :class:`RelatedFactory` attribute, this disables
 
 
 .. note:: The target of the :class:`RelatedFactory` is evaluated *after* the initial factory has been instantiated.
-          This means that calls to :class:`factory.SelfAttribute` cannot go higher than this :class:`RelatedFactory`:
+          However, the build context is passed down to that factory; this means that calls to
+          :class:`factory.SelfAttribute` *can* go back to the calling factorry's context:
 
           .. code-block:: python
 
@@ -1659,9 +1660,8 @@ If a value if passed for the :class:`RelatedFactory` attribute, this disables
 
                   lang = 'fr'
                   capital_city = factory.RelatedFactory(CityFactory, 'capital_of',
-                      # factory.SelfAttribute('..lang') will crash, since the context of
-                      # ``CountryFactory`` has already been evaluated.
-                      main_lang=factory.SelfAttribute('capital_of.lang'),
+                      # Would also work with SelfAttribute('capital_of.lang')
+                      main_lang=factory.SelfAttribute('..lang'),
                   )
 
 
