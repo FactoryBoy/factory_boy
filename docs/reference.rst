@@ -1214,7 +1214,7 @@ That declaration takes a single argument, a dot-delimited path to the attribute 
 
 .. code-block:: python
 
-    class UserFactory(factory.Factory)
+    class UserFactory(factory.Factory):
         class Meta:
             model = User
 
@@ -1493,6 +1493,45 @@ with the :class:`Dict` and :class:`List` attributes:
         The actual factory to use for generating the list can be set as a keyword
         argument, if another type (tuple, set, ...) is required.
 
+
+Maybe
+"""""
+
+.. class:: Maybe(decider, yes_declaration, no_declaration)
+
+Sometimes, the way to build a given field depends on the value of another,
+for instance of a parameter.
+
+In those cases, use the :class:`~factory.Maybe` declaration:
+it takes the name of a "decider" boolean field, and two declarations; depending on
+the value of the field whose name is held in the 'decider' parameter, it will
+apply the effects of one or the other declaration:
+
+.. code-block:: python
+
+    class UserFactory(factory.Factory):
+        class Meta:
+            model = User
+
+        is_active = True
+        deactivation_date = factory.Maybe(
+            'is_active',
+            yes_declaration=None,
+            no_declaration=factory.fuzzy.FuzzyDateTime(timezone.now() - datetime.timedelta(days=10)),
+        )
+
+.. code-block:: pycon
+
+    >>> u = UserFactory(is_active=True)
+    >>> u.deactivation_date
+    None
+    >>> u = UserFactory(is_active=False)
+    >>> u.deactivation_date
+    datetime.datetime(2017, 4, 1, 23, 21, 23, tzinfo=UTC)
+
+.. note:: If the condition for the decider is complex, use a :class:`LazyAttribute`
+          defined in the :attr:`~Factory.Params` section of your factory to
+          handle the computation.
 
 
 Post-generation hooks

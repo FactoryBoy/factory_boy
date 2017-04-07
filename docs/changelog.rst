@@ -7,6 +7,8 @@ master
 *New:*
 
     - :issue:`275`: `factory.fuzzy` and `factory.faker` now use the same random seed.
+    - Add :class:`factory.Maybe`, which chooses among two possible declarations based
+      on another field's value (powers the :class:`~factory.Trait` feature).
 
 *Deprecation:*
 
