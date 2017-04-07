@@ -1,4 +1,4 @@
-EXAMPLES = flask_alchemy
+EXAMPLES = django_demo flask_alchemy
 
 TEST_TARGETS = $(addprefix runtest-,$(EXAMPLES))
 

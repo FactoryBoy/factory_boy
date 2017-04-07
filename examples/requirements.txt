@@ -1,1 +1,2 @@
 -r flask_alchemy/requirements.txt
+-r django_demo/requirements.txt
