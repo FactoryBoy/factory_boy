@@ -341,7 +341,7 @@ This time, we want the company owner to live in a country neighboring the countr
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory,
             country=factory.LazyAttribute(lambda o: get_random_neighbor(o.factory_parent.country)))
- 
+
 Custom manager methods
 ----------------------
 
@@ -489,3 +489,14 @@ In order to get a dict, we'll just have to swap the model; the easiest way is to
 
     >>> factory.build(dict, FACTORY_CLASS=UserFactory)
     {'first_name': "Agent 001", 'username': 'john_doe'}
+
+Django models with `GenericForeignKeys`
+--------------------------------------
+
+For model which uses `GenericForeignKey <https://docs.djangoproject.com/en/1.10/ref/contrib/contenttypes/#django.contrib.contenttypes.fields.GenericForeignKey>`_
+
+.. literalinclude:: ../examples/django_demo/generic_foreignkey/models.py
+
+We can create factories like this:
+
+.. literalinclude:: ../examples/django_demo/generic_foreignkey/factories.py
