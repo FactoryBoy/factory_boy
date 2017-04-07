@@ -58,10 +58,6 @@ def _lazy_load_get_model():
     if django is None:
         def _get_model(app, model):
             raise import_failure
-
-    elif django.VERSION[:2] < (1, 7):
-        from django.db.models.loading import get_model as _get_model
-
     else:
         from django import apps as django_apps
         _get_model = django_apps.apps.get_model
@@ -296,12 +292,11 @@ class mute_signals(object):
                          receivers)
 
             signal.receivers = receivers
-            if django.VERSION[:2] >= (1, 6):
-                with signal.lock:
-                    # Django uses some caching for its signals.
-                    # Since we're bypassing signal.connect and signal.disconnect,
-                    # we have to keep messing with django's internals.
-                    signal.sender_receivers_cache.clear()
+            with signal.lock:
+                # Django uses some caching for its signals.
+                # Since we're bypassing signal.connect and signal.disconnect,
+                # we have to keep messing with django's internals.
+                signal.sender_receivers_cache.clear()
         self.paused = {}
 
     def copy(self):
