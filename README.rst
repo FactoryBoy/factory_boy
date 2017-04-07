@@ -80,7 +80,7 @@ Links
 * Package: https://pypi.python.org/pypi/factory_boy/
 * Mailing-list: `factoryboy@googlegroups.com <mailto:factoryboy@googlegroups.com>`_ | https://groups.google.com/forum/#!forum/factoryboy
 
-factory_boy supports Python 2.7, 3.2 to 3.6, as well as PyPy; it requires only the standard Python library.
+factory_boy supports Python 2.7, 3.4 to 3.6, as well as PyPy; it requires only the standard Python library.
 
 
 Download
@@ -378,4 +378,3 @@ To avoid running ``mongoengine`` tests (e.g no mongo server installed), run:
 .. code-block:: sh
 
     $ make SKIP_MONGOENGINE=1 test
-
