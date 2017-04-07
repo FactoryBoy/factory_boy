@@ -8,6 +8,7 @@ import itertools
 import logging
 
 from . import compat
+from . import errors
 from . import utils
 
 
@@ -606,6 +607,10 @@ class RelatedFactory(PostGenerationDeclaration):
         return step.recurse(factory, passed_kwargs)
 
 
+class NotProvided:
+    pass
+
+
 class PostGenerationMethodCall(PostGenerationDeclaration):
     """Calls a method of the generated object.
 
@@ -621,27 +626,31 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
     """
     def __init__(self, method_name, *args, **kwargs):
         super(PostGenerationMethodCall, self).__init__()
+        if len(args) > 1:
+            raise errors.InvalidDeclarationError(
+                "A PostGenerationMethodCall can only handle 1 positional argument; "
+                "please provide other parameters through keyword arguments."
+            )
         self.method_name = method_name
-        self.method_args = args
+        self.method_arg = args[0] if args else NotProvided
         self.method_kwargs = kwargs
 
     def call(self, instance, step, context):
         if not context.value_provided:
-            passed_args = self.method_args
-
-        elif len(self.method_args) <= 1:
-            # Max one argument expected
-            passed_args = (context.value,)
+            if self.method_arg is NotProvided:
+                args = tuple()
+            else:
+                args = tuple([self.method_arg])
         else:
-            passed_args = tuple(context.value)
+            args = tuple([context.value])
 
-        passed_kwargs = dict(self.method_kwargs)
-        passed_kwargs.update(context.extra)
+        kwargs = dict(self.method_kwargs)
+        kwargs.update(context.extra)
         method = getattr(instance, self.method_name)
         logger.debug(
             "PostGenerationMethodCall: Calling %s.%s(%s)",
             utils.log_repr(instance),
             self.method_name,
-            utils.log_pprint(passed_args, passed_kwargs),
+            utils.log_pprint(args, kwargs),
         )
-        return method(*passed_args, **passed_kwargs)
+        return method(*args, **kwargs)
