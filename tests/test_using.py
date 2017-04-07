@@ -1944,7 +1944,6 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(4, obj.one)
         self.assertFalse(hasattr(obj, 'incr_one'))
 
-    @unittest.expectedFailure  # Broken API in refactor
     def test_post_generation_extraction_lambda(self):
 
         def my_lambda(obj, create, extracted, **kwargs):

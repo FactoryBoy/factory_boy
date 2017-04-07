@@ -9,15 +9,16 @@ import warnings
 
 from . import builder
 from . import declarations
+from . import enums
 from . import errors
 from . import utils
 
 logger = logging.getLogger('factory.generate')
 
 # Strategies
-BUILD_STRATEGY = 'build'
-CREATE_STRATEGY = 'create'
-STUB_STRATEGY = 'stub'
+BUILD_STRATEGY = enums.BUILD_STRATEGY
+CREATE_STRATEGY = enums.CREATE_STRATEGY
+STUB_STRATEGY = enums.STUB_STRATEGY
 
 
 # Factory metaclasses

@@ -7,6 +7,7 @@ import collections
 import itertools
 import logging
 
+from . import enums
 from . import compat
 from . import errors
 from . import utils
@@ -556,8 +557,9 @@ class PostGeneration(PostGenerationDeclaration):
                 context,
             ),
         )
+        create = step.builder.strategy == enums.CREATE_STRATEGY
         return self.function(
-            instance, step, context.value, **context.extra)
+            instance, create, context.value, **context.extra)
 
 
 class RelatedFactory(PostGenerationDeclaration):
