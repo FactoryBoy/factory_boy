@@ -2234,8 +2234,8 @@ class SelfReferentialTests(unittest.TestCase):
     def test_no_parent(self):
         from .cyclic import self_ref
 
-        obj = self_ref.TreeElementFactory(parent=None)
-        self.assertIsNone(obj.parent)
+        obj = self_ref.TreeElementFactory(parent__parent__parent=None)
+        self.assertIsNone(obj.parent.parent.parent)
 
     def test_deep(self):
         from .cyclic import self_ref
