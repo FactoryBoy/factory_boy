@@ -16,15 +16,11 @@ except ImportError:  # pragma: no cover
 if django is not None:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests.djapp.settings')
 
-    if django.VERSION >= (1, 7, 0):
-        django.setup()
+    django.setup()
     from django import test as django_test
     from django.conf import settings
     from django.db import models as django_models
-    if django.VERSION <= (1, 8, 0):
-        from django.test.simple import DjangoTestSuiteRunner
-    else:
-        from django.test.runner import DiscoverRunner as DjangoTestSuiteRunner
+    from django.test.runner import DiscoverRunner as DjangoTestSuiteRunner
     from django.test import utils as django_test_utils
     from django.db.models import signals
     from .djapp import models
