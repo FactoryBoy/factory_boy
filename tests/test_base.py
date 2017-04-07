@@ -533,7 +533,7 @@ class PostGenerationParsingTestCase(unittest.TestCase):
             foo__bar = 42
 
         self.assertIn('foo', TestObjectFactory._meta.post_declarations.as_dict())
-        self.assertIn('foo__foo__bar', TestObjectFactory._meta.post_declarations.as_dict())
+        self.assertIn('foo__bar', TestObjectFactory._meta.post_declarations.as_dict())
 
 
 

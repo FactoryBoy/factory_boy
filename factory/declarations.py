@@ -517,22 +517,6 @@ class Trait(Parameter):
 # ===============
 
 
-class ExtractionContext(object):
-    """Private class holding all required context from extraction to postgen."""
-    def __init__(self, value=None, did_extract=False, extra=None, for_field=''):
-        self.value = value
-        self.did_extract = did_extract
-        self.extra = extra or {}
-        self.for_field = for_field
-
-    def __repr__(self):
-        return 'ExtractionContext(%r, %r, %r)' % (
-            self.value,
-            self.did_extract,
-            self.extra,
-        )
-
-
 class PostGenerationDeclaration(object):
     """Declarations to be called once the model object has been generated."""
 
@@ -543,36 +527,13 @@ class PostGenerationDeclaration(object):
         self.creation_counter = PostGenerationDeclaration.creation_counter
         PostGenerationDeclaration.creation_counter += 1
 
-    def extract(self, name, attrs):
-        """Extract relevant attributes from a dict.
-
-        Args:
-            name (str): the name at which this PostGenerationDeclaration was
-                defined in the declarations
-            attrs (dict): the attribute dict from which values should be
-                extracted
-
-        Returns:
-            (object, dict): a tuple containing the attribute at 'name' (if
-                provided) and a dict of extracted attributes
-        """
-        try:
-            extracted = attrs.pop(name)
-            did_extract = True
-        except KeyError:
-            extracted = None
-            did_extract = False
-
-        kwargs = utils.extract_dict(name, attrs)
-        return ExtractionContext(extracted, did_extract, kwargs, name)
-
     def call(self, instance, step, context):  # pragma: no cover
         """Call this hook; no return value is expected.
 
         Args:
             obj (object): the newly generated object
             create (bool): whether the object was 'built' or 'created'
-            context: An ExtractionContext containing values
+            context: a builder.PostGenerationContext containing values
                 extracted from the containing factory's declaration
         """
         raise NotImplementedError()
@@ -622,7 +583,7 @@ class RelatedFactory(PostGenerationDeclaration):
     def call(self, instance, step, context):
         factory = self.get_factory()
 
-        if context.did_extract:
+        if context.value_provided:
             # The user passed in a custom value
             logger.debug(
                 "RelatedFactory: Using provided %s instead of generating %s.%s.",
@@ -665,7 +626,7 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
         self.method_kwargs = kwargs
 
     def call(self, instance, step, context):
-        if not context.did_extract:
+        if not context.value_provided:
             passed_args = self.method_args
 
         elif len(self.method_args) <= 1:

@@ -6,9 +6,15 @@ from . import declarations
 from . import errors
 
 
-DeclarationContext = collections.namedtuple(
-    'DeclarationContext',
+DeclarationWithContext = collections.namedtuple(
+    'DeclarationWithContext',
     ['name', 'declaration', 'context'],
+)
+
+
+PostGenerationContext = collections.namedtuple(
+    'PostGenerationContext',
+    ['value_provided', 'value', 'extra'],
 )
 
 
@@ -77,7 +83,7 @@ class DeclarationSet(object):
         return key in self.declarations
 
     def __getitem__(self, key):
-        return DeclarationContext(
+        return DeclarationWithContext(
             name=key,
             declaration=self.declarations[key],
             context=self.contexts[key],
@@ -133,6 +139,11 @@ def parse_declarations(decls, base_pre=None, base_post=None):
                     % (k, v, pre_declarations[k])
                 )
             extra_post[k] = v
+        elif k in post_declarations:
+            # Passing in a scalar value to a PostGenerationDeclaration
+            # Set it as `key__`
+            magic_key = post_declarations.join(k, '')
+            extra_post[magic_key] = v
         else:
             extra_maybenonpost[k] = v
 
@@ -142,9 +153,7 @@ def parse_declarations(decls, base_pre=None, base_post=None):
     # Fill in extra post-declaration context
     post_overrides = post_declarations.filter(extra_maybenonpost)
     post_declarations.update({
-        # Set foo__bar as foo__foo__bar, in order to build an ExtractionContext
-        # later on
-        post_declarations.join(post_declarations.split(k)[0], k): v
+        k: v
         for k, v in extra_maybenonpost.items()
         if k in post_overrides
     })
@@ -239,11 +248,15 @@ class StepBuilder(object):
         postgen_results = {}
         for declaration_name in post.sorted():
             declaration = post[declaration_name]
-            context = declaration.declaration.extract(declaration.name, declaration.context)
+            postgen_context = PostGenerationContext(
+                value_provided='' in declaration.context,
+                value=declaration.context.get(''),
+                extra={k: v for k, v in declaration.context.items() if k != ''},
+            )
             postgen_results[declaration_name] = declaration.declaration.call(
                 instance=instance,
                 step=step,
-                context=context,
+                context=postgen_context,
             )
         self.factory_meta.use_postgeneration_results(
             instance=instance,
