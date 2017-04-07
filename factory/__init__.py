@@ -9,10 +9,13 @@ from .base import (
     ListFactory,
     StubFactory,
 
+    use_strategy,
+)
+
+from .enums import (
     BUILD_STRATEGY,
     CREATE_STRATEGY,
     STUB_STRATEGY,
-    use_strategy,
 )
 
 

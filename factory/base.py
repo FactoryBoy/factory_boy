@@ -15,12 +15,6 @@ from . import utils
 
 logger = logging.getLogger('factory.generate')
 
-# Strategies
-BUILD_STRATEGY = enums.BUILD_STRATEGY
-CREATE_STRATEGY = enums.CREATE_STRATEGY
-STUB_STRATEGY = enums.STUB_STRATEGY
-
-
 # Factory metaclasses
 
 
@@ -46,11 +40,11 @@ class FactoryMetaClass(type):
         Returns an instance of the associated class.
         """
 
-        if cls._meta.strategy == BUILD_STRATEGY:
+        if cls._meta.strategy == enums.BUILD_STRATEGY:
             return cls.build(**kwargs)
-        elif cls._meta.strategy == CREATE_STRATEGY:
+        elif cls._meta.strategy == enums.CREATE_STRATEGY:
             return cls.create(**kwargs)
-        elif cls._meta.strategy == STUB_STRATEGY:
+        elif cls._meta.strategy == enums.STUB_STRATEGY:
             return cls.stub(**kwargs)
         else:
             raise errors.UnknownStrategy('Unknown Meta.strategy: {0}'.format(
@@ -108,7 +102,7 @@ class FactoryMetaClass(type):
 
 class BaseMeta:
     abstract = True
-    strategy = CREATE_STRATEGY
+    strategy = enums.CREATE_STRATEGY
 
 
 class OptionDefault(object):
@@ -175,7 +169,7 @@ class FactoryOptions(object):
         return [
             OptionDefault('model', None, inherit=True),
             OptionDefault('abstract', False, inherit=False),
-            OptionDefault('strategy', CREATE_STRATEGY, inherit=True),
+            OptionDefault('strategy', enums.CREATE_STRATEGY, inherit=True),
             OptionDefault('inline_args', (), inherit=True),
             OptionDefault('exclude', (), inherit=True),
             OptionDefault('rename', {}, inherit=True),
@@ -314,12 +308,12 @@ class FactoryOptions(object):
     def instantiate(self, step, args, kwargs):
         model = self.get_model_class()
 
-        if step.builder.strategy == BUILD_STRATEGY:
+        if step.builder.strategy == enums.BUILD_STRATEGY:
             return self.factory._build(model, *args, **kwargs)
-        elif step.builder.strategy == CREATE_STRATEGY:
+        elif step.builder.strategy == enums.CREATE_STRATEGY:
             return self.factory._create(model, *args, **kwargs)
         else:
-            assert step.builder.strategy == STUB_STRATEGY
+            assert step.builder.strategy == enums.STUB_STRATEGY
             return StubObject(**kwargs)
 
     def use_postgeneration_results(self, step, instance, results):
@@ -554,7 +548,7 @@ class BaseFactory(object):
     @classmethod
     def build(cls, **kwargs):
         """Build an instance of the associated class, with overriden attrs."""
-        return cls._generate(BUILD_STRATEGY, kwargs)
+        return cls._generate(enums.BUILD_STRATEGY, kwargs)
 
     @classmethod
     def build_batch(cls, size, **kwargs):
@@ -571,7 +565,7 @@ class BaseFactory(object):
     @classmethod
     def create(cls, **kwargs):
         """Create an instance of the associated class, with overriden attrs."""
-        return cls._generate(CREATE_STRATEGY, kwargs)
+        return cls._generate(enums.CREATE_STRATEGY, kwargs)
 
     @classmethod
     def create_batch(cls, size, **kwargs):
@@ -592,7 +586,7 @@ class BaseFactory(object):
         This will return an object whose attributes are those defined in this
         factory's declarations or in the extra kwargs.
         """
-        return cls._generate(STUB_STRATEGY, kwargs)
+        return cls._generate(enums.STUB_STRATEGY, kwargs)
 
     @classmethod
     def stub_batch(cls, size, **kwargs):
@@ -619,7 +613,7 @@ class BaseFactory(object):
         Returns:
             object: the generated instance
         """
-        assert strategy in (STUB_STRATEGY, BUILD_STRATEGY, CREATE_STRATEGY)
+        assert strategy in (enums.STUB_STRATEGY, enums.BUILD_STRATEGY, enums.CREATE_STRATEGY)
         action = getattr(cls, strategy)
         return action(**kwargs)
 
@@ -637,7 +631,7 @@ class BaseFactory(object):
         Returns:
             object list: the generated instances
         """
-        assert strategy in (STUB_STRATEGY, BUILD_STRATEGY, CREATE_STRATEGY)
+        assert strategy in (enums.STUB_STRATEGY, enums.BUILD_STRATEGY, enums.CREATE_STRATEGY)
         batch_action = getattr(cls, '%s_batch' % strategy)
         return batch_action(size, **kwargs)
 
@@ -653,7 +647,7 @@ class BaseFactory(object):
         Returns:
             object: the generated instance
         """
-        strategy = CREATE_STRATEGY if create else BUILD_STRATEGY
+        strategy = enums.CREATE_STRATEGY if create else enums.BUILD_STRATEGY
         return cls.generate(strategy, **kwargs)
 
     @classmethod
@@ -669,7 +663,7 @@ class BaseFactory(object):
         Returns:
             object list: the generated instances
         """
-        strategy = CREATE_STRATEGY if create else BUILD_STRATEGY
+        strategy = enums.CREATE_STRATEGY if create else enums.BUILD_STRATEGY
         return cls.generate_batch(strategy, size, **kwargs)
 
 
@@ -699,7 +693,7 @@ class StubObject(object):
 class StubFactory(Factory):
 
     class Meta:
-        strategy = STUB_STRATEGY
+        strategy = enums.STUB_STRATEGY
         model = StubObject
 
     @classmethod

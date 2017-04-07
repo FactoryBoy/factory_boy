@@ -5,6 +5,7 @@ import warnings
 
 from factory import base
 from factory import declarations
+from factory import enums
 from factory import errors
 
 from .compat import unittest
@@ -106,7 +107,7 @@ class OptionsTests(unittest.TestCase):
         self.assertIsNone(AbstractFactory._meta.model)
         self.assertEqual((), AbstractFactory._meta.inline_args)
         self.assertEqual((), AbstractFactory._meta.exclude)
-        self.assertEqual(base.CREATE_STRATEGY, AbstractFactory._meta.strategy)
+        self.assertEqual(enums.CREATE_STRATEGY, AbstractFactory._meta.strategy)
 
         # Non-declarative attributes
         self.assertEqual({}, AbstractFactory._meta.pre_declarations.as_dict())
@@ -357,7 +358,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         base.Factory._meta.strategy = self.default_strategy
 
     def test_build_strategy(self):
-        base.Factory._meta.strategy = base.BUILD_STRATEGY
+        base.Factory._meta.strategy = enums.BUILD_STRATEGY
 
         class TestModelFactory(base.Factory):
             class Meta:
@@ -383,7 +384,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertTrue(test_model.id)
 
     def test_stub_strategy(self):
-        base.Factory._meta.strategy = base.STUB_STRATEGY
+        base.Factory._meta.strategy = enums.STUB_STRATEGY
 
         class TestModelFactory(base.Factory):
             class Meta:
@@ -413,7 +414,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
             one = 'one'
 
-        TestModelFactory._meta.strategy = base.CREATE_STRATEGY
+        TestModelFactory._meta.strategy = enums.CREATE_STRATEGY
 
         self.assertRaises(base.StubFactory.UnsupportedStrategy, TestModelFactory)
 
@@ -424,21 +425,21 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
             one = 'one'
 
-        TestModelFactory._meta.strategy = base.BUILD_STRATEGY
+        TestModelFactory._meta.strategy = enums.BUILD_STRATEGY
         obj = TestModelFactory()
 
         # For stubs, build() is an alias of stub().
         self.assertFalse(isinstance(obj, TestModel))
 
     def test_change_strategy(self):
-        @base.use_strategy(base.CREATE_STRATEGY)
+        @base.use_strategy(enums.CREATE_STRATEGY)
         class TestModelFactory(base.StubFactory):
             class Meta:
                 model = TestModel
 
             one = 'one'
 
-        self.assertEqual(base.CREATE_STRATEGY, TestModelFactory._meta.strategy)
+        self.assertEqual(enums.CREATE_STRATEGY, TestModelFactory._meta.strategy)
 
 
 class FactoryCreationTestCase(unittest.TestCase):
@@ -453,7 +454,7 @@ class FactoryCreationTestCase(unittest.TestCase):
         class TestFactory(base.StubFactory):
             pass
 
-        self.assertEqual(TestFactory._meta.strategy, base.STUB_STRATEGY)
+        self.assertEqual(TestFactory._meta.strategy, enums.STUB_STRATEGY)
 
     def test_inheritance_with_stub(self):
         class TestObjectFactory(base.StubFactory):
@@ -465,7 +466,7 @@ class FactoryCreationTestCase(unittest.TestCase):
         class TestFactory(TestObjectFactory):
             pass
 
-        self.assertEqual(TestFactory._meta.strategy, base.STUB_STRATEGY)
+        self.assertEqual(TestFactory._meta.strategy, enums.STUB_STRATEGY)
 
     def test_stub_and_subfactory(self):
         class StubA(base.StubFactory):
