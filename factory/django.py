@@ -169,9 +169,9 @@ class DjangoModelFactory(base.Factory):
         return manager.create(*args, **kwargs)
 
     @classmethod
-    def _after_postgeneration(cls, instance, step, results=None):
+    def _after_postgeneration(cls, instance, create, results=None):
         """Save again the instance if creating and at least one hook ran."""
-        if step.builder.strategy == base.CREATE_STRATEGY and results:
+        if create and results:
             # Some post-generation hooks ran, and may have modified us.
             instance.save()
 

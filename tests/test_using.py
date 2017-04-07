@@ -1902,7 +1902,6 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(3, obj.one)
         self.assertFalse(hasattr(obj, 'incr_one'))
 
-    @unittest.expectedFailure  # Broken API in refactor
     def test_post_generation_hook(self):
         class TestObjectFactory(factory.Factory):
             class Meta:
@@ -1922,7 +1921,7 @@ class PostGenerationTestCase(unittest.TestCase):
 
         obj = TestObjectFactory.build()
         self.assertEqual(2, obj.one)
-        self.assertEqual(factory.BUILD_STRATEGY, obj.step.builder.strategy)
+        self.assertFalse(obj.create)
         self.assertEqual({'incr_one': 42}, obj.results)
 
     def test_post_generation_extraction(self):

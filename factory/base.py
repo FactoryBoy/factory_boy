@@ -324,8 +324,8 @@ class FactoryOptions(object):
 
     def use_postgeneration_results(self, step, instance, results):
         self.factory._after_postgeneration(
-            instance=instance,
-            step=step,
+            instance,
+            create=step.builder.strategy == enums.CREATE_STRATEGY,
             results=results,
         )
 
@@ -511,11 +511,11 @@ class BaseFactory(object):
         return step.build()
 
     @classmethod
-    def _after_postgeneration(cls, instance, step, results=None):
+    def _after_postgeneration(cls, instance, create, results=None):
         """Hook called after post-generation declarations have been handled.
 
         Args:
-            obj (object): the generated object
+            instance (object): the generated object
             create (bool): whether the strategy was 'build' or 'create'
             results (dict or None): result of post-generation declarations
         """
