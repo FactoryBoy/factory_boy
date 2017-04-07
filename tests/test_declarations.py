@@ -6,6 +6,7 @@ import itertools
 
 from factory import base
 from factory import declarations
+from factory import errors
 from factory import helpers
 
 from .compat import mock, unittest
@@ -248,36 +249,11 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
         )
         obj.method.assert_called_once_with(data='other')
 
-    @unittest.expectedFailure  # Broken API in refactor
     def test_multi_call_with_multi_method_args(self):
-        obj = self.build(
-            declarations.PostGenerationMethodCall('method', 'arg1', 'arg2'),
-        )
-        obj.method.assert_called_once_with('arg1', 'arg2')
-
-    @unittest.expectedFailure  # Broken API in refactor
-    def test_multi_call_with_passed_multiple_args(self):
-        obj = self.build(
-            declarations.PostGenerationMethodCall('method', 'arg1', 'arg2'),
-            post=('param1', 'param2', 'param3'),
-        )
-        obj.method.assert_called_once_with('param1', 'param2', 'param3')
-
-    @unittest.expectedFailure  # Broken API in refactor
-    def test_multi_call_with_passed_tuple(self):
-        obj = self.build(
-            declarations.PostGenerationMethodCall('method', 'arg1', 'arg2'),
-            post=(('param1', 'param2'),),
-        )
-        obj.method.assert_called_once_with(('param1', 'param2'))
-
-    @unittest.expectedFailure  # Broken API in refactor
-    def test_multi_call_with_kwargs(self):
-        obj = self.build(
-            declarations.PostGenerationMethodCall('method', 'arg1', 'arg2'),
-            post__x=2,
-        )
-        obj.method.assert_called_once_with('arg1', 'arg2', x=2)
+        with self.assertRaises(errors.InvalidDeclarationError):
+            obj = self.build(
+                declarations.PostGenerationMethodCall('method', 'arg1', 'arg2'),
+            )
 
 
 class PostGenerationOrdering(unittest.TestCase):

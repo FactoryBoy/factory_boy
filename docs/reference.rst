@@ -1776,7 +1776,7 @@ A decorator is also provided, decorating a single method accepting the same
 PostGenerationMethodCall
 """"""""""""""""""""""""
 
-.. class:: PostGenerationMethodCall(method_name, *args, **kwargs)
+.. class:: PostGenerationMethodCall(method_name, *arg, **kwargs)
 
     .. OHAI_VIM*
 
@@ -1789,9 +1789,9 @@ PostGenerationMethodCall
 
         The name of the method to call on the :attr:`~FactoryOptions.model` object
 
-    .. attribute:: args
+    .. attribute:: arg
 
-        The default set of unnamed arguments to pass to the method given in
+        The default, optional, positional argument to pass to the method given in
         :attr:`method_name`
 
     .. attribute:: kwargs
@@ -1870,40 +1870,9 @@ factory during instantiation.
                                                         'defaultpassword')
 
 
-If instead the :class:`PostGenerationMethodCall` declaration uses two or
-more positional arguments, the overriding value must be an iterable. For
-example, if we declared the ``password`` attribute like the following,
-
-.. code-block:: python
-
-    class UserFactory(factory.Factory):
-        class Meta:
-            model = User
-
-        username = 'user'
-        password = factory.PostGenerationMethodCall('set_password', '', 'sha1')
-
-then we must be cautious to pass in an iterable for the ``password``
-keyword argument when creating an instance from the factory:
-
-.. code-block:: pycon
-
-    >>> UserFactory()                           # Calls user.set_password('', 'sha1')
-    >>> UserFactory(password=('test', 'md5'))   # Calls user.set_password('test', 'md5')
-
-    >>> # Always pass in a good iterable:
-    >>> UserFactory(password=('test',))         # Calls user.set_password('test')
-    >>> UserFactory(password='test')            # Calls user.set_password('t', 'e', 's', 't')
-
-
-.. note:: While this setup provides sane and intuitive defaults for most users,
-          it prevents passing more than one argument when the declaration used
-          zero or one.
-
-          In such cases, users are advised to either resort to the more powerful
-          :class:`PostGeneration` or to add the second expected argument default
-          value to the :class:`PostGenerationMethodCall` declaration
-          (``PostGenerationMethodCall('method', 'x', 'y_that_is_the_default')``)
+.. warning:: In order to keep a consistent and simple API, a :class:`PostGenerationMethodCall`
+             allows *at most one* positional argument; all other parameters should be passed as
+             keyword arguments.
 
 Keywords extracted from the factory arguments are merged into the
 defaults present in the :class:`PostGenerationMethodCall` declaration.

@@ -4,11 +4,16 @@ ChangeLog
 master
 ------
 
+This version brings massive changes to the core engine, thus reducing the number of
+corner cases and weird behaviourrs.
+
 *New:*
 
     - :issue:`275`: `factory.fuzzy` and `factory.faker` now use the same random seed.
     - Add :class:`factory.Maybe`, which chooses among two possible declarations based
       on another field's value (powers the :class:`~factory.Trait` feature).
+    - :class:`~factory.PostGenerationMethodCall` only allows to pass one positional argument; use keyword arguments for
+      extra parameters.
 
 *Deprecation:*
 
