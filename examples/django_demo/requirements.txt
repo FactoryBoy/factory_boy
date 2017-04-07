@@ -1,2 +1,1 @@
 Django
-factory_boy
