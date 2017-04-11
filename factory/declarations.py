@@ -425,12 +425,19 @@ class List(SubFactory):
 # ==========
 
 
-class UNDEFINED(object):
-    pass
+class Skip(object):
+    def __bool__(self):
+        return False
+
+    # Py2 compatibility
+    __nonzero__ = __bool__
+
+
+SKIP = Skip()
 
 
 class Maybe(BaseDeclaration):
-    def __init__(self, decider, yes_declaration, no_declaration=None):
+    def __init__(self, decider, yes_declaration=SKIP, no_declaration=SKIP):
         self.decider = decider
         self.yes = yes_declaration
         self.no = no_declaration
@@ -505,7 +512,7 @@ class Trait(Parameter):
             overrides[maybe_field] = Maybe(
                 decider=field_name,
                 yes_declaration=new_value,
-                no_declaration=declarations.get(maybe_field, None),
+                no_declaration=declarations.get(maybe_field, SKIP),
             )
         return overrides
 
