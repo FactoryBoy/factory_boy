@@ -1211,6 +1211,27 @@ class TraitTestCase(unittest.TestCase):
                     a = factory.Trait(b=True, one=True)
                     b = factory.Trait(a=True, two=True)
 
+    def test_deep_traits(self):
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+        class WrapperFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            class Params:
+                deep_one = factory.Trait(
+                    one=1,
+                    two__one=2,
+                )
+
+            two = factory.SubFactory(TestObjectFactory)
+
+        wrapper = WrapperFactory(deep_one=True)
+        self.assertEqual(1, wrapper.one)
+        self.assertEqual(2, wrapper.two.one)
+
 
 class SubFactoryTestCase(unittest.TestCase):
     def test_sub_factory(self):
