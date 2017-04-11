@@ -3,6 +3,7 @@
 import collections
 
 from . import declarations
+from . import enums
 from . import errors
 
 
@@ -20,7 +21,6 @@ PostGenerationContext = collections.namedtuple(
 
 class DeclarationSet(object):
     """A set of declarations, including the recursive parameters."""
-    SPLITTER = '__'
 
     def __init__(self, initial=None):
         self.declarations = {}
@@ -29,14 +29,14 @@ class DeclarationSet(object):
 
     @classmethod
     def split(cls, entry):
-        if cls.SPLITTER in entry:
-            return entry.split(cls.SPLITTER, 1)
+        if enums.SPLITTER in entry:
+            return entry.split(enums.SPLITTER, 1)
         else:
             return (entry, None)
 
     @classmethod
     def join(cls, root, subkey):
-        return cls.SPLITTER.join((root, subkey))
+        return enums.SPLITTER.join((root, subkey))
 
     def copy(self):
         other = self.__class__()
