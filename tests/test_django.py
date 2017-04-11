@@ -525,7 +525,7 @@ class DjangoFileFieldTestCase(unittest.TestCase):
 
 
 @unittest.skipIf(django is None, "Django not installed.")
-class DjangoParamsTestCase(unittest.TestCase):
+class DjangoParamsTestCase(django_test.TestCase):
 
     def test_undeclared_fields(self):
         class WithDefaultValueFactory(factory.django.DjangoModelFactory):
@@ -534,7 +534,7 @@ class DjangoParamsTestCase(unittest.TestCase):
 
             class Params:
                 with_bar = factory.Trait(
-                    foo='bar'
+                    foo='bar',
                 )
 
         o = WithDefaultValueFactory()
@@ -547,7 +547,7 @@ class DjangoParamsTestCase(unittest.TestCase):
 
             class Params:
                 with_bar = factory.Trait(
-                    foo='bar'
+                    foo='bar',
                 )
 
         class PointerFactory(factory.django.DjangoModelFactory):
@@ -558,7 +558,7 @@ class DjangoParamsTestCase(unittest.TestCase):
             class Params:
                 with_bar = factory.Trait(
                     foo='bar',
-                    pointed__with_bar=True
+                    pointed__with_bar=True,
                 )
 
         o = PointerFactory(with_bar=True)
