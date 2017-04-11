@@ -443,8 +443,11 @@ class Maybe(BaseDeclaration):
         self.no = no_declaration
 
     def evaluate(self, instance, step, extra):
-        decider = getattr(instance, self.decider, None)
-        target = self.yes if decider else self.no
+        if isinstance(self.decider, BaseDeclaration):
+            choice = self.decider.evaluate(instance=instance, step=step, extra={})
+        else:
+            choice = getattr(instance, self.decider, None)
+        target = self.yes if choice else self.no
 
         if isinstance(target, BaseDeclaration):
             return target.evaluate(
@@ -510,7 +513,13 @@ class Trait(Parameter):
         overrides = {}
         for maybe_field, new_value in self.overrides.items():
             overrides[maybe_field] = Maybe(
-                decider=field_name,
+                decider=SelfAttribute(
+                    '%s.%s' % (
+                        '.' * maybe_field.count(enums.SPLITTER),
+                        field_name,
+                    ),
+                    default=False,
+                ),
                 yes_declaration=new_value,
                 no_declaration=declarations.get(maybe_field, SKIP),
             )
