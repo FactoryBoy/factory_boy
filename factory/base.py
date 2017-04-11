@@ -289,7 +289,7 @@ class FactoryOptions(object):
         # 2. Remove hidden objects
         kwargs = {
             k: v for k, v in kwargs.items()
-            if k not in self.exclude and k not in self.parameters
+            if k not in self.exclude and k not in self.parameters and v is not declarations.SKIP
         }
 
         # 3. Rename fields
