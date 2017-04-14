@@ -2211,6 +2211,7 @@ class RepeatableRandomSeedFakerTests(unittest.TestCase):
             one = factory.fuzzy.FuzzyDate(datetime.date(1950, 1, 1), )
             two = factory.Faker('name')
             three = factory.Faker('name', locale='it')
+            four = factory.Faker('name')
 
             class Meta:
                 model = TestObject
@@ -2225,6 +2226,7 @@ class RepeatableRandomSeedFakerTests(unittest.TestCase):
         self.assertEqual(students_1[0].one, students_2[0].one)
         self.assertEqual(students_1[0].two, students_2[0].two)
         self.assertEqual(students_1[0].three, students_2[0].three)
+        self.assertEqual(students_1[0].four, students_2[0].four)
 
 
 class SelfReferentialTests(unittest.TestCase):
