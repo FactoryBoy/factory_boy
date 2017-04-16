@@ -30,6 +30,8 @@ class Command(BaseCommand):
     def process_fields(self):
         for field in self.model._meta.fields:
             name = field.attname
+            if isinstance(field, models.ForeignKey):  # ForeignKey field have suffix "_id"
+                name = name.replace('_id', '')
             definition = self.get_creator_for_field(name, field)
             if definition:
                 self.print_field(definition, name)
