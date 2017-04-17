@@ -133,9 +133,12 @@ class ResetableIterator(object):
             if self.next_elements:
                 yield self.next_elements.popleft()
             else:
-                value = next(self.iterator)
-                self.past_elements.append(value)
-                yield value
+                try:
+                    value = next(self.iterator)
+                    self.past_elements.append(value)
+                    yield value
+                except StopIteration as e:
+                    break
 
     def reset(self):
         self.next_elements.clear()
