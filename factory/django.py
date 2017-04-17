@@ -59,6 +59,7 @@ def _lazy_load_get_model():
         def _get_model(app, model):
             raise import_failure
     else:
+        django.setup()
         from django import apps as django_apps
         _get_model = django_apps.apps.get_model
     _LAZY_LOADS['get_model'] = _get_model
