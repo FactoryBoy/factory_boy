@@ -172,7 +172,7 @@ No matter which strategy is used, it's possible to override the defined attribut
     "Joe"
 
 
-It is also possible to create a bunch of objects in a single call:
+It is also possible to create a bunch of objects in a single call with the ``*_batch()`` variants:
 
 .. code-block:: pycon
 
