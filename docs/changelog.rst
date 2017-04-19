@@ -61,7 +61,12 @@ corner cases and weird behaviourrs.
 
 *Removed:*
 
-    - :issue:`278`: Formally drop support for Python2.6
+	- :issue:`278`: Formally drop support for Python2.6
+
+.. warning:: Version 2.7.0 moves all error classes to
+             `factory.errors`. This breaks existing import statements
+             for any error classes except those importing
+             `FactoryError` directly from the `factory` module.
 
 .. _v2.6.1:
 
