@@ -41,6 +41,7 @@ from .declarations import (
     PostGeneration,
     PostGenerationMethodCall,
     RelatedFactory,
+    RelatedFactoryList,
 )
 
 from .helpers import (

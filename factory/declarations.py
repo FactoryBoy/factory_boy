@@ -674,6 +674,26 @@ class RelatedFactory(PostGenerationDeclaration):
         )
         return step.recurse(factory, passed_kwargs)
 
+class RelatedFactoryList(RelatedFactory):
+    """Calls a factory 'length' times once the object has been generated.
+
+    Attributes:
+        factory (Factory): the factory to call "length-times"
+        defaults (dict): extra declarations for calling the related factory
+        factory_related_name (str): the name to use to refer to the generated
+            object when calling the related factory
+        length (int|lambda): the number of times 'factory' is called, ultimately
+            returning a list of 'factory' objects w/ length 'length'.
+    """
+
+    def __init__(self, factory, factory_related_name='', length=2, **defaults):
+        self.length = length
+        super(RelatedFactoryList, self).__init__(factory, factory_related_name, **defaults) 
+
+    def call(self, instance, step, context):
+        return [super(RelatedFactoryList, self).call(instance, step, context) 
+                   for i in range(0, self.length if isinstance(self.length, int)
+                                                 else self.length())]
 
 class NotProvided:
     pass
