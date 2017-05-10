@@ -674,6 +674,7 @@ class RelatedFactory(PostGenerationDeclaration):
         )
         return step.recurse(factory, passed_kwargs)
 
+
 class RelatedFactoryList(RelatedFactory):
     """Calls a factory 'length' times once the object has been generated.
 
@@ -688,12 +689,13 @@ class RelatedFactoryList(RelatedFactory):
 
     def __init__(self, factory, factory_related_name='', length=2, **defaults):
         self.length = length
-        super(RelatedFactoryList, self).__init__(factory, factory_related_name, **defaults) 
+        super(RelatedFactoryList, self).__init__(factory, factory_related_name, **defaults)
 
     def call(self, instance, step, context):
-        return [super(RelatedFactoryList, self).call(instance, step, context) 
-                   for i in range(0, self.length if isinstance(self.length, int)
-                                                 else self.length())]
+        return [super(RelatedFactoryList, self).call(instance, step, context)
+                for i in range(0, self.length if isinstance(self.length, int)
+                               else self.length())]
+
 
 class NotProvided:
     pass
