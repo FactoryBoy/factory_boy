@@ -693,7 +693,7 @@ class RelatedFactoryList(RelatedFactory):
 
     def call(self, instance, step, context):
         return [super(RelatedFactoryList, self).call(instance, step, context)
-                for i in range(0, self.length if isinstance(self.length, int)
+                for i in range(self.length if isinstance(self.length, int)
                                else self.length())]
 
 
