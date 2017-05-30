@@ -1181,6 +1181,7 @@ class TraitTestCase(unittest.TestCase):
                 even = factory.Trait(two=True, four=True)
                 odd = factory.Trait(one=True, three=True, five=True)
                 full = factory.Trait(even=True, odd=True)
+                override = factory.Trait(even=True, two=False)
 
         # Setting "full" should enable all fields.
         obj = TestObjectFactory(full=True)
@@ -1199,6 +1200,11 @@ class TraitTestCase(unittest.TestCase):
         obj3 = TestObjectFactory(odd=True)
         self.assertEqual(obj3.as_dict(),
             dict(one=True, two=None, three=True, four=None, five=True))
+
+        # Setting override should override two and set it to False
+        obj = TestObjectFactory(override=True)
+        self.assertEqual(obj.as_dict(),
+            dict(one=None, two=False, three=None, four=True, five=None))
 
     def test_prevent_cyclic_traits(self):
 
