@@ -208,6 +208,23 @@ class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
 
 
 @unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
+class SQLAlchemyOverrideSessionTestCase(unittest.TestCase):
+    def setUp(self):
+        super(SQLAlchemyOverrideSessionTestCase, self).setUp()
+        self.mock_session = mock.NonCallableMagicMock(spec=models.session)
+
+    def test_override_default_session(self):
+        class SomeFactory(StandardFactory):
+            class Meta:
+                sqlalchemy_session = self.mock_session
+                sqlalchemy_session_persistence = 'commit'
+        new_session = mock.NonCallableMagicMock(spec=models.session)
+
+        SomeFactory.create(sqlalchemy_session=new_session)
+
+        new_session.commit.assert_called_once_with()
+
+@unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
 class SQLAlchemyNoSessionTestCase(unittest.TestCase):
 
     def test_create_raises_exception_when_no_session_was_set(self):
