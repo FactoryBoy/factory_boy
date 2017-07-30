@@ -1,7 +1,7 @@
 ChangeLog
 =========
 
-2.9.0 (unreleased)
+2.9.0 (2017-07-30)
 ------------------
 
 This version brings massive changes to the core engine, thus reducing the number of
