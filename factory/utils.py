@@ -140,3 +140,37 @@ class ResetableIterator(object):
     def reset(self):
         self.next_elements.clear()
         self.next_elements.extend(self.past_elements)
+
+
+class OrderedBase(object):
+    """Marks a class as being ordered.
+
+    Each instance (even from subclasses) will share a global creation counter.
+    """
+
+    CREATION_COUNTER_FIELD = '_creation_counter'
+
+    def __init__(self, **kwargs):
+        super(OrderedBase, self).__init__(**kwargs)
+        if type(self) is not OrderedBase:
+            bases = type(self).__mro__
+            root = bases[bases.index(OrderedBase) - 1]
+            if not hasattr(root, self.CREATION_COUNTER_FIELD):
+                setattr(root, self.CREATION_COUNTER_FIELD, 0)
+            next_counter = getattr(self, self.CREATION_COUNTER_FIELD)
+            setattr(self, self.CREATION_COUNTER_FIELD, next_counter)
+            setattr(root, self.CREATION_COUNTER_FIELD, next_counter + 1)
+
+
+def sort_ordered_objects(items, getter=lambda x: x):
+    """Sort an iterable of OrderedBase instances.
+
+    Args:
+        items (iterable): the objects to sort
+        getter (callable or None): a function to extract the OrderedBase instance from an object.
+
+    Examples:
+        >>> sort_ordered_objects([x, y, z])
+        >>> sort_ordered_objects(v.items(), getter=lambda e: e[1])
+    """
+    return sorted(items, key=lambda x: getattr(getter(x), OrderedBase.CREATION_COUNTER_FIELD, -1))

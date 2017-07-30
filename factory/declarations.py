@@ -15,20 +15,13 @@ from . import utils
 logger = logging.getLogger('factory.generate')
 
 
-class BaseDeclaration(object):
+class BaseDeclaration(utils.OrderedBase):
     """A factory declaration.
 
-    Ordered declarations mark an attribute as needing lazy evaluation.
+    Declarations mark an attribute as needing lazy evaluation.
     This allows them to refer to attributes defined by other BaseDeclarations
     in the same factory.
     """
-
-    creation_counter = 0
-
-    def __init__(self, **kwargs):
-        super(BaseDeclaration, self).__init__(**kwargs)
-        self.creation_counter = BaseDeclaration.creation_counter
-        BaseDeclaration.creation_counter += 1
 
     def evaluate(self, instance, step, extra):
         """Evaluate this declaration.
@@ -463,7 +456,7 @@ class Maybe(BaseDeclaration):
         return 'Maybe(%r, yes=%r, no=%r)' % (self.decider, self.yes, self.no)
 
 
-class Parameter(object):
+class Parameter(utils.OrderedBase):
     """A complex parameter, to be used in a Factory.Params section.
 
     Must implement:
@@ -507,6 +500,7 @@ class SimpleParameter(Parameter):
 class Trait(Parameter):
     """The simplest complex parameter, it enables a bunch of new declarations based on a boolean flag."""
     def __init__(self, **overrides):
+        super(Trait, self).__init__()
         self.overrides = overrides
 
     def as_declarations(self, field_name, declarations):
@@ -529,20 +523,19 @@ class Trait(Parameter):
         """This might alter fields it's injecting."""
         return [param for param in parameters if param in self.overrides]
 
+    def __repr__(self):
+        return '%s(%s)' % (
+            self.__class__.__name__,
+            ', '.join('%s=%r' % t for t in self.overrides.items())
+        )
+
 
 # Post-generation
 # ===============
 
 
-class PostGenerationDeclaration(object):
+class PostGenerationDeclaration(utils.OrderedBase):
     """Declarations to be called once the model object has been generated."""
-
-    creation_counter = 0
-    """Global creation counter of the declaration."""
-
-    def __init__(self, *args, **kwargs):
-        self.creation_counter = PostGenerationDeclaration.creation_counter
-        PostGenerationDeclaration.creation_counter += 1
 
     def call(self, instance, step, context):  # pragma: no cover
         """Call this hook; no return value is expected.

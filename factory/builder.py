@@ -5,6 +5,7 @@ import collections
 from . import declarations
 from . import enums
 from . import errors
+from . import utils
 
 
 DeclarationWithContext = collections.namedtuple(
@@ -72,9 +73,9 @@ class DeclarationSet(object):
         ]
 
     def sorted(self):
-        return sorted(
+        return utils.sort_ordered_objects(
             self.declarations,
-            key=lambda entry: self.declarations[entry].creation_counter,
+            getter=lambda entry: self.declarations[entry],
         )
 
     def __contains__(self, key):
