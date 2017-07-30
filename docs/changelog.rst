@@ -1,8 +1,8 @@
 ChangeLog
 =========
 
-master
-------
+2.9.0 (unreleased)
+------------------
 
 This version brings massive changes to the core engine, thus reducing the number of
 corner cases and weird behaviourrs.

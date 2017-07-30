@@ -33,7 +33,11 @@ update:
 	pip freeze
 
 
-.PHONY: clean update
+release:
+	fullrelease
+
+
+.PHONY: clean update release-patch release-minor release-major
 
 
 # Tests and quality
