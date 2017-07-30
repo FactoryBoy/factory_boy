@@ -21,7 +21,16 @@ PostGenerationContext = collections.namedtuple(
 
 
 class DeclarationSet(object):
-    """A set of declarations, including the recursive parameters."""
+    """A set of declarations, including the recursive parameters.
+
+    Attributes:
+        declarations (dict(name => declaration)): the top-level declarations
+        contexts (dict(name => dict(subfield => value))): the nested parameters related
+            to a given top-level declaration
+
+    This object behaves similarly to a dict mapping a top-level declaration name to a
+    DeclarationWithContext, containing field name, declaration object and extra context.
+    """
 
     def __init__(self, initial=None):
         self.declarations = {}
@@ -30,6 +39,16 @@ class DeclarationSet(object):
 
     @classmethod
     def split(cls, entry):
+        """Split a declaration name into a (declaration, subpath) tuple.
+
+        Examples:
+        >>> DeclarationSet.split('foo__bar')
+        ('foo', 'bar')
+        >>> DeclarationSet.split('foo')
+        ('foo', None)
+        >>> DeclarationSet.split('foo__bar__baz')
+        ('foo', 'bar__baz')
+        """
         if enums.SPLITTER in entry:
             return entry.split(enums.SPLITTER, 1)
         else:
@@ -37,6 +56,12 @@ class DeclarationSet(object):
 
     @classmethod
     def join(cls, root, subkey):
+        """Rebuild a full declaration name from its components.
+
+        for every string x, we have `join(split(x)) == x`.
+        """
+        if subkey is None:
+            return root
         return enums.SPLITTER.join((root, subkey))
 
     def copy(self):
@@ -46,6 +71,11 @@ class DeclarationSet(object):
         return other
 
     def update(self, values):
+        """Add new declarations to this set/
+
+        Args:
+            values (dict(name, declaration)): the declarations to ingest.
+        """
         for k, v in values.items():
             root, sub = self.split(k)
             if sub is None:
@@ -67,6 +97,12 @@ class DeclarationSet(object):
             )
 
     def filter(self, entries):
+        """Filter a set of declarations: keep only those related to this object.
+
+        This will keep:
+        - Declarations that 'override' the current ones
+        - Declarations that are parameters to current ones
+        """
         return [
             entry for entry in entries
             if self.split(entry)[0] in self.declarations
@@ -91,6 +127,11 @@ class DeclarationSet(object):
     def __iter__(self):
         return iter(self.declarations)
 
+    def values(self):
+        """Retrieve the list of declarations, with their context."""
+        for name in self:
+            yield self[name]
+
     def _items(self):
         """Extract a list of (key, value) pairs, suitable for our __init__."""
         for name in self.declarations:
@@ -98,11 +139,8 @@ class DeclarationSet(object):
             for subkey, value in self.contexts[name].items():
                 yield self.join(name, subkey), value
 
-    def values(self):
-        for name in self:
-            yield self[name]
-
     def as_dict(self):
+        """Return a dict() suitable for our __init__."""
         return dict(self._items())
 
     def __repr__(self):
