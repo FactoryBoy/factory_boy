@@ -119,12 +119,12 @@ factory_boy allows to define attributes of such profiles dynamically when creati
         profile = factory.RelatedFactory(ProfileFactory, 'user')
 
         @classmethod
-        def _generate(cls, create, attrs):
-            """Override the default _generate() to disable the post-save signal."""
+        def _create(cls, model_class, *args, **kwargs):
+            """Override the default _create() to disable the post-save signal."""
 
             # Note: If the signal was defined with a dispatch_uid, include that in both calls.
             post_save.disconnect(handler_create_user_profile, auth_models.User)
-            user = super(UserFactory, cls)._generate(create, attrs)
+            user = super(UserFactory, cls)._create(model_class, *args, **kwargs)
             post_save.connect(handler_create_user_profile, auth_models.User)
             return user
 
