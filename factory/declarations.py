@@ -562,7 +562,7 @@ class PostGeneration(PostGenerationDeclaration):
             self.function.__name__,
             utils.log_pprint(
                 (instance, step),
-                context,
+                context._asdict(),
             ),
         )
         create = step.builder.strategy == enums.CREATE_STRATEGY
