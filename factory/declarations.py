@@ -257,39 +257,23 @@ class ContainerAttribute(BaseDeclaration):
         return self.function(instance, chain)
 
 
-class ParameteredAttribute(BaseDeclaration):
-    """Base class for attributes expecting parameters.
+class ParameteredDeclaration(BaseDeclaration):
+    """Base class for declarations accepting parameters.
 
     Attributes:
-        defaults (dict): Default values for the paramters.
+        defaults (dict): Default values for the parameters.
             May be overridden by call-time parameters.
-
-    Class attributes:
-        CONTAINERS_FIELD (str): name of the field, if any, where container
-            information (e.g for SubFactory) should be stored. If empty,
-            containers data isn't merged into generate() parameters.
     """
 
-    CONTAINERS_FIELD = '__containers'
-
-    # Whether to add the current object to the stack of containers
-    EXTEND_CONTAINERS = False
-
     def __init__(self, **kwargs):
-        super(ParameteredAttribute, self).__init__()
-        self.defaults = kwargs
-
-    def _prepare_containers(self, obj, containers=()):
-        if self.EXTEND_CONTAINERS:
-            return (obj,) + tuple(containers)
-
-        return containers
+        super(ParameteredDeclaration, self).__init__()
+        self.defaults = dict(**kwargs)
 
     def evaluate(self, instance, step, extra):
         """Evaluate the current definition and fill its attributes.
 
         Uses attributes definition in the following order:
-        - values defined when defining the ParameteredAttribute
+        - values defined when defining the ParameteredDeclaration
         - additional values defined when instantiating the containing factory
 
         Args:
@@ -299,11 +283,10 @@ class ParameteredAttribute(BaseDeclaration):
             extra (dict): additional, call-time added kwargs
                 for the step.
         """
-        defaults = dict(self.defaults)
-        if extra:
-            defaults.update(extra)
+        params = dict(self.defaults)
+        params.update(**extra)
 
-        return self.generate(step, defaults)
+        return self.generate(step, params)
 
     def generate(self, step, params):
         """Actually generate the related attribute.
@@ -313,8 +296,8 @@ class ParameteredAttribute(BaseDeclaration):
             obj (LazyStub): the object being constructed
             create (bool): whether the calling factory was in 'create' or
                 'build' mode
-            params (dict): parameters inherited from init and evaluation-time
-                overrides.
+            params (dict): parameters inherited from init and
+                evaluation-time overrides.
 
         Returns:
             Computed value for the current declaration.
@@ -356,7 +339,7 @@ class _FactoryWrapper(object):
             return '<_FactoryImport: %s>' % self.factory.__class__
 
 
-class SubFactory(ParameteredAttribute):
+class SubFactory(ParameteredDeclaration):
     """Base class for attributes based upon a sub-factory.
 
     Attributes:
