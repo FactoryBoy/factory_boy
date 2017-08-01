@@ -192,6 +192,9 @@ taking the object being built and returning the value for the field:
             return '%s@example.com' % self.username
 
 
+.. _intro-inheritance:
+
+
 Inheritance
 -----------
 

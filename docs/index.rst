@@ -9,6 +9,7 @@ Contents, indices and tables
     :maxdepth: 2
 
     introduction
+    walkthrough
     reference
     orms
     recipes
