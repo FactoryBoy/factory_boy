@@ -397,6 +397,36 @@ class List(SubFactory):
         super(List, self).__init__(list_factory, **params)
 
 
+class LazyResolver(BaseDeclaration):
+    """Configure and evaluate a declaration at runtime.
+
+    Instead of usual BaseDeclarations, this declaration will configure
+    the provided declaration when evaluating the factory; this allows
+    users to tune the declaration based on other parameters.
+
+    Usage:
+        >>> class EventFactory(factory.Factory):
+        ...     date = factory.LazyResolver(
+        ...         factory.fuzzy.FuzzyDate,
+        ...         start_date=factory.LazyAttribute(lambda o: datetime.date(o.parent_factory.year, 1, 1)),
+        ...         end_date=factory.LazyAttribute(lambda o: o.start_date.replace(month=12, day=31)),
+        ...     )
+    """
+    def __init__(self, declaration, **kwargs):
+        super(LazyResolver, self).__init__()
+        self.declaration = declaration
+        # Use a 'Dict' subfactory to compute parameters
+        self.options_resolver = Dict(params=kwargs)
+
+    def evaluate(self, instance, step, extra):
+        # Resolve options with the internal Dict subfactory
+        options = self.options_resolver.evaluate(instance, step, extra)
+
+        # Now, instantiate and resolve the declaration.
+        declaration = self.declaration(**options)
+        return declaration.evaluate(instance, step, {})
+
+
 # Parameters
 # ==========
 

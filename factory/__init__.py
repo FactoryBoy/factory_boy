@@ -37,6 +37,7 @@ from .declarations import (
     SubFactory,
     Dict,
     List,
+    LazyResolver,
     Maybe,
     PostGeneration,
     PostGenerationMethodCall,

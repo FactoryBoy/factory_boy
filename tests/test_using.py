@@ -1603,6 +1603,32 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(42, obj.container_len)
 
 
+class LazyResolverTests(unittest.TestCase):
+    def test_lazy_fuzzy(self):
+        class Event(object):
+            def __init__(self, date):
+                self.date = date
+
+        class EventFactory(factory.Factory):
+            class Params:
+                year = 1900
+
+            date = factory.LazyResolver(
+                factory.fuzzy.FuzzyDate,
+                start_date=factory.LazyAttribute(lambda o: datetime.date(o.factory_parent.year, 1, 1)),
+                end_date=factory.LazyAttribute(lambda o: o.start_date.replace(month=12, day=31)),
+            )
+
+            class Meta:
+                model = Event
+
+        event1 = EventFactory()
+        self.assertEqual(1900, event1.date.year)
+
+        event2 = EventFactory(year=1888)
+        self.assertEqual(1888, event2.date.year)
+
+
 class IteratorTestCase(unittest.TestCase):
 
     def test_iterator(self):
