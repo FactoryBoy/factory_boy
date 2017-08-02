@@ -4,7 +4,10 @@ ChangeLog
 2.9.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*Bugfix:*
+
+    - Fix packaging issues (see https://github.com/zestsoftware/zest.releaser/issues/212)
+    - Don't crash when debugging PostGenerationDeclaration
 
 
 2.9.0 (2017-07-30)
