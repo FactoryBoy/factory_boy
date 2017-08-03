@@ -65,10 +65,7 @@ class DeclarationSet(object):
         return enums.SPLITTER.join((root, subkey))
 
     def copy(self):
-        other = self.__class__()
-        other.declarations = self.declarations.copy()
-        other.contexts = self.contexts.copy()
-        return other
+        return self.__class__(self.as_dict())
 
     def update(self, values):
         """Add new declarations to this set/

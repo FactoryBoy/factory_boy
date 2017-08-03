@@ -1439,6 +1439,54 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(obj, outer.wrapped)
         self.assertEqual('four', outer.wrapped.two)
 
+    def test_deep_nested_subfactory(self):
+        counter = iter(range(100))
+
+        class Node(object):
+            def __init__(self, label, child=None):
+                self.id = next(counter)
+                self.label = label
+                self.child = child
+
+        class LeafFactory(factory.Factory):
+            class Meta:
+                model = Node
+            label = 'leaf'
+
+        class BranchFactory(factory.Factory):
+            class Meta:
+                model = Node
+            label = 'branch'
+            child = factory.SubFactory(LeafFactory)
+
+        class TreeFactory(factory.Factory):
+            class Meta:
+                model = Node
+            label = 'tree'
+            child = factory.SubFactory(BranchFactory)
+            child__child__label = 'magic-leaf'
+
+        leaf = LeafFactory()
+        # Magic corruption did happen here once:
+        # forcing child__child=X while another part already set another value
+        # on child__child__label meant that the value passed for child__child
+        # was merged into the factory's inner declaration dict.
+        mtree_1 = TreeFactory(child__child=leaf)
+        mtree_2 = TreeFactory()
+
+        self.assertEqual(0, mtree_1.child.child.id)
+        self.assertEqual('leaf', mtree_1.child.child.label)
+        self.assertEqual(1, mtree_1.child.id)
+        self.assertEqual('branch', mtree_1.child.label)
+        self.assertEqual(2, mtree_1.id)
+        self.assertEqual('tree', mtree_1.label)
+        self.assertEqual(3, mtree_2.child.child.id)
+        self.assertEqual('magic-leaf', mtree_2.child.child.label)
+        self.assertEqual(4, mtree_2.child.id)
+        self.assertEqual('branch', mtree_2.child.label)
+        self.assertEqual(5, mtree_2.id)
+        self.assertEqual('tree', mtree_2.label)
+
     def test_sub_factory_and_inheritance(self):
         """Test inheriting from a factory with subfactories, overriding."""
         class TestObject(object):
