@@ -4,7 +4,11 @@ ChangeLog
 2.9.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*Bugfix:*
+
+    - Fix declaration corruption bug when a factory defined `foo__bar__baz=1` and a caller
+      provided a `foo__bar=x` parameter at call time: this got merged into the factory's base
+      declarations.
 
 
 2.9.1 (2017-08-02)
