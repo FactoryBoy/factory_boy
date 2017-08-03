@@ -1986,6 +1986,38 @@ class PostGenerationTestCase(unittest.TestCase):
 
         obj = TestObjectFactory.build(bar=42, bar__foo=13)
 
+    def test_post_generation_override_with_extra(self):
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            one = 1
+
+            @factory.post_generation
+            def incr_one(self, _create, override, **extra):
+                multiplier = extra.get('multiplier', 1)
+                if override is None:
+                    override = 1
+                self.one += override * multiplier
+
+        obj = TestObjectFactory.build()
+        self.assertEqual(1 + 1 * 1, obj.one)
+        obj = TestObjectFactory.build(incr_one=2)
+        self.assertEqual(1 + 2 * 1, obj.one)
+        obj = TestObjectFactory.build(incr_one__multiplier=4)
+        self.assertEqual(1 + 1 * 4, obj.one)
+        obj = TestObjectFactory.build(incr_one=2, incr_one__multiplier=5)
+        self.assertEqual(1 + 2 * 5, obj.one)
+
+        # Passing extras through inherited params
+        class OtherTestObjectFactory(TestObjectFactory):
+            class Params:
+                incr_one__multiplier = 4
+
+        obj = OtherTestObjectFactory.build()
+        self.assertEqual(1 + 1 * 4, obj.one)
+
+
     def test_post_generation_method_call(self):
         calls = []
 
