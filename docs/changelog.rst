@@ -6,6 +6,7 @@ ChangeLog
 
 - Nothing changed yet.
 
+.. _v2.9.2:
 
 2.9.2 (2017-08-03)
 ------------------
@@ -16,6 +17,7 @@ ChangeLog
       provided a `foo__bar=x` parameter at call time: this got merged into the factory's base
       declarations.
 
+.. _v2.9.1:
 
 2.9.1 (2017-08-02)
 ------------------
@@ -25,6 +27,7 @@ ChangeLog
     - Fix packaging issues (see https://github.com/zestsoftware/zest.releaser/issues/212)
     - Don't crash when debugging PostGenerationDeclaration
 
+.. _v2.9.0:
 
 2.9.0 (2017-07-30)
 ------------------
