@@ -8,26 +8,8 @@ from .compat import unittest
 from .compat import mock
 import warnings
 
-
-try:
-    import sqlalchemy
-except ImportError:
-    sqlalchemy = None
-
-if sqlalchemy:
-    from factory.alchemy import SQLAlchemyModelFactory
-    from .alchemyapp import models
-else:
-
-    class Fake(object):
-        class Meta:
-            sqlalchemy_session = None
-
-    models = Fake()
-    models.StandardModel = Fake()
-    models.NonIntegerPk = Fake()
-    models.session = Fake()
-    SQLAlchemyModelFactory = Fake
+from factory.alchemy import SQLAlchemyModelFactory
+from .alchemyapp import models
 
 
 class StandardFactory(SQLAlchemyModelFactory):
@@ -55,7 +37,6 @@ class NoSessionFactory(SQLAlchemyModelFactory):
     id = factory.Sequence(lambda n: n)
 
 
-@unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
 class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -94,7 +75,6 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
         self.assertEqual(0, std2.id)
 
 
-@unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
 class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
     def setUp(self):
         super(SQLAlchemySessionPersistenceTestCase, self).setUp()
@@ -172,7 +152,6 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
         self.mock_session.flush.assert_called_once_with()
 
 
-@unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
 class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
     def setUp(self):
         super(SQLAlchemyNonIntegerPkTestCase, self).setUp()
@@ -207,7 +186,6 @@ class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
         self.assertEqual('foo0', nonint2.id)
 
 
-@unittest.skipIf(sqlalchemy is None, "SQLalchemy not installed.")
 class SQLAlchemyNoSessionTestCase(unittest.TestCase):
 
     def test_create_raises_exception_when_no_session_was_set(self):
