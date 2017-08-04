@@ -15,6 +15,7 @@ except ImportError:
         Image = None
 
 from django.conf import settings
+from django.contrib.auth import models as auth_models
 from django.db import models
 
 class StandardModel(models.Model):
@@ -115,3 +116,12 @@ class AbstractWithCustomManager(models.Model):
 
 class FromAbstractWithCustomManager(AbstractWithCustomManager):
     pass
+
+
+class Issue402Account(models.Model):
+    admin = models.ForeignKey(auth_models.User, related_name='account_admin')
+    name = models.CharField(max_length=64)
+
+
+class Issue402Profile(models.Model):
+    user = models.OneToOneField(auth_models.User, related_name='issue402_profile')

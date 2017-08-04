@@ -15,6 +15,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests.djapp.settings')
 django.setup()
 from django import test as django_test
 from django.conf import settings
+from django.contrib.auth import models as auth_models
 from django.db import models as django_models
 from django.test.runner import DiscoverRunner as DjangoTestSuiteRunner
 from django.test import utils as django_test_utils
@@ -851,6 +852,38 @@ class DjangoCustomManagerTestCase(unittest.TestCase):
         # Our CustomManager will remove the 'arg=' argument,
         # invalid for the actual model.
         ObjFactory.create(arg='invalid')
+
+
+class Issue402UserFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = auth_models.User
+
+    profile = factory.RelatedFactory(
+        'tests.test_django.Issue402ProfileFactory',
+        'user',
+    )
+    username = factory.Sequence(lambda n: 'user.username%d' % n)
+    email = factory.Faker('email')
+
+
+class Issue402AccountFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Issue402Account
+    admin = factory.SubFactory(Issue402UserFactory)
+    name = factory.SelfAttribute('admin.email')
+
+
+class Issue402ProfileFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Issue402Profile
+    user = factory.SubFactory(Issue402UserFactory)
+
+
+class DjangoRegressionTests(unittest.TestCase):
+    def test_issue_402_related_factory(self):
+        account = Issue402AccountFactory()
+        self.assertIsNotNone(account.admin)
+        self.assertEqual(account.admin.issue402_profile.user, account.admin)
 
 
 if __name__ == '__main__':  # pragma: no cover
