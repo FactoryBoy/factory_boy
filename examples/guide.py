@@ -16,6 +16,14 @@ class Model:
             if not hasattr(self.__class__, field):
                 raise ValueError("Class %s has no field %r" % (self.__class__, field))
             setattr(self, field, value)
+            if isinstance(value, Model):
+                value.add_relation(self.__class__, self)
+
+    def add_relation(self, related_class, value):
+        field_name = '%s_set' % related_class.__name__.lower()
+        if not hasattr(self, field_name):
+            self.field_name = []
+        self.field_name.append(value)
 
     def __str__(self):
         return '@%s' % id(self)
@@ -28,7 +36,12 @@ def FakeField(*args, **kwargs):
     pass
 
 
-CharField = TextField = DateField = ForeignKey = IntegerField = FakeField
+BooleanField = FakeField
+CharField = FakeField
+DateField = FakeField
+ForeignKey = FakeField
+IntegerField = FakeField
+TextField = FakeField
 
 
 class Author(Model):
@@ -133,3 +146,36 @@ class AuthenticBookFactory(BasicBookFactory):
         start_date=factory.SelfAttribute('..min_publication_date'),
         end_date=factory.SelfAttribute('..max_publication_date'),
     )
+
+
+class Copy(Model):
+    book = ForeignKey(Book)
+    #: An identifier for a specific copy of the book
+    material_number = IntegerField()
+
+
+class CopyFactory(factory.Factory):
+    book = factory.SubFactory(AuthenticBookFactory)
+    material_number = factory.Sequence(lambda n: n)
+
+    class Meta:
+        model = Copy
+
+
+class PhysicalBookFactory(AuthenticBookFactory):
+    copy = factory.RelatedFactory(CopyFactory, 'book')
+
+
+class Patron(Model):
+    name = TextField()
+
+
+class Loan(Model):
+    # FIXME: Copy?
+    book = ForeignKey(Book)
+    borrower = ForeignKey(Patron)
+
+    start = DateField()
+    due = DateField()
+    returned_on = DateField()
+

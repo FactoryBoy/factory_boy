@@ -250,3 +250,77 @@ forcing the death age at 18 will generate a book written when the author was age
     >>> _.author
     <Author: Scott Elliott (1056-09-12 - 1074-09-26) [en]>
 
+
+Step 3: Related objects
+-----------------------
+
+We can now build our library's catalog; let's fill its inventory with various
+copies of our books:
+
+.. literalinclude:: ../examples/guide.py
+    :pyobject: Copy
+
+Its associated factory holds nothing fancy; we'll use a :class:`~factory.Sequence` declaration
+to provide a different, unique ``material_number`` to each copy.
+
+.. literalinclude:: ../examples/guide.py
+    :pyobject: CopyFactory
+
+
+
+Obviously, we should have at least one copy of each book of our catalog;
+we could change every call to our ``AuthenticBookFactory``:
+
+.. code-block:: python
+
+    def test_something(self):
+        book = factories.AuthenticBookFactory()
+        # <<<< Added
+        factories.CopyFactory(book=book)
+        # <<<< End addition
+
+
+Introduction :class:`~factory.RelatedFactory`
+"""""""""""""""""""""""""""""""""""""""""""""
+
+But that would be long and tedious; what we want is for our ``AuthenticBookFactory`` to
+always create a ``Copy`` with the book.
+
+The simplest way to handle this is to use a :class:`~factory.RelatedFactory`:
+
+.. literalinclude:: ../examples/guide.py
+    :pyobject: PhysicalBookFactory
+
+A :class:`~factory.RelatedFactory` is used to build another object *after the current
+one*; here, we'll create a ``Copy`` pointing to the created ``Book`` once the ``Book``
+has been created.
+
+A :class:`~factory.SubFactory` wouldn't work, since the relation if from a ``Copy``
+*pointing to* a ``Book``.
+
+The :class:`~factory.RelatedFactory` declaration takes two positional arguments:
+
+* The target factory class
+* The field of that factory that should be replaced with the just-created object.
+
+Let's see it in action:
+
+.. code-block:: pycon
+
+    >>> PhysicalBookFactory()
+
+
+
+
+Once our library has been filled with books, some loans would be in order.
+
+For this, we'll use a simple data representation:
+
+.. literalinclude:: ../examples/guide.py
+    :pyobject: Patron
+
+.. literalinclude:: ../examples/guide.py
+    :pyobject: Load
+
+
+Using 
