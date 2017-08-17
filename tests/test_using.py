@@ -1211,6 +1211,27 @@ class TraitTestCase(unittest.TestCase):
                     a = factory.Trait(b=True, one=True)
                     b = factory.Trait(a=True, two=True)
 
+    def test_deep_traits(self):
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+        class WrapperFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            class Params:
+                deep_one = factory.Trait(
+                    one=1,
+                    two__one=2,
+                )
+
+            two = factory.SubFactory(TestObjectFactory)
+
+        wrapper = WrapperFactory(deep_one=True)
+        self.assertEqual(1, wrapper.one)
+        self.assertEqual(2, wrapper.two.one)
+
 
 class SubFactoryTestCase(unittest.TestCase):
     def test_sub_factory(self):
@@ -2211,6 +2232,7 @@ class RepeatableRandomSeedFakerTests(unittest.TestCase):
             one = factory.fuzzy.FuzzyDate(datetime.date(1950, 1, 1), )
             two = factory.Faker('name')
             three = factory.Faker('name', locale='it')
+            four = factory.Faker('name')
 
             class Meta:
                 model = TestObject
@@ -2225,6 +2247,7 @@ class RepeatableRandomSeedFakerTests(unittest.TestCase):
         self.assertEqual(students_1[0].one, students_2[0].one)
         self.assertEqual(students_1[0].two, students_2[0].two)
         self.assertEqual(students_1[0].three, students_2[0].three)
+        self.assertEqual(students_1[0].four, students_2[0].four)
 
 
 class SelfReferentialTests(unittest.TestCase):

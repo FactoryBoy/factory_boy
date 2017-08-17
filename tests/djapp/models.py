@@ -67,6 +67,10 @@ class PointingModel(models.Model):
     )
 
 
+class WithDefaultValue(models.Model):
+    foo = models.CharField(max_length=20, default='')
+
+
 WITHFILE_UPLOAD_TO = 'django'
 WITHFILE_UPLOAD_DIR = os.path.join(settings.MEDIA_ROOT, WITHFILE_UPLOAD_TO)
 

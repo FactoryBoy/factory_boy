@@ -525,6 +525,61 @@ class DjangoFileFieldTestCase(unittest.TestCase):
 
 
 @unittest.skipIf(django is None, "Django not installed.")
+class DjangoParamsTestCase(django_test.TestCase):
+
+    def test_undeclared_fields(self):
+        class WithDefaultValueFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.WithDefaultValue
+
+            class Params:
+                with_bar = factory.Trait(
+                    foo='bar',
+                )
+
+        o = WithDefaultValueFactory()
+        self.assertEqual('', o.foo)
+
+    def test_pointing_with_traits_using_same_name(self):
+        class PointedFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointedModel
+
+            class Params:
+                with_bar = factory.Trait(
+                    foo='bar',
+                )
+
+        class PointerFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointingModel
+            pointed = factory.SubFactory(PointedFactory)
+
+            class Params:
+                with_bar = factory.Trait(
+                    foo='bar',
+                    pointed__with_bar=True,
+                )
+
+        o = PointerFactory(with_bar=True)
+        self.assertEqual('bar', o.foo)
+        self.assertEqual('bar', o.pointed.foo)
+
+
+@unittest.skipIf(django is None, "Django not installed.")
+class DjangoFakerTestCase(unittest.TestCase):
+    def test_random(self):
+        class StandardModelFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.StandardModel
+            foo = factory.Faker('pystr')
+
+        o1 = StandardModelFactory()
+        o2 = StandardModelFactory()
+        self.assertNotEqual(o1.foo, o2.foo)
+
+
+@unittest.skipIf(django is None, "Django not installed.")
 @unittest.skipIf(Image is None, "PIL not installed.")
 class DjangoImageFieldTestCase(unittest.TestCase):
 

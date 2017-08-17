@@ -6,10 +6,7 @@ from __future__ import unicode_literals
 import collections
 
 from . import compat
-
-#: String for splitting an attribute name into a
-#: (subfactory_name, subfactory_field) tuple.
-ATTR_SPLITTER = '__'
+from . import enums
 
 
 def extract_dict(prefix, kwargs, pop=True, exclude=()):
@@ -25,10 +22,10 @@ def extract_dict(prefix, kwargs, pop=True, exclude=()):
 
     Returns:
         A new dict, containing values from kwargs and beginning with
-            prefix + ATTR_SPLITTER. That full prefix is removed from the keys
+            prefix + enums.SPLITTER. That full prefix is removed from the keys
             of the returned dict.
     """
-    prefix = prefix + ATTR_SPLITTER
+    prefix = prefix + enums.SPLITTER
     extracted = {}
 
     for key in list(kwargs):
@@ -66,7 +63,7 @@ def multi_extract_dict(prefixes, kwargs, pop=True, exclude=()):
         extracted = extract_dict(prefix, kwargs, pop=pop, exclude=exclude)
         results[prefix] = extracted
         exclude.extend(
-            ['%s%s%s' % (prefix, ATTR_SPLITTER, key) for key in extracted])
+            ['%s%s%s' % (prefix, enums.SPLITTER, key) for key in extracted])
 
     return results
 

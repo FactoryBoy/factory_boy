@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 import random
 
+from factory.faker import Faker
+
 randgen = random.Random()
 
 randgen.state_set = False
@@ -21,4 +23,8 @@ def set_random_state(state):
 def reseed_random(seed):
     """Reseed factory.fuzzy's random generator."""
     r = random.Random(seed)
-    set_random_state(r.getstate())
+    random_internal_state = r.getstate()
+    set_random_state(random_internal_state)
+
+    for locale in Faker._FAKER_REGISTRY:
+        Faker._FAKER_REGISTRY[locale].random.setstate(random_internal_state)
