@@ -20,7 +20,9 @@ matrix:
 
     # Pypy
     - python: "pypy"
-      env: TOXENV=py27-django111-alchemy10-mongoengine010
+      env: TOXENV=pypy27-django111-alchemy10-mongoengine010
+    - python: "pypy3.5-5.8.0"
+      env: TOXENV=pypy3-django19-alchemy10-mongoengine010
 
     # Linting
     - python: "3.6"
