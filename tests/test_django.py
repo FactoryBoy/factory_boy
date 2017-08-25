@@ -375,21 +375,73 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
         class PointedFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointedModel
-            foo = 'ahah'
+            foo = 'foo'
 
         class PointerFactory(factory.django.DjangoModelFactory):
             class Meta:
-                model = models.PointingModel
-            pointed = factory.SubFactory(PointedFactory, foo='hihi')
-            foo = 'bar'
+                model = models.PointerModel
+            bar = 'bar'
+            pointed = factory.SubFactory(PointedFactory, foo='new_foo')
+
+        class PointedRelatedFactory(PointedFactory):
+            pointer = factory.RelatedFactory(PointerFactory, 'pointed')
+
+        class PointerExtraFactory(PointerFactory):
+            pointed__foo = 'extra_new_foo'
+
+        class PointedRelatedExtraFactory(PointedRelatedFactory):
+            pointer__bar = 'extra_new_bar'
 
         cls.PointedFactory = PointedFactory
         cls.PointerFactory = PointerFactory
+        cls.PointedRelatedFactory = PointedRelatedFactory
+        cls.PointerExtraFactory = PointerExtraFactory
+        cls.PointedRelatedExtraFactory = PointedRelatedExtraFactory
 
-    def test_direct_related_create(self):
-        ptr = self.PointerFactory()
-        self.assertEqual('hihi', ptr.pointed.foo)
-        self.assertEqual(ptr.pointed, models.PointedModel.objects.get())
+    def test_create_pointed(self):
+        pointed = self.PointedFactory()
+        self.assertEqual(pointed, models.PointedModel.objects.get())
+        self.assertEqual(pointed.foo, 'foo')
+
+    def test_create_pointer(self):
+        pointer = self.PointerFactory()
+        self.assertEqual(pointer.pointed, models.PointedModel.objects.get())
+        self.assertEqual(pointer.pointed.foo, 'new_foo')
+
+    def test_create_pointer_with_deep_context(self):
+        pointer = self.PointerFactory(pointed__foo='new_new_foo')
+        self.assertEqual(pointer, models.PointerModel.objects.get())
+        self.assertEqual(pointer.bar, 'bar')
+        self.assertEqual(pointer.pointed, models.PointedModel.objects.get())
+        self.assertEqual(pointer.pointed.foo, 'new_new_foo')
+
+    def test_create_pointed_related(self):
+        pointed = self.PointedRelatedFactory()
+        self.assertEqual(pointed, models.PointedModel.objects.get())
+        self.assertEqual(pointed.foo, 'foo')
+        self.assertEqual(pointed.pointer, models.PointerModel.objects.get())
+        self.assertEqual(pointed.pointer.bar, 'bar')
+
+    def test_create_pointed_related_with_deep_context(self):
+        pointed = self.PointedRelatedFactory(pointer__bar='new_new_bar')
+        self.assertEqual(pointed, models.PointedModel.objects.get())
+        self.assertEqual(pointed.foo, 'foo')
+        self.assertEqual(pointed.pointer, models.PointerModel.objects.get())
+        self.assertEqual(pointed.pointer.bar, 'new_new_bar')
+
+    def test_create_pointer_extra(self):
+        pointer = self.PointerExtraFactory()
+        self.assertEqual(pointer, models.PointerModel.objects.get())
+        self.assertEqual(pointer.bar, 'bar')
+        self.assertEqual(pointer.pointed, models.PointedModel.objects.get())
+        self.assertEqual(pointer.pointed.foo, 'extra_new_foo')
+
+    def test_create_pointed_related_extra(self):
+        pointed = self.PointedRelatedExtraFactory()
+        self.assertEqual(pointed, models.PointedModel.objects.get())
+        self.assertEqual(pointed.foo, 'foo')
+        self.assertEqual(pointed.pointer, models.PointerModel.objects.get())
+        self.assertEqual(pointed.pointer.bar, 'extra_new_bar')
 
 
 class DjangoFileFieldTestCase(unittest.TestCase):
@@ -529,17 +581,17 @@ class DjangoParamsTestCase(django_test.TestCase):
 
         class PointerFactory(factory.django.DjangoModelFactory):
             class Meta:
-                model = models.PointingModel
+                model = models.PointerModel
             pointed = factory.SubFactory(PointedFactory)
 
             class Params:
                 with_bar = factory.Trait(
-                    foo='bar',
+                    bar='bar',
                     pointed__with_bar=True,
                 )
 
         o = PointerFactory(with_bar=True)
-        self.assertEqual('bar', o.foo)
+        self.assertEqual('bar', o.bar)
         self.assertEqual('bar', o.pointed.foo)
 
 
