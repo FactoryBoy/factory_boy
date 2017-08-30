@@ -274,7 +274,7 @@ class FactoryOptions(object):
 
         if self.counter_reference is not self and not force:
             raise ValueError(
-                "Can't reset a sequence on decendant factory %r; reset sequence on %r or use `force=True`."
+                "Can't reset a sequence on descendant factory %r; reset sequence on %r or use `force=True`."
                 % (self.factory, self.counter_reference.factory))
 
         if value is None:
