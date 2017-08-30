@@ -199,7 +199,7 @@ A simple shell command to upgrade the code would be:
     # grep -l: only file names, not matching lines
     sed -i 's/FACTORY_FOR =/class Meta:\n        model =/' $(grep -l FACTORY_FOR $(find . -name '*.py'))
 
-This takes care of all ``FACTORY_FOR`` occurences; the files containing other attributes to rename can be found with ``grep -R  FACTORY .``
+This takes care of all ``FACTORY_FOR`` occurrences; the files containing other attributes to rename can be found with ``grep -R  FACTORY .``
 
 
 .. _v2.4.1:

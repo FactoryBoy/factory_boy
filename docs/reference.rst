@@ -1296,7 +1296,7 @@ Iterator
 
 .. class:: Iterator(iterable, cycle=True, getter=None)
 
-    The :class:`Iterator` declaration takes succesive values from the given
+    The :class:`Iterator` declaration takes successive values from the given
     iterable. When it is exhausted, it starts again from zero (unless ``cycle=False``).
 
     .. attribute:: cycle

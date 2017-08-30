@@ -261,7 +261,7 @@ class ParameteredAttribute(BaseDeclaration):
     """Base class for attributes expecting parameters.
 
     Attributes:
-        defaults (dict): Default values for the paramters.
+        defaults (dict): Default values for the parameters.
             May be overridden by call-time parameters.
 
     Class attributes:
