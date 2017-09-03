@@ -1,4 +1,5 @@
 import datetime
+import enum
 
 import faker.config
 
@@ -22,8 +23,8 @@ class Model:
     def add_relation(self, related_class, value):
         field_name = '%s_set' % related_class.__name__.lower()
         if not hasattr(self, field_name):
-            self.field_name = []
-        self.field_name.append(value)
+            setattr(self, field_name, [])
+        getattr(self, field_name).append(value)
 
     def __str__(self):
         return '@%s' % id(self)
@@ -153,10 +154,27 @@ class Copy(Model):
     #: An identifier for a specific copy of the book
     material_number = IntegerField()
 
+    # An Enum is great for pretty-printing options!
+    class Condition(enum.Enum):
+        PRISTINE = "Pristine"
+        LIGHT_WEAR = "Light wear"
+        USED = "Used"
+        DAMAGED = "Damaged"
+
+    condition = CharField(choices=[(c.name, c.value) for c in Condition])
+
+    def __str__(self):
+        return """"{b.title}" by {b.author.fullname} [#{nb}, {cond}]""".format(
+            b=self.book,
+            nb=self.material_number,
+            cond=self.condition.value,
+        )
+
 
 class CopyFactory(factory.Factory):
     book = factory.SubFactory(AuthenticBookFactory)
     material_number = factory.Sequence(lambda n: n)
+    condition = factory.fuzzy.FuzzyChoice(Copy.Condition)
 
     class Meta:
         model = Copy
@@ -164,6 +182,28 @@ class CopyFactory(factory.Factory):
 
 class PhysicalBookFactory(AuthenticBookFactory):
     copy = factory.RelatedFactory(CopyFactory, 'book')
+
+
+class IndestructibleBookFactory(PhysicalBookFactory):
+    copy = factory.RelatedFactory(
+        CopyFactory, 'book',
+        condition=Copy.Condition.PRISTINE,
+    )
+
+
+class UltraSolidBookFactory(PhysicalBookFactory):
+    copy__condition = Copy.Condition.PRISTINE
+
+
+class MultiConditionBookFactory(PhysicalBookFactory):
+
+    @factory.post_generation
+    def ensure_pristine_copy(self, create, override, **extra):
+        while not any(
+                copy.condition is Copy.Condition.PRISTINE
+                for copy in self.copy_set
+                ):
+            CopyFactory(book=self)
 
 
 class Patron(Model):

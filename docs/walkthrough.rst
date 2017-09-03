@@ -86,12 +86,12 @@ Let's see this in action:
 
 .. code-block:: pycon
 
-    >>> guide.MortalAuthorFactory()
+    >>> MortalAuthorFactory()
     <Author: Daniel Kelley (1724-02-17 - 1824-01-24) [en]>
-    >>> guide.MortalAuthorFactory()
+    >>> MortalAuthorFactory()
     <Author: Laura Howard (0098-01-18 - 0197-12-25) [en]>
 
-    >>> guide.MortalAuthorFactory()
+    >>> MortalAuthorFactory()
     <Author: William Nelson (1964-11-07 - ) [en]>
 
 
@@ -127,9 +127,9 @@ Our database has more variety:
 
 .. code-block:: pycon
 
-    >>> guide.UnluckyAuthorFactory()
+    >>> UnluckyAuthorFactory()
     <Author: Hailey Lee (1386-03-15 - 1442-04-27) [en]>
-    >>> guide.UnluckyAuthorFactory()
+    >>> UnluckyAuthorFactory()
     <Author: Linda Bullock (1986-01-11 - ) [en]>,
 
 
@@ -137,7 +137,7 @@ We can even force an author's death age:
 
 .. code-block:: pycon
 
-    >>> guide.UnluckyAuthorFactory(death_age=42)
+    >>> UnluckyAuthorFactory(death_age=42)
     <Author: Amy Roberts (1003-08-02 - 1045-09-02) [en]>
 
 
@@ -179,9 +179,9 @@ use the ``UnluckyAuthorFactory`` to create an author; and pass it as ``author=``
 
 .. code-block:: pycon
 
-    >>> guide.BasicBookFactory()
+    >>> BasicBookFactory()
     <Book: "Versatile reciprocal core" by Brett Dean (pub. 1983-04-29)>
-    >>> guide.BasicBookFactory()
+    >>> BasicBookFactory()
     <Book: "Secured methodical superstructure" by Nancy Bryan (pub. 1843-02-18)>
 
     >>> _.author
@@ -267,6 +267,9 @@ to provide a different, unique ``material_number`` to each copy.
     :pyobject: CopyFactory
 
 
+.. note:: As shown here, a :class:`~factory.fuzzy.FuzzyChoice` declaration can
+          be used to choose an arbitrary value among a set of options.
+
 
 Obviously, we should have at least one copy of each book of our catalog;
 we could change every call to our ``AuthenticBookFactory``:
@@ -279,12 +282,12 @@ we could change every call to our ``AuthenticBookFactory``:
         factories.CopyFactory(book=book)
         # <<<< End addition
 
-
-Introduction :class:`~factory.RelatedFactory`
-"""""""""""""""""""""""""""""""""""""""""""""
-
 But that would be long and tedious; what we want is for our ``AuthenticBookFactory`` to
 always create a ``Copy`` with the book.
+
+
+Introducing :class:`~factory.RelatedFactory`
+""""""""""""""""""""""""""""""""""""""""""""
 
 The simplest way to handle this is to use a :class:`~factory.RelatedFactory`:
 
@@ -295,21 +298,107 @@ A :class:`~factory.RelatedFactory` is used to build another object *after the cu
 one*; here, we'll create a ``Copy`` pointing to the created ``Book`` once the ``Book``
 has been created.
 
-A :class:`~factory.SubFactory` wouldn't work, since the relation if from a ``Copy``
+A :class:`~factory.SubFactory` wouldn't work, since the relation is from a ``Copy``
 *pointing to* a ``Book``.
-
-The :class:`~factory.RelatedFactory` declaration takes two positional arguments:
-
-* The target factory class
-* The field of that factory that should be replaced with the just-created object.
 
 Let's see it in action:
 
 .. code-block:: pycon
 
     >>> PhysicalBookFactory()
+    <Book: "Quality-focused eco-centric moratorium" by Mark Wade (pub. 0815-07-09)>
+    >>> _.copy_set
+    [<Copy: "Quality-focused eco-centric moratorium" by Mark Wade [#2, Used]>]
+
+.. note::
+
+    The :class:`~factory.RelatedFactory` declaration takes two positional arguments:
+
+    * The target factory class
+    * The field of that factory that should be replaced with the just-created object.
+
+    It might also take optional keyword arguments which would override the target factory's
+    declarations.
 
 
+Customizing related object creation
+"""""""""""""""""""""""""""""""""""
+
+The head librarian looked at our latest demo, and was quite upset at seeing
+non-pristine copies in our inventory! Our library should always have at least
+one pristine copy of each book.
+
+We could simply override our copy's condition when calling the :class:`~RelatedFactory`:
+
+.. literalinclude:: ../examples/guide.py
+    :pyobject: IndestructibleBookFactory
+
+And get the expected result:
+
+.. code-block:: pycon
+
+    >>> IndestructibleBookFactory()
+    <Book: "Switchable explicit algorithm" by Julie Cunningham (pub. 0285-10-11)>
+    >>> _.copy_set
+    [<Copy: "Switchable explicit algorithm" by Julie Cunningham [#0, Pristine]>]
+
+.. note::
+
+    We could also simply add an override in our factory subclass, just like we'd
+    do when using a :class:`~factory.SubFactory`:
+
+    .. literalinclude:: ../examples/guide.py
+        :pyobject: UltraSolidBookFactory
+
+    .. code-block:: pycon
+
+        >>> UltraSolidBookFactory()
+        <Book: "Public-key impactful infrastructure" by Patrick Taylor (pub. 1341-05-30)>
+        >>> _.copy_set
+        [<Copy: "Public-key impactful infrastructure" by Patrick Taylor [#8, Pristine]>]
+
+
+However, that setup would mean that each copy is pristine (unless declared
+otherwise when building it).
+
+
+Advanced post-generation customization with :class:`~factory.post_generation`
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Let's improve on our ``PhysicalBook`` factory: if the randomly generated copy
+wasn't pristine, we'll generate a few more and add a pristine one if needed.
+
+We'll need some custom code for this; it should run after the ``Book`` and
+its initial copy have been generated.
+
+We will use a :func:`~factory.post_generation` hook for that task:
+
+.. literalinclude:: ../examples/guide.py
+    :pyobject: MultiConditionBookFactory
+
+.. code-block:: pycon
+
+    >>> MultiConditionBookFactory()
+    <Book: "Devolved systematic budgetary management" by Mary Jordan (pub. 0140-12-18)>
+    >>> _.copy_set
+    [<Copy: "Devolved systematic budgetary management" by Mary Jordan [#0, Used]>,
+     <Copy: "Devolved systematic budgetary management" by Mary Jordan [#1, Damaged]>,
+     <Copy: "Devolved systematic budgetary management" by Mary Jordan [#2, Used]>,
+     <Copy: "Devolved systematic budgetary management" by Mary Jordan [#3, Light wear]>,
+     <Copy: "Devolved systematic budgetary management" by Mary Jordan [#4, Damaged]>,
+     <Copy: "Devolved systematic budgetary management" by Mary Jordan [#5, Pristine]>]
+
+All is fine: we get a few copies, including a ``Pristine`` one!
+
+
+.. TODO Speak of a more random set of copies, at least one, etc.
+
+
+.. note::
+
+    The ``create``, ``override`` and ``extra`` arguments to
+    :func:`~factory.post_generation` may be used for advanced features, which
+    are outside the scope of this section.
 
 
 Once our library has been filled with books, some loans would be in order.
@@ -320,7 +409,7 @@ For this, we'll use a simple data representation:
     :pyobject: Patron
 
 .. literalinclude:: ../examples/guide.py
-    :pyobject: Load
+    :pyobject: Loan
 
 
 Using 
