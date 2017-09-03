@@ -37,6 +37,11 @@ Meta options
 
         .. versionadded:: 2.4.0
 
+    .. method:: get_model_class()
+
+        Returns the actual model class (:attr:`FactoryOptions.model` might be the
+        path to the class; this function will always return a proper class).
+
     .. attribute:: abstract
 
         This attribute indicates that the :class:`Factory` subclass should not
@@ -1291,7 +1296,7 @@ Iterator
 
 .. class:: Iterator(iterable, cycle=True, getter=None)
 
-    The :class:`Iterator` declaration takes succesive values from the given
+    The :class:`Iterator` declaration takes successive values from the given
     iterable. When it is exhausted, it starts again from zero (unless ``cycle=False``).
 
     .. attribute:: cycle

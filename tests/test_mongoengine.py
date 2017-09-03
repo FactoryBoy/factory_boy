@@ -8,39 +8,35 @@ import os
 from .compat import unittest
 
 
-try:
-    import mongoengine
-except ImportError:
-    mongoengine = None
+import mongoengine
 
-if os.environ.get('SKIP_MONGOENGINE') == '1':
-    mongoengine = None
+from factory.mongoengine import MongoEngineFactory
 
-if mongoengine:
-    from factory.mongoengine import MongoEngineFactory
+class Address(mongoengine.EmbeddedDocument):
+    street = mongoengine.StringField()
 
-    class Address(mongoengine.EmbeddedDocument):
-        street = mongoengine.StringField()
+class Person(mongoengine.Document):
+    name = mongoengine.StringField()
+    address = mongoengine.EmbeddedDocumentField(Address)
 
-    class Person(mongoengine.Document):
-        name = mongoengine.StringField()
-        address = mongoengine.EmbeddedDocumentField(Address)
+class AddressFactory(MongoEngineFactory):
+    class Meta:
+        model = Address
 
-    class AddressFactory(MongoEngineFactory):
-        class Meta:
-            model = Address
+    street = factory.Sequence(lambda n: 'street%d' % n)
 
-        street = factory.Sequence(lambda n: 'street%d' % n)
+class PersonFactory(MongoEngineFactory):
+    class Meta:
+        model = Person
 
-    class PersonFactory(MongoEngineFactory):
-        class Meta:
-            model = Person
-
-        name = factory.Sequence(lambda n: 'name%d' % n)
-        address = factory.SubFactory(AddressFactory)
+    name = factory.Sequence(lambda n: 'name%d' % n)
+    address = factory.SubFactory(AddressFactory)
 
 
-@unittest.skipIf(mongoengine is None, "mongoengine not installed.")
+SKIP_MONGODB = bool(os.environ.get('SKIP_MONGOENGINE') == '1')
+
+
+@unittest.skipIf(SKIP_MONGODB, "mongodb tests disabled.")
 class MongoEngineTestCase(unittest.TestCase):
 
     db_name = os.environ.get('MONGO_DATABASE', 'factory_boy_test')

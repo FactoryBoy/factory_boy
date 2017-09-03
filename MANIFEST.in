@@ -7,6 +7,6 @@ prune docs
 prune examples
 prune tests
 
-global-exclude *.py[cod] __pycache__
+global-exclude *.py[cod] __pycache__ .*.sw[po]
 
 exclude Makefile tox.ini .flake8

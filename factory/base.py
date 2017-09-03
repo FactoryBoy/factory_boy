@@ -11,6 +11,7 @@ from . import builder
 from . import declarations
 from . import enums
 from . import errors
+from . import utils
 
 logger = logging.getLogger('factory.generate')
 
@@ -155,7 +156,7 @@ class FactoryOptions(object):
     @property
     def declarations(self):
         base_declarations = dict(self.base_declarations)
-        for name, param in self.parameters.items():
+        for name, param in utils.sort_ordered_objects(self.parameters.items(), getter=lambda item: item[1]):
             base_declarations.update(param.as_declarations(name, base_declarations))
         return base_declarations
 
@@ -223,7 +224,7 @@ class FactoryOptions(object):
                 self.base_declarations[k] = v
 
         if params is not None:
-            for k, v in vars(params).items():
+            for k, v in utils.sort_ordered_objects(vars(params).items(), getter=lambda item: item[1]):
                 if not k.startswith('_'):
                     self.parameters[k] = declarations.SimpleParameter.wrap(v)
 
@@ -273,7 +274,7 @@ class FactoryOptions(object):
 
         if self.counter_reference is not self and not force:
             raise ValueError(
-                "Can't reset a sequence on decendant factory %r; reset sequence on %r or use `force=True`."
+                "Can't reset a sequence on descendant factory %r; reset sequence on %r or use `force=True`."
                 % (self.factory, self.counter_reference.factory))
 
         if value is None:

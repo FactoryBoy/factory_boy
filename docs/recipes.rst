@@ -491,7 +491,7 @@ In order to get a dict, we'll just have to swap the model; the easiest way is to
     {'first_name': "Agent 001", 'username': 'john_doe'}
 
 Django models with `GenericForeignKeys`
---------------------------------------
+---------------------------------------
 
 For model which uses `GenericForeignKey <https://docs.djangoproject.com/en/1.10/ref/contrib/contenttypes/#django.contrib.contenttypes.fields.GenericForeignKey>`_
 

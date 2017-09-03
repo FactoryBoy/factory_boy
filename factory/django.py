@@ -310,7 +310,7 @@ class mute_signals(object):
             @classmethod
             @functools.wraps(generate_method)
             def wrapped_generate(*args, **kwargs):
-                # A mute_signals() object is not reentrant; use a copy everytime.
+                # A mute_signals() object is not reentrant; use a copy every time.
                 with self.copy():
                     return generate_method(*args, **kwargs)
 
@@ -320,7 +320,7 @@ class mute_signals(object):
         else:
             @functools.wraps(callable_obj)
             def wrapper(*args, **kwargs):
-                # A mute_signals() object is not reentrant; use a copy everytime.
+                # A mute_signals() object is not reentrant; use a copy every time.
                 with self.copy():
                     return callable_obj(*args, **kwargs)
             return wrapper

@@ -191,7 +191,7 @@ class FuzzyDate(BaseFuzzyAttribute):
         if end_date is None:
             if random.randgen.state_set:
                 cls_name = self.__class__.__name__
-                warnings.warn(random_seed_warning.format(cls_name))
+                warnings.warn(random_seed_warning.format(cls_name), stacklevel=2)
             end_date = datetime.date.today()
 
         if start_date > end_date:
@@ -230,7 +230,7 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
         if end_dt is None:
             if random.randgen.state_set:
                 cls_name = self.__class__.__name__
-                warnings.warn(random_seed_warning.format(cls_name))
+                warnings.warn(random_seed_warning.format(cls_name), stacklevel=2)
             end_dt = self._now()
 
         self._check_bounds(start_dt, end_dt)

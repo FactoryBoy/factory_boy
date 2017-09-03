@@ -44,6 +44,7 @@ setup(
     url='https://github.com/FactoryBoy/factory_boy',
     keywords=['factory_boy', 'factory', 'fixtures'],
     packages=['factory'],
+    zip_safe=False,
     license='MIT',
     install_requires=[
         'Faker>=0.7.0',

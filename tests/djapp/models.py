@@ -17,6 +17,7 @@ except ImportError:
 from django.conf import settings
 from django.db import models
 
+
 class StandardModel(models.Model):
     foo = models.CharField(max_length=20)
 
@@ -59,10 +60,12 @@ class PointedModel(models.Model):
     foo = models.CharField(max_length=20)
 
 
-class PointingModel(models.Model):
-    foo = models.CharField(max_length=20)
+class PointerModel(models.Model):
+    bar = models.CharField(max_length=20)
     pointed = models.OneToOneField(
-        PointedModel, related_name='pointer', null=True,
+        PointedModel,
+        related_name='pointer',
+        null=True,
         on_delete=models.CASCADE
     )
 

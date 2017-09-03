@@ -1,8 +1,36 @@
 ChangeLog
 =========
 
-master
-------
+2.9.3 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+.. _v2.9.2:
+
+2.9.2 (2017-08-03)
+------------------
+
+*Bugfix:*
+
+    - Fix declaration corruption bug when a factory defined `foo__bar__baz=1` and a caller
+      provided a `foo__bar=x` parameter at call time: this got merged into the factory's base
+      declarations.
+
+.. _v2.9.1:
+
+2.9.1 (2017-08-02)
+------------------
+
+*Bugfix:*
+
+    - Fix packaging issues (see https://github.com/zestsoftware/zest.releaser/issues/212)
+    - Don't crash when debugging PostGenerationDeclaration
+
+.. _v2.9.0:
+
+2.9.0 (2017-07-30)
+------------------
 
 This version brings massive changes to the core engine, thus reducing the number of
 corner cases and weird behaviourrs.
@@ -171,7 +199,7 @@ A simple shell command to upgrade the code would be:
     # grep -l: only file names, not matching lines
     sed -i 's/FACTORY_FOR =/class Meta:\n        model =/' $(grep -l FACTORY_FOR $(find . -name '*.py'))
 
-This takes care of all ``FACTORY_FOR`` occurences; the files containing other attributes to rename can be found with ``grep -R  FACTORY .``
+This takes care of all ``FACTORY_FOR`` occurrences; the files containing other attributes to rename can be found with ``grep -R  FACTORY .``
 
 
 .. _v2.4.1:

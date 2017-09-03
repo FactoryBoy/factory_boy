@@ -9,6 +9,7 @@ SQLAlchemy
 mongoengine
 wheel
 tox
+zest.releaser[recommended]
 
 Sphinx
 sphinx_rtd_theme
