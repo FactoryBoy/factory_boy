@@ -732,6 +732,14 @@ Faker
 
         .. code-block:: python
 
+            from faker.providers import BaseProvider
+
+            class SmileyProvider(BaseProvider):
+                smileys = (':)', ':(')
+
+                def smiley(self):
+                    return self.random_element(self.smileys)
+
             factory.Faker.add_provider(SmileyProvider)
 
             class FaceFactory(factory.Factory):
