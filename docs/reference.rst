@@ -770,6 +770,20 @@ and return a value.
     >>> LogFactory(timestamp=now - timedelta(days=1))
     <Log: log at 2016-02-11 17:02:34>
 
+:class:`LazyFunction` is also useful for assigning copies of mutable objects
+(like lists) to an objects' property. Example:
+
+.. code-block:: python
+
+    DEFAULT_TEAM = ['Player1', 'Player2']
+
+    class TeamFactory(factory.Factory):
+        class Meta:
+            model = models.Team
+
+        teammates = factory.LazyFunction(lambda: list(DEFAULT_TEAM))
+
+
 Decorator
 ~~~~~~~~~
 
