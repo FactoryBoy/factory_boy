@@ -771,7 +771,7 @@ and return a value.
     <Log: log at 2016-02-11 17:02:34>
 
 :class:`LazyFunction` is also useful for assigning copies of mutable objects
-(like lists) to an objects' property. Example:
+(like lists) to an object's property. Example:
 
 .. code-block:: python
 
