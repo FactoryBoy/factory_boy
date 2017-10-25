@@ -100,9 +100,9 @@ This is achieved with the :class:`~factory.Sequence` declaration:
 .. code-block:: pycon
 
     >>> UserFactory()
-    <User: user1>
+    <User: user0>
     >>> UserFactory()
-    <User: user2>
+    <User: user1>
 
 .. note:: For more complex situations, you may also use the :meth:`~factory.@sequence` decorator (note that ``self`` is not added as first parameter):
 
