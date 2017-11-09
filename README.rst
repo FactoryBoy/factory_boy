@@ -1,7 +1,7 @@
 factory_boy
 ===========
 
-.. image:: https://secure.travis-ci.org/FactoryBoy/factory_boy.png?branch=master
+.. image:: https://secure.travis-ci.org/FactoryBoy/factory_boy.svg?branch=master
     :target: http://travis-ci.org/FactoryBoy/factory_boy/
 
 .. image:: https://img.shields.io/pypi/v/factory_boy.svg
