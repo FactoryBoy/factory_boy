@@ -271,7 +271,7 @@ class PostGenerationOrdering(unittest.TestCase):
             @classmethod
             def _create(cls, model_class, *args, **kwargs):
                 self.relatedfactory_results.append(kwargs.get('something'))
-                return super(PostGenerationOrdering, self)._create(model_class, *args, **kwargs)
+                return super(Related, cls)._create(model_class, *args, **kwargs)
 
         class Ordered(base.Factory):
             class Meta:

@@ -223,10 +223,15 @@ class BuildStep(object):
             resolved = getattr(self.stub, field_name)
 
             # `Maybe`s may include a post declaration, so defer them to the post build step
-            collector = self.deferred \
-                if isinstance(resolved, declarations.PostGenerationDeclaration) \
-                else self.attributes
-            collector[field_name] = resolved
+            if isinstance(resolved, declarations.PostGenerationDeclaration):
+                self.deferred[field_name] = resolved
+                # Need to defer the context arguments as well
+                self.deferred.update({
+                    '{}__{}'.format(field_name, k): v
+                    for k, v in decls[field_name].context.items()
+                })
+            else:
+                self.attributes[field_name] = resolved
 
     @property
     def chain(self):
