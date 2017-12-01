@@ -135,6 +135,8 @@ Since version 2.9, the :meth:`~factory.django.mute_signals` decorator should be 
 Such behaviour can be extended to other situations where a signal interferes with
 factory_boy related factories.
 
+Any factories that call these classes with :class:`~factory.SubFactory` will also need to be decorated in the same manner.
+
 .. note:: When any :class:`~factory.RelatedFactory` or :class:`~factory.post_generation`
           attribute is defined on the :class:`~factory.django.DjangoModelFactory` subclass,
           a second ``save()`` is performed *after* the call to ``_create()``.
