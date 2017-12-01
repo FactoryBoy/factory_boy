@@ -95,10 +95,14 @@ using a :class:`~django.db.models.OneToOneField` from the ``Profile`` to the ``U
 
 A typical way to create those profiles was to hook a post-save signal to the ``User`` model.
 
-factory_boy allows to define attributes of such profiles dynamically when creating a ``User``:
+Prior to version 2.9, the solution to this was to override the :meth:`~factory.Factory._generate` method on the factory.
+
+Since version 2.9, the :meth:`~factory.django.mute_signals` decorator should be used:
+
 
 .. code-block:: python
 
+    @factory.django.mute_signals(post_save)
     class ProfileFactory(factory.django.DjangoModelFactory):
         class Meta:
             model = my_models.Profile
@@ -108,6 +112,7 @@ factory_boy allows to define attributes of such profiles dynamically when creati
         # (this disables the RelatedFactory)
         user = factory.SubFactory('app.factories.UserFactory', profile=None)
 
+    @factory.django.mute_signals(post_save)
     class UserFactory(factory.django.DjangoModelFactory):
         class Meta:
             model = auth_models.User
@@ -117,16 +122,6 @@ factory_boy allows to define attributes of such profiles dynamically when creati
         # We pass in 'user' to link the generated Profile to our just-generated User
         # This will call ProfileFactory(user=our_new_user), thus skipping the SubFactory.
         profile = factory.RelatedFactory(ProfileFactory, 'user')
-
-        @classmethod
-        def _generate(cls, create, attrs):
-            """Override the default _generate() to disable the post-save signal."""
-
-            # Note: If the signal was defined with a dispatch_uid, include that in both calls.
-            post_save.disconnect(handler_create_user_profile, auth_models.User)
-            user = super(UserFactory, cls)._generate(create, attrs)
-            post_save.connect(handler_create_user_profile, auth_models.User)
-            return user
 
 .. OHAI_VIM:*
 
@@ -144,8 +139,7 @@ factory_boy related factories.
           attribute is defined on the :class:`~factory.django.DjangoModelFactory` subclass,
           a second ``save()`` is performed *after* the call to ``_create()``.
 
-          Code working with signals should thus override the :meth:`~factory.Factory._generate`
-          method.
+          Code working with signals should thus use the :meth:`~factory.django.mute_signals` decorator
 
 
 Simple Many-to-many relationship
