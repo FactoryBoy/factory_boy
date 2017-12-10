@@ -11,6 +11,8 @@ import os
 import logging
 import functools
 
+from django.core.exceptions import MultipleObjectsReturned
+
 try:
     import django
     from django.core import files as django_files
@@ -68,6 +70,7 @@ class DjangoOptions(base.FactoryOptions):
     def _build_default_options(self):
         return super(DjangoOptions, self)._build_default_options() + [
             base.OptionDefault('django_get_or_create', (), inherit=True),
+            base.OptionDefault('django_queryset_chooser', None, inherit=True),
             base.OptionDefault('database', DEFAULT_DB_ALIAS, inherit=True),
         ]
 
@@ -150,9 +153,21 @@ class DjangoModelFactory(base.Factory):
                     (field, cls.__name__))
             key_fields[field] = kwargs.pop(field)
         key_fields['defaults'] = kwargs
+        return cls.__get_instance(manager, args, key_fields)
 
-        instance, _created = manager.get_or_create(*args, **key_fields)
-        return instance
+    @classmethod
+    def __get_instance(cls, manager, args, key_fields):
+        try:
+            instance, _created = manager.get_or_create(*args, **key_fields)
+            return instance
+        except MultipleObjectsReturned:
+            query_chooser = cls._meta.django_queryset_chooser
+            if query_chooser is not None:
+                key_fields.pop('defaults')
+                query_set = manager.filter(*args, **key_fields)
+                return query_chooser(cls._meta._meta_instance(), query_set)
+            else:
+                raise
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):

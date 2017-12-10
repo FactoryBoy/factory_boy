@@ -176,6 +176,7 @@ class FactoryOptions(object):
         ]
 
     def _fill_from_meta(self, meta, base_meta):
+        self._meta_instance = meta
         # Exclude private/protected fields from the meta
         if meta is None:
             meta_attrs = {}
@@ -191,7 +192,6 @@ class FactoryOptions(object):
             value = option.apply(meta, base_meta)
             meta_attrs.pop(option.name, None)
             setattr(self, option.name, value)
-
         if meta_attrs:
             # Some attributes in the Meta aren't allowed here
             raise TypeError(

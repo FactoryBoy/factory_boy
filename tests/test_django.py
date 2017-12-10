@@ -92,6 +92,23 @@ class MultifieldModelFactory(factory.django.DjangoModelFactory):
     text = factory.Faker('text')
 
 
+class MultiFieldModelFactoryNoQueryChooser(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.MultifieldModel
+        django_get_or_create = ['text']
+
+    slug = factory.Sequence(lambda n: "slug%d" % n)
+
+
+class MultiFieldModelFactoryQueryChooser(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.MultifieldModel
+        django_get_or_create = ['text']
+        django_queryset_chooser = lambda meta, qs: qs.order_by('slug').first()
+
+    slug = factory.Sequence(lambda n: "slug%d" % n)
+
+
 class AbstractBaseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.AbstractBase
@@ -217,6 +234,17 @@ class DjangoGetOrCreateTests(django_test.TestCase):
         self.assertEqual(6, len(objs))
         self.assertEqual(2, len(set(objs)))
         self.assertEqual(2, models.MultifieldModel.objects.count())
+
+
+class DjangoQueryChooserTests(django_test.TestCase):
+    def test_previously_created(self):
+        for i in range(5):
+            models.MultifieldModel.objects.create(text='sample_text', slug=str(i))
+        with self.assertRaises(models.MultifieldModel.MultipleObjectsReturned):
+            MultiFieldModelFactoryNoQueryChooser(text='sample_text')
+        obj = MultiFieldModelFactoryQueryChooser(text='sample_text')
+        self.assertEqual(models.MultifieldModel.objects.count(), 5)
+        self.assertEqual(obj.slug, '0')
 
 
 class DjangoPkForceTestCase(django_test.TestCase):

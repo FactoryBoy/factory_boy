@@ -95,6 +95,48 @@ All factories for a Django :class:`~django.db.models.Model` should use the
             >>> User.objects.all()
             [<User: john>, <User: jack>]
 
+    .. attribute:: django_queryset_chooser
+
+        .. versionadded:: 2.9.3
+
+        Sometimes we want to perform something similar to django_get_or_create on non-unique field.
+
+        It can lead to this exception:
+        :meth:`MultipleObjectsReturned <django.core.exceptions.MultipleObjectsReturned>`
+
+        If default value for factory is not unique in database, than whole factory is broken.
+
+        We can provide user defined function for select which element should be returned.
+        Function will be called only if get_or_create raises MultipleObjectsReturned.
+
+        .. code-block:: python
+
+            class MyModelFactory(factory.django.DjangoModelFactory):
+                class Meta:
+                    model = 'myapp.MyModel'  # Equivalent to ``model = myapp.models.MyModel``
+                    django_get_or_create = ('some_field',)
+                    django_queryset_chooser: lambda meta, qs: qs.order_by('name').first().
+
+                some_field = 'Sample'
+                name = 'Sample name'
+
+        .. code-block:: pycon
+
+            >>> MyModel.objects.create(some_field='Sample', name='beta', **other_values)
+            <MyModel: sample>
+            >>> MyModel.objects.create(some_field='Sample', name='alpha', **other_values)
+            <MyModel: sample>
+            >>> User.objects.count()
+            2
+            >>> MyModelFactory().name  # Retrieves first instance with some_field value == 'Sample' without raising exceptions
+            alpha
+            >>> User.objects.all()   # No new instances were created.
+            [<MyModel: sample>, <MyModel: sample>]
+
+            >>> MyModelFactory(some_field='Other value')  # Creating new MyModel
+            <MyModel: Other value>
+            >>> User.objects.count()
+            3
 
 
 Extra fields
