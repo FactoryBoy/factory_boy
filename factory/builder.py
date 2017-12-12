@@ -217,7 +217,7 @@ class BuildStep(object):
             sequence=self.sequence,
         )
 
-        for field_name in declarations:
+        for field_name in declarations.sorted():
             self.attributes[field_name] = getattr(self.stub, field_name)
 
     @property
