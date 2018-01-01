@@ -164,7 +164,7 @@ def parse_declarations(decls, base_pre=None, base_post=None):
     extra_post = {}
     extra_maybenonpost = {}
     for k, v in decls.items():
-        if isinstance(v, declarations.PostGenerationDeclaration):
+        if enums.get_builder_phase(v) == enums.BuilderPhase.POST_INSTANTIATION:
             if k in pre_declarations:
                 # Conflict: PostGenerationDeclaration with the same
                 # name as a BaseDeclaration
@@ -354,7 +354,7 @@ class Resolver(object):
         elif name in self.__declarations:
             declaration = self.__declarations[name]
             value = declaration.declaration
-            if isinstance(value, declarations.BaseDeclaration):
+            if enums.get_builder_phase(value) == enums.BuilderPhase.ATTRIBUTE_RESOLUTION:
                 self.__pending.append(name)
                 try:
                     value = value.evaluate(

@@ -220,7 +220,7 @@ class FactoryOptions(object):
             self.parameters.update(parent._meta.parameters)
 
         for k, v in vars(self.factory).items():
-            if self._is_declaration(k, v) or self._is_postgen_declaration(k, v):
+            if self._is_declaration(k, v):
                 self.base_declarations[k] = v
 
         if params is not None:
@@ -333,15 +333,10 @@ class FactoryOptions(object):
         """
         if isinstance(value, (classmethod, staticmethod)):
             return False
-        elif isinstance(value, declarations.BaseDeclaration):
+        elif enums.get_builder_phase(value):
+            # All objects with a defined 'builder phase' are declarations.
             return True
-        elif isinstance(value, declarations.PostGenerationDeclaration):
-            return False
         return not name.startswith("_")
-
-    def _is_postgen_declaration(self, name, value):
-        """Captures instances of PostGenerationDeclaration."""
-        return isinstance(value, declarations.PostGenerationDeclaration)
 
     def _check_parameter_dependencies(self, parameters):
         """Find out in what order parameters should be called."""

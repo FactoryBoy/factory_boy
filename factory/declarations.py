@@ -23,6 +23,8 @@ class BaseDeclaration(utils.OrderedBase):
     in the same factory.
     """
 
+    FACTORY_BUILDER_PHASE = enums.BuilderPhase.ATTRIBUTE_RESOLUTION
+
     def evaluate(self, instance, step, extra):
         """Evaluate this declaration.
 
@@ -537,6 +539,8 @@ class Trait(Parameter):
 
 class PostGenerationDeclaration(utils.OrderedBase):
     """Declarations to be called once the model object has been generated."""
+
+    FACTORY_BUILDER_PHASE = enums.BuilderPhase.POST_INSTANTIATION
 
     def call(self, instance, step, context):  # pragma: no cover
         """Call this hook; no return value is expected.
