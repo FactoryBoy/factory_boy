@@ -20,7 +20,7 @@ factory_boy
     :target: https://pypi.python.org/pypi/factory_boy/
     :alt: License
 
-factory_boy is a fixtures replacement based on thoughtbot's `factory_girl <http://github.com/thoughtbot/factory_girl>`_.
+factory_boy is a fixtures replacement based on thoughtbot's `factory_bot <https://github.com/thoughtbot/factory_bot>`_.
 
 As a fixtures replacement tool, it aims to replace static, hard to maintain fixtures
 with easy-to-use factories for complex object.
