@@ -40,7 +40,7 @@ class Faker(declarations.BaseDeclaration):
         >>> foo = factory.Faker('name')
     """
     def __init__(self, provider, locale=None, **kwargs):
-        super(Faker, self).__init__(**kwargs)
+        super(Faker, self).__init__()
         self.provider = provider
         self.provider_kwargs = kwargs
         self.locale = locale
