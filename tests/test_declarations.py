@@ -89,6 +89,10 @@ class IteratorTestCase(unittest.TestCase):
         self.assertEqual(2, utils.evaluate_declaration(it, force_sequence=1))
         self.assertRaises(StopIteration, utils.evaluate_declaration, it, force_sequence=2)
 
+    def test_initial_reset(self):
+        it = declarations.Iterator([1, 2])
+        it.reset()
+
     def test_reset_cycle(self):
         it = declarations.Iterator([1, 2])
         self.assertEqual(1, utils.evaluate_declaration(it, force_sequence=0))
