@@ -183,7 +183,8 @@ class Iterator(BaseDeclaration):
 
     def reset(self):
         """Reset the internal iterator."""
-        self.iterator.reset()
+        if self.iterator is not None:
+            self.iterator.reset()
 
 
 class Sequence(BaseDeclaration):
