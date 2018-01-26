@@ -2315,7 +2315,7 @@ class CircularTestCase(unittest.TestCase):
 class RepeatableRandomSeedFakerTests(unittest.TestCase):
     def test_same_seed_is_used_between_fuzzy_and_faker_generators(self):
         class StudentFactory(factory.Factory):
-            one = factory.fuzzy.FuzzyDate(datetime.date(1950, 1, 1), )
+            one = factory.fuzzy.FuzzyDate(datetime.date(1950, 1, 1), datetime.date(1980, 1, 1))
             two = factory.Faker('name')
             three = factory.Faker('name', locale='it')
             four = factory.Faker('name')
@@ -2323,17 +2323,17 @@ class RepeatableRandomSeedFakerTests(unittest.TestCase):
             class Meta:
                 model = TestObject
 
-        seed = "seed1"
+        seed = 1000
         factory.random.reseed_random(seed)
-        students_1 = (StudentFactory(), StudentFactory())
+        students_1 = StudentFactory()
 
         factory.random.reseed_random(seed)
-        students_2 = (StudentFactory(), StudentFactory())
+        students_2 = StudentFactory()
 
-        self.assertEqual(students_1[0].one, students_2[0].one)
-        self.assertEqual(students_1[0].two, students_2[0].two)
-        self.assertEqual(students_1[0].three, students_2[0].three)
-        self.assertEqual(students_1[0].four, students_2[0].four)
+        self.assertEqual(students_1.one, students_2.one)
+        self.assertEqual(students_1.two, students_2.two)
+        self.assertEqual(students_1.three, students_2.three)
+        self.assertEqual(students_1.four, students_2.four)
 
 
 class SelfReferentialTests(unittest.TestCase):
