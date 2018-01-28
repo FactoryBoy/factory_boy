@@ -4,6 +4,10 @@ ChangeLog
 2.10.0 (unreleased)
 -------------------
 
+*Bugfix:*
+
+    - :issue:`443`: Don't crash when calling :meth:`factory.Iterator.reset()` on a brand new iterator.
+
 *New:*
 
     - :issue:`397`: Allow a :class:`factory.Maybe` to contain a :class:`~factory.PostGenerationDeclaration`.
