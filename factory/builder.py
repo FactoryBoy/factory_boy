@@ -2,11 +2,12 @@
 
 import collections
 
-from . import declarations
-from . import enums
-from . import errors
-from . import utils
-
+from . import (
+    declarations,
+    enums,
+    errors,
+    utils,
+)
 
 DeclarationWithContext = collections.namedtuple(
     'DeclarationWithContext',
@@ -207,18 +208,30 @@ class BuildStep(object):
         self.builder = builder
         self.sequence = sequence
         self.attributes = {}
+        self.deferred = {}
         self.parent_step = parent_step
         self.stub = None
 
-    def resolve(self, declarations):
+    def resolve(self, decls):
         self.stub = Resolver(
-            declarations=declarations,
+            declarations=decls,
             step=self,
             sequence=self.sequence,
         )
 
-        for field_name in declarations:
-            self.attributes[field_name] = getattr(self.stub, field_name)
+        for field_name in decls:
+            resolved = getattr(self.stub, field_name)
+
+            # `Maybe`s may include a post declaration, so defer them to the post build step
+            if isinstance(resolved, declarations.PostGenerationDeclaration):
+                self.deferred[field_name] = resolved
+                # Need to defer the context arguments as well
+                self.deferred.update({
+                    '{}__{}'.format(field_name, k): v
+                    for k, v in decls[field_name].context.items()
+                })
+            else:
+                self.attributes[field_name] = resolved
 
     @property
     def chain(self):
@@ -270,6 +283,7 @@ class StepBuilder(object):
             parent_step=parent_step,
         )
         step.resolve(pre)
+        post.update(step.deferred)
 
         args, kwargs = self.factory_meta.prepare_arguments(step.attributes)
 

@@ -2,15 +2,18 @@
 # Copyright: See the LICENSE file.
 
 import datetime
-import itertools
 
-from factory import base
-from factory import declarations
-from factory import errors
-from factory import helpers
-
-from .compat import mock, unittest
+from factory import (
+    base,
+    declarations,
+    errors,
+    helpers,
+)
 from . import utils
+from .compat import (
+    mock,
+    unittest,
+)
 
 
 class OrderedDeclarationTestCase(unittest.TestCase):
@@ -261,39 +264,58 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
 
 
 class PostGenerationOrdering(unittest.TestCase):
-
-    def test_post_generation_declaration_order(self):
-        postgen_results = []
+    def setUp(self):
+        self.relatedfactory_results = []
+        self.postgen_results = []
 
         class Related(base.Factory):
             class Meta:
                 model = mock.MagicMock()
 
+            @classmethod
+            def _create(cls, model_class, *args, **kwargs):
+                self.relatedfactory_results.append(kwargs.get('something'))
+                return super(Related, cls)._create(model_class, *args, **kwargs)
+
         class Ordered(base.Factory):
             class Meta:
                 model = mock.MagicMock()
 
-            a = declarations.RelatedFactory(Related)
-            z = declarations.RelatedFactory(Related)
+            a = declarations.RelatedFactory(Related, something='a')
+            m = declarations.Maybe(declarations.SelfAttribute('maybe', default=False),
+                                   declarations.RelatedFactory(Related, something='m'))
+            z = declarations.RelatedFactory(Related, something='z')
 
             @helpers.post_generation
             def a1(*args, **kwargs):
-                postgen_results.append('a1')
+                self.postgen_results.append('a1')
 
             @helpers.post_generation
             def zz(*args, **kwargs):
-                postgen_results.append('zz')
+                self.postgen_results.append('zz')
 
             @helpers.post_generation
             def aa(*args, **kwargs):
-                postgen_results.append('aa')
+                self.postgen_results.append('aa')
 
-        postgen_names = Ordered._meta.post_declarations.sorted()
+        self.Ordered = Ordered
+
+    def test_post_generation_declaration_sorting(self):
+        postgen_names = self.Ordered._meta.post_declarations.sorted()
         self.assertEqual(postgen_names, ['a', 'z', 'a1', 'zz', 'aa'])
 
+    def test_post_generation_call_order(self):
         # Test generation happens in desired order
-        Ordered()
-        self.assertEqual(postgen_results, ['a1', 'zz', 'aa'])
+        self.Ordered()
+        self.assertEqual(self.postgen_results, ['a1', 'zz', 'aa'])
+
+    def test_relatedfactory_call_order(self):
+        self.Ordered()
+        self.assertEqual(self.relatedfactory_results, ['a', 'z'])
+
+    def test_relatedfactory_call_order_using_maybe(self):
+        self.Ordered(maybe=True)
+        self.assertEqual(self.relatedfactory_results, ['a', 'm', 'z'])
 
 
 if __name__ == '__main__':  # pragma: no cover
