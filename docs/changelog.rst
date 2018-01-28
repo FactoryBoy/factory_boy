@@ -1,10 +1,13 @@
 ChangeLog
 =========
 
-2.9.3 (unreleased)
-------------------
+2.10.0 (unreleased)
+-------------------
 
-- Nothing changed yet.
+*New:*
+
+    - :issue:`397`: Allow a :class:`factory.Maybe` to contain a :class:`~factory.PostGenerationDeclaration`.
+      This also applies to :class:`factory.Trait`, since they use a :class:`factory.Maybe` declaration internally.
 
 .. _v2.9.2:
 

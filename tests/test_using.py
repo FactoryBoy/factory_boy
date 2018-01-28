@@ -1157,6 +1157,47 @@ class MaybeTestCase(unittest.TestCase):
         self.assertEqual(dict(a=3, b=3, biggest='a', max_value=3, ), obj_equal.as_dict)
         self.assertEqual(dict(a=5, b=4, biggest='a', max_value=5, ), obj_reverse.as_dict)
 
+    def test_post_generation(self):
+
+        # Helpers
+        @factory.post_generation
+        def square(obj, *args, **kwargs):
+            obj.value *= obj.value
+
+        @factory.post_generation
+        def quintuple(obj, *args, **kwargs):
+            obj.value *= 5
+
+        @factory.post_generation
+        def double(obj, *args, **kwargs):
+            obj.value *= 2
+
+        @factory.post_generation
+        def decrement(obj, *args, **kwargs):
+            obj.value -= 1
+
+
+        class DummyFactory(factory.Factory):
+            class Meta:
+                model = Dummy
+
+            value = 0
+            square_it = factory.Maybe('square', square)
+            quintuple_it = factory.Maybe('quintuple', quintuple)
+            adjust_nums = factory.Maybe(
+                factory.LazyAttribute(lambda o: o.value % 2 == 0),
+                double,
+                decrement,
+            )
+
+        obj_untouched = DummyFactory.build(value=4)
+        obj_squared = DummyFactory.build(value=5, square=True)
+        obj_combined = DummyFactory.build(value=6, square=True, quintuple=True)
+
+        self.assertEqual(4 * 2, obj_untouched.value)
+        self.assertEqual(5 ** 2 - 1, obj_squared.value)
+        self.assertEqual(6 ** 2 * 5 * 2, obj_combined.value)
+
 
 class TraitTestCase(unittest.TestCase):
     def test_traits(self):
@@ -1187,6 +1228,28 @@ class TraitTestCase(unittest.TestCase):
         obj5 = TestObjectFactory(odd=True, two=True)
         self.assertEqual(obj5.as_dict(),
             dict(one=True, two=True, three=True, four=None, five=True))
+
+    def test_post_generation_traits(self):
+        @factory.post_generation
+        def compute(obj, _create, _value, power=2, **kwargs):
+            obj.value = obj.value ** power
+
+        class DummyFactory(factory.Factory):
+            class Meta:
+                model = Dummy
+
+            value = 3
+            class Params:
+                exponentiate = factory.Trait(apply_exponent=compute)
+
+        base = DummyFactory.build()
+        self.assertEqual(dict(value=3), base.as_dict)
+
+        exp = DummyFactory.build(exponentiate=True)
+        self.assertEqual(dict(value=9), exp.as_dict)
+
+        higher = DummyFactory.build(exponentiate=True, apply_exponent__power=4)
+        self.assertEqual(dict(value=81), higher.as_dict)
 
     def test_traits_inheritance(self):
         """A trait can be set in an inherited class."""

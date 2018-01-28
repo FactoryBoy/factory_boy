@@ -435,15 +435,48 @@ SKIP = Skip()
 class Maybe(BaseDeclaration):
     def __init__(self, decider, yes_declaration=SKIP, no_declaration=SKIP):
         super(Maybe, self).__init__()
+        phases = {
+            'yes_declaration': enums.get_builder_phase(yes_declaration),
+            'no_declaration': enums.get_builder_phase(no_declaration),
+        }
+        used_phases = set(phase for phase in phases.values() if phase is not None)
+
+        if len(used_phases) > 1:
+            raise TypeError("Inconsistent phases for %r: %r" % (self, phases))
+
+        self.FACTORY_BUILDER_PHASE = used_phases.pop() if used_phases else enums.BuilderPhase.ATTRIBUTE_RESOLUTION
+
+        if enums.get_builder_phase(decider) is None:
+            # No builder phase => flat value
+            decider = SelfAttribute(decider, default=None)
+
         self.decider = decider
         self.yes = yes_declaration
         self.no = no_declaration
 
-    def evaluate(self, instance, step, extra):
-        if isinstance(self.decider, BaseDeclaration):
-            choice = self.decider.evaluate(instance=instance, step=step, extra={})
+    def call(self, instance, step, context):
+        decider_phase = enums.get_builder_phase(self.decider)
+        if decider_phase == enums.BuilderPhase.ATTRIBUTE_RESOLUTION:
+            # Note: we work on the *builder stub*, not on the actual instance.
+            # This gives us access to all Params-level definitions.
+            choice = self.decider.evaluate(instance=step.stub, step=step, extra=context.extra)
         else:
-            choice = getattr(instance, self.decider, None)
+            assert decider_phase == enums.BuilderPhase.POST_INSTANTIATION
+            choice = self.decider.call(instance, step, context)
+
+        target = self.yes if choice else self.no
+        if enums.get_builder_phase(target) == enums.BuilderPhase.POST_INSTANTIATION:
+            return target.call(
+                instance=instance,
+                step=step,
+                context=context,
+            )
+        else:
+            # Flat value (can't be ATTRIBUTE_RESOLUTION, checked in __init__)
+            return target
+
+    def evaluate(self, instance, step, extra):
+        choice = self.decider.evaluate(instance=instance, step=step, extra={})
         target = self.yes if choice else self.no
 
         if isinstance(target, BaseDeclaration):
@@ -453,7 +486,7 @@ class Maybe(BaseDeclaration):
                 extra=extra,
             )
         else:
-            # Flat value
+            # Flat value (can't be POST_INSTANTIATION, checked in __init__)
             return target
 
     def __repr__(self):
