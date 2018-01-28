@@ -434,6 +434,7 @@ SKIP = Skip()
 
 class Maybe(BaseDeclaration):
     def __init__(self, decider, yes_declaration=SKIP, no_declaration=SKIP):
+        super(Maybe, self).__init__()
         self.decider = decider
         self.yes = yes_declaration
         self.no = no_declaration
@@ -486,6 +487,7 @@ class Parameter(utils.OrderedBase):
 
 class SimpleParameter(Parameter):
     def __init__(self, value):
+        super(SimpleParameter, self).__init__()
         self.value = value
 
     def as_declarations(self, field_name, declarations):
