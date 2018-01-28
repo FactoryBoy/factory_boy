@@ -35,6 +35,23 @@ class TestObject(object):
         )
 
 
+class Dummy(object):
+    def __init__(self, **kwargs):
+        self._fields = set(kwargs)
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+    @property
+    def as_dict(self):
+        return {field: getattr(self, field) for field in self._fields}
+
+    def __repr__(self):
+        return '%s(%s)' % (
+            self.__class__.__name__,
+            ', '.join('%s=%r' % pair for pair in sorted(self.as_dict.items()))
+        )
+
+
 class FakeModel(object):
     @classmethod
     def create(cls, **kwargs):
@@ -1097,6 +1114,48 @@ class KwargAdjustTestCase(unittest.TestCase):
 
         obj = TestObjectFactory.build()
         self.assertEqual(42, obj.attributes)
+
+
+class MaybeTestCase(unittest.TestCase):
+    def test_simple_maybe(self):
+        class DummyFactory(factory.Factory):
+            class Meta:
+                model = Dummy
+
+            # Undeclared: key = None
+            both = factory.Maybe('key', 1, 2)
+            yes = factory.Maybe('key', 1)
+            no = factory.Maybe('key', no_declaration=2)
+            none = factory.Maybe('key')
+
+        obj_default = DummyFactory.build()
+        obj_true = DummyFactory.build(key=True)
+        obj_false = DummyFactory.build(key=False)
+
+        self.assertEqual(dict(both=2, no=2), obj_default.as_dict)
+        self.assertEqual(dict(key=True, both=1, yes=1), obj_true.as_dict)
+        self.assertEqual(dict(key=False, both=2, no=2), obj_false.as_dict)
+
+    def test_declarations(self):
+        class DummyFactory(factory.Factory):
+            class Meta:
+                model = Dummy
+
+            a = 0
+            b = 1
+
+            # biggest = 'b' if .b > .a else 'a'
+            biggest = factory.Maybe(factory.LazyAttribute(lambda o: o.a < o.b), 'b', 'a')
+            # max_value = .b if .b > .a else .a = max(.a, .b)
+            max_value = factory.Maybe(factory.LazyAttribute(lambda o: o.a < o.b), factory.SelfAttribute('b'), factory.SelfAttribute('a'))
+
+        obj_ordered = DummyFactory.build(a=1, b=2)
+        obj_equal = DummyFactory.build(a=3, b=3)
+        obj_reverse = DummyFactory.build(a=5, b=4)
+
+        self.assertEqual(dict(a=1, b=2, biggest='b', max_value=2, ), obj_ordered.as_dict)
+        self.assertEqual(dict(a=3, b=3, biggest='a', max_value=3, ), obj_equal.as_dict)
+        self.assertEqual(dict(a=5, b=4, biggest='a', max_value=5, ), obj_reverse.as_dict)
 
 
 class TraitTestCase(unittest.TestCase):
