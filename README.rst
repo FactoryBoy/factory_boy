@@ -360,11 +360,19 @@ In order to test coverage, please use:
     $ make coverage
 
 
-To test with a specific framework version, you may use:
+To test with a specific framework version, you may use a ``tox`` target:
 
 .. code-block:: sh
 
-    $ make DJANGO=1.9 test
+    $ tox --listenvs
+    py27-django111-alchemy12-mongoengine015
+    py27-django20-alchemy12-mongoengine015
+    # ...
+    pypy3-django20-alchemy12-mongoengine015
+    examples
+    lint
+
+    $ tox -e py36-django20-alchemy12-mongoengine015
 
 Valid options are:
 
