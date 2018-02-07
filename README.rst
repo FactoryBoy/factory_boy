@@ -80,7 +80,7 @@ Links
 * Package: https://pypi.python.org/pypi/factory_boy/
 * Mailing-list: `factoryboy@googlegroups.com <mailto:factoryboy@googlegroups.com>`_ | https://groups.google.com/forum/#!forum/factoryboy
 
-factory_boy supports Python 2.7, 3.4 to 3.6, as well as PyPy 2.7 and 5.8; it requires only the standard Python library.
+factory_boy supports Python 2.7, 3.4 to 3.6, as well as PyPy 2.7 and 5.8.
 
 
 Download
