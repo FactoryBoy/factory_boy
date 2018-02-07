@@ -6,7 +6,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 
 
 class TaggedItem(models.Model):
-    """Example GemericForeinKey model from django docs"""
+    """Example GenericForeinKey model from django docs"""
     tag = models.SlugField()
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
