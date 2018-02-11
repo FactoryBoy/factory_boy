@@ -172,14 +172,14 @@ class DjangoModelFactory(base.Factory):
             instance.save()
 
 
-class FileField(declarations.Dict):
+class FileField(declarations.ParameteredAttribute):
     """Helper to fill in django.db.models.FileField from a Factory."""
 
     DEFAULT_FILENAME = 'example.dat'
 
     def __init__(self, **defaults):
         require_django()
-        super(FileField, self).__init__(defaults)
+        super(FileField, self).__init__(**defaults)
 
     def _make_data(self, params):
         """Create data for the field."""
@@ -224,7 +224,9 @@ class FileField(declarations.Dict):
 
     def generate(self, step, params):
         """Fill in the field."""
-        params = super(FileField, self).generate(step, params)
+        # Recurse into a DictFactory: allows users to have some params depending
+        # on others.
+        params = step.recurse(base.DictFactory, params, force_sequence=step.sequence)
         filename, content = self._make_content(params)
         return django_files.File(content.file, filename)
 

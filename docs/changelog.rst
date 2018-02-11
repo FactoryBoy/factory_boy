@@ -4,7 +4,10 @@ ChangeLog
 2.10.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+*Bugfix:*
+
+    - :issue:`451`: Restore :class:`~factory.django.FileField` to a
+      :class:`~factory.declarations.ParameteredAttribute`, relying on composition to parse the provided parameters.
 
 
 2.10.0 (2018-01-28)
