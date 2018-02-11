@@ -2445,7 +2445,7 @@ class RepeatableRandomSeedFakerTests(unittest.TestCase):
             class Meta:
                 model = TestObject
 
-        seed = "seed1"
+        seed = 1000
         factory.random.reseed_random(seed)
         students_1 = (StudentFactory(), StudentFactory())
 
