@@ -115,3 +115,22 @@ class FakerTests(unittest.TestCase):
         face = FaceFactory()
         self.assertEqual(":)", face.smiley)
         self.assertEqual("(:", face.french_smiley)
+
+    def test_provider_positional_arguments(self):
+
+        class Book(object):
+            def __init__(self, title, bookmarked_pages):
+                self.title = title
+                self.bookmarked_pages = bookmarked_pages
+
+        class BookFactory(factory.Factory):
+            title = factory.Faker('bs')
+            bookmarked_pages = factory.Faker('pylist', args=(6, False, int))
+
+            class Meta:
+                model = Book
+
+        book = BookFactory()
+
+        self.assertEqual(6, len(book.bookmarked_pages))
+        self.assertTrue(all([isinstance(element, int) for element in book.bookmarked_pages]))

@@ -668,7 +668,7 @@ Declarations
 Faker
 """""
 
-.. class:: Faker(provider, locale=None, **kwargs)
+.. class:: Faker(provider, locale=None, args=None, **kwargs)
 
     .. OHAIVIM**
 
@@ -712,6 +712,25 @@ Faker
             >>> user.name
             'Jean Valjean'
 
+
+    .. attribute:: args
+    
+        If positional arguments need to be passed to the provider,
+        use the ``args`` parameter:
+        
+        .. code-block:: python
+        
+            class ComboLockFactory(factory.Factory):
+              class Meta:
+                  model = ComboLock
+                  
+              combination = factory.Faker('pylist', args=(3, False, int))
+              
+        .. code-block:: python
+        
+            >>> lock = ComboLockFactory()
+            >>> lock.combination
+            [42, 7, 13]
 
     .. classmethod:: override_default_locale(cls, locale)
 
