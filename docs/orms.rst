@@ -298,7 +298,7 @@ Factoy_boy also supports `SQLAlchemy`_  models through the :class:`SQLAlchemyMod
 
 To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:`Meta.sqlalchemy_session <SQLAlchemyOptions.sqlalchemy_session>` attribute.
 
-.. _SQLAlchemy: http://www.sqlalchemy.org/
+.. _SQLAlchemy: https://www.sqlalchemy.org/
 
 .. class:: SQLAlchemyModelFactory(factory.Factory)
 

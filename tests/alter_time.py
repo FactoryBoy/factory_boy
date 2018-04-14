@@ -22,8 +22,8 @@ def mock_datetime_now(target, datetime_module):
         A mock.patch context, can be used as a decorator or in a with.
     """
 
-    # See http://bugs.python.org/msg68532
-    # And http://docs.python.org/reference/datamodel.html#customizing-instance-and-subclass-checks
+    # See https://bugs.python.org/msg68532
+    # And https://docs.python.org/3/reference/datamodel.html#customizing-instance-and-subclass-checks
     class DatetimeSubclassMeta(type):
         """We need to customize the __instancecheck__ method for isinstance().
 
@@ -59,8 +59,8 @@ def mock_date_today(target, datetime_module):
         A mock.patch context, can be used as a decorator or in a with.
     """
 
-    # See http://bugs.python.org/msg68532
-    # And http://docs.python.org/reference/datamodel.html#customizing-instance-and-subclass-checks
+    # See https://bugs.python.org/msg68532
+    # And https://docs.python.org/3/reference/datamodel.html#customizing-instance-and-subclass-checks
     class DateSubclassMeta(type):
         """We need to customize the __instancecheck__ method for isinstance().
 

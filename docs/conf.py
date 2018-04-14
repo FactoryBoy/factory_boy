@@ -245,13 +245,13 @@ man_pages = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'http://docs.python.org/': None,
+    'https://docs.python.org/': None,
     'django': (
-        'http://docs.djangoproject.com/en/dev/',
-        'http://docs.djangoproject.com/en/dev/_objects/',
+        'https://docs.djangoproject.com/en/dev/',
+        'https://docs.djangoproject.com/en/dev/_objects/',
     ),
     'sqlalchemy': (
-        'http://docs.sqlalchemy.org/en/latest/',
-        'http://docs.sqlalchemy.org/en/latest/objects.inv',
+        'https://docs.sqlalchemy.org/en/latest/',
+        'https://docs.sqlalchemy.org/en/latest/objects.inv',
     ),
 }
