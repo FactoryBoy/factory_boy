@@ -2,7 +2,7 @@ factory_boy
 ===========
 
 .. image:: https://secure.travis-ci.org/FactoryBoy/factory_boy.svg?branch=master
-    :target: http://travis-ci.org/FactoryBoy/factory_boy/
+    :target: https://travis-ci.org/FactoryBoy/factory_boy/
 
 .. image:: https://img.shields.io/pypi/v/factory_boy.svg
     :target: https://factoryboy.readthedocs.io/en/latest/changelog.html
@@ -342,7 +342,7 @@ Contributing
 
 factory_boy is distributed under the MIT License.
 
-Issues should be opened through `GitHub Issues <http://github.com/FactoryBoy/factory_boy/issues/>`_; whenever possible, a pull request should be included.
+Issues should be opened through `GitHub Issues <https://github.com/FactoryBoy/factory_boy/issues/>`_; whenever possible, a pull request should be included.
 Questions and suggestions are welcome on the `mailing-list <mailto:factoryboy@googlegroups.com>`_.
 
 All pull request should pass the test suite, which can be launched simply with:
