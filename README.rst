@@ -9,15 +9,15 @@ factory_boy
     :alt: Latest Version
 
 .. image:: https://img.shields.io/pypi/pyversions/factory_boy.svg
-    :target: https://pypi.python.org/pypi/factory_boy/
+    :target: https://pypi.org/project/factory_boy/
     :alt: Supported Python versions
 
 .. image:: https://img.shields.io/pypi/wheel/factory_boy.svg
-    :target: https://pypi.python.org/pypi/factory_boy/
+    :target: https://pypi.org/project/factory_boy/
     :alt: Wheel status
 
 .. image:: https://img.shields.io/pypi/l/factory_boy.svg
-    :target: https://pypi.python.org/pypi/factory_boy/
+    :target: https://pypi.org/project/factory_boy/
     :alt: License
 
 factory_boy is a fixtures replacement based on thoughtbot's `factory_bot <https://github.com/thoughtbot/factory_bot>`_.
@@ -77,7 +77,7 @@ Links
 
 * Documentation: https://factoryboy.readthedocs.io/
 * Repository: https://github.com/FactoryBoy/factory_boy
-* Package: https://pypi.python.org/pypi/factory_boy/
+* Package: https://pypi.org/project/factory_boy/
 * Mailing-list: `factoryboy@googlegroups.com <mailto:factoryboy@googlegroups.com>`_ | https://groups.google.com/forum/#!forum/factoryboy
 
 factory_boy supports Python 2.7, 3.4 to 3.6, as well as PyPy 2.7 and 5.8.
@@ -86,7 +86,7 @@ factory_boy supports Python 2.7, 3.4 to 3.6, as well as PyPy 2.7 and 5.8.
 Download
 --------
 
-PyPI: https://pypi.python.org/pypi/factory_boy/
+PyPI: https://pypi.org/project/factory_boy/
 
 .. code-block:: sh
 
@@ -187,7 +187,7 @@ Realistic, random values
 """"""""""""""""""""""""
 
 Demos look better with random yet realistic values; and those realistic values can also help discover bugs.
-For this, factory_boy relies on the excellent `faker <https://pypi.python.org/pypi/faker>`_ library:
+For this, factory_boy relies on the excellent `faker <https://pypi.org/project/Faker/>`_ library:
 
 .. code-block:: python
 
