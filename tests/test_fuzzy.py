@@ -186,6 +186,66 @@ class FuzzyDecimalTestCase(unittest.TestCase):
             decimal_context.traps[decimal.FloatOperation] = old_traps
 
 
+class FuzzyFloatTestCase(unittest.TestCase):
+    def test_definition(self):
+        """Tests all ways of defining a FuzzyFloat."""
+        fuzz = fuzzy.FuzzyFloat(2.0, 3.0)
+        for _i in range(20):
+            res = utils.evaluate_declaration(fuzz)
+            self.assertTrue(2.0 <= res <= 3.0, "value %d is not between 2.0 and 3.0" % res)
+
+        fuzz = fuzzy.FuzzyFloat(4.0)
+        for _i in range(20):
+            res = utils.evaluate_declaration(fuzz)
+            self.assertTrue(0.0 <= res <= 4.0, "value %d is not between 0.0 and 4.0" % res)
+
+        fuzz = fuzzy.FuzzyDecimal(1.0, 4.0, precision=5)
+        for _i in range(20):
+            res = utils.evaluate_declaration(fuzz)
+            self.assertTrue(1.0 <= res <= 4.0, "value %d is not between 1.0 and 4.0" % res)
+            self.assertTrue(res.as_tuple().exponent, -5)
+
+    def test_biased(self):
+        fake_uniform = lambda low, high: low + high
+
+        fuzz = fuzzy.FuzzyFloat(2.0, 8.0)
+
+        with mock.patch('factory.random.randgen.uniform', fake_uniform):
+            res = utils.evaluate_declaration(fuzz)
+
+        self.assertEqual(10.0, res)
+
+    def test_biased_high_only(self):
+        fake_uniform = lambda low, high: low + high
+
+        fuzz = fuzzy.FuzzyFloat(8.0)
+
+        with mock.patch('factory.random.randgen.uniform', fake_uniform):
+            res = utils.evaluate_declaration(fuzz)
+
+        self.assertEqual(8.0, res)
+
+    def test_default_precision(self):
+        fake_uniform = lambda low, high: low + high + 0.000000000000011
+
+        fuzz = fuzzy.FuzzyFloat(8.0)
+
+        with mock.patch('factory.random.randgen.uniform', fake_uniform):
+            res = utils.evaluate_declaration(fuzz)
+
+        self.assertEqual(8.00000000000001, res)
+
+    def test_precision(self):
+        fake_uniform = lambda low, high: low + high + 0.001
+
+        fuzz = fuzzy.FuzzyFloat(8.0, precision=4)
+
+        with mock.patch('factory.random.randgen.uniform', fake_uniform):
+            res = utils.evaluate_declaration(fuzz)
+
+        self.assertEqual(8.001, res)
+
+
 class FuzzyDateTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

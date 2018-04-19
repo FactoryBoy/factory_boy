@@ -169,18 +169,20 @@ class FuzzyDecimal(BaseFuzzyAttribute):
 class FuzzyFloat(BaseFuzzyAttribute):
     """Random float within a given range."""
 
-    def __init__(self, low, high=None, **kwargs):
+    def __init__(self, low, high=None, precision=15, **kwargs):
         if high is None:
             high = low
             low = 0
 
         self.low = low
         self.high = high
+        self.precision = precision
 
         super(FuzzyFloat, self).__init__(**kwargs)
 
     def fuzz(self):
-        return random.randgen.uniform(self.low, self.high)
+        base = random.randgen.uniform(self.low, self.high)
+        return float(format(base, '.%dg' % self.precision))
 
 
 class FuzzyDate(BaseFuzzyAttribute):

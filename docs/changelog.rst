@@ -6,6 +6,7 @@ ChangeLog
 
 *Bugfix:*
 
+    - Fix :class:`~factory.fuzzy.FuzzyFloat` to return a 15 decimal digits precision float by default
     - :issue:`451`: Restore :class:`~factory.django.FileField` to a
       :class:`~factory.declarations.ParameteredAttribute`, relying on composition to parse the provided parameters.
     - :issue:`389`: Fix random state management with ``faker``.
