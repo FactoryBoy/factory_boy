@@ -138,8 +138,8 @@ class FuzzyDecimalTestCase(unittest.TestCase):
         fuzz = fuzzy.FuzzyDecimal(1.0, 4.0, precision=5)
         for _i in range(20):
             res = utils.evaluate_declaration(fuzz)
-            self.assertTrue(decimal.Decimal('0.54') <= res <= decimal.Decimal('4.0'),
-                    "value %d is not between 0.54 and 4.0" % res)
+            self.assertTrue(decimal.Decimal('1.0') <= res <= decimal.Decimal('4.0'),
+                    "value %d is not between 1.0 and 4.0" % res)
             self.assertTrue(res.as_tuple().exponent, -5)
 
     def test_biased(self):
