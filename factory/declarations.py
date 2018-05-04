@@ -25,6 +25,17 @@ class BaseDeclaration(utils.OrderedBase):
 
     FACTORY_BUILDER_PHASE = enums.BuilderPhase.ATTRIBUTE_RESOLUTION
 
+    def unroll_context(self, instance, step, context):
+        # XXX: This means that, for a SubFactory/RelatedFactory, we'll unroll
+        # its extra context *before* evaluating it. This might lead to some issues...
+        if not any(enums.get_builder_phase(v) for v in context.values()):
+            # Optimization for simple contexts - don't do anything.
+            return context
+
+        import factory.base
+        subfactory = factory.base.DictFactory
+        return step.recurse(subfactory, context, force_sequence=step.sequence)
+
     def evaluate(self, instance, step, extra):
         """Evaluate this declaration.
 
@@ -572,7 +583,7 @@ class Trait(Parameter):
 # ===============
 
 
-class PostGenerationDeclaration(utils.OrderedBase):
+class PostGenerationDeclaration(BaseDeclaration):
     """Declarations to be called once the model object has been generated."""
 
     FACTORY_BUILDER_PHASE = enums.BuilderPhase.POST_INSTANTIATION

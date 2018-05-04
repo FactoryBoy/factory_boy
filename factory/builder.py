@@ -282,10 +282,16 @@ class StepBuilder(object):
         postgen_results = {}
         for declaration_name in post.sorted():
             declaration = post[declaration_name]
+            unrolled_context = declaration.declaration.unroll_context(
+                instance=instance,
+                step=step,
+                context=declaration.context,
+            )
+
             postgen_context = PostGenerationContext(
-                value_provided='' in declaration.context,
-                value=declaration.context.get(''),
-                extra={k: v for k, v in declaration.context.items() if k != ''},
+                value_provided='' in unrolled_context,
+                value=unrolled_context.get(''),
+                extra={k: v for k, v in unrolled_context.items() if k != ''},
             )
             postgen_results[declaration_name] = declaration.declaration.call(
                 instance=instance,
@@ -357,10 +363,16 @@ class Resolver(object):
             if enums.get_builder_phase(value) == enums.BuilderPhase.ATTRIBUTE_RESOLUTION:
                 self.__pending.append(name)
                 try:
+                    context = value.unroll_context(
+                        instance=self,
+                        step=self.__step,
+                        context=declaration.context,
+                    )
+
                     value = value.evaluate(
                         instance=self,
                         step=self.__step,
-                        extra=declaration.context,
+                        extra=context,
                     )
                 finally:
                     last = self.__pending.pop()

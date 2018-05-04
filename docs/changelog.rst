@@ -10,6 +10,7 @@ ChangeLog
     - :issue:`451`: Restore :class:`~factory.django.FileField` to a
       :class:`~factory.declarations.ParameteredAttribute`, relying on composition to parse the provided parameters.
     - :issue:`389`: Fix random state management with ``faker``.
+    - :issue:`466`: Restore mixing :class:`~factory.Trait` and :meth:`~factory.post_generation`.
 
 
 2.10.0 (2018-01-28)
