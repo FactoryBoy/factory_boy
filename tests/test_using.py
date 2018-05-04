@@ -2248,6 +2248,25 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(2, obj.two)
         self.assertEqual(((), {'one': 2, 'two': 3}), obj.extra)
 
+    def test_post_generation_extraction_declaration(self):
+        LIBRARY = {}
+
+        Book = collections.namedtuple('Book', ['author'])
+
+        class BookFactory(factory.Factory):
+            class Meta:
+                model = Book
+
+            author = factory.Faker('name')
+            register__reference = factory.Sequence(lambda n: n)
+
+            @factory.post_generation
+            def register(self, create, extracted, reference=0, **kwargs):
+                LIBRARY[reference] = self
+
+        book = BookFactory.build()
+        self.assertEqual({0: book}, LIBRARY)
+
     def test_related_factory(self):
         class TestRelatedObject(object):
             def __init__(self, obj=None, one=None, two=None):
