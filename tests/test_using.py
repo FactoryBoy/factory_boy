@@ -4,6 +4,7 @@
 """Tests using factory."""
 
 
+import collections
 import datetime
 import functools
 import os
@@ -1359,6 +1360,36 @@ class TraitTestCase(unittest.TestCase):
         wrapper = WrapperFactory(deep_one=True)
         self.assertEqual(1, wrapper.one)
         self.assertEqual(2, wrapper.two.one)
+
+    def test_traits_and_postgeneration(self):
+        """A trait parameter should be resolved before post_generation hooks.
+
+        See https://github.com/FactoryBoy/factory_boy/issues/466.
+        """
+        PRICES = {}
+
+        Pizza = collections.namedtuple('Pizza', ['style', 'toppings'])
+
+        class PizzaFactory(factory.Factory):
+            class Meta:
+                model = Pizza
+
+            class Params:
+                fancy = factory.Trait(
+                    toppings=['eggs', 'ham', 'extra_cheese'],
+                    pricing__extra=10,
+                )
+
+            pricing__extra = 0
+            toppings = ['tomato', 'cheese']
+            style = 'margharita'
+
+            @factory.post_generation
+            def pricing(self, create, extracted, base_price=5, extra=0, **kwargs):
+                PRICES[base_price + extra] = self
+
+        p = PizzaFactory.build()
+        self.assertEqual({5: p}, PRICES)
 
 
 class SubFactoryTestCase(unittest.TestCase):
