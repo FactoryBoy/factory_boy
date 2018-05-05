@@ -1504,6 +1504,32 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(wrapping.wrapped.three, 3)
         self.assertEqual(wrapping.wrapped.four, 4)
 
+    def test_sub_factory_deep_overrides(self):
+        Author = collections.namedtuple('Author', ['name', 'country'])
+        Book = collections.namedtuple('Book', ['title', 'author'])
+        Chapter = collections.namedtuple('Chapter', ['book', 'number'])
+
+        class AuthorFactory(factory.Factory):
+            class Meta:
+                model = Author
+            name = "John"
+            country = 'XX'
+
+        class BookFactory(factory.Factory):
+            class Meta:
+                model = Book
+            title = "The mighty adventures of nobody."
+            author = factory.SubFactory(AuthorFactory)
+
+        class ChapterFactory(factory.Factory):
+            class Meta:
+                model = Chapter
+            book = factory.SubFactory(BookFactory)
+            number = factory.Sequence(lambda n: n)
+            book__author__country = factory.LazyAttribute(lambda o: 'FR')
+
+        c = ChapterFactory()
+
     def test_nested_sub_factory(self):
         """Test nested sub-factories."""
 

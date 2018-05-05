@@ -4,7 +4,9 @@ ChangeLog
 2.11.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+*Bugfix:*
+
+    - Fix passing deep context to a :class:`~factory.SubFactory` (``Foo(x__y__z=factory.Faker('name')``)
 
 
 2.11.0 (2018-05-05)

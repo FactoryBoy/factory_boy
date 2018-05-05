@@ -25,9 +25,13 @@ class BaseDeclaration(utils.OrderedBase):
 
     FACTORY_BUILDER_PHASE = enums.BuilderPhase.ATTRIBUTE_RESOLUTION
 
+    #: Whether to unroll the context before evaluating the declaration.
+    #: Set to False on declarations that perform their own unrolling.
+    UNROLL_CONTEXT_BEFORE_EVALUATION = True
+
     def unroll_context(self, instance, step, context):
-        # XXX: This means that, for a SubFactory/RelatedFactory, we'll unroll
-        # its extra context *before* evaluating it. This might lead to some issues...
+        if not self.UNROLL_CONTEXT_BEFORE_EVALUATION:
+            return context
         if not any(enums.get_builder_phase(v) for v in context.values()):
             # Optimization for simple contexts - don't do anything.
             return context
@@ -381,6 +385,7 @@ class SubFactory(ParameteredAttribute):
 
     EXTEND_CONTAINERS = True
     FORCE_SEQUENCE = False
+    UNROLL_CONTEXT_BEFORE_EVALUATION = False
 
     def __init__(self, factory, **kwargs):
         super(SubFactory, self).__init__(**kwargs)
@@ -630,6 +635,8 @@ class RelatedFactory(PostGenerationDeclaration):
         name (str): the name to use to refer to the generated object when
             calling the related factory
     """
+
+    UNROLL_CONTEXT_BEFORE_EVALUATION = False
 
     def __init__(self, factory, factory_related_name='', **defaults):
         super(RelatedFactory, self).__init__()
