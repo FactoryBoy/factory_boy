@@ -677,6 +677,8 @@ Faker
 
     This is a wrapper around `faker <https://pypi.org/project/Faker/>`_;
     its argument is the name of a ``faker`` provider:
+    
+    A list of available faker providers can be seen `here <https://faker.readthedocs.io/en/latest/providers.html>`_
 
     .. code-block:: python
 
