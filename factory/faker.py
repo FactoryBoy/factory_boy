@@ -45,7 +45,7 @@ class Faker(declarations.BaseDeclaration):
         self.provider_kwargs = kwargs
         self.locale = locale
 
-    def generate(self, extra_kwargs):
+    def generate(self, extra_kwargs={}):
         kwargs = {}
         kwargs.update(self.provider_kwargs)
         kwargs.update(extra_kwargs)
