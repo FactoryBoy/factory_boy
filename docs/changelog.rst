@@ -10,6 +10,7 @@ ChangeLog
     - Added support for Django 2.1
     - Add :attr:`~factory.fuzzy.FuzzyChoice.getter` to :class:`~factory.fuzzy.FuzzyChoice` that mimics
       the behavior of ``getter`` in :class:`~factory.Iterator`
+    - Make the ``extra_kwargs`` parameter of :meth:`~factory.faker.Faker.generate` optional
 
 *Bugfix:*
 

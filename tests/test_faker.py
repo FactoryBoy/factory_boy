@@ -34,7 +34,7 @@ class FakerTests(unittest.TestCase):
     def test_simple_biased(self):
         self._setup_mock_faker(name="John Doe")
         faker_field = factory.Faker('name')
-        self.assertEqual("John Doe", faker_field.generate({}))
+        self.assertEqual("John Doe", faker_field.generate())
 
     def test_full_factory(self):
         class Profile(object):
