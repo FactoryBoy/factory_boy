@@ -409,11 +409,18 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
         class PointedRelatedExtraFactory(PointedRelatedFactory):
             pointer__bar = 'extra_new_bar'
 
+        class PointedRelatedWithTraitFactory(PointedFactory):
+            class Params:
+                with_pointer = factory.Trait(
+                    pointer=factory.RelatedFactory(PointerFactory, 'pointed', bar='with_trait')
+                )
+
         cls.PointedFactory = PointedFactory
         cls.PointerFactory = PointerFactory
         cls.PointedRelatedFactory = PointedRelatedFactory
         cls.PointerExtraFactory = PointerExtraFactory
         cls.PointedRelatedExtraFactory = PointedRelatedExtraFactory
+        cls.PointedRelatedWithTraitFactory = PointedRelatedWithTraitFactory
 
     def test_create_pointed(self):
         pointed = self.PointedFactory()
@@ -459,6 +466,15 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
         self.assertEqual(pointed.foo, 'foo')
         self.assertEqual(pointed.pointer, models.PointerModel.objects.get())
         self.assertEqual(pointed.pointer.bar, 'extra_new_bar')
+
+    def test_create_pointed_related_with_trait(self):
+        pointed = self.PointedRelatedWithTraitFactory(
+            with_pointer=True
+        )
+        self.assertEqual(pointed, models.PointedModel.objects.get())
+        self.assertEqual(pointed.foo, 'foo')
+        self.assertEqual(pointed.pointer, models.PointerModel.objects.get())
+        self.assertEqual(pointed.pointer.bar, 'with_trait')
 
 
 class DjangoFileFieldTestCase(django_test.TestCase):
