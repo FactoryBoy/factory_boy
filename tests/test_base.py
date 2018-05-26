@@ -513,6 +513,14 @@ class FactoryCreationTestCase(unittest.TestCase):
 
         self.assertTrue(Test._meta.abstract)
 
+    def test_dict_factory(self):
+        class Test(base.DictFactory):
+            foo = 'bar'
+            spam__ham = 'eggs'
+
+        test = Test()
+        self.assertDictEqual({'foo': 'bar', 'spam__ham': 'eggs'}, test)
+
 
 class PostGenerationParsingTestCase(unittest.TestCase):
 
