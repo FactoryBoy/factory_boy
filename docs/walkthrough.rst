@@ -98,8 +98,11 @@ Let's see this in action:
 Better!
 However, we'll quickly notice that all our authors die around age 100; this is quite unrealistic...
 
-We could alter our ``death()`` function to use a random age;
-however, our library has a special "They Died too Young" section, which we'll need to test.
+We could alter our ``death()`` function to use a random age; but, for the sake of this guide, we'll
+imagine a more complex scenario.
+
+Let's say that our fictional library has a special "They Died too Young" section for great authors dead
+before their 30th birthday.
 
 Using :class:`class Params <parameters>` for easier tuning
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -240,7 +243,7 @@ We now have books written when the author was alive, and not too young:
     <Author: Lauren Ball (1129-12-20 - 1227-03-03) [en]>
 
 
-If we assemble the features of both models, all data is kept coherent; for instance,
+If we assemble the features of both models, all data is kept consistent; for instance,
 forcing the death age at 18 will generate a book written when the author was aged 15 to 18.
 
 .. code-block:: pycon
@@ -399,17 +402,3 @@ All is fine: we get a few copies, including a ``Pristine`` one!
     The ``create``, ``override`` and ``extra`` arguments to
     :func:`~factory.post_generation` may be used for advanced features, which
     are outside the scope of this section.
-
-
-Once our library has been filled with books, some loans would be in order.
-
-For this, we'll use a simple data representation:
-
-.. literalinclude:: ../examples/guide.py
-    :pyobject: Patron
-
-.. literalinclude:: ../examples/guide.py
-    :pyobject: Loan
-
-
-Using 
