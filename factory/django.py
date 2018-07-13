@@ -143,15 +143,33 @@ class DjangoModelFactory(base.Factory):
 
         key_fields = {}
         for field in cls._meta.django_get_or_create:
-            if field not in kwargs:
+            # Handle unique_together values (passed as tuple/list in django_get_or_create)
+            if isinstance(field, list) or isinstance(field, tuple):
+                try:
+                    unique_fields = {unique_field: kwargs[unique_field] for unique_field in field}
+                except KeyError:
+                    raise errors.FactoryError(
+                        "django_get_or_create - "
+                        "Unable to find initialization value for '%s' in factory %s" %
+                        (field, cls.__name__))
+                try:
+                    return manager.get(*args, **unique_fields)
+                except model_class.DoesNotExist:
+                    continue
+
+            elif field not in kwargs:
                 raise errors.FactoryError(
                     "django_get_or_create - "
                     "Unable to find initialization value for '%s' in factory %s" %
                     (field, cls.__name__))
-            key_fields[field] = kwargs.pop(field)
-        key_fields['defaults'] = kwargs
 
-        instance, _created = manager.get_or_create(*args, **key_fields)
+            key_fields[field] = kwargs.pop(field)
+
+        key_fields['defaults'] = kwargs
+        if len(key_fields) > 1:
+            instance, _created = manager.get_or_create(*args, **key_fields)
+        else:
+            instance = manager.create(*args, **key_fields['defaults'])
         return instance
 
     @classmethod
