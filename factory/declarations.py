@@ -212,17 +212,14 @@ class Sequence(BaseDeclaration):
     Attributes:
         function (function): A function, expecting the current sequence counter
             and returning the computed value.
-        type (function): A function converting an integer into the expected kind
-            of counter for the 'function' attribute.
     """
-    def __init__(self, function, type=int):
+    def __init__(self, function):
         super(Sequence, self).__init__()
         self.function = function
-        self.type = type
 
     def evaluate(self, instance, step, extra):
         logger.debug("Sequence: Computing next value of %r for seq=%s", self.function, step.sequence)
-        return self.function(self.type(step.sequence))
+        return self.function(int(step.sequence))
 
 
 class LazyAttributeSequence(Sequence):
@@ -238,7 +235,7 @@ class LazyAttributeSequence(Sequence):
         logger.debug(
             "LazyAttributeSequence: Computing next value of %r for seq=%s, obj=%s",
             self.function, step.sequence, utils.log_repr(instance))
-        return self.function(instance, self.type(step.sequence))
+        return self.function(instance, int(step.sequence))
 
 
 class ContainerAttribute(BaseDeclaration):

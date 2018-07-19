@@ -867,18 +867,13 @@ return value of the method:
 Sequence
 """"""""
 
-.. class:: Sequence(lambda, type=int)
+.. class:: Sequence(lambda)
 
 If a field should be unique, and thus different for all built instances,
 use a :class:`Sequence`.
 
 This declaration takes a single argument, a function accepting a single parameter
 - the current sequence counter - and returning the related value.
-
-
-.. note:: An extra kwarg argument, ``type``, may be provided.
-          This feature was deprecated in 1.3.0 and will be removed in 2.0.0.
-
 
 .. code-block:: python
 
