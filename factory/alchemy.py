@@ -65,7 +65,7 @@ class SQLAlchemyModelFactory(base.Factory):
         abstract = True
 
     @classmethod
-    def _create(cls, model_class, *args, **kwargs):
+    def _create(cls, model_class, persist=None, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
         session = cls._meta.sqlalchemy_session
         session_persistence = cls._meta.sqlalchemy_session_persistence
@@ -76,8 +76,8 @@ class SQLAlchemyModelFactory(base.Factory):
         if session is None:
             raise RuntimeError("No session provided.")
         session.add(obj)
-        if session_persistence == SESSION_PERSISTENCE_FLUSH:
+        if SESSION_PERSISTENCE_FLUSH in (persist, session_persistence):
             session.flush()
-        elif session_persistence == SESSION_PERSISTENCE_COMMIT:
+        elif SESSION_PERSISTENCE_COMMIT in (persist, session_persistence):
             session.commit()
         return obj

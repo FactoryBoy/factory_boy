@@ -106,7 +106,7 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
         self.mock_session.commit.assert_called_once_with()
         self.mock_session.flush.assert_not_called()
 
-    def test_noflush_nocommit(self):
+    def test_default_noflush_nocommit(self):
         class InactivePersistenceFactory(StandardFactory):
             class Meta:
                 sqlalchemy_session = self.mock_session
@@ -118,6 +118,14 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
         InactivePersistenceFactory.create()
         self.mock_session.commit.assert_not_called()
         self.mock_session.flush.assert_not_called()
+
+        InactivePersistenceFactory.create(persist='commit')
+        self.mock_session.commit.assert_called_once_with()
+        self.mock_session.flush.assert_not_called()
+
+        InactivePersistenceFactory.create(persist='flush')
+        self.mock_session.commit.assert_called_once_with()
+        self.mock_session.flush.assert_called_once_with()
 
     def test_type_error(self):
         with self.assertRaises(TypeError):
