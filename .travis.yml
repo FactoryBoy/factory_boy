@@ -27,7 +27,7 @@ matrix:
 
     # Pypy
     - python: "pypy"
-      env: TOXENV=pypy27-django111-alchemy12-mongoengine015
+      env: TOXENV=pypy-django111-alchemy12-mongoengine015
     - python: "pypy3"
       env: TOXENV=pypy3-django20-alchemy12-mongoengine015
 
