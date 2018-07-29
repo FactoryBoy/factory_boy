@@ -75,6 +75,15 @@ FuzzyChoice
 
               This allows passing in, for instance, a Django queryset that will
               only hit the database during the database, not at import time.
+    
+    .. warning:: When using Python2 and list comprehension, use private variable
+                 names as in:
+                 
+                 `[_x.name for _x in items]`
+                 
+                 instead of:
+                 
+                 `[x.name for x in items]`
 
     .. attribute:: choices
 
