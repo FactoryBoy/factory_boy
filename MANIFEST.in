@@ -1,13 +1,13 @@
 include ChangeLog CODE_OF_CONDUCT.md CONTRIBUTING.rst CREDITS LICENSE README.rst
 include requirements*.txt
+include Makefile tox.ini .flake8
 
 graft factory
 
-prune docs
-prune examples
-prune tests
+graft docs
+graft examples
+graft tests
 
 global-exclude *.py[cod] __pycache__ .*.sw[po]
-
-exclude Makefile tox.ini .flake8
 prune .github
+prune docs/_build
