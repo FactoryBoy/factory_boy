@@ -1,4 +1,4 @@
-include ChangeLog CREDITS LICENSE README.rst
+include ChangeLog CODE_OF_CONDUCT.md CONTRIBUTING.rst CREDITS LICENSE README.rst
 include requirements*.txt
 
 graft factory
@@ -10,3 +10,4 @@ prune tests
 global-exclude *.py[cod] __pycache__ .*.sw[po]
 
 exclude Makefile tox.ini .flake8
+prune .github
