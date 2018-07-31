@@ -50,7 +50,7 @@ testall:
 
 # DOC: Run tests for the currently installed version
 test:
-	python -Wdefault -m unittest $(TESTS_DIR)
+	python -Wdefault -m unittest
 
 # DOC: Test the examples
 example-test:
