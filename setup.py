@@ -73,6 +73,6 @@ setup(
         "Topic :: Software Development :: Testing",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    test_suite='tests',
+    test_suite='',
     test_loader=test_loader,
 )
