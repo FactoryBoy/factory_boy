@@ -444,7 +444,7 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
         self.assertEqual(pointed.pointer.bar, 'extra_new_bar')
 
 
-class DjangoFileFieldTestCase(unittest.TestCase):
+class DjangoFileFieldTestCase(django_test.TestCase):
 
     def tearDown(self):
         super(DjangoFileFieldTestCase, self).tearDown()
@@ -595,7 +595,7 @@ class DjangoParamsTestCase(django_test.TestCase):
         self.assertEqual('bar', o.pointed.foo)
 
 
-class DjangoFakerTestCase(unittest.TestCase):
+class DjangoFakerTestCase(django_test.TestCase):
     def test_random(self):
         class StandardModelFactory(factory.django.DjangoModelFactory):
             class Meta:
@@ -608,7 +608,7 @@ class DjangoFakerTestCase(unittest.TestCase):
 
 
 @unittest.skipIf(Image is None, "PIL not installed.")
-class DjangoImageFieldTestCase(unittest.TestCase):
+class DjangoImageFieldTestCase(django_test.TestCase):
 
     def tearDown(self):
         super(DjangoImageFieldTestCase, self).tearDown()
@@ -769,7 +769,7 @@ class DjangoImageFieldTestCase(unittest.TestCase):
         self.assertEqual(32, i.height)
 
 
-class PreventSignalsTestCase(unittest.TestCase):
+class PreventSignalsTestCase(django_test.TestCase):
     def setUp(self):
         self.handlers = mock.MagicMock()
 
@@ -889,7 +889,7 @@ class PreventSignalsTestCase(unittest.TestCase):
         self.assertSignalsReactivated()
 
 
-class DjangoCustomManagerTestCase(unittest.TestCase):
+class DjangoCustomManagerTestCase(django_test.TestCase):
 
     def test_extra_args(self):
         # Our CustomManager will remove the 'arg=' argument.
