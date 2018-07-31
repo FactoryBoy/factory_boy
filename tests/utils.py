@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
-import datetime
 import functools
 import warnings
 
 import factory
 
-from .compat import mock
 from . import alter_time
 
 
@@ -33,7 +31,7 @@ class MultiModulePatcher(object):
 
     def __enter__(self):
         for patcher in self.patchers:
-            mocked_symbol = patcher.start()
+            patcher.start()
 
     def __exit__(self, exc_type=None, exc_val=None, exc_tb=None):
         for patcher in self.patchers:

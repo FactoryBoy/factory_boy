@@ -62,7 +62,7 @@ example-test:
 # Note: we run the linter in two runs, because our __init__.py files has specific warnings we want to exclude
 # DOC: Perform code quality tasks
 lint:
-	$(FLAKE8) --config .flake8 --exclude $(PACKAGE)/__init__.py $(PACKAGE) $(SETUP_PY)
+	$(FLAKE8) --config .flake8 --exclude $(PACKAGE)/__init__.py $(PACKAGE) $(SETUP_PY) $(TESTS_DIR)
 	$(FLAKE8) --config .flake8 --ignore F401 $(PACKAGE)/__init__.py
 	check-manifest
 

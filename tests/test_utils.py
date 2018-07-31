@@ -34,38 +34,50 @@ class ExtractDictTestCase(unittest.TestCase):
 
     def test_one_key_excluded(self):
         d = {'foo': 13, 'foo__baz': 42, '__foo': 1}
-        self.assertEqual({},
-            utils.extract_dict('foo', d, pop=False, exclude=('foo__baz',)))
+        self.assertEqual(
+            {},
+            utils.extract_dict('foo', d, pop=False, exclude=('foo__baz',)),
+        )
         self.assertEqual(42, d['foo__baz'])
 
-        self.assertEqual({},
-            utils.extract_dict('foo', d, pop=True, exclude=('foo__baz',)))
+        self.assertEqual(
+            {},
+            utils.extract_dict('foo', d, pop=True, exclude=('foo__baz',)),
+        )
         self.assertIn('foo__baz', d)
 
     def test_many_keys(self):
         d = {'foo': 13, 'foo__baz': 42, 'foo__foo__bar': 2, 'foo__bar': 3, '__foo': 1}
-        self.assertEqual({'foo__bar': 2, 'bar': 3, 'baz': 42},
-            utils.extract_dict('foo', d, pop=False))
+        self.assertEqual(
+            {'foo__bar': 2, 'bar': 3, 'baz': 42},
+            utils.extract_dict('foo', d, pop=False),
+        )
         self.assertEqual(42, d['foo__baz'])
         self.assertEqual(3, d['foo__bar'])
         self.assertEqual(2, d['foo__foo__bar'])
 
-        self.assertEqual({'foo__bar': 2, 'bar': 3, 'baz': 42},
-            utils.extract_dict('foo', d, pop=True))
+        self.assertEqual(
+            {'foo__bar': 2, 'bar': 3, 'baz': 42},
+            utils.extract_dict('foo', d, pop=True),
+        )
         self.assertNotIn('foo__baz', d)
         self.assertNotIn('foo__bar', d)
         self.assertNotIn('foo__foo__bar', d)
 
     def test_many_keys_excluded(self):
         d = {'foo': 13, 'foo__baz': 42, 'foo__foo__bar': 2, 'foo__bar': 3, '__foo': 1}
-        self.assertEqual({'foo__bar': 2, 'baz': 42},
-            utils.extract_dict('foo', d, pop=False, exclude=('foo__bar', 'bar')))
+        self.assertEqual(
+            {'foo__bar': 2, 'baz': 42},
+            utils.extract_dict('foo', d, pop=False, exclude=('foo__bar', 'bar')),
+        )
         self.assertEqual(42, d['foo__baz'])
         self.assertEqual(3, d['foo__bar'])
         self.assertEqual(2, d['foo__foo__bar'])
 
-        self.assertEqual({'foo__bar': 2, 'baz': 42},
-            utils.extract_dict('foo', d, pop=True, exclude=('foo__bar', 'bar')))
+        self.assertEqual(
+            {'foo__bar': 2, 'baz': 42},
+            utils.extract_dict('foo', d, pop=True, exclude=('foo__bar', 'bar')),
+        )
         self.assertNotIn('foo__baz', d)
         self.assertIn('foo__bar', d)
         self.assertNotIn('foo__foo__bar', d)
@@ -76,55 +88,75 @@ class MultiExtractDictTestCase(unittest.TestCase):
         self.assertEqual({'foo': {}}, utils.multi_extract_dict(['foo'], {}))
 
     def test_unused_key(self):
-        self.assertEqual({'foo': {}},
-            utils.multi_extract_dict(['foo'], {'bar__baz': 42}))
-        self.assertEqual({'foo': {}, 'baz': {}},
-            utils.multi_extract_dict(['foo', 'baz'], {'bar__baz': 42}))
+        self.assertEqual(
+            {'foo': {}},
+            utils.multi_extract_dict(['foo'], {'bar__baz': 42}),
+        )
+        self.assertEqual(
+            {'foo': {}, 'baz': {}},
+            utils.multi_extract_dict(['foo', 'baz'], {'bar__baz': 42}),
+        )
 
     def test_no_key(self):
         self.assertEqual({}, utils.multi_extract_dict([], {'bar__baz': 42}))
 
     def test_empty_key(self):
-        self.assertEqual({'': {}},
-            utils.multi_extract_dict([''], {'foo': 13, 'bar__baz': 42}))
+        self.assertEqual(
+            {'': {}},
+            utils.multi_extract_dict([''], {'foo': 13, 'bar__baz': 42}),
+        )
 
         d = {'foo': 13, 'bar__baz': 42, '__foo': 1}
-        self.assertEqual({'': {'foo': 1}},
-            utils.multi_extract_dict([''], d))
+        self.assertEqual(
+            {'': {'foo': 1}},
+            utils.multi_extract_dict([''], d),
+        )
         self.assertNotIn('__foo', d)
 
     def test_one_extracted(self):
         d = {'foo': 13, 'foo__baz': 42, '__foo': 1}
-        self.assertEqual({'foo': {'baz': 42}},
-            utils.multi_extract_dict(['foo'], d, pop=False))
+        self.assertEqual(
+            {'foo': {'baz': 42}},
+            utils.multi_extract_dict(['foo'], d, pop=False),
+        )
         self.assertEqual(42, d['foo__baz'])
 
-        self.assertEqual({'foo': {'baz': 42}},
-            utils.multi_extract_dict(['foo'], d, pop=True))
+        self.assertEqual(
+            {'foo': {'baz': 42}},
+            utils.multi_extract_dict(['foo'], d, pop=True),
+        )
         self.assertNotIn('foo__baz', d)
 
     def test_many_extracted(self):
         d = {'foo': 13, 'foo__baz': 42, 'foo__foo__bar': 2, 'foo__bar': 3, '__foo': 1}
-        self.assertEqual({'foo': {'foo__bar': 2, 'bar': 3, 'baz': 42}},
-            utils.multi_extract_dict(['foo'], d, pop=False))
+        self.assertEqual(
+            {'foo': {'foo__bar': 2, 'bar': 3, 'baz': 42}},
+            utils.multi_extract_dict(['foo'], d, pop=False),
+        )
         self.assertEqual(42, d['foo__baz'])
         self.assertEqual(3, d['foo__bar'])
         self.assertEqual(2, d['foo__foo__bar'])
 
-        self.assertEqual({'foo': {'foo__bar': 2, 'bar': 3, 'baz': 42}},
-            utils.multi_extract_dict(['foo'], d, pop=True))
+        self.assertEqual(
+            {'foo': {'foo__bar': 2, 'bar': 3, 'baz': 42}},
+            utils.multi_extract_dict(['foo'], d, pop=True),
+        )
         self.assertNotIn('foo__baz', d)
         self.assertNotIn('foo__bar', d)
         self.assertNotIn('foo__foo__bar', d)
 
     def test_many_keys_one_extracted(self):
         d = {'foo': 13, 'foo__baz': 42, '__foo': 1}
-        self.assertEqual({'foo': {'baz': 42}, 'baz': {}},
-            utils.multi_extract_dict(['foo', 'baz'], d, pop=False))
+        self.assertEqual(
+            {'foo': {'baz': 42}, 'baz': {}},
+            utils.multi_extract_dict(['foo', 'baz'], d, pop=False),
+        )
         self.assertEqual(42, d['foo__baz'])
 
-        self.assertEqual({'foo': {'baz': 42}, 'baz': {}},
-            utils.multi_extract_dict(['foo', 'baz'], d, pop=True))
+        self.assertEqual(
+            {'foo': {'baz': 42}, 'baz': {}},
+            utils.multi_extract_dict(['foo', 'baz'], d, pop=True),
+        )
         self.assertNotIn('foo__baz', d)
 
     def test_many_keys_many_extracted(self):
@@ -209,12 +241,10 @@ class ImportObjectTestCase(unittest.TestCase):
         self.assertEqual(d, imported)
 
     def test_unknown_attribute(self):
-        self.assertRaises(AttributeError, utils.import_object,
-            'datetime', 'foo')
+        self.assertRaises(AttributeError, utils.import_object, 'datetime', 'foo')
 
     def test_invalid_module(self):
-        self.assertRaises(ImportError, utils.import_object,
-            'this-is-an-invalid-module', '__name__')
+        self.assertRaises(ImportError, utils.import_object, 'this-is-an-invalid-module', '__name__')
 
 
 class LogPPrintTestCase(unittest.TestCase):
@@ -365,4 +395,3 @@ class ResetableIteratorTestCase(unittest.TestCase):
         self.assertEqual(2, next(iterator))
         self.assertEqual(3, next(iterator))
         self.assertEqual(4, next(iterator))
-

@@ -126,20 +126,26 @@ class FuzzyDecimalTestCase(unittest.TestCase):
         fuzz = fuzzy.FuzzyDecimal(2.0, 3.0)
         for _i in range(20):
             res = utils.evaluate_declaration(fuzz)
-            self.assertTrue(decimal.Decimal('2.0') <= res <= decimal.Decimal('3.0'),
-                    "value %d is not between 2.0 and 3.0" % res)
+            self.assertTrue(
+                decimal.Decimal('2.0') <= res <= decimal.Decimal('3.0'),
+                "value %d is not between 2.0 and 3.0" % res,
+            )
 
         fuzz = fuzzy.FuzzyDecimal(4.0)
         for _i in range(20):
             res = utils.evaluate_declaration(fuzz)
-            self.assertTrue(decimal.Decimal('0.0') <= res <= decimal.Decimal('4.0'),
-                    "value %d is not between 0.0 and 4.0" % res)
+            self.assertTrue(
+                decimal.Decimal('0.0') <= res <= decimal.Decimal('4.0'),
+                "value %d is not between 0.0 and 4.0" % res,
+            )
 
         fuzz = fuzzy.FuzzyDecimal(1.0, 4.0, precision=5)
         for _i in range(20):
             res = utils.evaluate_declaration(fuzz)
-            self.assertTrue(decimal.Decimal('1.0') <= res <= decimal.Decimal('4.0'),
-                    "value %d is not between 1.0 and 4.0" % res)
+            self.assertTrue(
+                decimal.Decimal('1.0') <= res <= decimal.Decimal('4.0'),
+                "value %d is not between 1.0 and 4.0" % res,
+            )
             self.assertTrue(res.as_tuple().exponent, -5)
 
     def test_biased(self):
@@ -274,13 +280,20 @@ class FuzzyDateTestCase(unittest.TestCase):
             self.assertLessEqual(res, self.jan3)
 
     def test_invalid_definition(self):
-        self.assertRaises(ValueError, fuzzy.FuzzyDate,
-            self.jan31, self.jan1)
+        self.assertRaises(
+            ValueError,
+            fuzzy.FuzzyDate,
+            self.jan31,
+            self.jan1,
+        )
 
     def test_invalid_partial_definition(self):
         with utils.mocked_date_today(self.jan1, fuzzy):
-            self.assertRaises(ValueError, fuzzy.FuzzyDate,
-                self.jan31)
+            self.assertRaises(
+                ValueError,
+                fuzzy.FuzzyDate,
+                self.jan31,
+            )
 
     def test_biased(self):
         """Tests a FuzzyDate with a biased random.randint."""
@@ -334,13 +347,21 @@ class FuzzyNaiveDateTimeTestCase(unittest.TestCase):
 
     def test_aware_start(self):
         """Tests that a timezone-aware start datetime is rejected."""
-        self.assertRaises(ValueError, fuzzy.FuzzyNaiveDateTime,
-            self.jan1.replace(tzinfo=compat.UTC), self.jan31)
+        self.assertRaises(
+            ValueError,
+            fuzzy.FuzzyNaiveDateTime,
+            self.jan1.replace(tzinfo=compat.UTC),
+            self.jan31,
+        )
 
     def test_aware_end(self):
         """Tests that a timezone-aware end datetime is rejected."""
-        self.assertRaises(ValueError, fuzzy.FuzzyNaiveDateTime,
-            self.jan1, self.jan31.replace(tzinfo=compat.UTC))
+        self.assertRaises(
+            ValueError,
+            fuzzy.FuzzyNaiveDateTime,
+            self.jan1,
+            self.jan31.replace(tzinfo=compat.UTC),
+        )
 
     def test_force_year(self):
         fuzz = fuzzy.FuzzyNaiveDateTime(self.jan1, self.jan31, force_year=4)
@@ -392,13 +413,20 @@ class FuzzyNaiveDateTimeTestCase(unittest.TestCase):
             self.assertEqual(4, res.microsecond)
 
     def test_invalid_definition(self):
-        self.assertRaises(ValueError, fuzzy.FuzzyNaiveDateTime,
-            self.jan31, self.jan1)
+        self.assertRaises(
+            ValueError,
+            fuzzy.FuzzyNaiveDateTime,
+            self.jan31,
+            self.jan1,
+        )
 
     def test_invalid_partial_definition(self):
         with utils.mocked_datetime_now(self.jan1, fuzzy):
-            self.assertRaises(ValueError, fuzzy.FuzzyNaiveDateTime,
-                self.jan31)
+            self.assertRaises(
+                ValueError,
+                fuzzy.FuzzyNaiveDateTime,
+                self.jan31,
+            )
 
     def test_biased(self):
         """Tests a FuzzyDate with a biased random.randint."""
@@ -451,23 +479,38 @@ class FuzzyDateTimeTestCase(unittest.TestCase):
             self.assertLessEqual(res, self.jan3)
 
     def test_invalid_definition(self):
-        self.assertRaises(ValueError, fuzzy.FuzzyDateTime,
-            self.jan31, self.jan1)
+        self.assertRaises(
+            ValueError,
+            fuzzy.FuzzyDateTime,
+            self.jan31,
+            self.jan1,
+        )
 
     def test_invalid_partial_definition(self):
         with utils.mocked_datetime_now(self.jan1, fuzzy):
-            self.assertRaises(ValueError, fuzzy.FuzzyDateTime,
-                self.jan31)
+            self.assertRaises(
+                ValueError,
+                fuzzy.FuzzyDateTime,
+                self.jan31,
+            )
 
     def test_naive_start(self):
         """Tests that a timezone-naive start datetime is rejected."""
-        self.assertRaises(ValueError, fuzzy.FuzzyDateTime,
-            self.jan1.replace(tzinfo=None), self.jan31)
+        self.assertRaises(
+            ValueError,
+            fuzzy.FuzzyDateTime,
+            self.jan1.replace(tzinfo=None),
+            self.jan31,
+        )
 
     def test_naive_end(self):
         """Tests that a timezone-naive end datetime is rejected."""
-        self.assertRaises(ValueError, fuzzy.FuzzyDateTime,
-            self.jan1, self.jan31.replace(tzinfo=None))
+        self.assertRaises(
+            ValueError,
+            fuzzy.FuzzyDateTime,
+            self.jan1,
+            self.jan31.replace(tzinfo=None),
+        )
 
     def test_force_year(self):
         fuzz = fuzzy.FuzzyDateTime(self.jan1, self.jan31, force_year=4)

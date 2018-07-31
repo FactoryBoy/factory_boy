@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
-import warnings
-
 from factory import base
 from factory import declarations
 from factory import enums
 from factory import errors
 
 from .compat import unittest
+
 
 class TestObject(object):
     def __init__(self, one=None, two=None, three=None, four=None):
@@ -245,7 +244,7 @@ class FactoryTestCase(unittest.TestCase):
             class Meta:
                 model = TestObject
 
-            one = declarations.LazyAttribute(lambda a: a.does_not_exist )
+            one = declarations.LazyAttribute(lambda a: a.does_not_exist)
 
         self.assertRaises(AttributeError, TestObjectFactory)
 
@@ -347,7 +346,6 @@ class FactorySequenceTestCase(unittest.TestCase):
 
         o4 = self.TestObjectFactory()
         self.assertEqual(1, o4.one)
-
 
 
 class FactoryDefaultStrategyTestCase(unittest.TestCase):
@@ -535,7 +533,6 @@ class PostGenerationParsingTestCase(unittest.TestCase):
 
         self.assertIn('foo', TestObjectFactory._meta.post_declarations.as_dict())
         self.assertIn('foo__bar', TestObjectFactory._meta.post_declarations.as_dict())
-
 
 
 if __name__ == '__main__':  # pragma: no cover

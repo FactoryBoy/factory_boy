@@ -29,9 +29,9 @@ from factory.compat import UTC
 from .compat import unittest
 
 
-
 class User(object):
-    def __init__(self,
+    def __init__(
+        self,
         username,
         full_name,
         is_active=True,
@@ -103,7 +103,6 @@ class UserFactory(factory.Factory):
         'enabled',
         None,
         factory.fuzzy.FuzzyDateTime(
-#            factory.SelfAttribute('creation_date'),
             datetime.datetime.now().replace(tzinfo=UTC) - datetime.timedelta(days=10),
             datetime.datetime.now().replace(tzinfo=UTC) - datetime.timedelta(days=1),
         ),

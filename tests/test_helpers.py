@@ -15,18 +15,18 @@ class DebugTest(unittest.TestCase):
         stream1 = io.StringIO()
         stream2 = io.StringIO()
 
-        l = logging.getLogger('factory.test')
+        logger = logging.getLogger('factory.test')
         h = logging.StreamHandler(stream1)
         h.setLevel(logging.INFO)
-        l.addHandler(h)
+        logger.addHandler(h)
 
         # Non-debug: no text gets out
-        l.debug("Test")
+        logger.debug("Test")
         self.assertEqual('', stream1.getvalue())
 
         with helpers.debug(stream=stream2):
             # Debug: text goes to new stream only
-            l.debug("Test2")
+            logger.debug("Test2")
 
         self.assertEqual('', stream1.getvalue())
         self.assertEqual("Test2\n", stream2.getvalue())
@@ -54,4 +54,3 @@ class DebugTest(unittest.TestCase):
 
         self.assertEqual("", stream1.getvalue())
         self.assertEqual("Test2\n", stream2.getvalue())
-

@@ -4,24 +4,19 @@
 """Tests for factory_boy/Django interactions."""
 
 import os
-from .compat import is_python2, unittest, mock
-
 
 import django
 
 # Setup Django as soon as possible
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests.djapp.settings')
-
 django.setup()
-from django import test as django_test
-from django.conf import settings
-from django.db import models as django_models
-from django.test.runner import DiscoverRunner as DjangoTestSuiteRunner
-from django.test import utils as django_test_utils
-from django.db.models import signals
-from .djapp import models
 
-
+from django import test as django_test  # noqa: E402
+from django.conf import settings  # noqa: E402
+from django.test.runner import DiscoverRunner as DjangoTestSuiteRunner  # noqa: E402
+from django.test import utils as django_test_utils  # noqa: E402
+from django.db.models import signals  # noqa: E402
+from .djapp import models  # noqa: E402
 try:
     from PIL import Image
 except ImportError:  # pragma: no cover
@@ -32,12 +27,12 @@ except ImportError:  # pragma: no cover
         # OK, not installed
         Image = None
 
+import factory  # noqa: E402
+import factory.django  # noqa: E402
+from factory.compat import BytesIO  # noqa: E402
 
-import factory
-import factory.django
-from factory.compat import BytesIO
-
-from . import testdata
+from . import testdata  # noqa: E402
+from .compat import unittest, mock  # noqa: E402
 
 
 test_state = {}
@@ -201,7 +196,7 @@ class DjangoGetOrCreateTests(django_test.TestCase):
     def test_simple_call(self):
         obj1 = MultifieldModelFactory(slug='slug1')
         obj2 = MultifieldModelFactory(slug='slug1')
-        obj3 = MultifieldModelFactory(slug='alt')
+        MultifieldModelFactory(slug='alt')
 
         self.assertEqual(obj1, obj2)
         self.assertEqual(2, models.MultifieldModel.objects.count())
@@ -211,7 +206,8 @@ class DjangoGetOrCreateTests(django_test.TestCase):
             MultifieldModelFactory()
 
     def test_multicall(self):
-        objs = MultifieldModelFactory.create_batch(6,
+        objs = MultifieldModelFactory.create_batch(
+            6,
             slug=factory.Iterator(['main', 'alt']),
         )
         self.assertEqual(6, len(objs))
@@ -340,12 +336,12 @@ class DjangoNonIntegerPkTestCase(django_test.TestCase):
 
 
 class DjangoAbstractBaseSequenceTestCase(django_test.TestCase):
-    def test_auto_sequence(self):
+    def test_auto_sequence_son(self):
         """The sequence of the concrete son of an abstract model should be autonomous."""
         obj = ConcreteSonFactory()
         self.assertEqual(1, obj.pk)
 
-    def test_auto_sequence(self):
+    def test_auto_sequence_grandson(self):
         """The sequence of the concrete grandson of an abstract model should be autonomous."""
         obj = ConcreteGrandSonFactory()
         self.assertEqual(1, obj.pk)
@@ -372,6 +368,7 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
     @classmethod
     def setUpClass(cls):
         super(DjangoRelatedFieldTestCase, cls).setUpClass()
+
         class PointedFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointedModel
@@ -518,7 +515,9 @@ class DjangoFileFieldTestCase(django_test.TestCase):
         self.assertEqual('django/example.data', o.afile.name)
 
     def test_error_both_file_and_path(self):
-        self.assertRaises(ValueError, WithFileFactory.build,
+        self.assertRaises(
+            ValueError,
+            WithFileFactory.build,
             afile__from_file='fakefile',
             afile__from_path=testdata.TESTFILE_PATH,
         )
@@ -718,7 +717,9 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         self.assertEqual('django/example.jpeg', o.animage.name)
 
     def test_error_both_file_and_path(self):
-        self.assertRaises(ValueError, WithImageFactory.build,
+        self.assertRaises(
+            ValueError,
+            WithImageFactory.build,
             animage__from_file='fakefile',
             animage__from_path=testdata.TESTIMAGE_PATH,
         )
@@ -754,7 +755,7 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         self.assertFalse(o.animage)
 
     def _img_test_func(self):
-        img = Image.new('RGB', (32,32), 'blue')
+        img = Image.new('RGB', (32, 32), 'blue')
         img_io = BytesIO()
         img.save(img_io, format='JPEG')
         img_io.seek(0)
@@ -893,7 +894,7 @@ class DjangoCustomManagerTestCase(django_test.TestCase):
 
     def test_extra_args(self):
         # Our CustomManager will remove the 'arg=' argument.
-        model = WithCustomManagerFactory(arg='foo')
+        WithCustomManagerFactory(arg='foo')
 
     def test_with_manager_on_abstract(self):
         class ObjFactory(factory.django.DjangoModelFactory):

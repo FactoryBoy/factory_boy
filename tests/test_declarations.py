@@ -2,7 +2,6 @@
 # Copyright: See the LICENSE file.
 
 import datetime
-import itertools
 
 from factory import base
 from factory import declarations
@@ -125,6 +124,7 @@ class IteratorTestCase(unittest.TestCase):
 class PostGenerationDeclarationTestCase(unittest.TestCase):
     def test_post_generation(self):
         call_params = []
+
         def foo(*args, **kwargs):
             call_params.append(args)
             call_params.append(kwargs)
@@ -143,6 +143,7 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
 
     def test_decorator_simple(self):
         call_params = []
+
         @helpers.post_generation
         def foo(*args, **kwargs):
             call_params.append(args)
@@ -215,7 +216,7 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
 
     def test_call_with_method_args(self):
         obj = self.build(
-            declarations.PostGenerationMethodCall( 'method', 'data'),
+            declarations.PostGenerationMethodCall('method', 'data'),
         )
         obj.method.assert_called_once_with('data')
 
@@ -255,7 +256,7 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
 
     def test_multi_call_with_multi_method_args(self):
         with self.assertRaises(errors.InvalidDeclarationError):
-            obj = self.build(
+            self.build(
                 declarations.PostGenerationMethodCall('method', 'arg1', 'arg2'),
             )
 

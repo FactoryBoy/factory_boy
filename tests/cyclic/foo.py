@@ -7,6 +7,7 @@ import factory
 
 from . import bar as bar_mod
 
+
 class Foo(object):
     def __init__(self, bar, x):
         self.bar = bar
