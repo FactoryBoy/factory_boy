@@ -132,6 +132,12 @@ class IteratorTestCase(unittest.TestCase):
         self.assertEqual(3, utils.evaluate_declaration(it, force_sequence=3))
 
 
+class TransformerTestCase(unittest.TestCase):
+    def test_transform(self):
+        t = declarations.Transformer(lambda x: x.upper(), 'foo')
+        self.assertEqual("FOO", utils.evaluate_declaration(t))
+
+
 class PostGenerationDeclarationTestCase(unittest.TestCase):
     def test_post_generation(self):
         call_params = []

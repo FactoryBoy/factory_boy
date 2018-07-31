@@ -8,7 +8,9 @@ import functools
 import io
 import logging
 import os
+import warnings
 
+from django.contrib.auth.hashers import make_password
 from django.core import files as django_files
 from django.db import IntegrityError
 
@@ -47,6 +49,7 @@ class DjangoOptions(base.FactoryOptions):
         return super()._build_default_options() + [
             base.OptionDefault('django_get_or_create', (), inherit=True),
             base.OptionDefault('database', DEFAULT_DB_ALIAS, inherit=True),
+            base.OptionDefault('skip_postgeneration_save', False, inherit=True),
         ]
 
     def _get_counter_reference(self):
@@ -165,12 +168,27 @@ class DjangoModelFactory(base.Factory):
         manager = cls._get_manager(model_class)
         return manager.create(*args, **kwargs)
 
+    # DEPRECATED. Remove this override with the next major release.
     @classmethod
     def _after_postgeneration(cls, instance, create, results=None):
         """Save again the instance if creating and at least one hook ran."""
-        if create and results:
+        if create and results and not cls._meta.skip_postgeneration_save:
+            warnings.warn(
+                f"{cls.__name__}._after_postgeneration will stop saving the instance "
+                "after postgeneration hooks in the next major release.\n"
+                "If the save call is extraneous, set skip_postgeneration_save=True "
+                f"in the {cls.__name__}.Meta.\n"
+                "To keep saving the instance, move the save call to your "
+                "postgeneration hooks or override _after_postgeneration.",
+                DeprecationWarning,
+            )
             # Some post-generation hooks ran, and may have modified us.
             instance.save()
+
+
+class Password(declarations.Transformer):
+    def __init__(self, password, *args, **kwargs):
+        super().__init__(make_password, password, *args, **kwargs)
 
 
 class FileField(declarations.BaseDeclaration):

@@ -26,6 +26,7 @@ from .declarations import (
     Sequence,
     SubFactory,
     Trait,
+    Transformer,
 )
 from .enums import BUILD_STRATEGY, CREATE_STRATEGY, STUB_STRATEGY
 from .errors import FactoryError

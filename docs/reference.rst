@@ -904,6 +904,36 @@ return value of the method:
     'joel@example.com'
 
 
+Transformer
+"""""""""""
+
+.. class:: Transformer(transform, value)
+
+A :class:`Transformer` applies a ``transform`` function to the provided value
+before to set the transformed value on the generated object.
+
+It expects two arguments:
+
+- ``transform``: function taking the value as parameter and returning the
+  transformed value,
+- ``value``: the default value.
+
+.. code-block:: python
+
+   class UpperFactory(Factory):
+       name = Transformer(lambda x: x.upper(), "Joe")
+
+       class Meta:
+           model = Upper
+
+.. code-block:: pycon
+
+   >>> UpperFactory().name
+   'JOE'
+   >>> UpperFactory(name="John").name
+   'JOHN'
+
+
 Sequence
 """"""""
 
@@ -1592,6 +1622,7 @@ apply the effects of one or the other declaration:
           defined in the :attr:`~Factory.Params` section of your factory to
           handle the computation.
 
+.. _post-generation-hooks:
 
 Post-generation hooks
 """""""""""""""""""""

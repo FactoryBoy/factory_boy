@@ -109,9 +109,46 @@ All factories for a Django :class:`~django.db.models.Model` should use the
                 >>> john.email                            # The email value was not updated
                 "john@example.com"
 
+    .. attribute:: skip_postgeneration_save
+
+        Transitional option to prevent
+        :meth:`~factory.django.DjangoModelFactory._after_postgeneration` from
+        issuing a duplicate call to :meth:`~django.db.models.Model.save` on the
+        created instance when :class:`factory.PostGeneration` hooks return a
+        value.
+
 
 Extra fields
 """"""""""""
+
+.. class:: Password
+
+    Applies :func:`~django.contrib.auth.hashers.make_password` to the
+    clear-text argument before to generate the object.
+
+    .. method:: __init__(self, password)
+
+        :param str password: Default password.
+
+    .. code-block:: python
+
+        class UserFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.User
+
+            password = factory.django.Password('pw')
+
+    .. code-block:: pycon
+
+        >>> from django.contrib.auth.hashers import check_password
+        >>> # Create user with the default password from the factory.
+        >>> user = UserFactory.create()
+        >>> check_password('pw', user.password)
+        True
+        >>> # Override user password at call time.
+        >>> other_user = UserFactory.create(password='other_pw')
+        >>> check_password('other_pw', other_user.password)
+        True
 
 
 .. class:: FileField
