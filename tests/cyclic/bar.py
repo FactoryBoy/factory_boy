@@ -5,6 +5,7 @@
 
 import factory
 
+
 class Bar(object):
     def __init__(self, foo, y):
         self.foo = foo
@@ -17,4 +18,3 @@ class BarFactory(factory.Factory):
 
     y = 13
     foo = factory.SubFactory('cyclic.foo.FooFactory')
-

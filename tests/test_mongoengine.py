@@ -12,18 +12,22 @@ import mongoengine
 
 from factory.mongoengine import MongoEngineFactory
 
+
 class Address(mongoengine.EmbeddedDocument):
     street = mongoengine.StringField()
+
 
 class Person(mongoengine.Document):
     name = mongoengine.StringField()
     address = mongoengine.EmbeddedDocumentField(Address)
+
 
 class AddressFactory(MongoEngineFactory):
     class Meta:
         model = Address
 
     street = factory.Sequence(lambda n: 'street%d' % n)
+
 
 class PersonFactory(MongoEngineFactory):
     class Meta:

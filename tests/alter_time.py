@@ -12,6 +12,7 @@ from .compat import mock
 
 real_datetime_class = datetime.datetime
 
+
 def mock_datetime_now(target, datetime_module):
     """Override ``datetime.datetime.now()`` with a custom target value.
 
@@ -48,7 +49,9 @@ def mock_datetime_now(target, datetime_module):
 
     return mock.patch.object(datetime_module, 'datetime', MockedDatetime)
 
+
 real_date_class = datetime.date
+
 
 def mock_date_today(target, datetime_module):
     """Override ``datetime.date.today()`` with a custom target value.
@@ -97,7 +100,6 @@ def main():  # pragma: no cover
         print("- today                     ->", datetime.date.today())
         print("- isinstance(now, date)     ->", isinstance(datetime.date.today(), datetime.date))
         print("- isinstance(target, date)  ->", isinstance(target_date, datetime.date))
-
 
     print("Outside mock")
     print("- now                       ->", datetime.datetime.now())

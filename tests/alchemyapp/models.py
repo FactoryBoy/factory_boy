@@ -26,4 +26,5 @@ class NonIntegerPk(Base):
 
     id = Column(Unicode(20), primary_key=True)
 
+
 Base.metadata.create_all(engine)

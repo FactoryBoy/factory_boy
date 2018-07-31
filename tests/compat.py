@@ -7,18 +7,17 @@ import sys
 
 is_python2 = (sys.version_info[0] == 2)
 
-if sys.version_info[0:2] < (2, 7):  # pragma: no cover
+if sys.version_info[0:2] < (2, 7):
     import unittest2 as unittest
-else:  # pragma: no cover
-    import unittest
+else:
+    import unittest  # noqa: F401
 
-if sys.version_info[0] == 2:  # pragma: no cover
+if is_python2:
     import StringIO as io
-else:  # pragma: no cover
-    import io
+else:
+    import io  # noqa: F401
 
-if sys.version_info[0:2] < (3, 3):  # pragma: no cover
+if sys.version_info[0:2] < (3, 3):
     import mock
-else:  # pragma: no cover
-    from unittest import mock
-
+else:
+    from unittest import mock  # noqa: F401

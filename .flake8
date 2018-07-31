@@ -1,4 +1,7 @@
 [flake8]
-# Ignore "and" at start of line.
-ignore = W503
+ignore =
+    # Ignore "and" at start of line.
+    W503
+    # Ignore "do not assign a lambda expression, use a def".
+    E731
 max-line-length = 120

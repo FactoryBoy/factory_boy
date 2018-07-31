@@ -77,6 +77,7 @@ class WithDefaultValue(models.Model):
 WITHFILE_UPLOAD_TO = 'django'
 WITHFILE_UPLOAD_DIR = os.path.join(settings.MEDIA_ROOT, WITHFILE_UPLOAD_TO)
 
+
 class WithFile(models.Model):
     afile = models.FileField(upload_to=WITHFILE_UPLOAD_TO)
 
