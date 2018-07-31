@@ -2,7 +2,7 @@
 
 import collections
 
-from . import enums, errors, utils
+from . import declarations, enums, errors, utils
 
 DeclarationWithContext = collections.namedtuple(
     'DeclarationWithContext',
@@ -156,6 +156,10 @@ def parse_declarations(decls, base_pre=None, base_post=None):
             # Set it as `key__`
             magic_key = post_declarations.join(k, '')
             extra_post[magic_key] = v
+        elif k in pre_declarations and isinstance(
+            pre_declarations[k].declaration, declarations.Transformer
+        ):
+            extra_maybenonpost[k] = pre_declarations[k].declaration.function(v)
         else:
             extra_maybenonpost[k] = v
 

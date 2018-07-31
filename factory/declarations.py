@@ -100,6 +100,22 @@ class LazyAttribute(BaseDeclaration):
         return self.function(instance)
 
 
+class Transformer(LazyFunction):
+    """Transform value using given function.
+
+    Attributes:
+        transform (function): returns the transformed value.
+        value: passed as the first argument to the transform function.
+    """
+
+    def __init__(self, transform, value, *args, **kwargs):
+        super().__init__(transform, *args, **kwargs)
+        self.value = value
+
+    def evaluate(self, instance, step, extra):
+        return self.function(self.value)
+
+
 class _UNSPECIFIED:
     pass
 

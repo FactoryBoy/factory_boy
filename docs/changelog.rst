@@ -3,11 +3,35 @@ ChangeLog
 
 .. Note for v4.x: don't forget to check "Deprecated" sections for removal.
 
-3.2.1 (unreleased)
+3.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*New:*
 
+    - :issue:`366`: Add :class:`factory.django.Password` to generate Django :class:`~django.contrib.auth.models.User`
+      passwords.
+
+*Deprecated:*
+
+    - :class:`~factory.django.DjangoModelFactory` will stop issuing a second call to
+      :meth:`~django.db.models.Model.save` on the created instance when :ref:`post-generation-hooks` return a value.
+
+      To help with the transition, :class:`factory.django.DjangoModelFactory._after_postgeneration` raises a
+      :class:`DeprecationWarning` when calling :meth:`~django.db.models.Model.save`. Inspect your
+      :class:`~factory.django.DjangoModelFactory` subclasses:
+
+      - If the :meth:`~django.db.models.Model.save` call is not needed after :class:`~factory.PostGeneration`, set
+        :attr:`factory.django.DjangoOptions.skip_postgeneration_save` to ``True`` in the factory meta.
+
+      - Otherwise, the instance has been modified by :class:`~factory.PostGeneration` hooks and needs to be
+        :meth:`~django.db.models.Model.save`\ d. Either:
+
+          - call :meth:`django.db.models.Model.save` in the :class:`~factory.PostGeneration` hook that modifies the
+            instance, or
+          - override :class:`~factory.django.DjangoModelFactory._after_postgeneration` to
+            :meth:`~django.db.models.Model.save` the instance.
+
+*Removed:*
 
 3.2.0 (2020-12-28)
 ------------------
