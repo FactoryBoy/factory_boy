@@ -2513,7 +2513,7 @@ class CircularTestCase(unittest.TestCase):
 class RepeatableRandomSeedFakerTests(unittest.TestCase):
     def test_same_seed_is_used_between_fuzzy_and_faker_generators(self):
         class StudentFactory(factory.Factory):
-            one = factory.fuzzy.FuzzyDate(datetime.date(1950, 1, 1), )
+            one = factory.fuzzy.FuzzyDecimal(4.0)
             two = factory.Faker('name')
             three = factory.Faker('name', locale='it')
             four = factory.Faker('name')
