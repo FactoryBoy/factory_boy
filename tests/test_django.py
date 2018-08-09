@@ -114,16 +114,14 @@ class WithFileFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.WithFile
 
-    if django is not None:
-        afile = factory.django.FileField()
+    afile = factory.django.FileField()
 
 
 class WithImageFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.WithImage
 
-    if django is not None:
-        animage = factory.django.ImageField()
+    animage = factory.django.ImageField()
 
 
 class WithSignalsFactory(factory.django.DjangoModelFactory):
