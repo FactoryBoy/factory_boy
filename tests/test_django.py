@@ -546,7 +546,7 @@ class DjangoFileFieldTestCase(django_test.TestCase):
 
         self.assertEqual(b'example_data\n', o2.afile.read())
         self.assertNotEqual('django/example.data', o2.afile.name)
-        self.assertRegexpMatches(o2.afile.name, r'django/example_\w+.data')
+        self.assertRegex(o2.afile.name, r'django/example_\w+.data')
 
     def test_no_file(self):
         o = WithFileFactory.build(afile=None)
@@ -746,7 +746,7 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         # Image file for a 42x42 green jpeg: 301 bytes long.
         self.assertEqual(301, len(o2.animage.read()))
         self.assertNotEqual('django/example.jpeg', o2.animage.name)
-        self.assertRegexpMatches(o2.animage.name, r'django/example_\w+.jpeg')
+        self.assertRegex(o2.animage.name, r'django/example_\w+.jpeg')
 
     def test_no_file(self):
         o = WithImageFactory.build(animage=None)
