@@ -295,7 +295,8 @@ class FactoryOptions(object):
 
         # 3. Rename fields
         for old_name, new_name in self.rename.items():
-            kwargs[new_name] = kwargs.pop(old_name)
+            if old_name in kwargs:
+                kwargs[new_name] = kwargs.pop(old_name)
 
         # 4. Extract inline args
         args = tuple(

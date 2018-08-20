@@ -1155,6 +1155,7 @@ class KwargAdjustTestCase(unittest.TestCase):
 
         TestObjectFactory()
 
+
 class MaybeTestCase(unittest.TestCase):
     def test_simple_maybe(self):
         class DummyFactory(factory.Factory):
@@ -1598,7 +1599,7 @@ class SubFactoryTestCase(unittest.TestCase):
             book__author__country = factory.LazyAttribute(lambda o: 'FR')
 
         chapter = ChapterFactory()
-        self.assertEquals('FR', chapter.book.author.country)
+        self.assertEqual('FR', chapter.book.author.country)
 
     def test_nested_sub_factory(self):
         """Test nested sub-factories."""

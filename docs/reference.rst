@@ -135,6 +135,10 @@ Meta options
 
         .. versionadded: 2.6.0
 
+        Note that if a keyword argument specified in the :attr:`rename` dict
+        is not explicitly passed when instantiating, it will simply be ignored
+        and the key will not be present.
+
 
     .. attribute:: strategy
 
