@@ -11,6 +11,10 @@ ChangeLog
     - Add :attr:`~factory.fuzzy.FuzzyChoice.getter` to :class:`~factory.fuzzy.FuzzyChoice` that mimics
       the behavior of ``getter`` in :class:`~factory.Iterator`
 
+*Bugfix:*
+
+    - Allow renamed arguments to be optional, thanks to `Justin Crown <https://github.com/mrname>`_.
+
 
 2.11.1 (2018-05-05)
 -------------------

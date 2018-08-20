@@ -1138,6 +1138,22 @@ class KwargAdjustTestCase(unittest.TestCase):
         obj = TestObjectFactory.build()
         self.assertEqual(42, obj.attributes)
 
+    def test_rename_non_existent_kwarg(self):
+        # see https://github.com/FactoryBoy/factory_boy/issues/504
+        class TestObject(object):
+            def __init__(self, attributes=None):
+                self.attributes = attributes
+
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+                rename = {'form_attributes': 'attributes'}
+
+        try:
+            TestObjectFactory()
+        except KeyError:
+            self.fail('should not raise KeyError for missing renamed attributes')
+
 
 class MaybeTestCase(unittest.TestCase):
     def test_simple_maybe(self):
