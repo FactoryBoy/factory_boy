@@ -1137,6 +1137,23 @@ class KwargAdjustTestCase(unittest.TestCase):
         obj = TestObjectFactory.build()
         self.assertEqual(42, obj.attributes)
 
+    def test_rename_non_existent_kwarg(self):
+        '''
+        If a key is specified in the rename attribute of the model factory, but
+        not passed into the object when instantiated we should bypass the
+        keyword re-assignment instead of throwing an error.
+        https://github.com/FactoryBoy/factory_boy/issues/504
+        '''
+        class TestObject(object):
+            def __init__(self, attributes=None):
+                self.attributes = attributes
+
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+                rename = {'attributes_': 'attributes'}
+
+        TestObjectFactory()
 
 class MaybeTestCase(unittest.TestCase):
     def test_simple_maybe(self):
