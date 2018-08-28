@@ -14,4 +14,3 @@ class TaggedItem(models.Model):
 
     def __str__(self):  # __unicode__ on Python 2
         return self.tag
-

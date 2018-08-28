@@ -361,5 +361,3 @@ Calling a :class:`~factory.Factory` subclass will provide an object through the 
 
 
 The default strategy can be changed by setting the ``class Meta`` :attr:`~factory.FactoryOptions.strategy` attribute.
-
-
