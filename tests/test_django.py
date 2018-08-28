@@ -3,6 +3,7 @@
 
 """Tests for factory_boy/Django interactions."""
 
+import io
 import os
 
 import django
@@ -29,7 +30,6 @@ except ImportError:  # pragma: no cover
 
 import factory  # noqa: E402
 import factory.django  # noqa: E402
-from factory.compat import BytesIO  # noqa: E402
 
 from . import testdata  # noqa: E402
 from .compat import unittest, mock  # noqa: E402
@@ -754,7 +754,7 @@ class DjangoImageFieldTestCase(django_test.TestCase):
 
     def _img_test_func(self):
         img = Image.new('RGB', (32, 32), 'blue')
-        img_io = BytesIO()
+        img_io = io.BytesIO()
         img.save(img_io, format='JPEG')
         img_io.seek(0)
         return img_io

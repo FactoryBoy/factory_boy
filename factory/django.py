@@ -7,6 +7,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import io
 import os
 import logging
 import functools
@@ -23,7 +24,7 @@ except ImportError as e:  # pragma: no cover
 from . import base
 from . import declarations
 from . import errors
-from .compat import BytesIO, is_string
+from .compat import is_string
 
 logger = logging.getLogger('factory.generate')
 
@@ -248,7 +249,7 @@ class ImageField(FileField):
         image_format = params.get('format', 'JPEG')
 
         thumb = Image.new('RGB', (width, height), color)
-        thumb_io = BytesIO()
+        thumb_io = io.BytesIO()
         thumb.save(thumb_io, format=image_format)
         return thumb_io.getvalue()
 
