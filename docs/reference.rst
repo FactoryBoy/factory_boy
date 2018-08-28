@@ -2034,5 +2034,3 @@ extracting instances from them:
     :param int size: Number of instances to generate
     :param kwargs: Declarations to use for the generated factory
     :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
-
-
