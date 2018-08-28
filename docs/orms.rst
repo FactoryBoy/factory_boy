@@ -193,7 +193,6 @@ To work around this problem, use the :meth:`mute_signals()` decorator/context ma
     # foo/factories.py
 
     import factory
-    import factory.django
 
     from . import models
     from . import signals
@@ -429,7 +428,6 @@ Here is an example layout:
     # myproject/factories.py
 
     import factory
-    import factory.alchemy
 
     from . import models
     from .test import common
