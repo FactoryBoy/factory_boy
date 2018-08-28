@@ -10,20 +10,37 @@ install:
 
 matrix:
   include:
+    # Django 1.11
     - python: "2.7"
       env: TOXENV=py27-django111-alchemy12-mongoengine015
+    - python: "3.4"
+      env: TOXENV=py34-django111-alchemy12-mongoengine015
+    - python: "3.5"
+      env: TOXENV=py35-django111-alchemy12-mongoengine015
+    - python: "3.6"
+      env: TOXENV=py36-django111-alchemy12-mongoengine015
+
+    # Django 2.0
     - python: "3.4"
       env: TOXENV=py34-django20-alchemy12-mongoengine015
     - python: "3.5"
       env: TOXENV=py35-django20-alchemy12-mongoengine015
     - python: "3.6"
       env: TOXENV=py36-django20-alchemy12-mongoengine015
-    - python: "nightly"
+    - python: "3.7"
       env: TOXENV=py37-django20-alchemy12-mongoengine015
+      dist: xenial
+      sudo: true
 
-    # Django LTS
+    # Django 2.1
+    - python: "3.5"
+      env: TOXENV=py35-django21-alchemy12-mongoengine015
     - python: "3.6"
-      env: TOXENV=py36-django111-alchemy12-mongoengine015
+      env: TOXENV=py36-django21-alchemy12-mongoengine015
+    - python: "3.7"
+      env: TOXENV=py37-django21-alchemy12-mongoengine015
+      dist: xenial
+      sudo: true
 
     # Pypy
     - python: "pypy"

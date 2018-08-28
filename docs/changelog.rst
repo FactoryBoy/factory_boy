@@ -4,7 +4,8 @@ ChangeLog
 2.11.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Added support for Python 3.7
+- Added support for Django 2.1
 
 
 2.11.1 (2018-05-05)
