@@ -30,7 +30,6 @@ except ImportError:  # pragma: no cover
         Image = None
 
 import factory  # noqa: E402
-import factory.django  # noqa: E402
 
 from . import testdata  # noqa: E402
 from .compat import mock  # noqa: E402
