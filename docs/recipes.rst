@@ -346,7 +346,7 @@ default :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>` 
 
 .. code-block:: python
 
-   class UserFactory(factory.DjangoModelFactory):
+   class UserFactory(factory.django.DjangoModelFactory):
        class Meta:
            model = UserenaSignup
 

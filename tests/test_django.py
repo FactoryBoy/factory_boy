@@ -243,14 +243,14 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
      model = 'app.Model' pattern."""
 
     def test_loading(self):
-        class ExampleFactory(factory.DjangoModelFactory):
+        class ExampleFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = 'djapp.StandardModel'
 
         self.assertEqual(models.StandardModel, ExampleFactory._meta.get_model_class())
 
     def test_building(self):
-        class ExampleFactory(factory.DjangoModelFactory):
+        class ExampleFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = 'djapp.StandardModel'
 
@@ -262,7 +262,7 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
 
         See https://github.com/FactoryBoy/factory_boy/issues/109.
         """
-        class ExampleFactory(factory.DjangoModelFactory):
+        class ExampleFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = 'djapp.StandardModel'
 
@@ -277,7 +277,7 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
 
         See https://github.com/FactoryBoy/factory_boy/issues/109.
         """
-        class ExampleFactory(factory.DjangoModelFactory):
+        class ExampleFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = 'djapp.StandardModel'
 

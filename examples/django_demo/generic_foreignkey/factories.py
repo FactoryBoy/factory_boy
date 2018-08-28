@@ -5,21 +5,21 @@ from django.contrib.contenttypes.models import ContentType
 from .models import TaggedItem
 
 
-class UserFactory(factory.DjangoModelFactory):
+class UserFactory(factory.django.DjangoModelFactory):
     first_name = 'Adam'
 
     class Meta:
         model = User
 
 
-class GroupFactory(factory.DjangoModelFactory):
+class GroupFactory(factory.django.DjangoModelFactory):
     name = 'group'
 
     class Meta:
         model = Group
 
 
-class TaggedItemFactory(factory.DjangoModelFactory):
+class TaggedItemFactory(factory.django.DjangoModelFactory):
     object_id = factory.SelfAttribute('content_object.id')
     content_type = factory.LazyAttribute(
         lambda o: ContentType.objects.get_for_model(o.content_object))
