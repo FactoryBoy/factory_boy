@@ -13,8 +13,6 @@ if PY2:  # pragma: no cover
     def is_string(obj):
         return isinstance(obj, (str, unicode))  # noqa
 
-    from StringIO import StringIO as BytesIO  # noqa
-
     def force_text(str_or_unicode):
         if isinstance(str_or_unicode, unicode):  # noqa
             return str_or_unicode
@@ -23,8 +21,6 @@ if PY2:  # pragma: no cover
 else:  # pragma: no cover
     def is_string(obj):
         return isinstance(obj, str)
-
-    from io import BytesIO  # noqa
 
     def force_text(text):
         return text
