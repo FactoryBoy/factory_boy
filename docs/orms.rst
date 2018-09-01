@@ -105,7 +105,7 @@ Extra fields
 
     Custom declarations for :class:`django.db.models.FileField`
 
-    .. method:: __init__(self, from_path='', from_file='', data=b'', filename='example.dat')
+    .. method:: __init__(self, from_path='', from_file='', from_func='', data=b'', filename='example.dat')
 
         :param str from_path: Use data from the file located at ``from_path``,
                               and keep its filename
@@ -138,7 +138,7 @@ Extra fields
 
     Custom declarations for :class:`django.db.models.ImageField`
 
-    .. method:: __init__(self, from_path='', from_file='', filename='example.jpg', width=100, height=100, color='green', format='JPEG')
+    .. method:: __init__(self, from_path='', from_file='', from_func='', filename='example.jpg', width=100, height=100, color='green', format='JPEG')
 
         :param str from_path: Use data from the file located at ``from_path``,
                               and keep its filename
