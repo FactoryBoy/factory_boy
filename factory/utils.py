@@ -6,66 +6,6 @@ from __future__ import unicode_literals
 import collections
 
 from . import compat
-from . import enums
-
-
-def extract_dict(prefix, kwargs, pop=True, exclude=()):
-    """Extracts all values beginning with a given prefix from a dict.
-
-    Can either 'pop' or 'get' them;
-
-    Args:
-        prefix (str): the prefix to use for lookups
-        kwargs (dict): the dict from which values should be extracted; WILL BE MODIFIED.
-        pop (bool): whether to use pop (True) or get (False)
-        exclude (iterable): list of prefixed keys that shouldn't be extracted
-
-    Returns:
-        A new dict, containing values from kwargs and beginning with
-            prefix + enums.SPLITTER. That full prefix is removed from the keys
-            of the returned dict.
-    """
-    prefix = prefix + enums.SPLITTER
-    extracted = {}
-
-    for key in list(kwargs):
-        if key in exclude:
-            continue
-
-        if key.startswith(prefix):
-            new_key = key[len(prefix):]
-            if pop:
-                value = kwargs.pop(key)
-            else:
-                value = kwargs[key]
-            extracted[new_key] = value
-    return extracted
-
-
-def multi_extract_dict(prefixes, kwargs, pop=True, exclude=()):
-    """Extracts all values from a given list of prefixes.
-
-    Extraction will start with longer prefixes.
-
-    Args:
-        prefixes (str list): the prefixes to use for lookups
-        kwargs (dict): the dict from which values should be extracted; WILL BE MODIFIED.
-        pop (bool): whether to use pop (True) or get (False)
-        exclude (iterable): list of prefixed keys that shouldn't be extracted
-
-    Returns:
-        dict(str => dict): a dict mapping each prefix to the dict of extracted
-            key/value.
-    """
-    results = {}
-    exclude = list(exclude)
-    for prefix in sorted(prefixes, key=lambda x: -len(x)):
-        extracted = extract_dict(prefix, kwargs, pop=pop, exclude=exclude)
-        results[prefix] = extracted
-        exclude.extend(
-            ['%s%s%s' % (prefix, enums.SPLITTER, key) for key in extracted])
-
-    return results
 
 
 def import_object(module_name, attribute_name):
