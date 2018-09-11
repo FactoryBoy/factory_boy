@@ -21,12 +21,11 @@
 """Tests for the docs/internals module."""
 
 import datetime
+import unittest
 
 import factory
 import factory.fuzzy
 from factory.compat import UTC
-
-from .compat import unittest
 
 
 class User(object):

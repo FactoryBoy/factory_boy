@@ -3,12 +3,12 @@
 
 from __future__ import unicode_literals
 
-
 import itertools
+import unittest
 
 from factory import utils
 
-from .compat import is_python2, unittest
+from .compat import is_python2
 
 
 class ExtractDictTestCase(unittest.TestCase):

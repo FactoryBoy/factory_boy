@@ -2,10 +2,11 @@
 # Copyright: See the LICENSE file.
 
 import logging
+import unittest
 
 from factory import helpers
 
-from .compat import io, unittest
+from .compat import io
 
 
 class DebugTest(unittest.TestCase):

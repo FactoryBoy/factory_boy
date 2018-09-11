@@ -3,10 +3,10 @@
 
 """Tests for factory_boy/MongoEngine interactions."""
 
+import unittest
+
 import factory
 import os
-from .compat import unittest
-
 
 import mongoengine
 

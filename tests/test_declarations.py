@@ -2,13 +2,14 @@
 # Copyright: See the LICENSE file.
 
 import datetime
+import unittest
 
 from factory import base
 from factory import declarations
 from factory import errors
 from factory import helpers
 
-from .compat import mock, unittest
+from .compat import mock
 from . import utils
 
 
