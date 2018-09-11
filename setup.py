@@ -4,7 +4,6 @@
 import codecs
 import os
 import re
-import sys
 
 from setuptools import setup
 
@@ -21,12 +20,6 @@ def get_version(package_name):
             if match:
                 return match.groups()[0]
     return '0.1.0'
-
-
-if sys.version_info[0:2] < (2, 7):  # pragma: no cover
-    test_loader = 'unittest2:TestLoader'
-else:
-    test_loader = 'unittest:TestLoader'
 
 
 PACKAGE = 'factory'
@@ -74,5 +67,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     test_suite='',
-    test_loader=test_loader,
+    test_loader='unittest:TestLoader',
 )

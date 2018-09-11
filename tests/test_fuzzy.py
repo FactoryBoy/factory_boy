@@ -4,13 +4,14 @@
 
 import datetime
 import decimal
+import unittest
 import warnings
 
 from factory import compat
 from factory import fuzzy
 from factory import random
 
-from .compat import mock, unittest
+from .compat import mock
 from . import utils
 
 

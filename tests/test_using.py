@@ -8,11 +8,12 @@ import collections
 import datetime
 import os
 import sys
+import unittest
 
 import factory
 from factory import errors
 
-from .compat import is_python2, unittest
+from .compat import is_python2
 from . import utils
 
 

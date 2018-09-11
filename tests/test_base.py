@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
+import unittest
+
 from factory import base
 from factory import declarations
 from factory import enums
 from factory import errors
-
-from .compat import unittest
 
 
 class TestObject(object):

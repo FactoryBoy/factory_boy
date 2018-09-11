@@ -4,9 +4,9 @@
 """Tests for factory_boy/SQLAlchemy interactions."""
 
 import factory
-from .compat import unittest
 from .compat import mock
 import warnings
+import unittest
 
 from factory.alchemy import SQLAlchemyModelFactory
 from .alchemyapp import models

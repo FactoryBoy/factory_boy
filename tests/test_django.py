@@ -4,6 +4,7 @@
 """Tests for factory_boy/Django interactions."""
 
 import os
+import unittest
 
 import django
 
@@ -32,7 +33,7 @@ import factory.django  # noqa: E402
 from factory.compat import BytesIO  # noqa: E402
 
 from . import testdata  # noqa: E402
-from .compat import unittest, mock  # noqa: E402
+from .compat import mock  # noqa: E402
 
 
 test_state = {}

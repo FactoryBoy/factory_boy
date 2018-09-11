@@ -7,11 +7,6 @@ import sys
 
 is_python2 = (sys.version_info[0] == 2)
 
-if sys.version_info[0:2] < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest  # noqa: F401
-
 if is_python2:
     import StringIO as io
 else:
