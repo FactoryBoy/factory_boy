@@ -1582,7 +1582,7 @@ class SubFactoryTestCase(unittest.TestCase):
             book__author__country = factory.LazyAttribute(lambda o: 'FR')
 
         chapter = ChapterFactory()
-        self.assertEquals('FR', chapter.book.author.country)
+        self.assertEqual('FR', chapter.book.author.country)
 
     def test_nested_sub_factory(self):
         """Test nested sub-factories."""
