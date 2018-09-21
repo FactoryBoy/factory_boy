@@ -692,6 +692,8 @@ Faker
         >>> user.name
         'Lucy Cechtelar'
 
+    Visit the `faker documentation <https://faker.readthedocs.io/en/latest//>`_
+    for a full reference of Faker attributes.
 
     .. attribute:: locale
 
