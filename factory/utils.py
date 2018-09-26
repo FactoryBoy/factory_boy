@@ -73,7 +73,10 @@ class ResetableIterator(object):
             if self.next_elements:
                 yield self.next_elements.popleft()
             else:
-                value = next(self.iterator)
+                try:
+                    value = next(self.iterator)
+                except StopIteration:
+                    return
                 self.past_elements.append(value)
                 yield value
 
