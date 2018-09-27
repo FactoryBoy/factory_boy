@@ -187,7 +187,7 @@ Realistic, random values
 """"""""""""""""""""""""
 
 Demos look better with random yet realistic values; and those realistic values can also help discover bugs.
-For this, factory_boy relies on the excellent `faker <https://pypi.org/project/Faker/>`_ library:
+For this, factory_boy relies on the excellent `faker <https://faker.readthedocs.io/en/latest/>`_ library:
 
 .. code-block:: python
 
