@@ -675,7 +675,7 @@ Faker
     In order to easily define realistic-looking factories,
     use the :class:`Faker` attribute declaration.
 
-    This is a wrapper around `faker <https://pypi.org/project/Faker/>`_;
+    This is a wrapper around `faker <https://faker.readthedocs.io/en/latest/>`_;
     its argument is the name of a ``faker`` provider:
 
     .. code-block:: python
