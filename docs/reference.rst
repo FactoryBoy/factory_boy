@@ -415,9 +415,9 @@ Some factories only need little data:
 
 .. code-block:: pycon
 
-    >>> Conference(duration='short')
+    >>> ConferenceFactory(duration='short')
     <Conference: DUTH 2015 (2015-11-05 - 2015-11-08, sprints 2015-11-08)>
-    >>> Conference(duration='long')
+    >>> ConferenceFactory(duration='long')
     <Conference: DjangoConEU 2016 (2016-03-30 - 2016-04-03, sprints 2016-04-02)>
 
 
