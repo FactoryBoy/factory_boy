@@ -48,11 +48,33 @@ matrix:
     - python: "pypy3"
       env: TOXENV=pypy3-django20-alchemy12-mongoengine015
 
+    # Django 2.0
+    - python: "nightly"
+      env: TOXENV=pynightly-django20-alchemy12-mongoengine015
+      dist: xenial
+      sudo: true
+    # Django 2.1
+    - python: "nightly"
+      env: TOXENV=pynightly-django21-alchemy12-mongoengine015
+      dist: xenial
+      sudo: true
+
     # Linting
     - python: "3.6"
       env: TOXENV=examples
     - python: "3.6"
       env: TOXENV=lint
+  allow_failures:
+    # Django 2.0
+    - python: "nightly"
+      env: TOXENV=pynightly-django20-alchemy12-mongoengine015
+      dist: xenial
+      sudo: true
+    # Django 2.1
+    - python: "nightly"
+      env: TOXENV=pynightly-django21-alchemy12-mongoengine015
+      dist: xenial
+      sudo: true
 
 services:
   - mongodb
