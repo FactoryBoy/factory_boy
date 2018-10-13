@@ -345,8 +345,10 @@ Attributes and methods
 
         .. code-block:: pycon
 
+            >>> SomeFactory.build().sequenced_attribute
+            0
             >>> SomeFactory.reset_sequence(4)
-            >>> SomeFactory._next_sequence
+            >>> SomeFactory.build().sequenced_attribute
             4
 
         Since subclasses of a non-:attr:`abstract <factory.FactoryOptions.abstract>`
