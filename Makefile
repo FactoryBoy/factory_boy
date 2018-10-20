@@ -82,7 +82,7 @@ coverage:
 
 # DOC: Compile the documentation
 doc:
-	$(MAKE) -C $(DOC_DIR) html
+	$(MAKE) -C $(DOC_DIR) SPHINXOPTS=-W html
 
 
 # DOC: Show this help message
