@@ -60,10 +60,14 @@ matrix:
       sudo: true
 
     # Linting
-    - python: "3.6"
+    - python: "3.7"
       env: TOXENV=examples
-    - python: "3.6"
+      dist: xenial
+      sudo: true
+    - python: "3.7"
       env: TOXENV=lint
+      dist: xenial
+      sudo: true
   allow_failures:
     # Django 2.0
     - python: "nightly"
