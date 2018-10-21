@@ -116,14 +116,14 @@ corner cases and weird behaviourrs.
 
 *New:*
 
-    - :issue:`267`: Add :class:`factory.LazyFunction` to remove unneeded lambda parameters,
+    - :pr:`267`: Add :class:`factory.LazyFunction` to remove unneeded lambda parameters,
       thanks to `Hervé Cauwelier <https://github.com/bors-ltd>`_.
     - :issue:`251`: Add :ref:`parameterized factories <parameters>` and :class:`traits <factory.Trait>`
-    - :issue:`256`, :issue:`292`: Improve error messages in corner cases
+    - :pr:`256`, :pr:`292`: Improve error messages in corner cases
 
 *Removed:*
 
-	- :issue:`278`: Formally drop support for Python2.6
+	- :pr:`278`: Formally drop support for Python2.6
 
 .. warning:: Version 2.7.0 moves all error classes to
              `factory.errors`. This breaks existing import statements
@@ -137,7 +137,7 @@ corner cases and weird behaviourrs.
 
 *New:*
 
-    - :issue:`262`: Allow optional forced flush on SQLAlchemy, courtesy of `Minjung <https://github.com/Minjung>`_.
+    - :pr:`262`: Allow optional forced flush on SQLAlchemy, courtesy of `Minjung <https://github.com/Minjung>`_.
 
 .. _v2.6.0:
 
@@ -160,7 +160,7 @@ corner cases and weird behaviourrs.
     - :issue:`201`: Properly handle custom Django managers when dealing with abstract Django models.
     - :issue:`212`: Fix :meth:`factory.django.mute_signals` to handle Django's signal caching
     - :issue:`228`: Don't load :func:`django.apps.apps.get_model()` until required
-    - :issue:`219`: Stop using :meth:`mogo.model.Model.new()`, deprecated 4 years ago.
+    - :pr:`219`: Stop using :meth:`mogo.model.Model.new()`, deprecated 4 years ago.
 
 .. _v2.5.2:
 
@@ -257,8 +257,8 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 
 *New:*
 
-    - Add support for :attr:`factory.fuzzy.FuzzyInteger.step`, thanks to `ilya-pirogov <https://github.com/ilya-pirogov>`_ (:issue:`120`)
-    - Add :meth:`~factory.django.mute_signals` decorator to temporarily disable some signals, thanks to `ilya-pirogov <https://github.com/ilya-pirogov>`_ (:issue:`122`)
+    - Add support for :attr:`factory.fuzzy.FuzzyInteger.step`, thanks to `ilya-pirogov <https://github.com/ilya-pirogov>`_ (:pr:`120`)
+    - Add :meth:`~factory.django.mute_signals` decorator to temporarily disable some signals, thanks to `ilya-pirogov <https://github.com/ilya-pirogov>`_ (:pr:`122`)
     - Add :class:`~factory.fuzzy.FuzzyFloat` (:issue:`124`)
     - Declare target model and other non-declaration fields in a ``class Meta`` section.
 
@@ -290,9 +290,9 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 
 *Bugfix:*
 
-    - Fix badly written assert containing state-changing code, spotted by `chsigi <https://github.com/chsigi>`_ (:issue:`126`)
+    - Fix badly written assert containing state-changing code, spotted by `chsigi <https://github.com/chsigi>`_ (:pr:`126`)
     - Don't crash when handling objects whose __repr__ is non-pure-ascii bytes on Py2,
-      discovered by `mbertheau <https://github.com/mbertheau>`_ (:issue:`123`) and `strycore <https://github.com/strycore>`_ (:issue:`127`)
+      discovered by `mbertheau <https://github.com/mbertheau>`_ (:issue:`123`) and `strycore <https://github.com/strycore>`_ (:pr:`127`)
 
 .. _v2.3.0:
 
@@ -301,9 +301,9 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 
 *New:*
 
-    - Add :class:`~factory.fuzzy.FuzzyText`, thanks to `jdufresne <https://github.com/jdufresne>`_ (:issue:`97`)
-    - Add :class:`~factory.fuzzy.FuzzyDecimal`, thanks to `thedrow <https://github.com/thedrow>`_ (:issue:`94`)
-    - Add support for :class:`~mongoengine.EmbeddedDocument`, thanks to `imiric <https://github.com/imiric>`_ (:issue:`100`)
+    - Add :class:`~factory.fuzzy.FuzzyText`, thanks to `jdufresne <https://github.com/jdufresne>`_ (:pr:`97`)
+    - Add :class:`~factory.fuzzy.FuzzyDecimal`, thanks to `thedrow <https://github.com/thedrow>`_ (:pr:`94`)
+    - Add support for :class:`~mongoengine.EmbeddedDocument`, thanks to `imiric <https://github.com/imiric>`_ (:pr:`100`)
 
 .. _v2.2.1:
 
@@ -323,7 +323,7 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 *Bugfix:*
 
     - Removed duplicated :class:`~factory.alchemy.SQLAlchemyModelFactory` lurking in :mod:`factory`
-      (:issue:`83`)
+      (:pr:`83`)
     - Properly handle sequences within object inheritance chains.
       If FactoryA inherits from FactoryB, and their associated classes share the same link,
       sequence counters will be shared (:issue:`93`)
@@ -376,7 +376,7 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
     - Add debug messages to ``factory`` logger.
     - Add a :meth:`~factory.Iterator.reset` method to :class:`~factory.Iterator` (:issue:`63`)
     - Add support for the SQLAlchemy ORM through :class:`~factory.alchemy.SQLAlchemyModelFactory`
-      (:issue:`64`, thanks to `Romain Commandé <https://github.com/rcommande>`_)
+      (:pr:`64`, thanks to `Romain Commandé <https://github.com/rcommande>`_)
     - Add :class:`factory.django.FileField` and :class:`factory.django.ImageField` hooks for
       related Django model fields (:issue:`52`)
 
