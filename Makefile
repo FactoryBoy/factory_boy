@@ -84,6 +84,8 @@ coverage:
 doc:
 	$(MAKE) -C $(DOC_DIR) html
 
+linkcheck:
+	$(MAKE) -C $(DOC_DIR) linkcheck
 
 # DOC: Show this help message
 help:
@@ -110,4 +112,4 @@ help:
 	    }'
 
 
-.PHONY: doc help
+.PHONY: doc linkcheck help
