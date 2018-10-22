@@ -1734,7 +1734,7 @@ The :class:`PostGeneration` declaration performs actions once the model object
 has been generated.
 
 Its sole argument is a callable, that will be called once the base object has
-  been generated.
+been generated.
 
 Once the base object has been generated, the provided callable will be called
 as ``callable(obj, create, extracted, **kwargs)``, where:
