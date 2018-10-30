@@ -733,7 +733,10 @@ class BaseListFactory(Factory):
             raise ValueError(
                 "ListFactory %r does not support Meta.inline_args.", cls)
 
-        values = [v for k, v in sorted(kwargs.items())]
+        # When support for Python <3.6 is dropped sorting will no longer be required
+        # because dictionaries will already be ordered, this can then be changed to:
+        # values = kwargs.values()
+        values = [v for k, v in sorted(kwargs.items(), key=lambda item: int(item[0]))]
         return model_class(values)
 
     @classmethod

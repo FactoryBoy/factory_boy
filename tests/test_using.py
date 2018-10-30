@@ -2725,6 +2725,15 @@ class ListTestCase(unittest.TestCase):
         o = TestObjectFactory()
         self.assertEqual([1], o.one)
 
+    def test_long_list(self):
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+            one = factory.List(list(range(100)))
+
+        o = TestObjectFactory()
+        self.assertEqual(list(range(100)), o.one)
+
     def test_sequence_list(self):
         class TestObjectFactory(factory.Factory):
             class Meta:
