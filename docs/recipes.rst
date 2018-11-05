@@ -479,7 +479,7 @@ In order to get a dict, we'll just have to swap the model; the easiest way is to
             model = models.User
 
         first_name = factory.Sequence(lambda n: "Agent %03d" % n)
-        username = factory.Faker('username')
+        username = factory.Faker('user_name')
 
 .. code-block:: pycon
 
