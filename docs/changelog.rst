@@ -7,6 +7,11 @@ ChangeLog
 - Added support for Python 3.7
 - Added support for Django 2.1
 
+*Bugfix:*
+
+    - Fix assignment of many-to-many or many-to-one relations in Django factories for Django>=2.0 (see
+      django/django@ed25124)
+
 
 2.11.1 (2018-05-05)
 -------------------

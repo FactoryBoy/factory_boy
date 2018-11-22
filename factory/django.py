@@ -152,7 +152,18 @@ class DjangoModelFactory(base.Factory):
             key_fields[field] = kwargs.pop(field)
         key_fields['defaults'] = kwargs
 
+        related_kwargs = {}
+        for key in list(kwargs):
+            if isinstance(
+                getattr(model_class, key, None),
+                django.db.models.fields.related_descriptors.ReverseManyToOneDescriptor,
+            ):
+                # Cannot set related field directly
+                related_kwargs[key] = kwargs.pop(key)
+
         instance, _created = manager.get_or_create(*args, **key_fields)
+        for key, data in related_kwargs.items():
+            getattr(instance, key).set(data)
         return instance
 
     @classmethod
@@ -163,7 +174,19 @@ class DjangoModelFactory(base.Factory):
         if cls._meta.django_get_or_create:
             return cls._get_or_create(model_class, *args, **kwargs)
 
-        return manager.create(*args, **kwargs)
+        related_kwargs = {}
+        for key in list(kwargs):
+            if isinstance(
+                getattr(model_class, key, None),
+                django.db.models.fields.related_descriptors.ReverseManyToOneDescriptor,
+            ):
+                # Cannot set related field directly
+                related_kwargs[key] = kwargs.pop(key)
+
+        instance = manager.create(*args, **kwargs)
+        for key, data in related_kwargs.items():
+            getattr(instance, key).set(data)
+        return instance
 
     @classmethod
     def _after_postgeneration(cls, instance, create, results=None):

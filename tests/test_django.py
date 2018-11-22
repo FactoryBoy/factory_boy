@@ -387,11 +387,24 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
         class PointedRelatedExtraFactory(PointedRelatedFactory):
             pointer__bar = 'extra_new_bar'
 
+        class WithManyToManyFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.WithManyToManyModel
+            baz = 'baz'
+
+        class WithManyToManyGetOrCreateFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.WithManyToManyModel
+                django_get_or_create = ['baz']
+            baz = 'baz'
+
         cls.PointedFactory = PointedFactory
         cls.PointerFactory = PointerFactory
         cls.PointedRelatedFactory = PointedRelatedFactory
         cls.PointerExtraFactory = PointerExtraFactory
         cls.PointedRelatedExtraFactory = PointedRelatedExtraFactory
+        cls.WithManyToManyFactory = WithManyToManyFactory
+        cls.WithManyToManyGetOrCreateFactory = WithManyToManyGetOrCreateFactory
 
     def test_create_pointed(self):
         pointed = self.PointedFactory()
@@ -437,6 +450,20 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
         self.assertEqual(pointed.foo, 'foo')
         self.assertEqual(pointed.pointer, models.PointerModel.objects.get())
         self.assertEqual(pointed.pointer.bar, 'extra_new_bar')
+
+    def test_create_with_many_to_many(self):
+        pointer = self.PointerFactory()
+        with_many_to_many = self.WithManyToManyFactory(pointers=[pointer])
+        self.assertEqual(with_many_to_many.baz, 'baz')
+        self.assertEqual(pointer, with_many_to_many.pointers.get())
+        self.assertEqual(with_many_to_many, pointer.with_many_to_many_models.get())
+
+    def test_get_or_create_with_many_to_many(self):
+        pointer = self.PointerFactory()
+        with_many_to_many = self.WithManyToManyGetOrCreateFactory(pointers=[pointer])
+        self.assertEqual(with_many_to_many.baz, 'baz')
+        self.assertEqual(pointer, with_many_to_many.pointers.get())
+        self.assertEqual(with_many_to_many, pointer.with_many_to_many_models.get())
 
 
 class DjangoFileFieldTestCase(django_test.TestCase):

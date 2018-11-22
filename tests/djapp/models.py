@@ -70,6 +70,15 @@ class PointerModel(models.Model):
     )
 
 
+class WithManyToManyModel(models.Model):
+    baz = models.CharField(max_length=20)
+    pointers = models.ManyToManyField(
+        PointerModel,
+        related_name='with_many_to_many_models',
+        null=True,
+    )
+
+
 class WithDefaultValue(models.Model):
     foo = models.CharField(max_length=20, default='')
 
