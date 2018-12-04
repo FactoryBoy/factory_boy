@@ -158,11 +158,10 @@ class DjangoModelFactory(base.Factory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
-        manager = cls._get_manager(model_class)
-
         if cls._meta.django_get_or_create:
             return cls._get_or_create(model_class, *args, **kwargs)
 
+        manager = cls._get_manager(model_class)
         return manager.create(*args, **kwargs)
 
     @classmethod
