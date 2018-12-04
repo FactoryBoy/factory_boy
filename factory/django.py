@@ -133,6 +133,19 @@ class DjangoModelFactory(base.Factory):
         return manager
 
     @classmethod
+    def _extract_related_kwargs(cls, model_class, kwargs_dict):
+        """Extracts related fields from kwars_dict because we cannot set related field directly
+        in create or get_or_create methods"""
+        related_kwargs = {}
+        for key in list(kwargs_dict):
+            if isinstance(
+                getattr(model_class, key, None),
+                django.db.models.fields.related_descriptors.ReverseManyToOneDescriptor,
+            ):
+                related_kwargs[key] = kwargs_dict.pop(key)
+        return related_kwargs
+
+    @classmethod
     def _get_or_create(cls, model_class, *args, **kwargs):
         """Create an instance of the model through objects.get_or_create."""
         manager = cls._get_manager(model_class)
@@ -152,14 +165,7 @@ class DjangoModelFactory(base.Factory):
             key_fields[field] = kwargs.pop(field)
         key_fields['defaults'] = kwargs
 
-        related_kwargs = {}
-        for key in list(kwargs):
-            if isinstance(
-                getattr(model_class, key, None),
-                django.db.models.fields.related_descriptors.ReverseManyToOneDescriptor,
-            ):
-                # Cannot set related field directly
-                related_kwargs[key] = kwargs.pop(key)
+        related_kwargs = cls._extract_related_kwargs(model_class, kwargs)
 
         instance, _created = manager.get_or_create(*args, **key_fields)
         for key, data in related_kwargs.items():
@@ -174,14 +180,7 @@ class DjangoModelFactory(base.Factory):
         if cls._meta.django_get_or_create:
             return cls._get_or_create(model_class, *args, **kwargs)
 
-        related_kwargs = {}
-        for key in list(kwargs):
-            if isinstance(
-                getattr(model_class, key, None),
-                django.db.models.fields.related_descriptors.ReverseManyToOneDescriptor,
-            ):
-                # Cannot set related field directly
-                related_kwargs[key] = kwargs.pop(key)
+        related_kwargs = cls._extract_related_kwargs(model_class, kwargs)
 
         instance = manager.create(*args, **kwargs)
         for key, data in related_kwargs.items():
