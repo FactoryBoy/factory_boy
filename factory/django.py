@@ -146,6 +146,15 @@ class DjangoModelFactory(base.Factory):
         return related_kwargs
 
     @classmethod
+    def _handle_related_kwargs(cls, model_class, method, related_kwargs, *args, **kwargs):
+        """Call create or get_or_create with the given args and kwargs, then sets the related fields on the instance"""
+        instance = method(*args, **kwargs)
+        instance = instance[0] if isinstance(instance, tuple) else instance
+        for key, data in related_kwargs.items():
+            getattr(instance, key).set(data)
+        return instance
+
+    @classmethod
     def _get_or_create(cls, model_class, *args, **kwargs):
         """Create an instance of the model through objects.get_or_create."""
         manager = cls._get_manager(model_class)
@@ -166,11 +175,7 @@ class DjangoModelFactory(base.Factory):
         key_fields['defaults'] = kwargs
 
         related_kwargs = cls._extract_related_kwargs(model_class, kwargs)
-
-        instance, _created = manager.get_or_create(*args, **key_fields)
-        for key, data in related_kwargs.items():
-            getattr(instance, key).set(data)
-        return instance
+        return cls._handle_related_kwargs(model_class, manager.get_or_create, related_kwargs, *args, **key_fields)
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
@@ -181,11 +186,7 @@ class DjangoModelFactory(base.Factory):
             return cls._get_or_create(model_class, *args, **kwargs)
 
         related_kwargs = cls._extract_related_kwargs(model_class, kwargs)
-
-        instance = manager.create(*args, **kwargs)
-        for key, data in related_kwargs.items():
-            getattr(instance, key).set(data)
-        return instance
+        return cls._handle_related_kwargs(model_class, manager.create, related_kwargs, *args, **kwargs)
 
     @classmethod
     def _after_postgeneration(cls, instance, create, results=None):
