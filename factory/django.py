@@ -133,10 +133,8 @@ class DjangoModelFactory(base.Factory):
         return manager
 
     @classmethod
-    def _get_or_create(cls, model_class, *args, **kwargs):
+    def _get_or_create(cls, manager, *args, **kwargs):
         """Create an instance of the model through objects.get_or_create."""
-        manager = cls._get_manager(model_class)
-
         assert 'defaults' not in cls._meta.django_get_or_create, (
             "'defaults' is a reserved keyword for get_or_create "
             "(in %s._meta.django_get_or_create=%r)"
@@ -161,7 +159,7 @@ class DjangoModelFactory(base.Factory):
         manager = cls._get_manager(model_class)
 
         if cls._meta.django_get_or_create:
-            return cls._get_or_create(model_class, *args, **kwargs)
+            return cls._get_or_create(manager, *args, **kwargs)
 
         return manager.create(*args, **kwargs)
 

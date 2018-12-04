@@ -11,6 +11,12 @@ ChangeLog
     - Add :attr:`~factory.fuzzy.FuzzyChoice.getter` to :class:`~factory.fuzzy.FuzzyChoice` that mimics
       the behavior of ``getter`` in :class:`~factory.Iterator`
 
+*Backward incompatible changes:*
+
+    - :meth:`DjangoModelFactory._get_or_create()<factory.django.DjangoModelFactory._get_or_create>`
+      first argument is now ``manager`` instead of ``model_class``. The manager lookup logic is executed in
+      :meth:`DjangoModelFactory._create()<factory.django.DjangoModelFactory._create>`, use that result.
+
 
 2.11.1 (2018-05-05)
 -------------------
