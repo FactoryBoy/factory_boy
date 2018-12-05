@@ -293,7 +293,7 @@ SQLAlchemy
 .. currentmodule:: factory.alchemy
 
 
-Factoy_boy also supports `SQLAlchemy`_  models through the :class:`SQLAlchemyModelFactory` class.
+Factory_boy also supports `SQLAlchemy`_  models through the :class:`SQLAlchemyModelFactory` class.
 
 To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:`Meta.sqlalchemy_session <SQLAlchemyOptions.sqlalchemy_session>` attribute.
 
