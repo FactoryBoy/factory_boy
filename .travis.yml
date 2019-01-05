@@ -20,6 +20,8 @@ matrix:
       env: TOXENV=py35-django111-alchemy12-mongoengine015
     - python: "3.6"
       env: TOXENV=py36-django111-alchemy12-mongoengine015
+    - python: "3.7"
+      env: TOXENV=py37-django111-alchemy12-mongoengine015
 
     # Django 2.0
     - python: "3.4"
