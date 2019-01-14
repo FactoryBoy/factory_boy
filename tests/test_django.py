@@ -87,6 +87,14 @@ class MultifieldModelFactory(factory.django.DjangoModelFactory):
     text = factory.Faker('text')
 
 
+class MultifieldModelUpdateFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.MultifieldModel
+        django_update_or_create = ['slug']
+
+    text = factory.Faker('text')
+
+
 class AbstractBaseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.AbstractBase
@@ -211,6 +219,37 @@ class DjangoGetOrCreateTests(django_test.TestCase):
         self.assertEqual(6, len(objs))
         self.assertEqual(2, len(set(objs)))
         self.assertEqual(2, models.MultifieldModel.objects.count())
+
+
+class DjangoUpdateOrCreateTests(django_test.TestCase):
+    def test_simple_call(self):
+        obj1 = MultifieldModelUpdateFactory(slug='slug1')
+        obj2 = MultifieldModelUpdateFactory(slug='slug1')
+        MultifieldModelUpdateFactory(slug='alt')
+
+        self.assertEqual(obj1, obj2)
+        self.assertEqual(2, models.MultifieldModel.objects.count())
+
+    def test_missing_arg(self):
+        with self.assertRaises(factory.FactoryError):
+            MultifieldModelUpdateFactory()
+
+    def test_multicall(self):
+        objs = MultifieldModelUpdateFactory.create_batch(
+            6,
+            slug=factory.Iterator(['main', 'alt']),
+        )
+        self.assertEqual(6, len(objs))
+        self.assertEqual(2, len(set(objs)))
+        self.assertEqual(2, models.MultifieldModel.objects.count())
+
+    def test_update_field(self):
+        obj1 = MultifieldModelUpdateFactory(slug='slug1', text="original")
+        self.assertEqual(obj1.text, "original")
+
+        obj2 = MultifieldModelUpdateFactory(slug='slug1', text="updated")
+        self.assertEqual(obj2.text, "updated")
+        self.assertEqual(obj1.pk, obj2.pk)
 
 
 class DjangoPkForceTestCase(django_test.TestCase):

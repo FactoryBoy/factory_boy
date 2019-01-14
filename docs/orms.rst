@@ -95,6 +95,9 @@ All factories for a Django :class:`~django.db.models.Model` should use the
             >>> User.objects.all()
             [<User: john>, <User: jack>]
 
+    .. attribute:: django_update_or_create
+
+        Works same as ``'django_get_or_create'`` but also updates the returned object with new values.
 
 
 Extra fields

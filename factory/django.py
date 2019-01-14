@@ -69,6 +69,7 @@ class DjangoOptions(base.FactoryOptions):
     def _build_default_options(self):
         return super(DjangoOptions, self)._build_default_options() + [
             base.OptionDefault('django_get_or_create', (), inherit=True),
+            base.OptionDefault('django_update_or_create', (), inherit=True),
             base.OptionDefault('database', DEFAULT_DB_ALIAS, inherit=True),
         ]
 
@@ -133,26 +134,28 @@ class DjangoModelFactory(base.Factory):
         return manager
 
     @classmethod
-    def _get_or_create(cls, model_class, *args, **kwargs):
-        """Create an instance of the model through objects.get_or_create."""
+    def _op_or_create(cls, op, model_class, *args, **kwargs):
+        """Create an instance of the model through given manager method op."""
         manager = cls._get_manager(model_class)
 
-        assert 'defaults' not in cls._meta.django_get_or_create, (
-            "'defaults' is a reserved keyword for get_or_create "
-            "(in %s._meta.django_get_or_create=%r)"
-            % (cls, cls._meta.django_get_or_create))
+        filter_fields = getattr(cls._meta, "django_%s" % op)
+
+        assert 'defaults' not in filter_fields, (
+            "'defaults' is a reserved keyword for %s "
+            "(in %s._meta.django_%s=%r)"
+            % (op, cls, op, filter_fields))
 
         key_fields = {}
-        for field in cls._meta.django_get_or_create:
+        for field in filter_fields:
             if field not in kwargs:
                 raise errors.FactoryError(
-                    "django_get_or_create - "
+                    "django_%s - "
                     "Unable to find initialization value for '%s' in factory %s" %
-                    (field, cls.__name__))
+                    (op, field, cls.__name__))
             key_fields[field] = kwargs.pop(field)
         key_fields['defaults'] = kwargs
 
-        instance, _created = manager.get_or_create(*args, **key_fields)
+        instance, _created = getattr(manager, op)(*args, **key_fields)
         return instance
 
     @classmethod
@@ -161,7 +164,10 @@ class DjangoModelFactory(base.Factory):
         manager = cls._get_manager(model_class)
 
         if cls._meta.django_get_or_create:
-            return cls._get_or_create(model_class, *args, **kwargs)
+            return cls._op_or_create("get_or_create", model_class, *args, **kwargs)
+
+        if cls._meta.django_update_or_create:
+            return cls._op_or_create("update_or_create", model_class, *args, **kwargs)
 
         return manager.create(*args, **kwargs)
 
