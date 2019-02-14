@@ -1765,7 +1765,7 @@ Decorator
 .. function:: post_generation
 
 A decorator is also provided, decorating a single method accepting the same
-``obj``, ``created``, ``extracted`` and keyword arguments as :class:`PostGeneration`.
+``obj``, ``create``, ``extracted`` and keyword arguments as :class:`PostGeneration`.
 
 
 .. code-block:: python
