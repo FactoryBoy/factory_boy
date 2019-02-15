@@ -4,8 +4,12 @@ ChangeLog
 2.11.2 (unreleased)
 -------------------
 
-- Added support for Python 3.7
-- Added support for Django 2.1
+*New:*
+
+    - Added support for Python 3.7
+    - Added support for Django 2.1
+    - Add :attr:`~factory.fuzzy.FuzzyChoice.getter` to :class:`~factory.fuzzy.FuzzyChoice` that mimics
+      the behavior of ``getter`` in :class:`~factory.Iterator`
 
 
 2.11.1 (2018-05-05)
