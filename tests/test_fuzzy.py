@@ -76,6 +76,12 @@ class FuzzyChoiceTestCase(unittest.TestCase):
         self.assertIn(res, [1, 2, 3])
         self.assertTrue(opts.unrolled)
 
+    def test_getter(self):
+        options = [('a', 1), ('b', 2), ('c', 3)]
+        d = fuzzy.FuzzyChoice(options, getter=lambda x: x[1])
+        res = utils.evaluate_declaration(d)
+        self.assertIn(res, [1, 2, 3])
+
 
 class FuzzyIntegerTestCase(unittest.TestCase):
     def test_definition(self):

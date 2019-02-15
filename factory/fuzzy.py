@@ -116,17 +116,22 @@ class FuzzyChoice(BaseFuzzyAttribute):
     Args:
         choices (iterable): An iterable yielding options; will only be unrolled
             on the first call.
+        getter (callable or None): a function to parse returned values
     """
 
-    def __init__(self, choices, **kwargs):
+    def __init__(self, choices, getter=None, **kwargs):
         self.choices = None
         self.choices_generator = choices
+        self.getter = getter
         super(FuzzyChoice, self).__init__(**kwargs)
 
     def fuzz(self):
         if self.choices is None:
             self.choices = list(self.choices_generator)
-        return random.randgen.choice(self.choices)
+        value = random.randgen.choice(self.choices)
+        if self.getter is None:
+            return value
+        return self.getter(value)
 
 
 class FuzzyInteger(BaseFuzzyAttribute):
