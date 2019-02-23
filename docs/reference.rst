@@ -2036,3 +2036,33 @@ extracting instances from them:
     :param int size: Number of instances to generate
     :param kwargs: Declarations to use for the generated factory
     :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
+
+
+Randomness management
+---------------------
+
+.. currentmodule:: factory.random
+
+Using :mod:`random` in factories allows to "fuzz" a program efficiently.
+However, it's sometimes required to *reproduce* a failing test.
+
+:mod:`factory.fuzzy` and :class:`factory.Faker` share a dedicated instance
+of :class:`random.Random`, which can be managed through the :mod:`factory.random` module:
+
+.. method:: get_random_state()
+
+    Call :meth:`get_random_state` to retrieve the random generator's current
+    state.
+    The returned object is implementation-specific.
+
+.. method:: set_random_state(state)
+
+    Use :meth:`set_random_state` to set a custom state into the random generator
+    (fetched from :meth:`get_random_state` in a previous run, for instance)
+
+.. method:: reseed_random(seed)
+
+    The :meth:`reseed_random` function allows to load a chosen seed into the random generator.
+    That seed can be anything accepted by :meth:`random.seed`.
+
+See :ref:`recipe-random-management` for help in using those methods in a test setup.

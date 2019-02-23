@@ -455,6 +455,56 @@ Forcing the initial value for all projects
         >>> AccountFactory.create()  # Sets up the account number based on the latest uid
         <Account uid=43, name=Test>
 
+.. _recipe-random-management:
+
+Using reproducible randomness
+-----------------------------
+
+Although using random values is great, it can provoke test flakyness.
+factory_boy provides a few helpers for this.
+
+.. note:: Those methods will seed the random engine used in both :class:`factory.Faker` and :mod:`factory.fuzzy` objects.
+
+
+Seeding the random engine
+    The simplest way to manage randomness is to push a selected seed when starting tests:
+
+    .. code-block:: python
+
+        import factory.random
+        # Pass in any value
+        factory.random.reseed_random('my awesome project')
+
+
+Reproducing unseeded tests
+    A project might choose not to use an explicit random seed (for better fuzzing),
+    but still wishes to have reproducible tests.
+
+    For such cases, use a combination of :meth:`factory.random.get_random_state()`
+    and :meth:`factory.random.set_random_state()`.
+
+    Since the random state structure is implementation-specific, we recommand passing it around
+    as a base64-encoded pickle dump.
+
+    .. code-block:: python
+
+        class MyTestRunner:
+
+            def setup_test_environment(self):
+                state = os.environ.get('TEST_RANDOM_STATE')
+                if state:
+                    try:
+                        decoded_state = pickle.loads(base64.b64decode(state.encode('ascii')))
+                    except ValueError:
+                        decoded_state = None
+                if decoded_state:
+                    factory.random.set_random_state(decoded_state)
+                else:
+                    encoded_state = base64.b64encode(pickle.dumps(factory.random.get_random_state()))
+                    print("Current random state: %s" % encoded_state.decode('ascii'))
+                super().setup_test_environment()
+
+
 
 Converting a factory's output to a dict
 ---------------------------------------

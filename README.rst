@@ -204,8 +204,19 @@ For this, factory_boy relies on the excellent `faker <https://faker.readthedocs.
     <User: Lucy Murray>
 
 
-.. note:: Use of fully randomized data in tests is quickly a problem for reproducing broken builds.
-          To that purpose, factory_boy provides helpers to handle the random seeds it uses.
+Reproducible random values
+""""""""""""""""""""""""""
+
+The use of fully randomized data in tests is quickly a problem for reproducing broken builds.
+To that purpose, factory_boy provides helpers to handle the random seeds it uses, located in the ``factory.random`` module:
+
+.. code-block:: python
+
+    import factory.random
+
+    def setup_test_environment():
+        factory.random.reseed_random('my_awesome_project')
+        # Other setup here
 
 
 Lazy Attributes
