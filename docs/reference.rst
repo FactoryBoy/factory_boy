@@ -310,7 +310,8 @@ Attributes and methods
             class BaseBackendFactory(factory.Factory):
                 class Meta:
                     abstract = True  # Optional
-
+                
+                @classmethod
                 def _create(cls, model_class, *args, **kwargs):
                     obj = model_class(*args, **kwargs)
                     obj.save()
