@@ -676,25 +676,25 @@ class RelatedFactory(PostGenerationDeclaration):
 
 
 class RelatedFactoryList(RelatedFactory):
-    """Calls a factory 'length' times once the object has been generated.
+    """Calls a factory 'size' times once the object has been generated.
 
     Attributes:
-        factory (Factory): the factory to call "length-times"
+        factory (Factory): the factory to call "size-times"
         defaults (dict): extra declarations for calling the related factory
         factory_related_name (str): the name to use to refer to the generated
             object when calling the related factory
-        length (int|lambda): the number of times 'factory' is called, ultimately
-            returning a list of 'factory' objects w/ length 'length'.
+        size (int|lambda): the number of times 'factory' is called, ultimately
+            returning a list of 'factory' objects w/ size 'size'.
     """
 
-    def __init__(self, factory, factory_related_name='', length=2, **defaults):
-        self.length = length
+    def __init__(self, factory, factory_related_name='', size=2, **defaults):
+        self.size = size
         super(RelatedFactoryList, self).__init__(factory, factory_related_name, **defaults)
 
     def call(self, instance, step, context):
         return [super(RelatedFactoryList, self).call(instance, step, context)
-                for i in range(self.length if isinstance(self.length, int)
-                               else self.length())]
+                for i in range(self.size if isinstance(self.size, int)
+                               else self.size())]
 
 
 class NotProvided:

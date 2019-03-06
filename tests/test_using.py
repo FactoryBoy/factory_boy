@@ -2354,10 +2354,10 @@ class PostGenerationTestCase(unittest.TestCase):
         book = BookFactory.build()
         self.assertEqual({0: book}, LIBRARY)
 
-    def test_related_factory_list_of_varying_length(self):
+    def test_related_factory_list_of_varying_size(self):
         # Create our list of expected "related object counts"
-        related_list_lengths = [5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
-        RELATED_LIST_LENGTH = lambda: related_list_lengths.pop()
+        related_list_sizes = [5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
+        RELATED_LIST_SIZE = lambda: related_list_sizes.pop()
 
         class TestRelatedObject(object):
             def __init__(self, obj=None, one=None, two=None):
@@ -2381,13 +2381,13 @@ class PostGenerationTestCase(unittest.TestCase):
                 model = TestObject
             one = 3
             two = 2
-            # RELATED_LIST_LENGTH is a lambda, this allows flexibility, as opposed
+            # RELATED_LIST_SIZE is a lambda, this allows flexibility, as opposed
             # to creating "n" related objects for every parent object...
             three = factory.RelatedFactoryList(TestRelatedObjectFactoryList,
                                                'obj',
-                                               length=RELATED_LIST_LENGTH)
+                                               size=RELATED_LIST_SIZE)
             # Create 5 TestObjectFactories: Each with 1, 2, ... 5 related objs
-        for related_list_length in reversed(related_list_lengths[1::2]):
+        for related_list_size in reversed(related_list_sizes[1::2]):
             obj = TestObjectFactory.build()
             # Normal fields
             self.assertEqual(3, obj.one)
@@ -2400,7 +2400,7 @@ class PostGenerationTestCase(unittest.TestCase):
                 self.assertEqual(1, related_obj.one)
                 self.assertEqual(2, related_obj.two)
             # Each RelatedFactory in the RelatedFactoryList was passed the "parent" object
-            self.assertEqual(related_list_length, len(obj.related_list))
+            self.assertEqual(related_list_size, len(obj.related_list))
             # obj.related is the list of TestRelatedObject(s)
             for related_obj in obj.related_list:
                 self.assertEqual(obj, related_obj.three)
@@ -2417,12 +2417,12 @@ class PostGenerationTestCase(unittest.TestCase):
                 self.assertEqual(3, related_obj.one)
                 self.assertEqual(4, related_obj.two)
             # Each RelatedFactory in RelatedFactoryList received "parent" object
-            self.assertEqual(related_list_length, len(obj.related_list))
+            self.assertEqual(related_list_size, len(obj.related_list))
             for related_obj in obj.related_list:
                 self.assertEqual(obj, related_obj.three)
 
-    def test_related_factory_list_of_static_length(self):
-        RELATED_LIST_LENGTH = 4
+    def test_related_factory_list_of_static_size(self):
+        RELATED_LIST_SIZE = 4
 
         class TestRelatedObject(object):
             def __init__(self, obj=None, one=None, two=None):
@@ -2448,7 +2448,7 @@ class PostGenerationTestCase(unittest.TestCase):
             one = 3
             two = 2
             three = factory.RelatedFactoryList(TestRelatedObjectFactoryList, 'obj',
-                                               length=RELATED_LIST_LENGTH)
+                                               size=RELATED_LIST_SIZE)
 
         obj = TestObjectFactory.build()
         # Normal fields
@@ -2462,7 +2462,7 @@ class PostGenerationTestCase(unittest.TestCase):
             self.assertEqual(1, related_obj.one)
             self.assertEqual(2, related_obj.two)
         # Each RelatedFactory in the RelatedFactoryList was passed the "parent" object
-        self.assertEqual(RELATED_LIST_LENGTH, len(obj.related_list))
+        self.assertEqual(RELATED_LIST_SIZE, len(obj.related_list))
         # obj.related is the list of TestRelatedObject(s)
         for related_obj in obj.related_list:
             self.assertEqual(obj, related_obj.three)
@@ -2479,7 +2479,7 @@ class PostGenerationTestCase(unittest.TestCase):
             self.assertEqual(3, related_obj.one)
             self.assertEqual(4, related_obj.two)
         # Each RelatedFactory in RelatedFactoryList received "parent" object
-        self.assertEqual(RELATED_LIST_LENGTH, len(obj.related_list))
+        self.assertEqual(RELATED_LIST_SIZE, len(obj.related_list))
         for related_obj in obj.related_list:
             self.assertEqual(obj, related_obj.three)
 

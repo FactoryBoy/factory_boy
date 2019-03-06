@@ -1728,7 +1728,7 @@ If a value is passed for the :class:`RelatedFactory` attribute, this disables
 RelatedFactoryList
 """"""""""""""""""
 
-.. class:: RelatedFactoryList(factory, factory_related_name='', length=2, **kwargs)
+.. class:: RelatedFactoryList(factory, factory_related_name='', size=2, **kwargs)
 
     .. OHAI_VIM**
 
@@ -1754,28 +1754,28 @@ RelatedFactoryList
         It will be passed as a keyword argument, using the :attr:`name` value as
         keyword:
 
-    .. attribute:: length
+    .. attribute:: size
 
         Either an ``int``, or a ``lambda`` that returns an ``int``, which will define the number 
         of related Factories to be generated for each parent object.
 
 .. note::
-          Note that using a ``lambda`` for :attr:`length` allows the number of related objects per
+          Note that using a ``lambda`` for :attr:`size` allows the number of related objects per
           parents object to vary. This is useful for testing, when you likely don't want your mock
           data to have parent objects with the exact same, static number of related objects.
 
           .. code-block:: python
 
-              LIST_LENGTHS = [1, 2, 3, 4, 5]
+              LIST_SIZES = [1, 2, 3, 4, 5]
 
               class FooFactory(factory.Factory):
                   class Meta:
                       model = Foo
-                  # Generate a list of `factory` objects of random length, ranging from 1 -> 5
+                  # Generate a list of `factory` objects of random size, ranging from 1 -> 5
                   bar = factory.RelatedFactoryList(BarFactory,
-                                                   length=lambda: LIST_LENGTHS[random.randint(0,5)])
+                                                   size=lambda: LIST_SIZES[random.randint(0,5)])
                   # Each Foo object will have exactly 3 Bar objects generated for its foobar attribute.
-                  foobar = factory.RelatedFactoryList(BarFactory, length=3])
+                  foobar = factory.RelatedFactoryList(BarFactory, size=3])
 
 
 PostGeneration
