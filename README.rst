@@ -59,6 +59,12 @@ while only declaring the test-specific fields:
                 is_vip=True,
                 address=address,
             )
+            order = Order(
+                amount=200,
+                status='PAID',
+                customer=customer,
+                address=address
+            )
             # etc.
 
 factory_boy is designed to work well with various ORMs (Django, Mongo, SQLAlchemy),
