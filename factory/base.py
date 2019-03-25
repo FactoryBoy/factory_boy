@@ -709,7 +709,7 @@ class BaseDictFactory(Factory):
     def _build(cls, model_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "DictFactory %r does not support Meta.inline_args.", cls)
+                "DictFactory %r does not support Meta.inline_args." % cls)
         return model_class(**kwargs)
 
     @classmethod
@@ -731,7 +731,7 @@ class BaseListFactory(Factory):
     def _build(cls, model_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "ListFactory %r does not support Meta.inline_args.", cls)
+                "ListFactory %r does not support Meta.inline_args." % cls)
 
         # When support for Python <3.6 is dropped sorting will no longer be required
         # because dictionaries will already be ordered, this can then be changed to:
