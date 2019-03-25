@@ -536,6 +536,24 @@ In order to get a dict, we'll just have to swap the model; the easiest way is to
     >>> factory.build(dict, FACTORY_CLASS=UserFactory)
     {'first_name': "Agent 001", 'username': 'john_doe'}
 
+
+Fuzzying Django model field choices
+-----------------------------------
+
+When defining a :class:`~factory.fuzzy.FuzzyChoice` you can reuse the same choice list from the model field descriptor.
+
+Use the ``getter`` kwarg to select the first element from each choice tuple.
+
+.. code-block:: python
+
+    class UserFactory(factory.Factory):
+        class Meta:
+            model = User
+
+        # CATEGORY_CHOICES is a list of (key, title) tuples
+        category = factory.fuzzy.FuzzyChoice(User.CATEGORY_CHOICES, getter=lambda c: c[0])
+
+
 Django models with `GenericForeignKeys`
 ---------------------------------------
 
