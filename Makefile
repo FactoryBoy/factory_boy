@@ -51,7 +51,7 @@ testall:
 
 # DOC: Run tests for the currently installed version
 test:
-	python -Wdefault -m unittest
+	python -Wdefault -m unittest discover
 
 # DOC: Test the examples
 example-test:
