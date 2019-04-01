@@ -6,8 +6,8 @@ ChangeLog
 
 *New:*
 
-    - Added support for Python 3.7
-    - Added support for Django 2.1
+    - Add support for Python 3.7
+    - Add support for Django 2.1
     - Add :attr:`~factory.fuzzy.FuzzyChoice.getter` to :class:`~factory.fuzzy.FuzzyChoice` that mimics
       the behavior of ``getter`` in :class:`~factory.Iterator`
     - Make the ``extra_kwargs`` parameter of :meth:`~factory.faker.Faker.generate` optional
