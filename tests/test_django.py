@@ -137,6 +137,8 @@ class WithCustomManagerFactory(factory.django.DjangoModelFactory):
 
 
 class ModelTests(django_test.TestCase):
+    databases = {'default', 'replica'}
+
     def test_unset_model(self):
         class UnsetModelFactory(factory.django.DjangoModelFactory):
             pass
