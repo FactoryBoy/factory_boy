@@ -375,15 +375,11 @@ To test with a specific framework version, you may use a ``tox`` target:
 
 .. code-block:: sh
 
+    # list all tox environments
     $ tox --listenvs
-    py27-django111-alchemy12-mongoengine015
-    py27-django20-alchemy12-mongoengine015
-    # ...
-    pypy3-django20-alchemy12-mongoengine015
-    examples
-    lint
 
-    $ tox -e py36-django20-alchemy12-mongoengine015
+    # run tests inside a specific environment
+    $ tox -e py36-django20-alchemy13-mongoengine017
 
 Valid options are:
 
