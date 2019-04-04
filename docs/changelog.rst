@@ -12,6 +12,7 @@ ChangeLog
       the behavior of ``getter`` in :class:`~factory.Iterator`
     - Make the ``extra_kwargs`` parameter of :meth:`~factory.faker.Faker.generate` optional
     - Add :class:`~factory.RelatedFactoryList` class for one-to-many support, thanks `Sean Harrington <https://github.com/seanharr11>`_.
+    - Make the `locale` argument for :class:`~factory.faker.Faker` keyword-only
 
 *Bugfix:*
 
