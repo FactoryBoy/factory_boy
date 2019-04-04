@@ -362,6 +362,6 @@ They should inherit from the :class:`BaseFuzzyAttribute` class, and override its
     .. warning::
 
         Custom :class:`BaseFuzzyAttribute` subclasses **MUST**
-        use :obj:`factory.fuzzy._random` as a randomness source; this ensures that
+        use :obj:`factory.random.randgen` as a randomness source; this ensures that
         data they generate can be regenerated using the simple state from
         :meth:`get_random_state`.
