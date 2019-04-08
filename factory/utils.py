@@ -98,13 +98,16 @@ class OrderedBase(object):
     def __init__(self, **kwargs):
         super(OrderedBase, self).__init__(**kwargs)
         if type(self) is not OrderedBase:
-            bases = type(self).__mro__
-            root = bases[bases.index(OrderedBase) - 1]
-            if not hasattr(root, self.CREATION_COUNTER_FIELD):
-                setattr(root, self.CREATION_COUNTER_FIELD, 0)
-            next_counter = getattr(self, self.CREATION_COUNTER_FIELD)
-            setattr(self, self.CREATION_COUNTER_FIELD, next_counter)
-            setattr(root, self.CREATION_COUNTER_FIELD, next_counter + 1)
+            self.touch_creation_counter()
+
+    def touch_creation_counter(self):
+        bases = type(self).__mro__
+        root = bases[bases.index(OrderedBase) - 1]
+        if not hasattr(root, self.CREATION_COUNTER_FIELD):
+            setattr(root, self.CREATION_COUNTER_FIELD, 0)
+        next_counter = getattr(root, self.CREATION_COUNTER_FIELD)
+        setattr(self, self.CREATION_COUNTER_FIELD, next_counter)
+        setattr(root, self.CREATION_COUNTER_FIELD, next_counter + 1)
 
 
 def sort_ordered_objects(items, getter=lambda x: x):
