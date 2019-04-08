@@ -545,6 +545,7 @@ class SimpleParameter(Parameter):
     def wrap(cls, value):
         if not isinstance(value, Parameter):
             return cls(value)
+        value.touch_creation_counter()
         return value
 
 
