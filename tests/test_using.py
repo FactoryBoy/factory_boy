@@ -1331,6 +1331,21 @@ class TraitTestCase(unittest.TestCase):
             dict(one=None, two=None, three=None, four=None, five=None),
         )
 
+    def test_traits_override_params(self):
+        """Override a Params value in a trait"""
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            one = factory.LazyAttribute(lambda o: o.zero + 1)
+
+            class Params:
+                zero = 0
+                plus_one = factory.Trait(zero=1)
+
+        obj = TestObjectFactory(plus_one=True)
+        self.assertEqual(obj.one, 2)
+
     def test_traits_override(self):
         """Override a trait in a subclass."""
         class TestObjectFactory(factory.Factory):
