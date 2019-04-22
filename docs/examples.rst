@@ -13,9 +13,10 @@ First, let's define a couple of objects:
 .. code-block:: python
 
     class Account(object):
-        def __init__(self, username, email):
+        def __init__(self, username, email, date_joined):
             self.username = username
             self.email = email
+            self.date_joined = date_joined
 
         def __str__(self):
             return '%s (%s)' % (self.username, self.email)
@@ -38,7 +39,7 @@ First, let's define a couple of objects:
             return u'%s %s (%s)' % (
                 unicode(self.firstname),
                 unicode(self.lastname),
-                unicode(self.account.accountname),
+                unicode(self.account.username),
             )
 
 Factories
