@@ -16,7 +16,6 @@ try:
     import django
     from django.core import files as django_files
     from django.db import IntegrityError
-    from django.db.models.signals import post_delete
 except ImportError as e:  # pragma: no cover
     django = None
     django_files = None

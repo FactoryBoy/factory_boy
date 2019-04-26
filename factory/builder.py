@@ -272,6 +272,7 @@ class StepBuilder(object):
         step.resolve(pre)
 
         args, kwargs = self.factory_meta.prepare_arguments(step.attributes)
+
         instance = self.factory_meta.instantiate(
             step=step,
             args=args,
