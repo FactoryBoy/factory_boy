@@ -948,6 +948,23 @@ class PreventChainedSignalsTestCase(django_test.TestCase):
 
         UndecoratedFactory()
 
+    def test_class_decorator_with_muted_related_factory(self):
+        @receiver(signals.post_save, sender=models.PointedModel)
+        def boom(instance, created, raw, **kwargs):
+            raise Exception("BOOM!")
+
+        @factory.django.mute_signals(signals.post_save)
+        class WithSignalsDecoratedFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointedModel
+
+        class UndecoratedFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointerModel
+            pointed = factory.RelatedFactory(WithSignalsDecoratedFactory)
+
+        UndecoratedFactory()
+
 
 class DjangoCustomManagerTestCase(django_test.TestCase):
 
