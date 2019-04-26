@@ -16,6 +16,7 @@ try:
     import django
     from django.core import files as django_files
     from django.db import IntegrityError
+    from django.db.models.signals import post_delete
 except ImportError as e:  # pragma: no cover
     django = None
     django_files = None
@@ -327,7 +328,15 @@ class mute_signals(object):
     def __call__(self, callable_obj):
         if isinstance(callable_obj, base.FactoryMetaClass):
             # Retrieve __func__, the *actual* callable object.
+            create_method = callable_obj._create.__func__
             generate_method = callable_obj._generate.__func__
+
+            @classmethod
+            @functools.wraps(create_method)
+            def wrapped_create(*args, **kwargs):
+                # A mute_signals() object is not reentrant; use a copy every time.
+                with self.copy():
+                    return create_method(*args, **kwargs)
 
             @classmethod
             @functools.wraps(generate_method)
@@ -336,6 +345,7 @@ class mute_signals(object):
                 with self.copy():
                     return generate_method(*args, **kwargs)
 
+            callable_obj._create = wrapped_create
             callable_obj._generate = wrapped_generate
             return callable_obj
 
