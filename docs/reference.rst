@@ -1755,6 +1755,11 @@ RelatedFactoryList
         Either an ``int``, or a ``lambda`` that returns an ``int``, which will define the number 
         of related Factories to be generated for each parent object.
 
+   .. versionadded:: 2.12
+
+        Note that the API for :class:`RelatedFactoryList` is considered experimental, and might change
+        in a future version for increased consistency with other declarations.
+
 .. note::
           Note that using a ``lambda`` for :attr:`size` allows the number of related objects per
           parents object to vary. This is useful for testing, when you likely don't want your mock
