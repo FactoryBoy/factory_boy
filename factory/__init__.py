@@ -75,7 +75,7 @@ from . import mogo
 from . import mongoengine
 
 
-__version__ = '2.11.2.dev0'
+__version__ = '2.12.0'
 __author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
 
 
