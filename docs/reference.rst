@@ -1752,7 +1752,7 @@ RelatedFactoryList
 
     .. attribute:: size
 
-        Either an ``int``, or a ``lambda`` that returns an ``int``, which will define the number 
+        Either an ``int``, or a ``lambda`` that returns an ``int``, which will define the number
         of related Factories to be generated for each parent object.
 
    .. versionadded:: 2.12
