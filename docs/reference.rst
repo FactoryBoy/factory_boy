@@ -2101,6 +2101,7 @@ of :class:`random.Random`, which can be managed through the :mod:`factory.random
 .. method:: get_random_state()
 
     Call :meth:`get_random_state` to retrieve the random generator's current
+    state. This method synchronizes both Faker’s and `factory_boy`’s random
     state.
     The returned object is implementation-specific.
 
