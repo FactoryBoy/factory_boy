@@ -10,7 +10,10 @@ randgen.state_set = False
 
 def get_random_state():
     """Retrieve the state of factory.fuzzy's random generator."""
-    return randgen.getstate()
+    state = randgen.getstate()
+    # Returned state must represent both Faker and factory_boy.
+    faker.generator.random.setstate(state)
+    return state
 
 
 def set_random_state(state):
