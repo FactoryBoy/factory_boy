@@ -4,7 +4,10 @@ ChangeLog
 2.12.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+*Bugfix:*
+
+    - Fix issue with SubFactory not preserving signal muting behaviour of the used factory, thanks `Patrick Stein <https://github.com/PFStein>`_.
+    - Fix issue with overriding params in a Trait, thanks `Grégoire Rocher <https://github.com/cecedille1>`_.
 
 
 2.12.0 (2019-05-11)
