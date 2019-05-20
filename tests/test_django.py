@@ -18,7 +18,6 @@ from django.conf import settings  # noqa: E402
 from django.test.runner import DiscoverRunner as DjangoTestSuiteRunner  # noqa: E402
 from django.test import utils as django_test_utils  # noqa: E402
 from django.db.models import signals  # noqa: E402
-from django.dispatch import receiver  # noqa: E402
 from .djapp import models  # noqa: E402
 try:
     from PIL import Image
@@ -932,39 +931,35 @@ class PreventSignalsTestCase(django_test.TestCase):
 
 class PreventChainedSignalsTestCase(django_test.TestCase):
 
+    def setUp(self):
+        self.post_save_mock = mock.MagicMock(side_effect=Exception('BOOM!'))
+        signals.post_save.connect(self.post_save_mock, models.PointedModel)
+
+    def tearDown(self):
+        signals.post_save.disconnect(self.post_save_mock, models.PointedModel)
+
+    @factory.django.mute_signals(signals.post_save)
+    class WithSignalsDecoratedFactory(factory.django.DjangoModelFactory):
+        class Meta:
+            model = models.PointedModel
+
     def test_class_decorator_with_muted_subfactory(self):
-        @receiver(signals.post_save, sender=models.PointedModel)
-        def boom(instance, created, raw, **kwargs):
-            raise Exception("BOOM!")
-
-        @factory.django.mute_signals(signals.post_save)
-        class WithSignalsDecoratedFactory(factory.django.DjangoModelFactory):
-            class Meta:
-                model = models.PointedModel
-
         class UndecoratedFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointerModel
-            pointed = factory.SubFactory(WithSignalsDecoratedFactory)
+            pointed = factory.SubFactory(self.WithSignalsDecoratedFactory)
 
         UndecoratedFactory()
+        self.post_save_mock.assert_not_called()
 
     def test_class_decorator_with_muted_related_factory(self):
-        @receiver(signals.post_save, sender=models.PointedModel)
-        def boom(instance, created, raw, **kwargs):
-            raise Exception("BOOM!")
-
-        @factory.django.mute_signals(signals.post_save)
-        class WithSignalsDecoratedFactory(factory.django.DjangoModelFactory):
-            class Meta:
-                model = models.PointedModel
-
         class UndecoratedFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointerModel
-            pointed = factory.RelatedFactory(WithSignalsDecoratedFactory)
+            pointed = factory.RelatedFactory(self.WithSignalsDecoratedFactory)
 
         UndecoratedFactory()
+        self.post_save_mock.assert_not_called()
 
 
 class DjangoCustomManagerTestCase(django_test.TestCase):
