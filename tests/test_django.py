@@ -932,7 +932,7 @@ class PreventSignalsTestCase(django_test.TestCase):
 class PreventChainedSignalsTestCase(django_test.TestCase):
 
     def setUp(self):
-        self.post_save_mock = mock.MagicMock(side_effect=Exception('BOOM!'))
+        self.post_save_mock = mock.Mock(side_effect=Exception('BOOM!'))
         signals.post_save.connect(self.post_save_mock, models.PointedModel)
 
     def tearDown(self):
