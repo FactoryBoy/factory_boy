@@ -223,12 +223,14 @@ class DjangoGetOrCreateTests(django_test.TestCase):
         self.assertEqual(2, len(set(objs)))
         self.assertEqual(2, models.MultifieldModel.objects.count())
 
-    def test_multiple_get_or_create_fields_one_defined(self):
+
+class MultipleGetOrCreateFieldsTest(django_test.TestCase):
+    def test_one_defined(self):
         obj1 = WithMultipleGetOrCreateFieldsFactory()
         obj2 = WithMultipleGetOrCreateFieldsFactory(slug=obj1.slug)
         self.assertEqual(obj1, obj2)
 
-    def test_multiple_get_or_create_fields_both_defined(self):
+    def test_both_defined(self):
         obj1 = WithMultipleGetOrCreateFieldsFactory()
         self.assertRaises(
             ValueError,
