@@ -8,6 +8,7 @@ ChangeLog
 
     - Fix issue with SubFactory not preserving signal muting behaviour of the used factory, thanks `Patrick Stein <https://github.com/PFStein>`_.
     - Fix issue with overriding params in a Trait, thanks `Grégoire Rocher <https://github.com/cecedille1>`_.
+    - :issue:`598`: Limit ``get_or_create`` behavior to fields specified in ``django_get_or_create``.
 
 
 2.12.0 (2019-05-11)
