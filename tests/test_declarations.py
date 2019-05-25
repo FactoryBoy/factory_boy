@@ -31,11 +31,14 @@ class DigTestCase(unittest.TestCase):
         obj.a.b.c = self.MyObj(4)
 
         self.assertEqual(2, declarations.deepgetattr(obj, 'a').n)
-        self.assertRaises(AttributeError, declarations.deepgetattr, obj, 'b')
+        with self.assertRaises(AttributeError):
+            declarations.deepgetattr(obj, 'b')
         self.assertEqual(2, declarations.deepgetattr(obj, 'a.n'))
         self.assertEqual(3, declarations.deepgetattr(obj, 'a.c', 3))
-        self.assertRaises(AttributeError, declarations.deepgetattr, obj, 'a.c.n')
-        self.assertRaises(AttributeError, declarations.deepgetattr, obj, 'a.d')
+        with self.assertRaises(AttributeError):
+            declarations.deepgetattr(obj, 'a.c.n')
+        with self.assertRaises(AttributeError):
+            declarations.deepgetattr(obj, 'a.d')
         self.assertEqual(3, declarations.deepgetattr(obj, 'a.b').n)
         self.assertEqual(3, declarations.deepgetattr(obj, 'a.b.n'))
         self.assertEqual(4, declarations.deepgetattr(obj, 'a.b.c').n)
@@ -87,7 +90,8 @@ class IteratorTestCase(unittest.TestCase):
         it = declarations.Iterator([1, 2], cycle=False)
         self.assertEqual(1, utils.evaluate_declaration(it, force_sequence=0))
         self.assertEqual(2, utils.evaluate_declaration(it, force_sequence=1))
-        self.assertRaises(StopIteration, utils.evaluate_declaration, it, force_sequence=2)
+        with self.assertRaises(StopIteration):
+            utils.evaluate_declaration(it, force_sequence=2)
 
     def test_initial_reset(self):
         it = declarations.Iterator([1, 2])
@@ -108,11 +112,13 @@ class IteratorTestCase(unittest.TestCase):
         it = declarations.Iterator([1, 2], cycle=False)
         self.assertEqual(1, utils.evaluate_declaration(it, force_sequence=0))
         self.assertEqual(2, utils.evaluate_declaration(it, force_sequence=1))
-        self.assertRaises(StopIteration, utils.evaluate_declaration, it, force_sequence=2)
+        with self.assertRaises(StopIteration):
+            utils.evaluate_declaration(it, force_sequence=2)
         it.reset()
         self.assertEqual(1, utils.evaluate_declaration(it, force_sequence=0))
         self.assertEqual(2, utils.evaluate_declaration(it, force_sequence=1))
-        self.assertRaises(StopIteration, utils.evaluate_declaration, it, force_sequence=2)
+        with self.assertRaises(StopIteration):
+            utils.evaluate_declaration(it, force_sequence=2)
 
     def test_getter(self):
         it = declarations.Iterator([(1, 2), (1, 3)], getter=lambda p: p[1])
@@ -165,8 +171,10 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
 
 class FactoryWrapperTestCase(unittest.TestCase):
     def test_invalid_path(self):
-        self.assertRaises(ValueError, declarations._FactoryWrapper, 'UnqualifiedSymbol')
-        self.assertRaises(ValueError, declarations._FactoryWrapper, 42)
+        with self.assertRaises(ValueError):
+            declarations._FactoryWrapper('UnqualifiedSymbol')
+        with self.assertRaises(ValueError):
+            declarations._FactoryWrapper(42)
 
     def test_class(self):
         w = declarations._FactoryWrapper(datetime.date)

@@ -1892,7 +1892,8 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(1, obj.descendant.sample_int)
         self.assertEqual(1, obj.descendant.container_len)
 
-        self.assertRaises(TypeError, TestModelFactory.build)
+        with self.assertRaises(TypeError):
+            TestModelFactory.build()
 
     def test_function_container_attribute(self):
         class TestModel2(FakeModel):
@@ -1950,7 +1951,8 @@ class IteratorTestCase(unittest.TestCase):
 
         # Scope bleeding: j will end up in TestObjectFactory's scope.
 
-        self.assertRaises(TypeError, TestObjectFactory.build)
+        with self.assertRaises(TypeError):
+            TestObjectFactory.build()
 
     @utils.disable_warnings
     def test_iterator_list_comprehension_protected(self):

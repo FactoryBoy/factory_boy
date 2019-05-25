@@ -152,7 +152,8 @@ class ModelTests(django_test.TestCase):
         class UnsetModelFactory(factory.django.DjangoModelFactory):
             pass
 
-        self.assertRaises(factory.FactoryError, UnsetModelFactory.create)
+        with self.assertRaises(factory.FactoryError):
+            UnsetModelFactory.create()
 
     def test_cross_database(self):
         class OtherDBFactory(factory.django.DjangoModelFactory):
@@ -230,10 +231,8 @@ class DjangoGetOrCreateTests(django_test.TestCase):
 
     def test_multiple_get_or_create_fields_both_defined(self):
         obj1 = WithMultipleGetOrCreateFieldsFactory()
-        self.assertRaises(
-            ValueError,
-            lambda: WithMultipleGetOrCreateFieldsFactory(
-                slug=obj1.slug, text="alt"))
+        with self.assertRaises(ValueError):
+            WithMultipleGetOrCreateFieldsFactory(slug=obj1.slug, text="alt")
 
 
 class DjangoPkForceTestCase(django_test.TestCase):
@@ -544,12 +543,11 @@ class DjangoFileFieldTestCase(django_test.TestCase):
         self.assertEqual('django/example.data', o.afile.name)
 
     def test_error_both_file_and_path(self):
-        self.assertRaises(
-            ValueError,
-            WithFileFactory.build,
-            afile__from_file='fakefile',
-            afile__from_path=testdata.TESTFILE_PATH,
-        )
+        with self.assertRaises(ValueError):
+            WithFileFactory.build(
+                afile__from_file='fakefile',
+                afile__from_path=testdata.TESTFILE_PATH,
+            )
 
     def test_override_filename_with_path(self):
         o = WithFileFactory.build(
@@ -754,12 +752,11 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         self.assertEqual('django/example.jpeg', o.animage.name)
 
     def test_error_both_file_and_path(self):
-        self.assertRaises(
-            ValueError,
-            WithImageFactory.build,
-            animage__from_file='fakefile',
-            animage__from_path=testdata.TESTIMAGE_PATH,
-        )
+        with self.assertRaises(ValueError):
+            WithImageFactory.build(
+                animage__from_file='fakefile',
+                animage__from_path=testdata.TESTIMAGE_PATH,
+            )
 
     def test_override_filename_with_path(self):
         o = WithImageFactory.build(
