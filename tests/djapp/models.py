@@ -35,6 +35,7 @@ class MultifieldModel(models.Model):
 class MultifieldUniqueModel(models.Model):
     slug = models.SlugField(max_length=20, unique=True)
     text = models.CharField(max_length=20, unique=True)
+    title = models.CharField(max_length=20, unique=True)
 
 
 class AbstractBase(models.Model):

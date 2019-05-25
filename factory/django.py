@@ -162,16 +162,24 @@ class DjangoModelFactory(base.Factory):
 
         try:
             instance, _created = manager.get_or_create(*args, **key_fields)
-        except IntegrityError:
-            try:
-                instance = manager.get(**cls._original_params)
-            except manager.model.DoesNotExist:
-                raise ValueError(
-                    "django_get_or_create - Unable to create a new object "
-                    "due an IntegrityError raised based on "
-                    "your model's uniqueness constraints. "
-                    "DoesNotExist: Unable to find an existing object based on "
-                    "the fields specified in your factory instance.")
+        except IntegrityError as e:
+            get_or_create_params = {
+                lookup: value
+                for lookup, value in cls._original_params.items()
+                if lookup in cls._meta.django_get_or_create
+            }
+            if get_or_create_params:
+                try:
+                    instance = manager.get(**get_or_create_params)
+                except manager.model.DoesNotExist:
+                    raise ValueError(
+                        "django_get_or_create - Unable to create a new object "
+                        "due an IntegrityError raised based on "
+                        "your model's uniqueness constraints. "
+                        "DoesNotExist: Unable to find an existing object based on "
+                        "the fields specified in your factory instance.")
+            else:
+                raise e
 
         return instance
 

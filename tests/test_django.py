@@ -236,6 +236,11 @@ class MultipleGetOrCreateFieldsTest(django_test.TestCase):
         with self.assertRaises(ValueError):
             WithMultipleGetOrCreateFieldsFactory(slug=obj1.slug, text="alt")
 
+    def test_unique_field_not_in_get_or_create(self):
+        WithMultipleGetOrCreateFieldsFactory(title="Title")
+        with self.assertRaises(django.db.IntegrityError):
+            WithMultipleGetOrCreateFieldsFactory(title="Title")
+
 
 class DjangoPkForceTestCase(django_test.TestCase):
     def setUp(self):
