@@ -19,10 +19,12 @@ class ImportObjectTestCase(unittest.TestCase):
         self.assertEqual(d, imported)
 
     def test_unknown_attribute(self):
-        self.assertRaises(AttributeError, utils.import_object, 'datetime', 'foo')
+        with self.assertRaises(AttributeError):
+            utils.import_object('datetime', 'foo')
 
     def test_invalid_module(self):
-        self.assertRaises(ImportError, utils.import_object, 'this-is-an-invalid-module', '__name__')
+        with self.assertRaises(ImportError):
+            utils.import_object('this-is-an-invalid-module', '__name__')
 
 
 class LogPPrintTestCase(unittest.TestCase):
@@ -129,7 +131,8 @@ class ResetableIteratorTestCase(unittest.TestCase):
         self.assertEqual(1, next(iterator))
         self.assertEqual(2, next(iterator))
         self.assertEqual(3, next(iterator))
-        self.assertRaises(StopIteration, next, iterator)
+        with self.assertRaises(StopIteration):
+            next(iterator)
 
         i.reset()
         # Previous iter() has stopped

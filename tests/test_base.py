@@ -45,7 +45,8 @@ class TestModel(FakeDjangoModel):
 
 class SafetyTestCase(unittest.TestCase):
     def test_base_factory(self):
-        self.assertRaises(errors.FactoryError, base.BaseFactory)
+        with self.assertRaises(errors.FactoryError):
+            base.BaseFactory()
 
 
 class AbstractFactoryTestCase(unittest.TestCase):
@@ -70,8 +71,10 @@ class AbstractFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(base.Factory):
             pass
 
-        self.assertRaises(errors.FactoryError, TestObjectFactory.build)
-        self.assertRaises(errors.FactoryError, TestObjectFactory.create)
+        with self.assertRaises(errors.FactoryError):
+            TestObjectFactory.build()
+        with self.assertRaises(errors.FactoryError):
+            TestObjectFactory.create()
 
     def test_abstract_factory_not_inherited(self):
         """abstract=True isn't propagated to child classes."""
@@ -92,8 +95,10 @@ class AbstractFactoryTestCase(unittest.TestCase):
                 abstract = False
                 model = None
 
-        self.assertRaises(errors.FactoryError, TestObjectFactory.build)
-        self.assertRaises(errors.FactoryError, TestObjectFactory.create)
+        with self.assertRaises(errors.FactoryError):
+            TestObjectFactory.build()
+        with self.assertRaises(errors.FactoryError):
+            TestObjectFactory.create()
 
 
 class OptionsTests(unittest.TestCase):
@@ -246,7 +251,8 @@ class FactoryTestCase(unittest.TestCase):
 
             one = declarations.LazyAttribute(lambda a: a.does_not_exist)
 
-        self.assertRaises(AttributeError, TestObjectFactory)
+        with self.assertRaises(AttributeError):
+            TestObjectFactory()
 
     def test_inheritance_with_sequence(self):
         """Tests that sequence IDs are shared between parent and son."""
@@ -308,7 +314,8 @@ class FactorySequenceTestCase(unittest.TestCase):
         class SubTestObjectFactory(self.TestObjectFactory):
             pass
 
-        self.assertRaises(ValueError, SubTestObjectFactory.reset_sequence)
+        with self.assertRaises(ValueError):
+            SubTestObjectFactory.reset_sequence()
 
     def test_reset_sequence_subclass_force(self):
         """Tests that reset_sequence(force=True) works."""
@@ -403,7 +410,8 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
             one = 'one'
 
-        self.assertRaises(base.Factory.UnknownStrategy, TestModelFactory)
+        with self.assertRaises(base.Factory.UnknownStrategy):
+            TestModelFactory()
 
     def test_stub_with_create_strategy(self):
         class TestModelFactory(base.StubFactory):
@@ -414,7 +422,8 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
 
         TestModelFactory._meta.strategy = enums.CREATE_STRATEGY
 
-        self.assertRaises(base.StubFactory.UnsupportedStrategy, TestModelFactory)
+        with self.assertRaises(base.StubFactory.UnsupportedStrategy):
+            TestModelFactory()
 
     def test_stub_with_build_strategy(self):
         class TestModelFactory(base.StubFactory):
