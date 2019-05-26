@@ -9,6 +9,10 @@ ChangeLog
     - Fix issue with SubFactory not preserving signal muting behaviour of the used factory, thanks `Patrick Stein <https://github.com/PFStein>`_.
     - Fix issue with overriding params in a Trait, thanks `Grégoire Rocher <https://github.com/cecedille1>`_.
 
+*Removed:*
+    - Drop support for Python 3.4. This version [is not maintained anymore](https://www.python.org/downloads/release/python-3410/).
+    - Drop support for Django 2.0. This version [is not maintained anymore](https://www.djangoproject.com/download/#supported-versions).
+
 
 2.12.0 (2019-05-11)
 -------------------
