@@ -128,6 +128,9 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
 
     def test_force_flush_deprecation(self):
         with warnings.catch_warnings(record=True) as warning_list:
+            # Do not turn expected warning into an error.
+            warnings.filterwarnings("default", category=DeprecationWarning, module=r"tests\.test_alchemy")
+
             class OutdatedPersistenceFactory(StandardFactory):
                 class Meta:
                     force_flush = True
