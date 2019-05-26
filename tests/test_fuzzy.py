@@ -606,6 +606,8 @@ class FuzzyRandomTestCase(unittest.TestCase):
 
     def test_seeding_warning(self):
         with warnings.catch_warnings(record=True) as w:
+            # Do not turn expected warning into an error.
+            warnings.filterwarnings("default", category=UserWarning, module=r"tests\.test_fuzzy")
             fuzz = fuzzy.FuzzyDate(datetime.date(2013, 1, 1))
             utils.evaluate_declaration(fuzz)
             self.assertEqual(1, len(w))

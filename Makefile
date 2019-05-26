@@ -51,7 +51,18 @@ testall:
 
 # DOC: Run tests for the currently installed version
 test:
-	python -Wdefault -m unittest discover
+	# imp warning is a PendingDeprecationWarning for Python 3.4 and Python 3.5
+	# and a DeprecationWarning for later versions.
+	# Change PendingDeprecationWarning to distutils modules when dropping
+	# support for Python 3.4.
+	python \
+		-b \
+		-Werror \
+		-Wdefault:"'U' mode is deprecated":DeprecationWarning:site: \
+		-Wdefault:"the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses":DeprecationWarning:distutils: \
+		-Wdefault:"the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses":PendingDeprecationWarning:: \
+		-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working":DeprecationWarning:: \
+		-m unittest discover
 
 # DOC: Test the examples
 example-test:
