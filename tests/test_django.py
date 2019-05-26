@@ -684,8 +684,8 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         self.assertEqual(13, o.animage.height)
         self.assertEqual('django/example.jpg', o.animage.name)
 
-        i = Image.open(os.path.join(settings.MEDIA_ROOT, o.animage.name))
-        colors = i.getcolors()
+        with Image.open(os.path.join(settings.MEDIA_ROOT, o.animage.name)) as i:
+            colors = i.getcolors()
         # 169 pixels with rgb(254, 0, 0)
         self.assertEqual([(169, (254, 0, 0))], colors)
         self.assertEqual('JPEG', i.format)
@@ -699,8 +699,8 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         self.assertEqual(13, o.animage.height)
         self.assertEqual('django/example.jpg', o.animage.name)
 
-        i = Image.open(os.path.join(settings.MEDIA_ROOT, o.animage.name))
-        colors = i.convert('RGB').getcolors()
+        with Image.open(os.path.join(settings.MEDIA_ROOT, o.animage.name)) as i:
+            colors = i.convert('RGB').getcolors()
         # 169 pixels with rgb(0, 0, 255)
         self.assertEqual([(169, (0, 0, 255))], colors)
         self.assertEqual('GIF', i.format)
@@ -775,9 +775,10 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         o1 = WithImageFactory.build(animage__from_path=testdata.TESTIMAGE_PATH)
         o1.save()
 
-        o2 = WithImageFactory.build(animage__from_file=o1.animage)
-        self.assertIsNone(o2.pk)
-        o2.save()
+        with o1.animage as f:
+            o2 = WithImageFactory.build(animage__from_file=f)
+            self.assertIsNone(o2.pk)
+            o2.save()
 
         with o2.animage as f:
             # Image file for a 42x42 green jpeg: 301 bytes long.

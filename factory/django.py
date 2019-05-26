@@ -217,8 +217,8 @@ class FileField(declarations.ParameteredAttribute):
 
         if params.get('from_path'):
             path = params['from_path']
-            f = open(path, 'rb')
-            content = django_files.File(f, name=path)
+            with open(path, 'rb') as f:
+                content = django_files.base.ContentFile(f.read())
 
         elif params.get('from_file'):
             f = params['from_file']
@@ -267,9 +267,9 @@ class ImageField(FileField):
         color = params.get('color', 'blue')
         image_format = params.get('format', 'JPEG')
 
-        thumb = Image.new('RGB', (width, height), color)
         thumb_io = io.BytesIO()
-        thumb.save(thumb_io, format=image_format)
+        with Image.new('RGB', (width, height), color) as thumb:
+            thumb.save(thumb_io, format=image_format)
         return thumb_io.getvalue()
 
 
