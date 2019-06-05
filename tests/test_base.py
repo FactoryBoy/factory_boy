@@ -542,7 +542,3 @@ class PostGenerationParsingTestCase(unittest.TestCase):
 
         self.assertIn('foo', TestObjectFactory._meta.post_declarations.as_dict())
         self.assertIn('foo__bar', TestObjectFactory._meta.post_declarations.as_dict())
-
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()

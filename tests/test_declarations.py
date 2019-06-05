@@ -304,7 +304,3 @@ class PostGenerationOrdering(unittest.TestCase):
         # Test generation happens in desired order
         Ordered()
         self.assertEqual(postgen_results, ['a1', 'zz', 'aa'])
-
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()

@@ -109,7 +109,3 @@ def main():  # pragma: no cover
     print("- today                     ->", datetime.date.today())
     print("- isinstance(now, date)     ->", isinstance(datetime.date.today(), datetime.date))
     print("- isinstance(target, date)  ->", isinstance(target_date, datetime.date))
-
-
-if __name__ == '__main__':  # pragma: no cover
-    main()
