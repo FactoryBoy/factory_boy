@@ -1,9 +1,8 @@
-import os
 import unittest
-import tempfile
 
 import demoapp
 import demoapp_factories
+
 
 class DemoAppTestCase(unittest.TestCase):
 
