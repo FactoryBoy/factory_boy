@@ -209,7 +209,14 @@ class DjangoGetOrCreateTests(django_test.TestCase):
         MultifieldModelFactory(slug='alt')
 
         self.assertEqual(obj1, obj2)
-        self.assertEqual(2, models.MultifieldModel.objects.count())
+        self.assertEqual(
+            list(
+                models.MultifieldModel.objects.order_by("slug").values_list(
+                    "slug", flat=True
+                )
+            ),
+            ["alt", "slug1"],
+        )
 
     def test_missing_arg(self):
         with self.assertRaises(factory.FactoryError):
@@ -222,7 +229,14 @@ class DjangoGetOrCreateTests(django_test.TestCase):
         )
         self.assertEqual(6, len(objs))
         self.assertEqual(2, len(set(objs)))
-        self.assertEqual(2, models.MultifieldModel.objects.count())
+        self.assertEqual(
+            list(
+                models.MultifieldModel.objects.order_by("slug").values_list(
+                    "slug", flat=True
+                )
+            ),
+            ["alt", "main"],
+        )
 
 
 class MultipleGetOrCreateFieldsTest(django_test.TestCase):
