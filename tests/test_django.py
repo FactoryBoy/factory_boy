@@ -233,7 +233,7 @@ class MultipleGetOrCreateFieldsTest(django_test.TestCase):
 
     def test_both_defined(self):
         obj1 = WithMultipleGetOrCreateFieldsFactory()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(django.db.IntegrityError):
             WithMultipleGetOrCreateFieldsFactory(slug=obj1.slug, text="alt")
 
     def test_unique_field_not_in_get_or_create(self):
