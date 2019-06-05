@@ -997,7 +997,3 @@ class DjangoCustomManagerTestCase(django_test.TestCase):
         # Our CustomManager will remove the 'arg=' argument,
         # invalid for the actual model.
         ObjFactory.create(arg='invalid')
-
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()
