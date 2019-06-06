@@ -1,7 +1,6 @@
+import demoapp
 import factory
 import factory.fuzzy
-
-import demoapp
 
 
 class BaseFactory(factory.alchemy.SQLAlchemyModelFactory):

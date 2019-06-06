@@ -7,8 +7,7 @@
 import contextlib
 import logging
 
-from . import base
-from . import declarations
+from . import base, declarations
 
 
 @contextlib.contextmanager

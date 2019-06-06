@@ -11,9 +11,7 @@ import decimal
 import string
 import warnings
 
-from . import compat
-from . import declarations
-from . import random
+from . import compat, declarations, random
 
 random_seed_warning = (
     "Setting a specific random seed for {} can still have varying results "

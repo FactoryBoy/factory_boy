@@ -3,8 +3,9 @@
 
 from __future__ import unicode_literals
 
-from . import base
 import warnings
+
+from . import base
 
 SESSION_PERSISTENCE_COMMIT = 'commit'
 SESSION_PERSISTENCE_FLUSH = 'flush'

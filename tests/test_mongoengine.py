@@ -3,13 +3,12 @@
 
 """Tests for factory_boy/MongoEngine interactions."""
 
-import unittest
-
-import factory
 import os
+import unittest
 
 import mongoengine
 
+import factory
 from factory.mongoengine import MongoEngineFactory
 
 

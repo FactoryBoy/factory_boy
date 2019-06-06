@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
-
 """Helpers for testing django apps."""
 
 import os.path
+
+from django.conf import settings
+from django.db import models
 
 try:
     from PIL import Image
@@ -13,9 +15,6 @@ except ImportError:
         import Image
     except ImportError:
         Image = None
-
-from django.conf import settings
-from django.db import models
 
 
 class StandardModel(models.Model):
