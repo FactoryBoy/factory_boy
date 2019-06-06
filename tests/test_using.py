@@ -13,8 +13,8 @@ import unittest
 import factory
 from factory import errors
 
-from .compat import is_python2
 from . import utils
+from .compat import is_python2
 
 
 class TestObject(object):

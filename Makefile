@@ -7,6 +7,7 @@ SETUP_PY=setup.py
 # Use current python binary instead of system default.
 COVERAGE = python $(shell which coverage)
 FLAKE8 = flake8
+ISORT = isort
 
 
 all: default
@@ -75,6 +76,7 @@ example-test:
 lint:
 	$(FLAKE8) --config .flake8 --exclude $(PACKAGE)/__init__.py $(PACKAGE) $(SETUP_PY) $(TESTS_DIR)
 	$(FLAKE8) --config .flake8 --ignore F401 $(PACKAGE)/__init__.py
+	$(ISORT) --recursive --check-only --diff $(EXAMPLES_DIR) $(PACKAGE) $(SETUP_PY) $(TESTS_DIR)
 	check-manifest
 
 coverage:

@@ -6,11 +6,7 @@ from __future__ import unicode_literals
 import itertools
 import logging
 
-from . import enums
-from . import compat
-from . import errors
-from . import utils
-
+from . import compat, enums, errors, utils
 
 logger = logging.getLogger('factory.generate')
 

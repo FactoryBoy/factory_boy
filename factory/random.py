@@ -1,7 +1,8 @@
 from __future__ import absolute_import
 
-import faker.generator
 import random
+
+import faker.generator
 
 randgen = random.Random()
 

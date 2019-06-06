@@ -3,13 +3,14 @@
 
 """Tests for factory_boy/SQLAlchemy interactions."""
 
-import factory
-from .compat import mock
-import warnings
 import unittest
+import warnings
 
+import factory
 from factory.alchemy import SQLAlchemyModelFactory
+
 from .alchemyapp import models
+from .compat import mock
 
 
 class StandardFactory(SQLAlchemyModelFactory):

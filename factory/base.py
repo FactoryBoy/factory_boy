@@ -7,11 +7,7 @@ import collections
 import logging
 import warnings
 
-from . import builder
-from . import declarations
-from . import enums
-from . import errors
-from . import utils
+from . import builder, declarations, enums, errors, utils
 
 logger = logging.getLogger('factory.generate')
 

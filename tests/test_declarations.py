@@ -4,13 +4,10 @@
 import datetime
 import unittest
 
-from factory import base
-from factory import declarations
-from factory import errors
-from factory import helpers
+from factory import base, declarations, errors, helpers
 
-from .compat import mock
 from . import utils
+from .compat import mock
 
 
 class OrderedDeclarationTestCase(unittest.TestCase):

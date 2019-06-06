@@ -5,6 +5,7 @@
 
 coverage
 Django
+isort
 Pillow
 SQLAlchemy
 mongoengine

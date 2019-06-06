@@ -7,12 +7,10 @@ import decimal
 import unittest
 import warnings
 
-from factory import compat
-from factory import fuzzy
-from factory import random
+from factory import compat, fuzzy, random
 
-from .compat import mock
 from . import utils
+from .compat import mock
 
 
 class FuzzyAttributeTestCase(unittest.TestCase):

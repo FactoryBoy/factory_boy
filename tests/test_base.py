@@ -3,10 +3,7 @@
 
 import unittest
 
-from factory import base
-from factory import declarations
-from factory import enums
-from factory import errors
+from factory import base, declarations, enums, errors
 
 
 class TestObject(object):

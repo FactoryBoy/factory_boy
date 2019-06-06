@@ -4,13 +4,15 @@
 
 """factory_boy extensions for use with the Django framework."""
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
-import io
-import os
-import logging
 import functools
+import io
+import logging
+import os
+
+from . import base, declarations, errors
+from .compat import is_string
 
 try:
     import django
@@ -21,11 +23,6 @@ except ImportError as e:  # pragma: no cover
     django_files = None
     import_failure = e
 
-
-from . import base
-from . import declarations
-from . import errors
-from .compat import is_string
 
 logger = logging.getLogger('factory.generate')
 

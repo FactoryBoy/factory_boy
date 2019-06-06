@@ -2,11 +2,7 @@
 
 import collections
 
-from . import declarations
-from . import enums
-from . import errors
-from . import utils
-
+from . import declarations, enums, errors, utils
 
 DeclarationWithContext = collections.namedtuple(
     'DeclarationWithContext',
