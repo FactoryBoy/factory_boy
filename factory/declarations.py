@@ -722,11 +722,11 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
     def call(self, instance, step, context):
         if not context.value_provided:
             if self.method_arg is NotProvided:
-                args = tuple()
+                args = ()
             else:
-                args = tuple([self.method_arg])
+                args = (self.method_arg,)
         else:
-            args = tuple([context.value])
+            args = (context.value,)
 
         kwargs = dict(self.method_kwargs)
         kwargs.update(context.extra)
