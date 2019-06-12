@@ -39,7 +39,7 @@ release:
 	fullrelease
 
 
-.PHONY: clean update release-patch release-minor release-major
+.PHONY: clean update release
 
 
 # Tests and quality
