@@ -64,9 +64,6 @@ class MongoEngineTestCase(unittest.TestCase):
     def tearDownClass(cls):
         cls.db.drop_database(cls.db_name)
 
-    def setUp(self):
-        mongoengine.connect('factory_boy_test')
-
     def test_build(self):
         std = PersonFactory.build()
         self.assertEqual('name0', std.name)
