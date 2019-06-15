@@ -1900,71 +1900,37 @@ Once the factory instance has been generated, the method specified in
 with any arguments specified in the :class:`PostGenerationMethodCall` declaration, by
 default.
 
-For example, to set a default password on a generated User instance
-during instantiation, we could make a declaration for a ``password``
-attribute like below:
+For example, we could use ``PostGenerationMethodCall`` to register created
+users in an external system.
 
 .. code-block:: python
 
-    class UserFactory(factory.Factory):
+    class User(models.Model):
+        name = models.CharField(max_length=191)
+
+        def register(self, system, auth_token="ABC"):
+            self.registration_id = system.register(auth_token)
+
+
+    class UserFactory(factory.DjangoModelFactory):
         class Meta:
             model = User
 
-        username = 'user'
-        password = factory.PostGenerationMethodCall('set_password',
-                                                    'defaultpassword')
-
-When we instantiate a user from the ``UserFactory``, the factory
-will create a password attribute by calling ``User.set_password('defaultpassword')``.
-Thus, by default, our users will have a password set to ``'defaultpassword'``.
-
-.. code-block:: pycon
-
-    >>> u = UserFactory()                             # Calls user.set_password('defaultpassword')
-    >>> u.check_password('defaultpassword')
-    True
+        name = 'user'
+        register = factory.PostGenerationMethodCall("register", DefaultRegistry())
 
 If the :class:`PostGenerationMethodCall` declaration contained no
 arguments or one argument, an overriding value can be passed
 directly to the method through a keyword argument matching the attribute name.
-For example we can override the default password specified in the declaration
-above by simply passing in the desired password as a keyword argument to the
-factory during instantiation.
 
 .. code-block:: pycon
 
-    >>> other_u = UserFactory(password='different')   # Calls user.set_password('different')
-    >>> other_u.check_password('defaultpassword')
-    False
-    >>> other_u.check_password('different')
-    True
-
-.. note::
-
-    For Django models, unless the object method called by
-    :class:`PostGenerationMethodCall` saves the object back to the
-    database, we will have to explicitly remember to save the object back
-    if we performed a ``create()``.
-
-    .. code-block:: pycon
-
-        >>> u = UserFactory.create()  # u.password has not been saved back to the database
-        >>> u.save()                  # we must remember to do it ourselves
-
-
-    We can avoid this by subclassing from :class:`DjangoModelFactory`,
-    instead, e.g.,
-
-    .. code-block:: python
-
-        class UserFactory(factory.django.DjangoModelFactory):
-            class Meta:
-                model = User
-
-            username = 'user'
-            password = factory.PostGenerationMethodCall('set_password',
-                                                        'defaultpassword')
-
+    >>> # DefaultRegistry uses UUID for identifiers.
+    >>> UserFactory().registration_id
+    'edf42c11-0065-43ad-ad3d-78ab7497aaae'
+    >>> # OtherRegistry uses int for identifiers.
+    >>> UserFactory(register=OtherRegistry()).registration_id
+    123456
 
 .. warning:: In order to keep a consistent and simple API, a :class:`PostGenerationMethodCall`
              allows *at most one* positional argument; all other parameters should be passed as
@@ -1975,8 +1941,8 @@ defaults present in the :class:`PostGenerationMethodCall` declaration.
 
 .. code-block:: pycon
 
-    >>> UserFactory(password__disabled=True)    # Calls user.set_password('', 'sha1', disabled=True)
-
+    >>> # Calls user.register(DefaultRegistry(), auth_token="DEF")
+    >>> UserFactory(register__auth_token="DEF")
 
 Module-level functions
 ----------------------
