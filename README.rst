@@ -134,6 +134,10 @@ The class of the object must be defined in the ``model`` field of a ``class Meta
         last_name = 'User'
         admin = True
 
+.. note:: Do note, that ``factory.Factory`` is to be used for generating plain
+          Python objects. For ORM models, see corresponding part of the
+          documentation.
+
 
 Using factories
 """""""""""""""
