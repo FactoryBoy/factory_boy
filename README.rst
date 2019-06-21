@@ -312,8 +312,19 @@ factory_boy has specific support for a few ORMs, through specific ``factory.Fact
 * SQLAlchemy, with ``factory.alchemy.SQLAlchemyModelFactory``
 
 
+
+Support Policy
+--------------
+
+``factory_boy`` supports Python 2.7, 3.5 to 3.7, as well as PyPy 2.7 and 5.8.
+
+- **Django**'s [supported
+  versions](https://www.djangoproject.com/download/#supported-versions).
+- **SQLAlchemy**: [latest version on PyPI](https://pypi.org/project/SQLAlchemy/).
+- **mongoengine**: [latest version on PyPI](https://pypi.org/project/mongoengine/).
+
 Debugging factory_boy
-"""""""""""""""""""""
+---------------------
 
 Debugging factory_boy can be rather complex due to the long chains of calls.
 Detailed logging is available through the ``factory`` logger.
@@ -344,16 +355,6 @@ This will yield messages similar to those (artificial indentation):
         BaseFactory: Generating tests.test_using.TestModelFactory(one=4)
       LazyStub: Computed values, got tests.test_using.TestModel2Factory(two=<tests.test_using.TestModel object at 0x1e15410>)
     BaseFactory: Generating tests.test_using.TestModel2Factory(two=<tests.test_using.TestModel object at 0x1e15410>)
-
-Support Policy
---------------
-
-``factory_boy`` supports Python 2.7, 3.5 to 3.7, as well as PyPy 2.7 and 5.8.
-
-- **Django**'s [supported
-  versions](https://www.djangoproject.com/download/#supported-versions).
-- **SQLAlchemy**: [latest version on PyPI](https://pypi.org/project/SQLAlchemy/).
-- **mongoengine**: [latest version on PyPI](https://pypi.org/project/mongoengine/).
 
 Contributing
 ------------
