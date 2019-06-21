@@ -109,7 +109,7 @@ Usage
 Defining factories
 """"""""""""""""""
 
-Factories declare a set of attributes used to instantiate an object.
+Factories declare a set of attributes used to instantiate a Python object.
 The class of the object must be defined in the ``model`` field of a ``class Meta:`` attribute:
 
 .. code-block:: python
@@ -135,6 +135,20 @@ The class of the object must be defined in the ``model`` field of a ``class Meta
         admin = True
 
 
+ORM integration
+"""""""""""""""
+
+factory_boy integration with Object Relational Mapping (ORM) tools is provided
+through specific ``factory.Factory`` subclasses:
+
+* Django, with ``factory.django.DjangoModelFactory``
+* Mogo, with ``factory.mogo.MogoFactory``
+* MongoEngine, with ``factory.mongoengine.MongoEngineFactory``
+* SQLAlchemy, with ``factory.alchemy.SQLAlchemyModelFactory``
+
+More details can be found in the :ref:`ORM section <orm>`.
+
+
 Using factories
 """""""""""""""
 
@@ -145,7 +159,8 @@ factory_boy supports several different build strategies: build, create, and stub
     # Returns a User instance that's not saved
     user = UserFactory.build()
 
-    # Returns a saved User instance
+    # Returns a saved User instance.
+    # UserFactory must subclass an ORM base class, such as DjangoModelFactory.
     user = UserFactory.create()
 
     # Returns a stub object (just a bunch of attributes)
@@ -299,19 +314,6 @@ The associated object's strategy will be used:
     True
     >>> post.author.id is None
     True
-
-
-ORM Support
-"""""""""""
-
-factory_boy has specific support for a few ORMs, through specific ``factory.Factory`` subclasses:
-
-* Django, with ``factory.django.DjangoModelFactory``
-* Mogo, with ``factory.mogo.MogoFactory``
-* MongoEngine, with ``factory.mongoengine.MongoEngineFactory``
-* SQLAlchemy, with ``factory.alchemy.SQLAlchemyModelFactory``
-
-
 
 Support Policy
 --------------
