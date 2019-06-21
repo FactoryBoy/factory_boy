@@ -1,3 +1,5 @@
+.. _orm:
+
 Using factory_boy with ORMs
 ===========================
 
