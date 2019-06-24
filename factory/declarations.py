@@ -444,6 +444,15 @@ SKIP = Skip()
 class Maybe(BaseDeclaration):
     def __init__(self, decider, yes_declaration=SKIP, no_declaration=SKIP):
         super(Maybe, self).__init__()
+
+        if enums.get_builder_phase(decider) is None:
+            # No builder phase => flat value
+            decider = SelfAttribute(decider, default=None)
+
+        self.decider = decider
+        self.yes = yes_declaration
+        self.no = no_declaration
+
         phases = {
             'yes_declaration': enums.get_builder_phase(yes_declaration),
             'no_declaration': enums.get_builder_phase(no_declaration),
@@ -454,14 +463,6 @@ class Maybe(BaseDeclaration):
             raise TypeError("Inconsistent phases for %r: %r" % (self, phases))
 
         self.FACTORY_BUILDER_PHASE = used_phases.pop() if used_phases else enums.BuilderPhase.ATTRIBUTE_RESOLUTION
-
-        if enums.get_builder_phase(decider) is None:
-            # No builder phase => flat value
-            decider = SelfAttribute(decider, default=None)
-
-        self.decider = decider
-        self.yes = yes_declaration
-        self.no = no_declaration
 
     def call(self, instance, step, context):
         decider_phase = enums.get_builder_phase(self.decider)
