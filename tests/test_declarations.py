@@ -43,6 +43,21 @@ class DigTestCase(unittest.TestCase):
         self.assertEqual(42, declarations.deepgetattr(obj, 'a.b.c.n.x', 42))
 
 
+class MaybeTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # remove after dropping python 2
+        import sys
+        if int(sys.version[0]) == 2:
+            cls.assertRaisesRegex = cls.assertRaisesRegexp
+
+    def test_init(self):
+        declarations.Maybe('foo', 1, 2)
+
+        with self.assertRaisesRegex(TypeError, 'Inconsistent phases'):
+            declarations.Maybe('foo', declarations.LazyAttribute(None), declarations.PostGenerationDeclaration())
+
+
 class SelfAttributeTestCase(unittest.TestCase):
     def test_standard(self):
         a = declarations.SelfAttribute('foo.bar.baz')
