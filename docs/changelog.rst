@@ -10,6 +10,7 @@ ChangeLog
     - Fix issue with overriding params in a Trait, thanks `Grégoire Rocher <https://github.com/cecedille1>`_.
     - :issue:`598`: Limit ``get_or_create`` behavior to fields specified in ``django_get_or_create``.
     - :issue:`606`: Re-raise :class:`~django.db.IntegrityError` when `django_get_or_create` with multiple fields fails to lookup model using user provided keyword arguments.
+    - :issue:`630`: TypeError masked by __repr__ AttributeError when initializing ``Maybe`` with inconsistent phases.
 
 *Removed:*
     - Drop support for Python 3.4. This version [is not maintained anymore](https://www.python.org/downloads/release/python-3410/).
