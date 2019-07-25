@@ -87,7 +87,7 @@ If we commonly use a specific variant of our objects, we can refine a factory ac
     class FemaleProfileFactory(ProfileFactory):
         gender = objects.Profile.GENDER_FEMALE
         firstname = u'Jane'
-        user__username = factory.Sequence(lambda n: 'jane%s' % n)
+        account__username = factory.Sequence(lambda n: 'jane%s' % n)
 
 
 
