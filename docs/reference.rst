@@ -1833,7 +1833,7 @@ A decorator is also provided, decorating a single method accepting the same
         def mbox(obj, create, extracted, **kwargs):
             if not create:
                 return
-            path = extracted or os.path.join('/tmp/mbox/', self.login)
+            path = extracted or os.path.join('/tmp/mbox/', obj.login)
             os.path.makedirs(path)
             return path
 
