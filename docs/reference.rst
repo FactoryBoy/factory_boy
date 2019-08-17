@@ -1830,7 +1830,7 @@ A decorator is also provided, decorating a single method accepting the same
         login = 'john'
 
         @factory.post_generation
-        def mbox(obj, create, extracted, **kwargs):
+        def mbox(self, create, extracted, **kwargs):
             if not create:
                 return
             path = extracted or os.path.join('/tmp/mbox/', self.login)
