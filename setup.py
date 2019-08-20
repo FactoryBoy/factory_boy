@@ -46,9 +46,6 @@ setup(
     setup_requires=[
         'setuptools>=0.8',
     ],
-    tests_require=[
-        # 'mock',
-    ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Framework :: Django",
@@ -69,6 +66,4 @@ setup(
         "Topic :: Software Development :: Testing",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    test_suite='',
-    test_loader='unittest:TestLoader',
 )
