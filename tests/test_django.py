@@ -727,6 +727,16 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         self.assertEqual([(169, (254, 0, 0))], colors)
         self.assertEqual('JPEG', i.format)
 
+    def test_rgba_image(self):
+        o = WithImageFactory.create(
+            animage__palette='RGBA',
+            animage__format='PNG',
+        )
+        self.assertIsNotNone(o.pk)
+
+        with Image.open(os.path.join(settings.MEDIA_ROOT, o.animage.name)) as i:
+            self.assertEqual('RGBA', i.mode)
+
     def test_gif(self):
         o = WithImageFactory.build(animage__width=13, animage__color='blue', animage__format='GIF')
         self.assertIsNone(o.pk)
