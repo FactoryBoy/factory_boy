@@ -268,9 +268,10 @@ class ImageField(FileField):
         height = params.get('height', width)
         color = params.get('color', 'blue')
         image_format = params.get('format', 'JPEG')
+        image_palette = params.get('palette', 'RGB')
 
         thumb_io = io.BytesIO()
-        with Image.new('RGB', (width, height), color) as thumb:
+        with Image.new(image_palette, (width, height), color) as thumb:
             thumb.save(thumb_io, format=image_format)
         return thumb_io.getvalue()
 
