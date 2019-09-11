@@ -144,6 +144,7 @@ Extra fields
         :param int height: The height of the generated image (default: ``100``)
         :param str color: The color of the generated image (default: ``'green'``)
         :param str format: The image format (as supported by PIL) (default: ``'JPEG'``)
+        :param str palette: The image palette (as supported by PIL) (default: ``'RGB'``)
 
 .. note:: If the value ``None`` was passed for the :class:`FileField` field, this will
           disable field generation:
