@@ -278,7 +278,7 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
 class FuzzyNaiveDateTime(BaseFuzzyDateTime):
     """Random naive datetime within a given range.
 
-    If no upper bound is given, will default to datetime.datetime.utcnow().
+    If no upper bound is given, will default to datetime.datetime.now().
     """
 
     def _now(self):
