@@ -1775,7 +1775,7 @@ RelatedFactoryList
                   bar = factory.RelatedFactoryList(BarFactory,
                                                    size=lambda: LIST_SIZES[random.randint(0,5)])
                   # Each Foo object will have exactly 3 Bar objects generated for its foobar attribute.
-                  foobar = factory.RelatedFactoryList(BarFactory, size=3])
+                  foobar = factory.RelatedFactoryList(BarFactory, size=3)
 
 
 PostGeneration
