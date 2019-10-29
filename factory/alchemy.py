@@ -4,8 +4,11 @@
 from __future__ import unicode_literals
 
 import warnings
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 
 from . import base
+from . import errors
 
 SESSION_PERSISTENCE_COMMIT = 'commit'
 SESSION_PERSISTENCE_FLUSH = 'flush'
@@ -39,6 +42,7 @@ class SQLAlchemyOptions(base.FactoryOptions):
 
     def _build_default_options(self):
         return super(SQLAlchemyOptions, self)._build_default_options() + [
+            base.OptionDefault('get_or_create', (), inherit=True),
             base.OptionDefault('sqlalchemy_session', None, inherit=True),
             base.OptionDefault(
                 'sqlalchemy_session_persistence',
@@ -66,6 +70,39 @@ class SQLAlchemyModelFactory(base.Factory):
         abstract = True
 
     @classmethod
+    def _get_or_create(cls, model_class, *args, **kwargs):
+        """Get or create an instance of the model."""
+
+        session = cls._meta.sqlalchemy_session
+
+        key_fields = {}
+        for field in cls._meta.get_or_create:
+            if field not in kwargs:
+                raise errors.FactoryError(
+                    "get_or_create - "
+                    "Unable to find initialization value for '%s' in factory %s" %
+                    (field, cls.__name__))
+            key_fields[field] = kwargs.pop(field)
+
+        try:
+            instance = session.query(model_class).filter_by(**key_fields).one_or_none()
+            if not instance:
+                instance = model_class(*args, **key_fields)
+                session.add(instance)
+        except IntegrityError:
+            try:
+                instance = session.query(model_class).filter_by(**kwargs).one()
+            except NoResultFound:
+                raise ValueError(
+                    "get_or_create - Unable to create a new object "
+                    "due an IntegrityError raised based on "
+                    "your model's uniqueness constraints. "
+                    "DoesNotExist: Unable to find an existing object based on "
+                    "the fields specified in your factory instance.")
+
+        return instance
+
+    @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
         session = cls._meta.sqlalchemy_session
@@ -73,10 +110,15 @@ class SQLAlchemyModelFactory(base.Factory):
         if cls._meta.force_flush:
             session_persistence = SESSION_PERSISTENCE_FLUSH
 
-        obj = model_class(*args, **kwargs)
         if session is None:
             raise RuntimeError("No session provided.")
-        session.add(obj)
+
+        if cls._meta.get_or_create:
+            obj = cls._get_or_create(model_class, *args, **kwargs)
+        else:
+            obj = model_class(*args, **kwargs)
+            session.add(obj)
+
         if session_persistence == SESSION_PERSISTENCE_FLUSH:
             session.flush()
         elif session_persistence == SESSION_PERSISTENCE_COMMIT:
