@@ -325,6 +325,43 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
 
         The default value is ``None``.
 
+    .. attribute:: sqlalchemy_get_or_create
+
+        .. versionadded:: 3.0.0
+
+        Fields whose name are passed in this list will be used to perform a
+        :meth:`Model.query.one_or_none() <sqlalchemy.orm.query.Query.one_or_none>`
+        or the usual :meth:`Session.add() <sqlalchemy.orm.session.Session.add>`:
+
+        .. code-block:: python
+
+            class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
+                class Meta:
+                    model = User
+                    sqlalchemy_session = session
+                    sqlalchemy_get_or_create = ('username',)
+
+                username = 'john'
+
+        .. code-block:: pycon
+
+            >>> User.query.all()
+            []
+            >>> UserFactory()                   # Creates a new user
+            <User: john>
+            >>> User.query.all()
+            [<User: john>]
+
+            >>> UserFactory()                   # Fetches the existing user
+            <User: john>
+            >>> User.query.all()                # No new user!
+            [<User: john>]
+
+            >>> UserFactory(username='jack')    # Creates another user
+            <User: jack>
+            >>> User.query.all()
+            [<User: john>, <User: jack>]
+
 
 A (very) simple example:
 
