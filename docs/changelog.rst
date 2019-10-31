@@ -11,6 +11,7 @@ ChangeLog
     - Report misconfiguration when a :py:class:`~factory.Factory` is used as the :py:attr:`~factory.Factory.model` for another :py:class:`~factory.Factory`.
     - Allow configuring the color palette of :py:class:`~factory.django.ImageField`.
     - :py:meth:`get_random_state()` now represents the state of Faker and ``factory_boy`` fuzzy attributes.
+    - Add SQLAlchemy ``get_or_create`` support
 
 *Bugfix:*
 

@@ -20,6 +20,23 @@ class StandardModel(Base):
     foo = Column(Unicode(20))
 
 
+class MultiFieldModel(Base):
+    __tablename__ = 'MultiFieldModelTable'
+
+    id = Column(Integer(), primary_key=True)
+    foo = Column(Unicode(20))
+    slug = Column(Unicode(20), unique=True)
+
+
+class MultifieldUniqueModel(Base):
+    __tablename__ = 'MultiFieldUniqueModelTable'
+
+    id = Column(Integer(), primary_key=True)
+    slug = Column(Unicode(20), unique=True)
+    text = Column(Unicode(20), unique=True)
+    title = Column(Unicode(20), unique=True)
+
+
 class NonIntegerPk(Base):
     __tablename__ = 'NonIntegerPk'
 

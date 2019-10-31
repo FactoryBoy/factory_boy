@@ -5,6 +5,8 @@
 import unittest
 from unittest import mock
 
+import sqlalchemy
+
 import factory
 from factory.alchemy import SQLAlchemyModelFactory
 
@@ -36,8 +38,41 @@ class NoSessionFactory(SQLAlchemyModelFactory):
     id = factory.Sequence(lambda n: n)
 
 
-class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
+class MultifieldModelFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.MultiFieldModel
+        sqlalchemy_get_or_create = ('slug',)
+        sqlalchemy_session = models.session
+        sqlalchemy_session_persistence = 'commit'
 
+    id = factory.Sequence(lambda n: n)
+    foo = factory.Sequence(lambda n: 'foo%d' % n)
+
+
+class WithGetOrCreateFieldFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.StandardModel
+        sqlalchemy_get_or_create = ('foo',)
+        sqlalchemy_session = models.session
+        sqlalchemy_session_persistence = 'commit'
+
+    id = factory.Sequence(lambda n: n)
+    foo = factory.Sequence(lambda n: 'foo%d' % n)
+
+
+class WithMultipleGetOrCreateFieldsFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.MultifieldUniqueModel
+        sqlalchemy_get_or_create = ("slug", "text",)
+        sqlalchemy_session = models.session
+        sqlalchemy_session_persistence = 'commit'
+
+    id = factory.Sequence(lambda n: n)
+    slug = factory.Sequence(lambda n: "slug%s" % n)
+    text = factory.Sequence(lambda n: "text%s" % n)
+
+
+class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
     def setUp(self):
         super().setUp()
         StandardFactory.reset_sequence(1)
@@ -72,6 +107,61 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
         std2 = StandardFactory.create()
         self.assertEqual('foo0', std2.foo)  # Sequence doesn't care about pk
         self.assertEqual(0, std2.id)
+
+
+class SQLAlchemyGetOrCreateTests(unittest.TestCase):
+    def setUp(self):
+        models.session.rollback()
+
+    def test_simple_call(self):
+        obj1 = WithGetOrCreateFieldFactory(foo='foo1')
+        obj2 = WithGetOrCreateFieldFactory(foo='foo1')
+        self.assertEqual(obj1, obj2)
+
+    def test_missing_arg(self):
+        with self.assertRaises(factory.FactoryError):
+            MultifieldModelFactory()
+
+    def test_raises_exception_when_existing_objs(self):
+        StandardFactory.create_batch(2, foo='foo')
+        with self.assertRaises(sqlalchemy.orm.exc.MultipleResultsFound):
+            WithGetOrCreateFieldFactory(foo='foo')
+
+    def test_multicall(self):
+        objs = MultifieldModelFactory.create_batch(
+            6,
+            slug=factory.Iterator(['main', 'alt']),
+        )
+        self.assertEqual(6, len(objs))
+        self.assertEqual(2, len(set(objs)))
+        self.assertEqual(
+            list(
+                obj.slug for obj in models.session.query(
+                    models.MultiFieldModel.slug
+                )
+            ),
+            ["alt", "main"],
+        )
+
+
+class MultipleGetOrCreateFieldsTest(unittest.TestCase):
+    def setUp(self):
+        models.session.rollback()
+
+    def test_one_defined(self):
+        obj1 = WithMultipleGetOrCreateFieldsFactory()
+        obj2 = WithMultipleGetOrCreateFieldsFactory(slug=obj1.slug)
+        self.assertEqual(obj1, obj2)
+
+    def test_both_defined(self):
+        obj1 = WithMultipleGetOrCreateFieldsFactory()
+        with self.assertRaises(sqlalchemy.exc.IntegrityError):
+            WithMultipleGetOrCreateFieldsFactory(slug=obj1.slug, text="alt")
+
+    def test_unique_field_not_in_get_or_create(self):
+        WithMultipleGetOrCreateFieldsFactory(title='Title')
+        with self.assertRaises(sqlalchemy.exc.IntegrityError):
+            WithMultipleGetOrCreateFieldsFactory(title='Title')
 
 
 class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
