@@ -384,13 +384,11 @@ class SubFactory(ParameteredAttribute):
         super(SubFactory, self).__init__(**kwargs)
         # Avoid common mistake:
         # Using a Django Model instead of a Factory as argument
-        assert (
-            issubclass(factory, BaseFactory),
+        assert issubclass(factory, BaseFactory), \
             (
                 'SubFactory expected a subsclass of BaseFactory as parameter, received %s' % 
                 type(factory)
             )
-        )
         self.factory_wrapper = _FactoryWrapper(factory)
 
     def get_factory(self):
