@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import itertools
 import logging
 
-from . import compat, enums, errors, utils
+from . import base, compat, enums, errors, utils
 
 logger = logging.getLogger('factory.generate')
 
@@ -384,7 +384,7 @@ class SubFactory(ParameteredAttribute):
         super(SubFactory, self).__init__(**kwargs)
         # Avoid common mistake:
         # Using a Django Model instead of a Factory as argument
-        assert issubclass(factory, BaseFactory), \
+        assert issubclass(factory, base.BaseFactory), \
             (
                 'SubFactory expected a subsclass of BaseFactory as parameter, received %s' % 
                 type(factory)
