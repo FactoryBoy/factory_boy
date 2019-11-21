@@ -162,8 +162,16 @@ class FactoryOptions(object):
         Custom FactoryOptions classes should override this method
         to update() its return value.
         """
+
+        def is_model(meta, value):
+            if isinstance(value, FactoryMetaClass):
+                raise TypeError(
+                    "%s is already a %s"
+                    % (repr(value), Factory.__name__)
+                )
+
         return [
-            OptionDefault('model', None, inherit=True),
+            OptionDefault('model', None, inherit=True, checker=is_model),
             OptionDefault('abstract', False, inherit=False),
             OptionDefault('strategy', enums.CREATE_STRATEGY, inherit=True),
             OptionDefault('inline_args', (), inherit=True),

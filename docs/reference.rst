@@ -2018,13 +2018,23 @@ Instance building
 """""""""""""""""
 
 The :mod:`factory` module provides a bunch of shortcuts for creating a factory and
-extracting instances from them:
+extracting instances from them. Helper methods can be used to create factories
+in a dynamic way based on parameters.
+
+Internally, helper methods use :func:`make_factory` to create a new
+:class:`Factory` and perform additional calls on the newly created
+:class:`Factory` according to the method name.
+
+Please note, that all Factories created with this methods inherit from the
+:class:`factory.base.Factory` class. For full support of your ``ORM``, specify
+a base class with the ``FACTORY_CLASS`` parameter as shown in
+:func:`make_factory` examples.
 
 .. function:: build(klass, FACTORY_CLASS=None, **kwargs)
 .. function:: build_batch(klass, size, FACTORY_CLASS=None, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
-    return an instance built from that factory,
+    return an instance built from that factory with :data:`BUILD_STRATEGY`,
     or a list of :obj:`size` instances (for :func:`build_batch`).
 
     :param class klass: Class of the instance to build
@@ -2038,7 +2048,7 @@ extracting instances from them:
 .. function:: create_batch(klass, size, FACTORY_CLASS=None, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
-    return an instance created from that factory,
+    return an instance created from that factory with :data:`CREATE_STRATEGY`,
     or a list of :obj:`size` instances (for :func:`create_batch`).
 
     :param class klass: Class of the instance to create
@@ -2052,7 +2062,7 @@ extracting instances from them:
 .. function:: stub_batch(klass, size, FACTORY_CLASS=None, **kwargs)
 
     Create a factory for :obj:`klass` using declarations passed in kwargs;
-    return an instance stubbed from that factory,
+    return an instance stubbed from that factory with :data:`STUB_STRATEGY`,
     or a list of :obj:`size` instances (for :func:`stub_batch`).
 
     :param class klass: Class of the instance to stub

@@ -206,6 +206,16 @@ class OptionsTests(unittest.TestCase):
             OtherFactory._meta.post_declarations.as_dict(),
         )
 
+    def test_factory_as_meta_model_raises_exception(self):
+        class FirstFactory(base.Factory):
+            pass
+
+        class Meta:
+            model = FirstFactory
+
+        with self.assertRaises(TypeError):
+            type("SecondFactory", (base.Factory,), {"Meta": Meta})
+
 
 class DeclarationParsingTests(unittest.TestCase):
     def test_classmethod(self):
