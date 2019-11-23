@@ -13,20 +13,21 @@ matrix:
     - python: "3.5"
     - python: "3.6"
     - python: "3.7"
+    - python: "3.8"
 
     - python: "pypy2.7-6.0"
     - python: "pypy3.5-6.0"
 
     # Documentation
-    - python: "3.7"
+    - python: "3.8"
       env: TOXENV=docs
-    - python: "3.7"
+    - python: "3.8"
       env: TOXENV=linkcheck
 
     # Linting
-    - python: "3.7"
+    - python: "3.8"
       env: TOXENV=examples
-    - python: "3.7"
+    - python: "3.8"
       env: TOXENV=lint
 
 services:
