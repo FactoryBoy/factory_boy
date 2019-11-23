@@ -4,6 +4,10 @@ ChangeLog
 2.12.1 (unreleased)
 -------------------
 
+*New:*
+
+    - Add support for Django 2.2
+
 *Bugfix:*
 
     - Fix issue with SubFactory not preserving signal muting behaviour of the used factory, thanks `Patrick Stein <https://github.com/PFStein>`_.
