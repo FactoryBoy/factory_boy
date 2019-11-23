@@ -26,9 +26,6 @@ setup(
     install_requires=[
         'Faker>=0.7.0',
     ],
-    setup_requires=[
-        'setuptools>=0.8',
-    ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Framework :: Django",
