@@ -318,7 +318,7 @@ The associated object's strategy will be used:
 Support Policy
 --------------
 
-``factory_boy`` supports Python 2.7, 3.5 to 3.7, as well as PyPy 2.7 and 5.8.
+``factory_boy`` supports Python 2.7, 3.5 to 3.8, as well as PyPy 2.7 and 5.8.
 
 - **Django**'s [supported
   versions](https://www.djangoproject.com/download/#supported-versions).

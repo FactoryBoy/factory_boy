@@ -61,6 +61,10 @@ test:
 		-Wdefault:"the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses":DeprecationWarning:distutils: \
 		-Wdefault:"the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses":PendingDeprecationWarning:distutils: \
 		-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working":DeprecationWarning:: \
+		-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.9 it will stop working":DeprecationWarning:: \
+		-Wdefault:"set_output_charset() is deprecated":DeprecationWarning:: \
+		-Wdefault:"parameter codeset is deprecated":DeprecationWarning:: \
+		-Wdefault:"PY_SSIZE_T_CLEAN will be required for '#' formats":DeprecationWarning:: \
 		-m unittest discover
 
 # DOC: Test the examples
