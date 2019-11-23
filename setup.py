@@ -3,31 +3,14 @@
 
 import codecs
 import os
-import re
 
 from setuptools import setup
 
 root_dir = os.path.abspath(os.path.dirname(__file__))
 
 
-def get_version(package_name):
-    version_re = re.compile(r"^__version__ = [\"']([\w_.-]+)[\"']$")
-    package_components = package_name.split('.')
-    init_path = os.path.join(root_dir, *(package_components + ['__init__.py']))
-    with codecs.open(init_path, 'r', 'utf-8') as f:
-        for line in f:
-            match = version_re.match(line[:-1])
-            if match:
-                return match.groups()[0]
-    return '0.1.0'
-
-
-PACKAGE = 'factory'
-
-
 setup(
     name='factory_boy',
-    version=get_version(PACKAGE),
     description="A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby.",
     long_description=codecs.open(os.path.join(root_dir, 'README.rst'), 'r', 'utf-8').read(),
     author='Mark Sandstrom',
