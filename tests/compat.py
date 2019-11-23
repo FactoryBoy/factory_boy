@@ -9,10 +9,7 @@ is_python2 = (sys.version_info[0] == 2)
 
 if is_python2:
     import StringIO as io
-else:
-    import io  # noqa: F401
-
-if sys.version_info[0:2] < (3, 3):
     import mock
 else:
+    import io  # noqa: F401
     from unittest import mock  # noqa: F401
