@@ -19,7 +19,7 @@ ChangeLog
 
 *Removed:*
     - Drop support for Python 3.4. This version [is not maintained anymore](https://www.python.org/downloads/release/python-3410/).
-    - Drop support for Django 2.0. This version [is not maintained anymore](https://www.djangoproject.com/download/#supported-versions).
+    - Drop support for Django 2.0 and 2.1. These versions [are not maintained anymore](https://www.djangoproject.com/download/#supported-versions).
 
 
 2.12.0 (2019-05-11)
