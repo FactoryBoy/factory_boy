@@ -14,6 +14,8 @@
 import os
 import sys
 
+import factory
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -59,21 +61,8 @@ copyright = u'2011-2015, Raphaël Barrois, Mark Sandstrom'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-root = os.path.abspath(os.path.dirname(__file__))
-def get_version(*module_dir_components):
-    import re
-    version_re = re.compile(r"^__version__ = ['\"](.*)['\"]$")
-    module_root = os.path.join(root, os.pardir, *module_dir_components)
-    module_init = os.path.join(module_root, '__init__.py')
-    with open(module_init, 'r') as f:
-        for line in f:
-            match = version_re.match(line[:-1])
-            if match:
-                return match.groups()[0]
-    return '0.1.0'
-
 # The full version, including alpha/beta/rc tags.
-release = get_version('factory')
+release = factory.__version__
 # The short X.Y version.
 version = '.'.join(release.split('.')[:2])
 
