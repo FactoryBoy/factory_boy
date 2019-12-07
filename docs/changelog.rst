@@ -7,7 +7,7 @@ ChangeLog
 *New:*
 
     - Add support for Python 3.8
-    - Add support for Django 2.2
+    - Add support for Django 2.2 and 3.0
 
 *Bugfix:*
 
