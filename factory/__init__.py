@@ -55,6 +55,15 @@ from .helpers import (
 )
 
 __author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
+try:
+    # Python 3.8+
+    from importlib.metadata import version
+
+    __version__ = version("factory_boy")
+except ImportError:
+    import pkg_resources
+
+    __version__ = pkg_resources.get_distribution("factory_boy").version
 
 
 MogoFactory = mogo.MogoFactory
