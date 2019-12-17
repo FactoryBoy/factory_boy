@@ -11,6 +11,17 @@ from . import compat, enums, errors, utils
 logger = logging.getLogger('factory.generate')
 
 
+def log_step(_step, msg, *args, **kwargs):
+    """
+    Indent logging output to reflect the nesting depth of the current step.
+    """
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug(
+            "%s" + msg,
+            " " * (2 * (len(_step.chain) - 1)),
+            *args, **kwargs)
+
+
 class BaseDeclaration(utils.OrderedBase):
     """A factory declaration.
 
@@ -68,7 +79,7 @@ class LazyFunction(BaseDeclaration):
         self.function = function
 
     def evaluate(self, instance, step, extra):
-        logger.debug("LazyFunction: Evaluating %s on %s", utils.log_repr(self.function), utils.log_repr(step))
+        log_step(step, "LazyFunction: Evaluating %s on %s", utils.log_repr(self.function), utils.log_repr(step))
         return self.function()
 
 
@@ -85,7 +96,7 @@ class LazyAttribute(BaseDeclaration):
         self.function = function
 
     def evaluate(self, instance, step, extra):
-        logger.debug("LazyAttribute: Evaluating %s on %s", utils.log_repr(self.function), utils.log_repr(instance))
+        log_step(step, "LazyAttribute: Evaluating %s on %s", utils.log_repr(self.function), utils.log_repr(instance))
         return self.function(instance)
 
 
@@ -151,7 +162,7 @@ class SelfAttribute(BaseDeclaration):
         else:
             target = instance
 
-        logger.debug("SelfAttribute: Picking attribute %r on %s", self.attribute_name, utils.log_repr(target))
+        log_step(step, "SelfAttribute: Picking attribute %r on %s", self.attribute_name, utils.log_repr(target))
         return deepgetattr(target, self.attribute_name, self.default)
 
     def __repr__(self):
@@ -188,7 +199,7 @@ class Iterator(BaseDeclaration):
         if self.iterator is None:
             self.iterator = self.iterator_builder()
 
-        logger.debug("Iterator: Fetching next value from %s", utils.log_repr(self.iterator))
+        log_step(step, "Iterator: Fetching next value from %s", utils.log_repr(self.iterator))
         value = next(iter(self.iterator))
         if self.getter is None:
             return value
@@ -214,7 +225,7 @@ class Sequence(BaseDeclaration):
         self.function = function
 
     def evaluate(self, instance, step, extra):
-        logger.debug("Sequence: Computing next value of %r for seq=%s", self.function, step.sequence)
+        log_step(step, "Sequence: Computing next value of %r for seq=%s", self.function, step.sequence)
         return self.function(int(step.sequence))
 
 
@@ -228,7 +239,8 @@ class LazyAttributeSequence(Sequence):
             of counter for the 'function' attribute.
     """
     def evaluate(self, instance, step, extra):
-        logger.debug(
+        log_step(
+            step,
             "LazyAttributeSequence: Computing next value of %r for seq=%s, obj=%s",
             self.function, step.sequence, utils.log_repr(instance))
         return self.function(instance, int(step.sequence))
@@ -397,7 +409,8 @@ class SubFactory(ParameteredAttribute):
                 for the step.
         """
         subfactory = self.get_factory()
-        logger.debug(
+        log_step(
+            step,
             "SubFactory: Instantiating %s.%s(%s), create=%r",
             subfactory.__module__, subfactory.__name__,
             utils.log_pprint(kwargs=params),
@@ -607,7 +620,8 @@ class PostGeneration(PostGenerationDeclaration):
         self.function = function
 
     def call(self, instance, step, context):
-        logger.debug(
+        log_step(
+            step,
             "PostGeneration: Calling %s.%s(%s)",
             self.function.__module__,
             self.function.__name__,
@@ -649,7 +663,8 @@ class RelatedFactory(PostGenerationDeclaration):
 
         if context.value_provided:
             # The user passed in a custom value
-            logger.debug(
+            log_step(
+                step,
                 "RelatedFactory: Using provided %s instead of generating %s.%s.",
                 utils.log_repr(context.value),
                 factory.__module__, factory.__name__,
@@ -661,7 +676,8 @@ class RelatedFactory(PostGenerationDeclaration):
         if self.name:
             passed_kwargs[self.name] = instance
 
-        logger.debug(
+        log_step(
+            step,
             "RelatedFactory: Generating %s.%s(%s)",
             factory.__module__,
             factory.__name__,
@@ -732,7 +748,8 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
         kwargs = dict(self.method_kwargs)
         kwargs.update(context.extra)
         method = getattr(instance, self.method_name)
-        logger.debug(
+        log_step(
+            step,
             "PostGenerationMethodCall: Calling %s.%s(%s)",
             utils.log_repr(instance),
             self.method_name,
