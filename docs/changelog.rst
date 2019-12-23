@@ -100,7 +100,7 @@ ChangeLog
 ------------------
 
 This version brings massive changes to the core engine, thus reducing the number of
-corner cases and weird behaviourrs.
+corner cases and weird behaviours.
 
 *New:*
 
