@@ -465,7 +465,7 @@ Such a :class:`Trait` is activated or disabled by a single boolean field:
     >>> OrderFactory()
     <Order: pending>
     Order(state='pending')
-    >>> OrderFactory(shipped=True)
+    >>> OrderFactory(state='shipped')
     <Order: shipped by John Doe on 2016-04-02>
 
 
