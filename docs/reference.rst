@@ -1641,21 +1641,6 @@ RelatedFactory
         keyword:
 
 
-.. note::
-
-          When passing an actual :class:`~factory.Factory` for the
-          :attr:`~factory.RelatedFactory.factory` argument, make sure to pass
-          the class and not instance (i.e no ``()`` after the class):
-
-          .. code-block:: python
-
-              class FooFactory(factory.Factory):
-                  class Meta:
-                      model = Foo
-
-                  bar = factory.RelatedFactory(BarFactory)  # Not BarFactory()
-
-
 .. code-block:: python
 
     class CityFactory(factory.Factory):
@@ -1670,7 +1655,11 @@ RelatedFactory
             model = Country
 
         lang = 'fr'
-        capital_city = factory.RelatedFactory(CityFactory, 'capital_of', name="Paris")
+        capital_city = factory.RelatedFactory(
+            CityFactory,  # Not CityFactory()
+            'capital_of',
+            name="Paris",
+        )
 
 .. code-block:: pycon
 
