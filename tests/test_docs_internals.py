@@ -109,8 +109,10 @@ class UserFactory(factory.Factory):
 
     # Related logs
     creation_log = factory.RelatedFactory(
-        UserLogFactory, 'user',
-        action='create', timestamp=factory.SelfAttribute('user.creation_date'),
+        UserLogFactory,
+        factory_related_name='user',
+        action='create',
+        timestamp=factory.SelfAttribute('user.creation_date'),
     )
 
 

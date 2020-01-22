@@ -422,7 +422,10 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
             pointed = factory.SubFactory(PointedFactory, foo='new_foo')
 
         class PointedRelatedFactory(PointedFactory):
-            pointer = factory.RelatedFactory(PointerFactory, 'pointed')
+            pointer = factory.RelatedFactory(
+                PointerFactory,
+                factory_related_name='pointed',
+            )
 
         class PointerExtraFactory(PointerFactory):
             pointed__foo = 'extra_new_foo'
@@ -433,7 +436,11 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
         class PointedRelatedWithTraitFactory(PointedFactory):
             class Params:
                 with_pointer = factory.Trait(
-                    pointer=factory.RelatedFactory(PointerFactory, 'pointed', bar='with_trait')
+                    pointer=factory.RelatedFactory(
+                        PointerFactory,
+                        factory_related_name='pointed',
+                        bar='with_trait',
+                    )
                 )
 
         cls.PointedFactory = PointedFactory

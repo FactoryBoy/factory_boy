@@ -2535,7 +2535,10 @@ class PostGenerationTestCase(unittest.TestCase):
                 model = TestObject
             one = 3
             two = 2
-            three = factory.RelatedFactory(TestRelatedObjectFactory, 'obj')
+            three = factory.RelatedFactory(
+                TestRelatedObjectFactory,
+                factory_related_name='obj',
+            )
 
         obj = TestObjectFactory.build()
         # Normal fields
@@ -2630,7 +2633,7 @@ class PostGenerationTestCase(unittest.TestCase):
             two = 2
             three = factory.RelatedFactory(
                 TestRelatedObjectFactory,
-                'obj',
+                factory_related_name='obj',
                 two=factory.SelfAttribute('obj.two'),
             )
 
@@ -2663,7 +2666,10 @@ class PostGenerationTestCase(unittest.TestCase):
 
             one = 3
             two = 2
-            three = factory.RelatedFactory(TestRelatedObjectFactory, 'obj')
+            three = factory.RelatedFactory(
+                TestRelatedObjectFactory,
+                factory_related_name='obj',
+            )
             three__two = factory.SelfAttribute('..blah')
 
         obj = TestObjectFactory.build()
@@ -2693,7 +2699,10 @@ class RelatedFactoryExtractionTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
-            one = factory.RelatedFactory(TestRelatedObjectFactory, 'obj')
+            one = factory.RelatedFactory(
+                TestRelatedObjectFactory,
+                factory_related_name='obj',
+            )
 
         self.TestRelatedObject = TestRelatedObject
         self.TestRelatedObjectFactory = TestRelatedObjectFactory

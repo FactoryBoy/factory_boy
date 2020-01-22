@@ -80,7 +80,11 @@ use a :class:`~factory.RelatedFactory` declaration:
         class Meta:
             model = models.User
 
-        log = factory.RelatedFactory(UserLogFactory, 'user', action=models.UserLog.ACTION_CREATE)
+        log = factory.RelatedFactory(
+            UserLogFactory,
+            factory_related_name='user',
+            action=models.UserLog.ACTION_CREATE,
+        )
 
 
 When a :class:`UserFactory` is instantiated, factory_boy will call
@@ -121,7 +125,7 @@ Since version 2.9, the :meth:`~factory.django.mute_signals` decorator should be 
 
         # We pass in 'user' to link the generated Profile to our just-generated User
         # This will call ProfileFactory(user=our_new_user), thus skipping the SubFactory.
-        profile = factory.RelatedFactory(ProfileFactory, 'user')
+        profile = factory.RelatedFactory(ProfileFactory, factory_related_name='user')
 
 .. OHAI_VIM:*
 
@@ -245,11 +249,22 @@ If more links are needed, simply add more :class:`RelatedFactory` declarations:
         rank = 1
 
     class UserWithGroupFactory(UserFactory):
-        membership = factory.RelatedFactory(GroupLevelFactory, 'user')
+        membership = factory.RelatedFactory(
+            GroupLevelFactory,
+            factory_related_name='user',
+        )
 
     class UserWith2GroupsFactory(UserFactory):
-        membership1 = factory.RelatedFactory(GroupLevelFactory, 'user', group__name='Group1')
-        membership2 = factory.RelatedFactory(GroupLevelFactory, 'user', group__name='Group2')
+        membership1 = factory.RelatedFactory(
+            GroupLevelFactory,
+            factory_related_name='user',
+            group__name='Group1',
+        )
+        membership2 = factory.RelatedFactory(
+            GroupLevelFactory,
+            factory_related_name='user',
+            group__name='Group2',
+        )
 
 
 Whenever the ``UserWithGroupFactory`` is called, it will, as a post-generation hook,
