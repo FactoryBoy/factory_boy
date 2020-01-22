@@ -1699,7 +1699,9 @@ If a value is passed for the :class:`RelatedFactory` attribute, this disables
                       model = Country
 
                   lang = 'fr'
-                  capital_city = factory.RelatedFactory(CityFactory, 'capital_of',
+                  capital_city = factory.RelatedFactory(
+                      CityFactory,
+                      factory_related_name='capital_of',
                       # Would also work with SelfAttribute('capital_of.lang')
                       main_lang=factory.SelfAttribute('..lang'),
                   )
