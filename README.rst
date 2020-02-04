@@ -23,7 +23,7 @@ factory_boy
 factory_boy is a fixtures replacement based on thoughtbot's `factory_bot <https://github.com/thoughtbot/factory_bot>`_.
 
 As a fixtures replacement tool, it aims to replace static, hard to maintain fixtures
-with easy-to-use factories for complex object.
+with easy-to-use factories for complex objects.
 
 Instead of building an exhaustive test setup with every possible combination of corner cases,
 ``factory_boy`` allows you to use objects customized for the current test,
