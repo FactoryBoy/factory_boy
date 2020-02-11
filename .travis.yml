@@ -15,8 +15,8 @@ matrix:
     - python: "3.7"
     - python: "3.8"
 
-    - python: "pypy2.7-6.0"
-    - python: "pypy3.5-6.0"
+    - python: "pypy"
+    - python: "pypy3"
 
     # Documentation
     - python: "3.8"
