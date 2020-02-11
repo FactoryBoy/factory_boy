@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 import functools
@@ -18,11 +17,11 @@ def disable_warnings(fun):
     return decorated
 
 
-class MultiModulePatcher(object):
+class MultiModulePatcher:
     """An abstract context processor for patching multiple modules."""
 
     def __init__(self, *target_modules, **kwargs):
-        super(MultiModulePatcher, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.patchers = [self._build_patcher(mod) for mod in target_modules]
 
     def _build_patcher(self, target_module):  # pragma: no cover
@@ -43,7 +42,7 @@ class mocked_date_today(MultiModulePatcher):
 
     def __init__(self, target_date, *target_modules, **kwargs):
         self.target_date = target_date
-        super(mocked_date_today, self).__init__(*target_modules, **kwargs)
+        super().__init__(*target_modules, **kwargs)
 
     def _build_patcher(self, target_module):
         module_datetime = getattr(target_module, 'datetime')
@@ -53,7 +52,7 @@ class mocked_date_today(MultiModulePatcher):
 class mocked_datetime_now(MultiModulePatcher):
     def __init__(self, target_dt, *target_modules, **kwargs):
         self.target_dt = target_dt
-        super(mocked_datetime_now, self).__init__(*target_modules, **kwargs)
+        super().__init__(*target_modules, **kwargs)
 
     def _build_patcher(self, target_module):
         module_datetime = getattr(target_module, 'datetime')

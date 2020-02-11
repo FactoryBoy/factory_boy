@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 import random
@@ -9,7 +8,7 @@ import faker.providers
 import factory
 
 
-class MockFaker(object):
+class MockFaker:
     def __init__(self, expected):
         self.expected = expected
         self.random = random.Random()
@@ -37,7 +36,7 @@ class FakerTests(unittest.TestCase):
         self.assertEqual("John Doe", faker_field.generate())
 
     def test_full_factory(self):
-        class Profile(object):
+        class Profile:
             def __init__(self, first_name, last_name, email):
                 self.first_name = first_name
                 self.last_name = last_name
@@ -59,7 +58,7 @@ class FakerTests(unittest.TestCase):
         self.assertEqual('john.doe@example.org', profile.email)
 
     def test_override_locale(self):
-        class Profile(object):
+        class Profile:
             def __init__(self, first_name, last_name):
                 self.first_name = first_name
                 self.last_name = last_name
@@ -89,7 +88,7 @@ class FakerTests(unittest.TestCase):
         self.assertEqual("Valjean", profile.last_name)
 
     def test_add_provider(self):
-        class Face(object):
+        class Face:
             def __init__(self, smiley, french_smiley):
                 self.smiley = smiley
                 self.french_smiley = french_smiley

@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
-from __future__ import unicode_literals
 
 import collections
 import logging
@@ -76,7 +74,7 @@ class FactoryMetaClass(type):
         meta = options_class()
         attrs['_meta'] = meta
 
-        new_class = super(FactoryMetaClass, mcs).__new__(
+        new_class = super().__new__(
             mcs, class_name, bases, attrs)
 
         meta.contribute_to_class(
@@ -101,7 +99,7 @@ class BaseMeta:
     strategy = enums.CREATE_STRATEGY
 
 
-class OptionDefault(object):
+class OptionDefault:
     """The default for an option.
 
     Attributes:
@@ -136,7 +134,7 @@ class OptionDefault(object):
             self.name, self.value, self.inherit)
 
 
-class FactoryOptions(object):
+class FactoryOptions:
     def __init__(self):
         self.factory = None
         self.base_factory = None
@@ -387,7 +385,7 @@ class FactoryOptions(object):
 # Factory base classes
 
 
-class _Counter(object):
+class _Counter:
     """Simple, naive counter.
 
     Attributes:
@@ -407,7 +405,7 @@ class _Counter(object):
         self.seq = next_value
 
 
-class BaseFactory(object):
+class BaseFactory:
     """Factory base support for sequences, attributes and stubs."""
 
     # Backwards compatibility
@@ -667,23 +665,22 @@ class BaseFactory(object):
         return cls.generate_batch(strategy, size, **kwargs)
 
 
-# Note: we're calling str() on the class name to avoid issues with Py2's type() expecting bytes
-# instead of unicode.
-Factory = FactoryMetaClass(str('Factory'), (BaseFactory,), {
-    'Meta': BaseMeta,
-    '__doc__': """Factory base with build and create support.
+class Factory(BaseFactory, metaclass=FactoryMetaClass):
+    """Factory base with build and create support.
 
     This class has the ability to support multiple ORMs by using custom creation
     functions.
-    """,
-})
+    """
+
+    class Meta(BaseMeta):
+        pass
 
 
 # Backwards compatibility
 Factory.AssociatedClassError = errors.AssociatedClassError
 
 
-class StubObject(object):
+class StubObject:
     """A generic container."""
     def __init__(self, **kwargs):
         for field, value in kwargs.items():

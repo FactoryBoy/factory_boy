@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 import unittest
@@ -6,7 +5,7 @@ import unittest
 from factory import base, declarations, enums, errors
 
 
-class TestObject(object):
+class TestObject:
     def __init__(self, one=None, two=None, three=None, four=None):
         self.one = one
         self.two = two
@@ -14,7 +13,7 @@ class TestObject(object):
         self.four = four
 
 
-class FakeDjangoModel(object):
+class FakeDjangoModel:
     @classmethod
     def create(cls, **kwargs):
         instance = cls(**kwargs)
@@ -285,7 +284,7 @@ class FactoryTestCase(unittest.TestCase):
 
 class FactorySequenceTestCase(unittest.TestCase):
     def setUp(self):
-        super(FactorySequenceTestCase, self).setUp()
+        super().setUp()
 
         class TestObjectFactory(base.Factory):
             class Meta:
@@ -507,7 +506,7 @@ class FactoryCreationTestCase(unittest.TestCase):
             @classmethod
             def _generate(cls, create, attrs):
                 attrs['four'] = 4
-                return super(TestModelFactory, cls)._generate(create, attrs)
+                return super()._generate(create, attrs)
 
         b = TestModelFactory.build(one=1)
         self.assertEqual(1, b.one)

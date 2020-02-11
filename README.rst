@@ -318,8 +318,10 @@ The associated object's strategy will be used:
 Support Policy
 --------------
 
-``factory_boy`` supports Python 2.7, 3.5 to 3.8, as well as PyPy 2.7 and 5.8.
+``factory_boy`` supports Python 3.5 to 3.8 as well as PyPy3.
 
+- **Python**'s `supported versions
+  <https://devguide.python.org/#status-of-python-branches>`__.
 - **Django**'s `supported
   versions <https://www.djangoproject.com/download/#supported-versions>`__.
 - **SQLAlchemy**: `latest version on PyPI <https://pypi.org/project/SQLAlchemy/>`__.

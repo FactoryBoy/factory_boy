@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 
@@ -6,11 +5,11 @@ import datetime
 import decimal
 import unittest
 import warnings
+from unittest import mock
 
-from factory import compat, fuzzy, random
+from factory import fuzzy, random
 
 from . import utils
-from .compat import mock
 
 
 class FuzzyAttributeTestCase(unittest.TestCase):
@@ -44,8 +43,7 @@ class FuzzyChoiceTestCase(unittest.TestCase):
 
     def test_generator(self):
         def options():
-            for i in range(3):
-                yield i
+            yield from range(3)
 
         d = fuzzy.FuzzyChoice(options())
 
@@ -57,7 +55,7 @@ class FuzzyChoiceTestCase(unittest.TestCase):
         self.assertIn(res, [0, 1, 2])
 
     def test_lazy_generator(self):
-        class Gen(object):
+        class Gen:
             def __init__(self, options):
                 self.options = options
                 self.unrolled = False
@@ -183,7 +181,6 @@ class FuzzyDecimalTestCase(unittest.TestCase):
 
         self.assertEqual(decimal.Decimal('8.001').quantize(decimal.Decimal(10) ** -3), res)
 
-    @unittest.skipIf(compat.PY2, "decimal.FloatOperation was added in Py3")
     def test_no_approximation(self):
         """We should not go through floats in our fuzzy calls unless actually needed."""
         fuzz = fuzzy.FuzzyDecimal(0, 10)
@@ -346,12 +343,12 @@ class FuzzyNaiveDateTimeTestCase(unittest.TestCase):
     def test_aware_start(self):
         """Tests that a timezone-aware start datetime is rejected."""
         with self.assertRaises(ValueError):
-            fuzzy.FuzzyNaiveDateTime(self.jan1.replace(tzinfo=compat.UTC), self.jan31)
+            fuzzy.FuzzyNaiveDateTime(self.jan1.replace(tzinfo=datetime.timezone.utc), self.jan31)
 
     def test_aware_end(self):
         """Tests that a timezone-aware end datetime is rejected."""
         with self.assertRaises(ValueError):
-            fuzzy.FuzzyNaiveDateTime(self.jan1, self.jan31.replace(tzinfo=compat.UTC))
+            fuzzy.FuzzyNaiveDateTime(self.jan1, self.jan31.replace(tzinfo=datetime.timezone.utc))
 
     def test_force_year(self):
         fuzz = fuzzy.FuzzyNaiveDateTime(self.jan1, self.jan31, force_year=4)
@@ -438,9 +435,9 @@ class FuzzyDateTimeTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Setup useful constants
-        cls.jan1 = datetime.datetime(2013, 1, 1, tzinfo=compat.UTC)
-        cls.jan3 = datetime.datetime(2013, 1, 3, tzinfo=compat.UTC)
-        cls.jan31 = datetime.datetime(2013, 1, 31, tzinfo=compat.UTC)
+        cls.jan1 = datetime.datetime(2013, 1, 1, tzinfo=datetime.timezone.utc)
+        cls.jan3 = datetime.datetime(2013, 1, 3, tzinfo=datetime.timezone.utc)
+        cls.jan31 = datetime.datetime(2013, 1, 31, tzinfo=datetime.timezone.utc)
 
     def test_accurate_definition(self):
         """Tests explicit definition of a FuzzyDateTime."""
@@ -538,7 +535,7 @@ class FuzzyDateTimeTestCase(unittest.TestCase):
         with mock.patch('factory.random.randgen.randint', fake_randint):
             res = utils.evaluate_declaration(fuzz)
 
-        self.assertEqual(datetime.datetime(2013, 1, 16, tzinfo=compat.UTC), res)
+        self.assertEqual(datetime.datetime(2013, 1, 16, tzinfo=datetime.timezone.utc), res)
 
     def test_biased_partial(self):
         """Tests a FuzzyDate with a biased random and implicit upper bound."""
@@ -549,7 +546,7 @@ class FuzzyDateTimeTestCase(unittest.TestCase):
         with mock.patch('factory.random.randgen.randint', fake_randint):
             res = utils.evaluate_declaration(fuzz)
 
-        self.assertEqual(datetime.datetime(2013, 1, 2, tzinfo=compat.UTC), res)
+        self.assertEqual(datetime.datetime(2013, 1, 2, tzinfo=datetime.timezone.utc), res)
 
 
 class FuzzyTextTestCase(unittest.TestCase):

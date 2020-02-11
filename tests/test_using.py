@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 """Tests using factory."""
@@ -14,10 +13,9 @@ import factory
 from factory import errors
 
 from . import utils
-from .compat import is_python2
 
 
-class TestObject(object):
+class TestObject:
     def __init__(self, one=None, two=None, three=None, four=None, five=None):
         self.one = one
         self.two = two
@@ -35,7 +33,7 @@ class TestObject(object):
         )
 
 
-class Dummy(object):
+class Dummy:
     def __init__(self, **kwargs):
         self._fields = set(kwargs)
         for k, v in kwargs.items():
@@ -52,14 +50,14 @@ class Dummy(object):
         )
 
 
-class FakeModel(object):
+class FakeModel:
     @classmethod
     def create(cls, **kwargs):
         instance = cls(**kwargs)
         instance.id = 1
         return instance
 
-    class FakeModelManager(object):
+    class FakeModelManager:
         def get_or_create(self, **kwargs):
             defaults = kwargs.pop('defaults', {})
             kwargs.update(defaults)
@@ -448,7 +446,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertTrue(obj.properly_created)
 
     def test_non_django_create(self):
-        class NonDjango(object):
+        class NonDjango:
             def __init__(self, x, y=2):
                 self.x = x
                 self.y = y
@@ -520,7 +518,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object.one, 'one')
 
     def test_self_attribute(self):
-        class TmpObj(object):
+        class TmpObj:
             n = 3
 
         class TestObjectFactory(factory.Factory):
@@ -903,7 +901,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         until the "slave" factory has been called.
         """
 
-        class TestObject2(object):
+        class TestObject2:
             def __init__(self, one):
                 self.one = one
 
@@ -989,7 +987,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(TestObjectFactory.alt_create(foo=1), {"foo": 1})
 
     def test_inline_args(self):
-        class TestObject(object):
+        class TestObject:
             def __init__(self, *args, **kwargs):
                 self.args = args
                 self.kwargs = kwargs
@@ -1009,7 +1007,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual({'z': 5, 't': 4}, obj.kwargs)
 
     def test_exclude(self):
-        class TestObject(object):
+        class TestObject:
             def __init__(self, *args, **kwargs):
                 self.args = args
                 self.kwargs = kwargs
@@ -1029,7 +1027,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual({'y': 2, 't': 4}, obj.kwargs)
 
     def test_exclude_and_inline_args(self):
-        class TestObject(object):
+        class TestObject:
             def __init__(self, *args, **kwargs):
                 self.args = args
                 self.kwargs = kwargs
@@ -1052,7 +1050,7 @@ class UsingFactoryTestCase(unittest.TestCase):
 
 class NonKwargParametersTestCase(unittest.TestCase):
     def test_build(self):
-        class TestObject(object):
+        class TestObject:
             def __init__(self, *args, **kwargs):
                 self.args = args
                 self.kwargs = kwargs
@@ -1071,7 +1069,7 @@ class NonKwargParametersTestCase(unittest.TestCase):
         self.assertEqual({'three': 3}, obj.kwargs)
 
     def test_create(self):
-        class TestObject(object):
+        class TestObject:
             def __init__(self, *args, **kwargs):
                 self.args = None
                 self.kwargs = None
@@ -1105,7 +1103,7 @@ class KwargAdjustTestCase(unittest.TestCase):
     """Tests for the _adjust_kwargs method."""
 
     def test_build(self):
-        class TestObject(object):
+        class TestObject:
             def __init__(self, *args, **kwargs):
                 self.args = args
                 self.kwargs = kwargs
@@ -1124,7 +1122,7 @@ class KwargAdjustTestCase(unittest.TestCase):
         self.assertEqual((), obj.args)
 
     def test_rename(self):
-        class TestObject(object):
+        class TestObject:
             def __init__(self, attributes=None):
                 self.attributes = attributes
 
@@ -1140,7 +1138,7 @@ class KwargAdjustTestCase(unittest.TestCase):
 
     def test_rename_non_existent_kwarg(self):
         # see https://github.com/FactoryBoy/factory_boy/issues/504
-        class TestObject(object):
+        class TestObject:
             def __init__(self, attributes=None):
                 self.attributes = attributes
 
@@ -1538,7 +1536,7 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual('parent child', test_model.child.one)
 
     def test_sub_factory_and_sequence(self):
-        class TestObject(object):
+        class TestObject:
             def __init__(self, **kwargs):
                 for k, v in kwargs.items():
                     setattr(self, k, v)
@@ -1561,7 +1559,7 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(1, wrapping.wrapped.one)
 
     def test_sub_factory_overriding(self):
-        class TestObject(object):
+        class TestObject:
             def __init__(self, **kwargs):
                 for k, v in kwargs.items():
                     setattr(self, k, v)
@@ -1570,7 +1568,7 @@ class SubFactoryTestCase(unittest.TestCase):
             class Meta:
                 model = TestObject
 
-        class OtherTestObject(object):
+        class OtherTestObject:
             def __init__(self, **kwargs):
                 for k, v in kwargs.items():
                     setattr(self, k, v)
@@ -1618,7 +1616,7 @@ class SubFactoryTestCase(unittest.TestCase):
     def test_nested_sub_factory(self):
         """Test nested sub-factories."""
 
-        class TestObject(object):
+        class TestObject:
             def __init__(self, **kwargs):
                 for k, v in kwargs.items():
                     setattr(self, k, v)
@@ -1647,7 +1645,7 @@ class SubFactoryTestCase(unittest.TestCase):
     def test_nested_sub_factory_with_overridden_sub_factories(self):
         """Test nested sub-factories, with attributes overridden with subfactories."""
 
-        class TestObject(object):
+        class TestObject:
             def __init__(self, **kwargs):
                 for k, v in kwargs.items():
                     setattr(self, k, v)
@@ -1681,7 +1679,7 @@ class SubFactoryTestCase(unittest.TestCase):
         """Tests replacing a SubFactory field with an actual value."""
 
         # The test class
-        class TestObject(object):
+        class TestObject:
             def __init__(self, two='one', wrapped=None):
                 self.two = two
                 self.wrapped = wrapped
@@ -1708,7 +1706,7 @@ class SubFactoryTestCase(unittest.TestCase):
     def test_deep_nested_subfactory(self):
         counter = iter(range(100))
 
-        class Node(object):
+        class Node:
             def __init__(self, label, child=None):
                 self.id = next(counter)
                 self.label = label
@@ -1755,7 +1753,7 @@ class SubFactoryTestCase(unittest.TestCase):
 
     def test_sub_factory_and_inheritance(self):
         """Test inheriting from a factory with subfactories, overriding."""
-        class TestObject(object):
+        class TestObject:
             def __init__(self, **kwargs):
                 for k, v in kwargs.items():
                     setattr(self, k, v)
@@ -1781,20 +1779,20 @@ class SubFactoryTestCase(unittest.TestCase):
 
     def test_diamond_sub_factory(self):
         """Tests the case where an object has two fields with a common field."""
-        class InnerMost(object):
+        class InnerMost:
             def __init__(self, a, b):
                 self.a = a
                 self.b = b
 
-        class SideA(object):
+        class SideA:
             def __init__(self, inner_from_a):
                 self.inner_from_a = inner_from_a
 
-        class SideB(object):
+        class SideB:
             def __init__(self, inner_from_b):
                 self.inner_from_b = inner_from_b
 
-        class OuterMost(object):
+        class OuterMost:
             def __init__(self, foo, side_a, side_b):
                 self.foo = foo
                 self.side_a = side_a
@@ -1940,20 +1938,6 @@ class IteratorTestCase(unittest.TestCase):
         for i, obj in enumerate(objs):
             self.assertEqual(i + 10, obj.one)
 
-    @unittest.skipUnless(is_python2, "Scope bleeding fixed in Python3+")
-    @utils.disable_warnings
-    def test_iterator_list_comprehension_scope_bleeding(self):
-        class TestObjectFactory(factory.Factory):
-            class Meta:
-                model = TestObject
-
-            one = factory.Iterator([j * 3 for j in range(5)])
-
-        # Scope bleeding: j will end up in TestObjectFactory's scope.
-
-        with self.assertRaises(TypeError):
-            TestObjectFactory.build()
-
     @utils.disable_warnings
     def test_iterator_list_comprehension_protected(self):
         class TestObjectFactory(factory.Factory):
@@ -1976,8 +1960,7 @@ class IteratorTestCase(unittest.TestCase):
 
             @factory.iterator
             def one():
-                for i in range(10, 50):  # pragma: no cover
-                    yield i
+                yield from range(10, 50)
 
         objs = TestObjectFactory.build_batch(20)
 
@@ -1990,7 +1973,7 @@ class IteratorTestCase(unittest.TestCase):
         This allows, for Django objects, to call:
         foo = factory.Iterator(models.MyThingy.objects.all())
         """
-        class DBRequest(object):
+        class DBRequest:
             def __init__(self):
                 self.ready = False
 
@@ -2033,7 +2016,7 @@ class IteratorTestCase(unittest.TestCase):
         self.assertEqual(obj1.one, obj3.one)
 
 
-class BetterFakeModelManager(object):
+class BetterFakeModelManager:
     def __init__(self, keys, instance):
         self.keys = keys
         self.instance = instance
@@ -2051,7 +2034,7 @@ class BetterFakeModelManager(object):
         return self
 
 
-class BetterFakeModel(object):
+class BetterFakeModel:
     @classmethod
     def create(cls, **kwargs):
         instance = cls(**kwargs)
@@ -2342,7 +2325,7 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(1 + 1 * 4, obj.one)
 
     def test_post_generation_method_call(self):
-        class TestObject(object):
+        class TestObject:
             def __init__(self, one=None, two=None):
                 self.one = one
                 self.two = two
@@ -2392,7 +2375,7 @@ class PostGenerationTestCase(unittest.TestCase):
         related_list_sizes = [5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
         RELATED_LIST_SIZE = lambda: related_list_sizes.pop()
 
-        class TestRelatedObject(object):
+        class TestRelatedObject:
             def __init__(self, obj=None, one=None, two=None):
                 # Mock out the 'List of Related Objects' generated by RelatedFactoryList
                 if hasattr(obj, 'related_list'):
@@ -2457,7 +2440,7 @@ class PostGenerationTestCase(unittest.TestCase):
     def test_related_factory_list_of_static_size(self):
         RELATED_LIST_SIZE = 4
 
-        class TestRelatedObject(object):
+        class TestRelatedObject:
             def __init__(self, obj=None, one=None, two=None):
                 # Mock out the 'List of Related Objects' generated by RelatedFactoryList
                 if hasattr(obj, 'related_list'):
@@ -2517,7 +2500,7 @@ class PostGenerationTestCase(unittest.TestCase):
             self.assertEqual(obj, related_obj.three)
 
     def test_related_factory(self):
-        class TestRelatedObject(object):
+        class TestRelatedObject:
             def __init__(self, obj=None, one=None, two=None):
                 obj.related = self
                 self.one = one
@@ -2565,7 +2548,7 @@ class PostGenerationTestCase(unittest.TestCase):
     def test_related_factory_no_name(self):
         relateds = []
 
-        class TestRelatedObject(object):
+        class TestRelatedObject:
             def __init__(self, obj=None, one=None, two=None):
                 relateds.append(self)
                 self.one = one
@@ -2610,7 +2593,7 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(4, related.two)
 
     def test_related_factory_selfattribute(self):
-        class TestRelatedObject(object):
+        class TestRelatedObject:
             def __init__(self, obj=None, one=None, two=None):
                 obj.related = self
                 self.one = one
@@ -2641,7 +2624,7 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(4, obj.related.two)
 
     def test_parameterized_related_factory(self):
-        class TestRelatedObject(object):
+        class TestRelatedObject:
             def __init__(self, obj=None, one=None, two=None):
                 obj.related = self
                 self.one = one
@@ -2680,7 +2663,7 @@ class RelatedFactoryExtractionTestCase(unittest.TestCase):
     def setUp(self):
         self.relateds = []
 
-        class TestRelatedObject(object):
+        class TestRelatedObject:
             def __init__(subself, obj):
                 self.relateds.append(subself)
                 subself.obj = obj

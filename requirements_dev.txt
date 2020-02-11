@@ -5,7 +5,6 @@ coverage
 Django
 flake8
 isort
-mock;python_version<"3"
 Pillow
 SQLAlchemy
 mongoengine

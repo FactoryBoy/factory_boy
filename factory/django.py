@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 
 """factory_boy extensions for use with the Django framework."""
 
-from __future__ import absolute_import, unicode_literals
 
 import functools
 import io
@@ -12,7 +10,6 @@ import logging
 import os
 
 from . import base, declarations, errors
-from .compat import is_string
 
 try:
     import django
@@ -65,13 +62,13 @@ def _lazy_load_get_model():
 
 class DjangoOptions(base.FactoryOptions):
     def _build_default_options(self):
-        return super(DjangoOptions, self)._build_default_options() + [
+        return super()._build_default_options() + [
             base.OptionDefault('django_get_or_create', (), inherit=True),
             base.OptionDefault('database', DEFAULT_DB_ALIAS, inherit=True),
         ]
 
     def _get_counter_reference(self):
-        counter_reference = super(DjangoOptions, self)._get_counter_reference()
+        counter_reference = super()._get_counter_reference()
         if (counter_reference == self.base_factory
                 and self.base_factory._meta.model is not None
                 and self.base_factory._meta.model._meta.abstract
@@ -83,7 +80,7 @@ class DjangoOptions(base.FactoryOptions):
         return counter_reference
 
     def get_model_class(self):
-        if is_string(self.model) and '.' in self.model:
+        if isinstance(self.model, str) and '.' in self.model:
             app, model_name = self.model.split('.', 1)
             self.model = get_model(app, model_name)
 
@@ -107,7 +104,7 @@ class DjangoModelFactory(base.Factory):
     @classmethod
     def _load_model_class(cls, definition):
 
-        if is_string(definition) and '.' in definition:
+        if isinstance(definition, str) and '.' in definition:
             app, model = definition.split('.', 1)
             return get_model(app, model)
 
@@ -135,7 +132,7 @@ class DjangoModelFactory(base.Factory):
         # Original params are used in _get_or_create if it cannot build an
         # object initially due to an IntegrityError being raised
         cls._original_params = params
-        return super(DjangoModelFactory, cls)._generate(strategy, params)
+        return super()._generate(strategy, params)
 
     @classmethod
     def _get_or_create(cls, model_class, *args, **kwargs):
@@ -201,7 +198,7 @@ class FileField(declarations.ParameteredAttribute):
 
     def __init__(self, **defaults):
         require_django()
-        super(FileField, self).__init__(**defaults)
+        super().__init__(**defaults)
 
     def _make_data(self, params):
         """Create data for the field."""
@@ -273,7 +270,7 @@ class ImageField(FileField):
         return thumb_io.getvalue()
 
 
-class mute_signals(object):
+class mute_signals:
     """Temporarily disables and then restores any django signals.
 
     Args:

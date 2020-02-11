@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
-from __future__ import unicode_literals
 
 import warnings
 
@@ -38,7 +36,7 @@ class SQLAlchemyOptions(base.FactoryOptions):
             )
 
     def _build_default_options(self):
-        return super(SQLAlchemyOptions, self)._build_default_options() + [
+        return super()._build_default_options() + [
             base.OptionDefault('sqlalchemy_session', None, inherit=True),
             base.OptionDefault(
                 'sqlalchemy_session_persistence',

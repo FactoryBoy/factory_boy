@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 """Helper to test circular factory dependencies."""
@@ -6,7 +5,7 @@
 import factory
 
 
-class TreeElement(object):
+class TreeElement:
     def __init__(self, name, parent):
         self.parent = parent
         self.name = name

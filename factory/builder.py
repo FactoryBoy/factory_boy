@@ -16,7 +16,7 @@ PostGenerationContext = collections.namedtuple(
 )
 
 
-class DeclarationSet(object):
+class DeclarationSet:
     """A set of declarations, including the recursive parameters.
 
     Attributes:
@@ -198,7 +198,7 @@ def parse_declarations(decls, base_pre=None, base_post=None):
     return pre_declarations, post_declarations
 
 
-class BuildStep(object):
+class BuildStep:
     def __init__(self, builder, sequence, parent_step=None):
         self.builder = builder
         self.sequence = sequence
@@ -229,7 +229,7 @@ class BuildStep(object):
         return builder.build(parent_step=self, force_sequence=force_sequence)
 
 
-class StepBuilder(object):
+class StepBuilder:
     """A factory instantiation step.
 
     Attributes:
@@ -306,7 +306,7 @@ class StepBuilder(object):
         return self.__class__(factory_meta, extras, strategy=self.strategy)
 
 
-class Resolver(object):
+class Resolver:
     """Resolve a set of declarations.
 
     Attributes are set at instantiation time, values are computed lazily.
@@ -384,6 +384,6 @@ class Resolver(object):
     def __setattr__(self, name, value):
         """Prevent setting attributes once __init__ is done."""
         if not self.__initialized:
-            return super(Resolver, self).__setattr__(name, value)
+            return super().__setattr__(name, value)
         else:
             raise AttributeError('Setting of object attributes is not allowed')

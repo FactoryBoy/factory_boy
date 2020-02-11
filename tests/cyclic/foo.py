@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 """Helper to test circular factory dependencies."""
@@ -8,7 +7,7 @@ import factory
 from . import bar as bar_mod
 
 
-class Foo(object):
+class Foo:
     def __init__(self, bar, x):
         self.bar = bar
         self.x = x

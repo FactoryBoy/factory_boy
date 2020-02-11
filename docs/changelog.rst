@@ -18,8 +18,8 @@ ChangeLog
     - :issue:`630`: TypeError masked by __repr__ AttributeError when initializing ``Maybe`` with inconsistent phases.
 
 *Removed:*
-    - Drop support for Python 3.4. This version `is not maintained anymore <https://www.python.org/downloads/release/python-3410/>`_.
-    - Drop support for Django 2.0 and 2.1. These versions `are not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`_.
+    - Drop support for Python 2 and 3.4. These versions `are not maintained anymore <https://devguide.python.org/devcycle/#end-of-life-branches>`__.
+    - Drop support for Django 2.0 and 2.1. These versions `are not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
 
 
 2.12.0 (2019-05-11)

@@ -1,17 +1,15 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 
 """Additional declarations for "fuzzy" attribute definitions."""
 
-from __future__ import unicode_literals
 
 import datetime
 import decimal
 import string
 import warnings
 
-from . import compat, declarations, random
+from . import declarations, random
 
 random_seed_warning = (
     "Setting a specific random seed for {} can still have varying results "
@@ -72,7 +70,7 @@ class FuzzyAttribute(BaseFuzzyAttribute):
     """
 
     def __init__(self, fuzzer, **kwargs):
-        super(FuzzyAttribute, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.fuzzer = fuzzer
 
     def fuzz(self):
@@ -97,7 +95,7 @@ class FuzzyText(BaseFuzzyAttribute):
     """
 
     def __init__(self, prefix='', length=12, suffix='', chars=string.ascii_letters, **kwargs):
-        super(FuzzyText, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.prefix = prefix
         self.suffix = suffix
         self.length = length
@@ -121,7 +119,7 @@ class FuzzyChoice(BaseFuzzyAttribute):
         self.choices = None
         self.choices_generator = choices
         self.getter = getter
-        super(FuzzyChoice, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def fuzz(self):
         if self.choices is None:
@@ -144,7 +142,7 @@ class FuzzyInteger(BaseFuzzyAttribute):
         self.high = high
         self.step = step
 
-        super(FuzzyInteger, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def fuzz(self):
         return random.randgen.randrange(self.low, self.high + 1, self.step)
@@ -162,7 +160,7 @@ class FuzzyDecimal(BaseFuzzyAttribute):
         self.high = high
         self.precision = precision
 
-        super(FuzzyDecimal, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def fuzz(self):
         base = decimal.Decimal(str(random.randgen.uniform(self.low, self.high)))
@@ -181,7 +179,7 @@ class FuzzyFloat(BaseFuzzyAttribute):
         self.high = high
         self.precision = precision
 
-        super(FuzzyFloat, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def fuzz(self):
         base = random.randgen.uniform(self.low, self.high)
@@ -192,7 +190,7 @@ class FuzzyDate(BaseFuzzyAttribute):
     """Random date within a given date range."""
 
     def __init__(self, start_date, end_date=None, **kwargs):
-        super(FuzzyDate, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if end_date is None:
             if random.randgen.state_set:
                 cls_name = self.__class__.__name__
@@ -230,7 +228,7 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
                  force_year=None, force_month=None, force_day=None,
                  force_hour=None, force_minute=None, force_second=None,
                  force_microsecond=None, **kwargs):
-        super(BaseFuzzyDateTime, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         if end_dt is None:
             if random.randgen.state_set:
@@ -293,7 +291,7 @@ class FuzzyNaiveDateTime(BaseFuzzyDateTime):
             raise ValueError(
                 "FuzzyNaiveDateTime only handles naive datetimes, got end=%r"
                 % end_dt)
-        super(FuzzyNaiveDateTime, self)._check_bounds(start_dt, end_dt)
+        super()._check_bounds(start_dt, end_dt)
 
 
 class FuzzyDateTime(BaseFuzzyDateTime):
@@ -304,7 +302,7 @@ class FuzzyDateTime(BaseFuzzyDateTime):
     """
 
     def _now(self):
-        return datetime.datetime.now(tz=compat.UTC)
+        return datetime.datetime.now(tz=datetime.timezone.utc)
 
     def _check_bounds(self, start_dt, end_dt):
         if start_dt.tzinfo is None:
@@ -315,4 +313,4 @@ class FuzzyDateTime(BaseFuzzyDateTime):
             raise ValueError(
                 "FuzzyDateTime requires timezone-aware datetimes, got end=%r"
                 % end_dt)
-        super(FuzzyDateTime, self)._check_bounds(start_dt, end_dt)
+        super()._check_bounds(start_dt, end_dt)

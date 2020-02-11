@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
+import io
 import logging
 import unittest
 
 from factory import helpers
-
-from .compat import io
 
 
 class DebugTest(unittest.TestCase):

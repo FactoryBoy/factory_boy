@@ -1,14 +1,10 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # This code is in the public domain
 # Author: Raphaël Barrois
 
 
-from __future__ import print_function
-
 import datetime
-
-from .compat import mock
+from unittest import mock
 
 real_datetime_class = datetime.datetime
 
@@ -35,7 +31,7 @@ def mock_datetime_now(target, datetime_module):
         def __instancecheck__(mcs, obj):
             return isinstance(obj, real_datetime_class)
 
-    class BaseMockedDatetime(real_datetime_class):
+    class MockedDatetime(real_datetime_class, metaclass=DatetimeSubclassMeta):
         @classmethod
         def now(cls, tz=None):
             return target.replace(tzinfo=tz)
@@ -43,9 +39,6 @@ def mock_datetime_now(target, datetime_module):
         @classmethod
         def utcnow(cls):
             return target
-
-    # Python2 & Python3-compatible metaclass
-    MockedDatetime = DatetimeSubclassMeta('datetime', (BaseMockedDatetime,), {})
 
     return mock.patch.object(datetime_module, 'datetime', MockedDatetime)
 
@@ -74,13 +67,10 @@ def mock_date_today(target, datetime_module):
         def __instancecheck__(mcs, obj):
             return isinstance(obj, real_date_class)
 
-    class BaseMockedDate(real_date_class):
+    class MockedDate(real_date_class, metaclass=DateSubclassMeta):
         @classmethod
         def today(cls):
             return target
-
-    # Python2 & Python3-compatible metaclass
-    MockedDate = DateSubclassMeta('date', (BaseMockedDate,), {})
 
     return mock.patch.object(datetime_module, 'date', MockedDate)
 
