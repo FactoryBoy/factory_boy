@@ -320,10 +320,10 @@ Support Policy
 
 ``factory_boy`` supports Python 2.7, 3.5 to 3.8, as well as PyPy 2.7 and 5.8.
 
-- **Django**'s [supported
-  versions](https://www.djangoproject.com/download/#supported-versions).
-- **SQLAlchemy**: [latest version on PyPI](https://pypi.org/project/SQLAlchemy/).
-- **mongoengine**: [latest version on PyPI](https://pypi.org/project/mongoengine/).
+- **Django**'s `supported
+  versions <https://www.djangoproject.com/download/#supported-versions>`__.
+- **SQLAlchemy**: `latest version on PyPI <https://pypi.org/project/SQLAlchemy/>`__.
+- **mongoengine**: `latest version on PyPI <https://pypi.org/project/mongoengine/>`__.
 
 Debugging factory_boy
 ---------------------
