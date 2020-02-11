@@ -259,10 +259,7 @@ class ImageField(FileField):
     def _make_data(self, params):
         # ImageField (both django's and factory_boy's) require PIL.
         # Try to import it along one of its known installation paths.
-        try:
-            from PIL import Image
-        except ImportError:
-            import Image
+        from PIL import Image
 
         width = params.get('width', 100)
         height = params.get('height', width)

@@ -22,12 +22,7 @@ from .compat import mock
 try:
     from PIL import Image
 except ImportError:
-    # Try PIL alternate name
-    try:
-        import Image
-    except ImportError:
-        # OK, not installed
-        Image = None
+    Image = None
 
 # Setup Django before importing Django models.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests.djapp.settings')

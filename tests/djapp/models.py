@@ -11,10 +11,7 @@ from django.db import models
 try:
     from PIL import Image
 except ImportError:
-    try:
-        import Image
-    except ImportError:
-        Image = None
+    Image = None
 
 
 class StandardModel(models.Model):
