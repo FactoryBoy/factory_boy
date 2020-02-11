@@ -422,7 +422,7 @@ class List(SubFactory):
     FORCE_SEQUENCE = True
 
     def __init__(self, params, list_factory='factory.ListFactory'):
-        params = dict((str(i), v) for i, v in enumerate(params))
+        params = {str(i): v for i, v in enumerate(params)}
         super(List, self).__init__(list_factory, **params)
 
 
@@ -457,7 +457,7 @@ class Maybe(BaseDeclaration):
             'yes_declaration': enums.get_builder_phase(yes_declaration),
             'no_declaration': enums.get_builder_phase(no_declaration),
         }
-        used_phases = set(phase for phase in phases.values() if phase is not None)
+        used_phases = {phase for phase in phases.values() if phase is not None}
 
         if len(used_phases) > 1:
             raise TypeError("Inconsistent phases for %r: %r" % (self, phases))

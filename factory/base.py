@@ -43,7 +43,7 @@ class FactoryMetaClass(type):
         elif cls._meta.strategy == enums.STUB_STRATEGY:
             return cls.stub(**kwargs)
         else:
-            raise errors.UnknownStrategy('Unknown Meta.strategy: {0}'.format(
+            raise errors.UnknownStrategy('Unknown Meta.strategy: {}'.format(
                 cls._meta.strategy))
 
     def __new__(mcs, class_name, bases, attrs):
@@ -184,11 +184,11 @@ class FactoryOptions(object):
         if meta is None:
             meta_attrs = {}
         else:
-            meta_attrs = dict(
-                (k, v)
+            meta_attrs = {
+                k: v
                 for (k, v) in vars(meta).items()
                 if not k.startswith('_')
-            )
+            }
 
         for option in self._build_default_options():
             assert not hasattr(self, option.name), "Can't override field %s." % option.name

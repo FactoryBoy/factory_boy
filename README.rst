@@ -249,7 +249,7 @@ These "lazy" attributes can be added as follows:
 
         first_name = 'Joe'
         last_name = 'Blow'
-        email = factory.LazyAttribute(lambda a: '{0}.{1}@example.com'.format(a.first_name, a.last_name).lower())
+        email = factory.LazyAttribute(lambda a: '{}.{}@example.com'.format(a.first_name, a.last_name).lower())
         date_joined = factory.LazyFunction(datetime.now)
 
 .. code-block:: pycon
@@ -273,7 +273,7 @@ Unique values in a specific format (for example, e-mail addresses) can be genera
         class Meta:
             model = models.User
 
-        email = factory.Sequence(lambda n: 'person{0}@example.com'.format(n))
+        email = factory.Sequence(lambda n: 'person{}@example.com'.format(n))
 
     >>> UserFactory().email
     'person0@example.com'
