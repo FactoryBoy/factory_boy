@@ -10,6 +10,6 @@ mock;python_version<"3"
 Pillow
 SQLAlchemy
 mongoengine
-wheel
+wheel>=0.32.0
 tox
 zest.releaser[recommended]
