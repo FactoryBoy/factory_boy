@@ -279,7 +279,7 @@ class FactoryTestCase(unittest.TestCase):
         sub = TestSubFactory.build()
         alt_parent = TestObjectFactory.build()
         alt_sub = TestSubFactory.build()
-        ones = set([x.one for x in (parent, alt_parent, sub, alt_sub)])
+        ones = {x.one for x in (parent, alt_parent, sub, alt_sub)}
         self.assertEqual(4, len(ones))
 
 
