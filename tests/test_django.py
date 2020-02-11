@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 """Tests for factory_boy/Django interactions."""
@@ -6,6 +5,7 @@
 import io
 import os
 import unittest
+from unittest import mock
 
 import django
 from django import test as django_test
@@ -17,7 +17,6 @@ from django.test.runner import DiscoverRunner as DjangoTestSuiteRunner
 import factory
 
 from . import testdata
-from .compat import mock
 
 try:
     from PIL import Image
@@ -163,7 +162,7 @@ class ModelTests(django_test.TestCase):
 
 class DjangoPkSequenceTestCase(django_test.TestCase):
     def setUp(self):
-        super(DjangoPkSequenceTestCase, self).setUp()
+        super().setUp()
         StandardFactory.reset_sequence()
 
     def test_pk_first(self):
@@ -253,7 +252,7 @@ class MultipleGetOrCreateFieldsTest(django_test.TestCase):
 
 class DjangoPkForceTestCase(django_test.TestCase):
     def setUp(self):
-        super(DjangoPkForceTestCase, self).setUp()
+        super().setUp()
         StandardFactoryWithPKField.reset_sequence()
 
     def test_no_pk(self):
@@ -337,7 +336,7 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
 
 class DjangoNonIntegerPkTestCase(django_test.TestCase):
     def setUp(self):
-        super(DjangoNonIntegerPkTestCase, self).setUp()
+        super().setUp()
         NonIntegerPkFactory.reset_sequence()
 
     def test_first(self):
@@ -403,7 +402,7 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(DjangoRelatedFieldTestCase, cls).setUpClass()
+        super().setUpClass()
 
         class PointedFactory(factory.django.DjangoModelFactory):
             class Meta:
@@ -496,7 +495,7 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
 class DjangoFileFieldTestCase(django_test.TestCase):
 
     def tearDown(self):
-        super(DjangoFileFieldTestCase, self).tearDown()
+        super().tearDown()
         for path in os.listdir(models.WITHFILE_UPLOAD_DIR):
             # Remove temporary files written during tests.
             os.unlink(os.path.join(models.WITHFILE_UPLOAD_DIR, path))
@@ -673,7 +672,7 @@ class DjangoFakerTestCase(django_test.TestCase):
 class DjangoImageFieldTestCase(django_test.TestCase):
 
     def tearDown(self):
-        super(DjangoImageFieldTestCase, self).tearDown()
+        super().tearDown()
         for path in os.listdir(models.WITHFILE_UPLOAD_DIR):
             # Remove temporary files written during tests.
             os.unlink(os.path.join(models.WITHFILE_UPLOAD_DIR, path))
@@ -954,7 +953,7 @@ class PreventSignalsTestCase(django_test.TestCase):
         self.assertSignalsReactivated()
 
     def test_classmethod_decorator(self):
-        class Foo(object):
+        class Foo:
             @classmethod
             @factory.django.mute_signals(signals.pre_save, signals.post_save)
             def generate(cls):

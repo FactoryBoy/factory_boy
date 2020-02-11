@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
-from __future__ import unicode_literals
 
 import itertools
 import unittest
 
 from factory import utils
-
-from .compat import is_python2
 
 
 class ImportObjectTestCase(unittest.TestCase):
@@ -43,33 +39,23 @@ class LogPPrintTestCase(unittest.TestCase):
     def test_bytes_args(self):
         txt = str(utils.log_pprint((b'\xe1\xe2',)))
         expected = "b'\\xe1\\xe2'"
-        if is_python2:
-            expected = expected.lstrip('b')
         self.assertEqual(expected, txt)
 
     def test_text_args(self):
         txt = str(utils.log_pprint(('ŧêßŧ',)))
         expected = "'ŧêßŧ'"
-        if is_python2:
-            expected = "u'\\u0167\\xea\\xdf\\u0167'"
         self.assertEqual(expected, txt)
 
     def test_bytes_kwargs(self):
         txt = str(utils.log_pprint(kwargs={'x': b'\xe1\xe2', 'y': b'\xe2\xe1'}))
         expected1 = "x=b'\\xe1\\xe2', y=b'\\xe2\\xe1'"
         expected2 = "y=b'\\xe2\\xe1', x=b'\\xe1\\xe2'"
-        if is_python2:
-            expected1 = expected1.replace('b', '')
-            expected2 = expected2.replace('b', '')
         self.assertIn(txt, (expected1, expected2))
 
     def test_text_kwargs(self):
         txt = str(utils.log_pprint(kwargs={'x': 'ŧêßŧ', 'y': 'ŧßêŧ'}))
         expected1 = "x='ŧêßŧ', y='ŧßêŧ'"
         expected2 = "y='ŧßêŧ', x='ŧêßŧ'"
-        if is_python2:
-            expected1 = "x=u'\\u0167\\xea\\xdf\\u0167', y=u'\\u0167\\xdf\\xea\\u0167'"
-            expected2 = "y=u'\\u0167\\xdf\\xea\\u0167', x=u'\\u0167\\xea\\xdf\\u0167'"
         self.assertIn(txt, (expected1, expected2))
 
 

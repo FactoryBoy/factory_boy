@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 
 """factory_boy extensions for use with the mogo library (pymongo wrapper)."""
 
-
-from __future__ import unicode_literals
 
 from . import base
 

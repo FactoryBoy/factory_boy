@@ -1,16 +1,15 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 """Tests for factory_boy/SQLAlchemy interactions."""
 
 import unittest
 import warnings
+from unittest import mock
 
 import factory
 from factory.alchemy import SQLAlchemyModelFactory
 
 from .alchemyapp import models
-from .compat import mock
 
 
 class StandardFactory(SQLAlchemyModelFactory):
@@ -41,7 +40,7 @@ class NoSessionFactory(SQLAlchemyModelFactory):
 class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
 
     def setUp(self):
-        super(SQLAlchemyPkSequenceTestCase, self).setUp()
+        super().setUp()
         StandardFactory.reset_sequence(1)
         NonIntegerPkFactory._meta.sqlalchemy_session.rollback()
 
@@ -78,7 +77,7 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
 
 class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
     def setUp(self):
-        super(SQLAlchemySessionPersistenceTestCase, self).setUp()
+        super().setUp()
         self.mock_session = mock.NonCallableMagicMock(spec=models.session)
 
     def test_flushing(self):
@@ -158,7 +157,7 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
 
 class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
     def setUp(self):
-        super(SQLAlchemyNonIntegerPkTestCase, self).setUp()
+        super().setUp()
         NonIntegerPkFactory.reset_sequence()
         NonIntegerPkFactory._meta.sqlalchemy_session.rollback()
 

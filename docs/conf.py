@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Factory Boy documentation build configuration file, created by
 # sphinx-quickstart on Thu Sep 15 23:51:15 2011.
 #
@@ -54,8 +52,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Factory Boy'
-copyright = u'2011-2015, Raphaël Barrois, Mark Sandstrom'
+project = 'Factory Boy'
+copyright = '2011-2015, Raphaël Barrois, Mark Sandstrom'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -120,7 +118,7 @@ html_theme = 'sphinx_rtd_theme'
 #html_title = None
 if 'READTHEDOCS_VERSION' in os.environ:
     # Use the readthedocs version string in preference to our known version.
-    html_title = u"{} {} documentation".format(
+    html_title = "{} {} documentation".format(
         project, os.environ['READTHEDOCS_VERSION'])
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
@@ -196,8 +194,8 @@ htmlhelp_basename = 'FactoryBoydoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'FactoryBoy.tex', u'Factory Boy Documentation',
-   u'Raphaël Barrois, Mark Sandstrom', 'manual'),
+  ('index', 'FactoryBoy.tex', 'Factory Boy Documentation',
+   'Raphaël Barrois, Mark Sandstrom', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -229,8 +227,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'factoryboy', u'Factory Boy Documentation',
-     [u'Raphaël Barrois, Mark Sandstrom'], 1)
+    ('index', 'factoryboy', 'Factory Boy Documentation',
+     ['Raphaël Barrois, Mark Sandstrom'], 1)
 ]
 
 

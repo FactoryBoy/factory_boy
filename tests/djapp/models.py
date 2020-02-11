@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 """Helpers for testing django apps."""
@@ -102,7 +101,7 @@ class WithSignals(models.Model):
 class CustomManager(models.Manager):
 
     def create(self, arg=None, **kwargs):
-        return super(CustomManager, self).create(**kwargs)
+        return super().create(**kwargs)
 
 
 class WithCustomManager(models.Model):

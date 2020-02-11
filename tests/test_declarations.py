@@ -1,13 +1,12 @@
-# -*- coding: utf-8 -*-
 # Copyright: See the LICENSE file.
 
 import datetime
 import unittest
+from unittest import mock
 
 from factory import base, declarations, errors, helpers
 
 from . import utils
-from .compat import mock
 
 
 class OrderedDeclarationTestCase(unittest.TestCase):
@@ -17,7 +16,7 @@ class OrderedDeclarationTestCase(unittest.TestCase):
 
 
 class DigTestCase(unittest.TestCase):
-    class MyObj(object):
+    class MyObj:
         def __init__(self, n):
             self.n = n
 
@@ -44,13 +43,6 @@ class DigTestCase(unittest.TestCase):
 
 
 class MaybeTestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # remove after dropping python 2
-        import sys
-        if int(sys.version[0]) == 2:
-            cls.assertRaisesRegex = cls.assertRaisesRegexp
-
     def test_init(self):
         declarations.Maybe('foo', 1, 2)
 

@@ -611,7 +611,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
     set according to the declarations.
 
 
-.. class:: StubObject(object)
+.. class:: StubObject
 
     A plain, stupid object. No method, no helpers, simply a bunch of attributes.
 
