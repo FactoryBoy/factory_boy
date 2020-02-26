@@ -39,7 +39,7 @@ FuzzyText
 .. class:: FuzzyText(length=12, chars=string.ascii_letters, prefix='')
 
     The :class:`FuzzyText` fuzzer yields random strings beginning with
-    the given :attr:`prefix`, followed by :attr:`length` charactes chosen
+    the given :attr:`prefix`, followed by :attr:`length` characters chosen
     from the :attr:`chars` character set,
     and ending with the given :attr:`suffix`.
 
