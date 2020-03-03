@@ -1,5 +1,4 @@
--e .
--r requirements_docs.txt
+-e .[doc]
 -r examples/requirements.txt
 
 coverage
