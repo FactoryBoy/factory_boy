@@ -55,3 +55,16 @@ class DebugTest(unittest.TestCase):
 
         self.assertEqual("", stream1.getvalue())
         self.assertEqual("Test2\n", stream2.getvalue())
+
+    def test_restores_logging_on_error(self):
+        class MyException(Exception):
+            pass
+
+        stream = io.StringIO()
+        try:
+            with helpers.debug(stream=stream):
+                raise MyException
+        except MyException:
+            logger = logging.getLogger('factory')
+            self.assertEqual(logger.level, logging.NOTSET)
+            self.assertEqual(logger.handlers, [])
