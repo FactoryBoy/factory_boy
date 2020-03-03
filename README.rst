@@ -372,7 +372,7 @@ All pull requests should pass the test suite, which can be launched simply with:
 
 .. code-block:: sh
 
-    $ make test
+    $ make testall
 
 
 
