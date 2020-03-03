@@ -31,7 +31,7 @@ clean:
 # DOC: Install and/or upgrade dependencies
 update:
 	pip install --upgrade pip setuptools
-	pip install --upgrade -r requirements_dev.txt
+	pip install --upgrade --editable .[dev]
 	pip freeze
 
 
