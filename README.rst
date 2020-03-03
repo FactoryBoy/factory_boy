@@ -368,6 +368,13 @@ factory_boy is distributed under the MIT License.
 Issues should be opened through `GitHub Issues <https://github.com/FactoryBoy/factory_boy/issues/>`_; whenever possible, a pull request should be included.
 Questions and suggestions are welcome on the `mailing-list <mailto:factoryboy@googlegroups.com>`_.
 
+Development dependencies can be installed in a `virtualenv
+<https://docs.python.org/3/tutorial/venv.html>`_ with:
+
+.. code-block:: sh
+
+    $ pip install --editable '.[dev]'
+
 All pull requests should pass the test suite, which can be launched simply with:
 
 .. code-block:: sh
