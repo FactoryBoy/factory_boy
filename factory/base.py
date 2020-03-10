@@ -3,7 +3,6 @@
 
 import collections
 import logging
-import warnings
 
 from . import builder, declarations, enums, errors, utils
 
@@ -441,44 +440,6 @@ class BaseFactory:
             int: the first available ID to use for instances of this factory.
         """
         return 0
-
-    @classmethod
-    def attributes(cls, create=False, extra=None):
-        """Build a dict of attribute values, respecting declaration order.
-
-        The process is:
-        - Handle 'orderless' attributes, overriding defaults with provided
-            kwargs when applicable
-        - Handle ordered attributes, overriding them with provided kwargs when
-            applicable; the current list of computed attributes is available
-            to the currently processed object.
-        """
-        warnings.warn(
-            "Usage of Factory.attributes() is deprecated.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        declarations = cls._meta.pre_declarations.as_dict()
-        declarations.update(extra or {})
-        from . import helpers
-        return helpers.make_factory(dict, **declarations)
-
-    @classmethod
-    def declarations(cls, extra_defs=None):
-        """Retrieve a copy of the declared attributes.
-
-        Args:
-            extra_defs (dict): additional definitions to insert into the
-                retrieved DeclarationDict.
-        """
-        warnings.warn(
-            "Factory.declarations is deprecated; use Factory._meta.pre_declarations instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        decls = cls._meta.pre_declarations.as_dict()
-        decls.update(extra_defs or {})
-        return decls
 
     @classmethod
     def _adjust_kwargs(cls, **kwargs):

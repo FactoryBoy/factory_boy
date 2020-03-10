@@ -22,6 +22,7 @@ ChangeLog
     - Drop support for Django 2.0 and 2.1. These versions `are not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
     - Remove deprecated ``force_flush`` from ``SQLAlchemyModelFactory`` options. Use
       ``sqlalchemy_session_persistence = "flush"`` instead.
+    - Drop deprecated ``attributes()`` and ``declarations()`` methods from ``factory.BaseFactory``.
 
 
 2.12.0 (2019-05-11)
