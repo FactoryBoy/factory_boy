@@ -325,15 +325,6 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
 
         The default value is ``None``.
 
-        If ``force_flush`` is set to ``True``, it overrides this option.
-
-    .. attribute:: force_flush
-
-        Force a session ``flush()`` at the end of :func:`~factory.alchemy.SQLAlchemyModelFactory._create()`.
-
-        .. note::
-
-            This option is deprecated. Use ``sqlalchemy_session_persistence`` instead.
 
 A (very) simple example:
 
