@@ -1,8 +1,5 @@
 # Copyright: See the LICENSE file.
 
-
-import warnings
-
 from . import base
 
 SESSION_PERSISTENCE_COMMIT = 'commit'
@@ -22,19 +19,6 @@ class SQLAlchemyOptions(base.FactoryOptions):
                 (meta, VALID_SESSION_PERSISTENCE_TYPES, value)
             )
 
-    def _check_force_flush(self, meta, value):
-        if value:
-            warnings.warn(
-                "%(meta)s.force_flush has been deprecated as of 2.8.0 and will be removed in 3.0.0. "
-                "Please set ``%(meta)s.sqlalchemy_session_persistence = 'flush'`` instead."
-                % dict(meta=meta),
-                DeprecationWarning,
-                # Stacklevel:
-                # declaration -> FactoryMetaClass.__new__ -> meta.contribute_to_class
-                # -> meta._fill_from_meta -> option.apply -> option.checker
-                stacklevel=6,
-            )
-
     def _build_default_options(self):
         return super()._build_default_options() + [
             base.OptionDefault('sqlalchemy_session', None, inherit=True),
@@ -43,14 +27,6 @@ class SQLAlchemyOptions(base.FactoryOptions):
                 None,
                 inherit=True,
                 checker=self._check_sqlalchemy_session_persistence,
-            ),
-
-            # DEPRECATED as of 2.8.0, remove in 3.0.0
-            base.OptionDefault(
-                'force_flush',
-                False,
-                inherit=True,
-                checker=self._check_force_flush,
             ),
         ]
 
@@ -68,8 +44,6 @@ class SQLAlchemyModelFactory(base.Factory):
         """Create an instance of the model, and save it to the database."""
         session = cls._meta.sqlalchemy_session
         session_persistence = cls._meta.sqlalchemy_session_persistence
-        if cls._meta.force_flush:
-            session_persistence = SESSION_PERSISTENCE_FLUSH
 
         obj = model_class(*args, **kwargs)
         if session is None:

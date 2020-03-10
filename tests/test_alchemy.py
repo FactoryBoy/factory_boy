@@ -3,7 +3,6 @@
 """Tests for factory_boy/SQLAlchemy interactions."""
 
 import unittest
-import warnings
 from unittest import mock
 
 import factory
@@ -125,34 +124,6 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
                 class Meta:
                     sqlalchemy_session_persistence = 'invalid_persistence_option'
                     model = models.StandardModel
-
-    def test_force_flush_deprecation(self):
-        with warnings.catch_warnings(record=True) as warning_list:
-            # Do not turn expected warning into an error.
-            warnings.filterwarnings("default", category=DeprecationWarning, module=r"tests\.test_alchemy")
-
-            class OutdatedPersistenceFactory(StandardFactory):
-                class Meta:
-                    force_flush = True
-                    sqlalchemy_session = self.mock_session
-
-        # There should be *1* DeprecationWarning
-        self.assertEqual(len(warning_list), 1)
-        warning = warning_list[0]
-        self.assertTrue(issubclass(warning.category, DeprecationWarning))
-
-        # The warning text should point to the class declaration.
-        text = warnings.formatwarning(warning.message, warning.category, warning.filename, warning.lineno)
-        self.assertIn('test_alchemy.py', text)
-        self.assertIn('class OutdatedPersistenceFactory', text)
-
-        # However, we shall keep the old-style behavior.
-        self.mock_session.commit.assert_not_called()
-        self.mock_session.flush.assert_not_called()
-
-        OutdatedPersistenceFactory.create()
-        self.mock_session.commit.assert_not_called()
-        self.mock_session.flush.assert_called_once_with()
 
 
 class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):

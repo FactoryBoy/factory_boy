@@ -7,6 +7,8 @@ ChangeLog
 *New:*
 
     - Drop support for Python 2.x
+    - Remove deprecated ``force_flush`` from ``SQLAlchemyModelFactory`` options. Use 
+      ``sqlalchemy_session_persistence = "flush"`` instead.
 
 2.12.1 (unreleased)
 -------------------
