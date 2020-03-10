@@ -1,6 +1,13 @@
 ChangeLog
 =========
 
+3.0.0 (unreleased)
+------------------
+
+*New:*
+
+    - Drop support for Python 2.x
+
 2.12.1 (unreleased)
 -------------------
 
