@@ -23,6 +23,8 @@ ChangeLog
     - Remove deprecated ``force_flush`` from ``SQLAlchemyModelFactory`` options. Use
       ``sqlalchemy_session_persistence = "flush"`` instead.
     - Drop deprecated ``attributes()`` and ``declarations()`` methods from ``factory.BaseFactory``.
+    - Drop deprecated aliases ``factory.fuzzy`` aliases for ``get_random_state()``, ``set_random_state()`` and
+      ``reseed_random()`` .fuzzy``. Use methods from the ``factory.random`` module instead.
 
 
 2.12.0 (2019-05-11)

@@ -18,36 +18,6 @@ random_seed_warning = (
 )
 
 
-def get_random_state():
-    warnings.warn(
-        "`factory.fuzzy.get_random_state` is deprecated. "
-        "You should use `factory.random.get_random_state` instead",
-        DeprecationWarning,
-        stacklevel=2
-    )
-    return random.get_random_state()
-
-
-def set_random_state(state):
-    warnings.warn(
-        "`factory.fuzzy.set_random_state` is deprecated. "
-        "You should use `factory.random.set_random_state` instead",
-        DeprecationWarning,
-        stacklevel=2
-    )
-    return random.set_random_state(state)
-
-
-def reseed_random(seed):
-    warnings.warn(
-        "`factory.fuzzy.set_random_state` is deprecated. "
-        "You should use `factory.random.reseed_random` instead",
-        DeprecationWarning,
-        stacklevel=2
-    )
-    random.reseed_random(seed)
-
-
 class BaseFuzzyAttribute(declarations.BaseDeclaration):
     """Base class for fuzzy attributes.
 
