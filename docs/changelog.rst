@@ -6,15 +6,6 @@ ChangeLog
 
 *New:*
 
-    - Drop support for Python 2.x
-    - Remove deprecated ``force_flush`` from ``SQLAlchemyModelFactory`` options. Use 
-      ``sqlalchemy_session_persistence = "flush"`` instead.
-
-2.12.1 (unreleased)
--------------------
-
-*New:*
-
     - Add support for Python 3.8
     - Add support for Django 2.2 and 3.0
 
@@ -29,6 +20,8 @@ ChangeLog
 *Removed:*
     - Drop support for Python 2 and 3.4. These versions `are not maintained anymore <https://devguide.python.org/devcycle/#end-of-life-branches>`__.
     - Drop support for Django 2.0 and 2.1. These versions `are not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
+    - Remove deprecated ``force_flush`` from ``SQLAlchemyModelFactory`` options. Use
+      ``sqlalchemy_session_persistence = "flush"`` instead.
 
 
 2.12.0 (2019-05-11)
