@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 
-import factory
+import factory.django
 
 from .models import TaggedItem
 

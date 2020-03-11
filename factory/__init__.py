@@ -1,7 +1,5 @@
 # Copyright: See the LICENSE file.
 
-# Backward compatibility; this should be removed soon.
-from . import alchemy, django, mogo, mongoengine
 from .base import (
     BaseDictFactory,
     BaseListFactory,
@@ -63,7 +61,3 @@ except ImportError:
     import pkg_resources
 
     __version__ = pkg_resources.get_distribution("factory_boy").version
-
-
-MogoFactory = mogo.MogoFactory
-DjangoModelFactory = django.DjangoModelFactory
