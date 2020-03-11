@@ -25,6 +25,13 @@ ChangeLog
     - Drop deprecated ``attributes()`` and ``declarations()`` methods from ``factory.BaseFactory``.
     - Drop deprecated aliases ``factory.fuzzy`` aliases for ``get_random_state()``, ``set_random_state()`` and
       ``reseed_random()`` .fuzzy``. Use methods from the ``factory.random`` module instead.
+    - Remove references ``django``, ``alchemy``, ``mogo`` and ``mongoengine``
+      in module ``factory``. Import the submodules ``factory.django``,
+      ``factory.alchemy``, ``factory.mogo`` and ``factory.mongoengine``
+      instead.
+    - Remove aliases ``factory.DjangoFactory`` and ``factory.MogoFactory``. Use
+      ``factory.django.DjangoFactory`` and ``factory.mogo.MogoFactory``
+      instead.
 
 
 2.12.0 (2019-05-11)

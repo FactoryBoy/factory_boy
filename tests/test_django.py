@@ -14,7 +14,7 @@ from django.db.models import signals
 from django.test import utils as django_test_utils
 from django.test.runner import DiscoverRunner as DjangoTestSuiteRunner
 
-import factory
+import factory.django
 
 from . import testdata
 
