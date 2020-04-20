@@ -2465,7 +2465,7 @@ class PostGenerationTestCase(unittest.TestCase):
                                                size=lambda a: a.one)
         obj = TestObjectFactory.build()
         # Normal fields
-        self.assertIn(obj.one, range(1,5))
+        self.assertIn(obj.one, range(1, 5))
         self.assertEqual(2, obj.two)
         # RelatedFactory was built
         self.assertIsNone(obj.three)
