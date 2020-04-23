@@ -344,7 +344,7 @@ This time, we want the company owner to live in a country neighboring the countr
 Custom manager methods
 ----------------------
 
-Sometimes you need a factory to call a specific manager method other then the
+Sometimes you need a factory to call a specific manager method other than the
 default :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>` method:
 
 .. code-block:: python
