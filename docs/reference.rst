@@ -752,7 +752,7 @@ LazyFunction
 The :class:`LazyFunction` is the simplest case where the value of an attribute
 does not depend on the object being built.
 
-It takes as argument a function to call; that should not take any arguments and
+It takes as an argument a function to call; that should not take any arguments and
 return a value.
 
 .. code-block:: python
