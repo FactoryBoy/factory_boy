@@ -1,6 +1,7 @@
 # Copyright: See the LICENSE file.
 
 
+import inspect
 import itertools
 import logging
 
@@ -674,7 +675,9 @@ class RelatedFactoryList(RelatedFactory):
         factory_related_name (str): the name to use to refer to the generated
             object when calling the related factory
         size (int|lambda): the number of times 'factory' is called, ultimately
-            returning a list of 'factory' objects w/ size 'size'.
+            returning a list of 'factory' objects w/ size 'size'. If the
+            lambda expects an argument, the surrounding factory instance will
+            be passed.
     """
 
     def __init__(self, factory, factory_related_name='', size=2, **defaults):
@@ -682,9 +685,14 @@ class RelatedFactoryList(RelatedFactory):
         super().__init__(factory, factory_related_name, **defaults)
 
     def call(self, instance, step, context):
+        if isinstance(self.size, int):
+            realized_size = self.size
+        elif len(inspect.signature(self.size).parameters) == 1:
+            realized_size = self.size(instance)
+        else:
+            realized_size = self.size()
         return [super(RelatedFactoryList, self).call(instance, step, context)
-                for i in range(self.size if isinstance(self.size, int)
-                               else self.size())]
+                for i in range(realized_size)]
 
 
 class NotProvided:

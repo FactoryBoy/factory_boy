@@ -1763,6 +1763,11 @@ RelatedFactoryList
                   # Generate a list of `factory` objects of random size, ranging from 1 -> 5
                   bar = factory.RelatedFactoryList(BarFactory,
                                                    size=lambda: LIST_SIZES[random.randint(0,5)])
+		  baz_count = factory.Faker('pyint', min_value=1, max_value=5)
+		  # Generate a list of `Baz` objects of `baz_count` size.
+		  baz_list = factory.RelatedFactoryList(BazFactory,
+		                                        size=lambda a: a.baz_count)
+
                   # Each Foo object will have exactly 3 Bar objects generated for its foobar attribute.
                   foobar = factory.RelatedFactoryList(BarFactory, size=3)
 
