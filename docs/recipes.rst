@@ -180,7 +180,7 @@ hook:
         name = "John Doe"
 
         @factory.post_generation
-        def groups(self, create, extracted, **kwargs):
+        def groups(obj, create, extracted, **kwargs):
             if not create:
                 # Simple build, do nothing.
                 return
@@ -188,7 +188,7 @@ hook:
             if extracted:
                 # A list of groups were passed in, use them
                 for group in extracted:
-                    self.groups.add(group)
+                    obj.groups.add(group)
 
 .. OHAI_VIM**
 
