@@ -340,27 +340,36 @@ class _FactoryWrapper:
     def __init__(self, factory_or_path):
         self.factory = None
         self.module = self.name = ''
+        self.factory_lambda = None
         if isinstance(factory_or_path, type):
             self.factory = factory_or_path
-        else:
-            if not (isinstance(factory_or_path, str) and '.' in factory_or_path):
-                raise ValueError(
-                    "A factory= argument must receive either a class "
-                    "or the fully qualified path to a Factory subclass; got "
-                    "%r instead." % factory_or_path)
+        elif isinstance(factory_or_path, str) and '.' in factory_or_path:
             self.module, self.name = factory_or_path.rsplit('.', 1)
+        elif callable(factory_or_path):
+            self.factory_lambda = factory_or_path
+        else:
+            raise ValueError(
+                "A factory= argument must receive either a class, "
+                "a callalbe, or the fully qualified path to a Factory "
+                "subclass; got %r instead." % factory_or_path)
 
     def get(self):
         if self.factory is None:
-            self.factory = utils.import_object(
-                self.module,
-                self.name,
-            )
+            if self.factory_lambda is not None:
+                self.factory = self.factory_lambda()
+            else:
+                self.factory = utils.import_object(
+                    self.module,
+                    self.name,
+                )
         return self.factory
 
     def __repr__(self):
         if self.factory is None:
-            return '<_FactoryImport: %s.%s>' % (self.module, self.name)
+            if self.factory_lambda is not None:
+                return '<_FactoryLambda: %r>' % (self.factory_lambda)
+            else:
+                return '<_FactoryImport: %s.%s>' % (self.module, self.name)
         else:
             return '<_FactoryImport: %s>' % self.factory.__class__
 
