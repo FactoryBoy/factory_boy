@@ -10,6 +10,8 @@ import mongoengine
 import factory
 from factory.mongoengine import MongoEngineFactory
 
+from .utils import disable_warnings
+
 
 class Address(mongoengine.EmbeddedDocument):
     street = mongoengine.StringField()
@@ -69,6 +71,8 @@ class MongoEngineTestCase(unittest.TestCase):
         self.assertEqual('street0', std.address.street)
         self.assertIsNone(std.id)
 
+    # MongoEngine uses a deprecated function in pymongo.
+    @disable_warnings
     def test_creation(self):
         std1 = PersonFactory.create()
         self.assertEqual('name1', std1.name)

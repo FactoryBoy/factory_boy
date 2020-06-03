@@ -63,6 +63,7 @@ test:
 		-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.9 it will stop working":DeprecationWarning:: \
 		-Wdefault:"set_output_charset() is deprecated":DeprecationWarning:: \
 		-Wdefault:"parameter codeset is deprecated":DeprecationWarning:: \
+		-Wdefault:"'U' mode is deprecated":DeprecationWarning:: \
 		-m unittest
 
 # DOC: Test the examples
