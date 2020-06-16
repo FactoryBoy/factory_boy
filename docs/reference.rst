@@ -1748,14 +1748,11 @@ RelatedFactoryList
 
           .. code-block:: python
 
-              LIST_SIZES = [1, 2, 3, 4, 5]
-
               class FooFactory(factory.Factory):
                   class Meta:
                       model = Foo
                   # Generate a list of `factory` objects of random size, ranging from 1 -> 5
-                  bar = factory.RelatedFactoryList(BarFactory,
-                                                   size=lambda: LIST_SIZES[random.randint(0,5)])
+                  bar = factory.RelatedFactoryList(BarFactory, size=lambda: random.randint(1, 5))
                   # Each Foo object will have exactly 3 Bar objects generated for its foobar attribute.
                   foobar = factory.RelatedFactoryList(BarFactory, size=3)
 
