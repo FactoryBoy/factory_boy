@@ -3,6 +3,6 @@ version: 2
 python:
   install:
     - method: pip
-      package: .
+      path: .
       extra_requirements:
         - doc
