@@ -8,6 +8,9 @@ ChangeLog
 
     - Add support for Python 3.8
     - Add support for Django 2.2 and 3.0
+    - Report misconfiguration when a :py:class:`~factory.Factory` is used as the :py:attr:`~factory.Factory.model` for another :py:class:`~factory.Factory`.
+    - Allow configuring the color palette of :py:class:`~factory.django.ImageField`.
+    - :py:meth:`get_random_state()` now represents the state of Faker and ``factory_boy`` fuzzy attributes.
 
 *Bugfix:*
 
