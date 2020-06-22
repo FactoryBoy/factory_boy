@@ -203,9 +203,8 @@ But when ``UserFactory.create(groups=(group1, group2, group3))`` is called,
 the ``groups`` declaration will add passed in groups to the set of groups for the
 user.
 
-For SQLAlchemy, ``list`` is for many-to-many relationship.
-Modify ``self.groups.add(group)`` to ``self.groups.append(group)`` from the above example,
-then create ``UserFactory.create(groups=[group1, group2, group3])``
+For SQLAlchemy, change ``self.groups.add(group)`` in the above example to
+``self.groups.append(group)``.
 
 Many-to-many relation with a 'through'
 --------------------------------------
