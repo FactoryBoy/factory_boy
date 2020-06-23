@@ -1,5 +1,4 @@
 include ChangeLog CODE_OF_CONDUCT.md CONTRIBUTING.rst CREDITS LICENSE README.rst
-include requirements*.txt
 include Makefile tox.ini .flake8
 
 graft factory
