@@ -4,6 +4,34 @@ ChangeLog
 3.0.0 (unreleased)
 ------------------
 
+Breaking changes
+""""""""""""""""
+
+The following aliases were removed:
+
++------------------------------------------------+---------------------------------------------------+
+| Broken alias                                   | New import                                        |
++================================================+===================================================+
+| ``from factory import DjangoModelFactory``     | ``from factory.django import DjangoModelFactory`` |
++------------------------------------------------+---------------------------------------------------+
+| ``from factory import MogoFactory``            | ``from factory.mogo import MogoFactory``          |
++------------------------------------------------+---------------------------------------------------+
+| ``from factory.fuzzy import get_random_state`` | ``from factory.random import get_random_state``   |
++------------------------------------------------+---------------------------------------------------+
+| ``from factory.fuzzy import set_random_state`` | ``from factory.random import set_random_state``   |
++------------------------------------------------+---------------------------------------------------+
+| ``from factory.fuzzy import reseed_random``    | ``from factory.random import reseed_random``      |
++------------------------------------------------+---------------------------------------------------+
+
+*Removed:*
+
+    - Drop support for Python 2 and 3.4. These versions `are not maintained anymore <https://devguide.python.org/devcycle/#end-of-life-branches>`__.
+    - Drop support for Django 2.0 and 2.1. These versions `are not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
+    - Remove deprecated ``force_flush`` from ``SQLAlchemyModelFactory`` options. Use
+      ``sqlalchemy_session_persistence = "flush"`` instead.
+    - Drop deprecated ``attributes()`` and ``declarations()`` methods from ``factory.BaseFactory``.
+    - Drop ``factory.compat`` module.
+
 *New:*
 
     - Add support for Python 3.8
@@ -20,23 +48,6 @@ ChangeLog
     - :issue:`598`: Limit ``get_or_create`` behavior to fields specified in ``django_get_or_create``.
     - :issue:`606`: Re-raise :class:`~django.db.IntegrityError` when `django_get_or_create` with multiple fields fails to lookup model using user provided keyword arguments.
     - :issue:`630`: TypeError masked by __repr__ AttributeError when initializing ``Maybe`` with inconsistent phases.
-
-*Removed:*
-
-    - Drop support for Python 2 and 3.4. These versions `are not maintained anymore <https://devguide.python.org/devcycle/#end-of-life-branches>`__.
-    - Drop support for Django 2.0 and 2.1. These versions `are not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
-    - Remove deprecated ``force_flush`` from ``SQLAlchemyModelFactory`` options. Use
-      ``sqlalchemy_session_persistence = "flush"`` instead.
-    - Drop deprecated ``attributes()`` and ``declarations()`` methods from ``factory.BaseFactory``.
-    - Drop deprecated aliases ``factory.fuzzy`` aliases for ``get_random_state()``, ``set_random_state()`` and
-      ``reseed_random()`` .fuzzy``. Use methods from the ``factory.random`` module instead.
-    - Remove references ``django``, ``alchemy``, ``mogo`` and ``mongoengine``
-      in module ``factory``. Import the submodules ``factory.django``,
-      ``factory.alchemy``, ``factory.mogo`` and ``factory.mongoengine``
-      instead.
-    - Remove aliases ``factory.DjangoFactory`` and ``factory.MogoFactory``. Use
-      ``factory.django.DjangoFactory`` and ``factory.mogo.MogoFactory``
-      instead.
 
 
 2.12.0 (2019-05-11)
