@@ -18,7 +18,7 @@ ChangeLog
     - Fix issue with SubFactory not preserving signal muting behaviour of the used factory, thanks `Patrick Stein <https://github.com/PFStein>`_.
     - Fix issue with overriding params in a Trait, thanks `Grégoire Rocher <https://github.com/cecedille1>`_.
     - :issue:`598`: Limit ``get_or_create`` behavior to fields specified in ``django_get_or_create``.
-    - :issue:`606`: Re-raise :class:`~django.db.IntegrityError` when `django_get_or_create` with multiple fields fails to lookup model using user provided keyword arguments.
+    - :issue:`606`: Re-raise :class:`~django.db.IntegrityError` when ``django_get_or_create`` with multiple fields fails to lookup model using user provided keyword arguments.
     - :issue:`630`: TypeError masked by __repr__ AttributeError when initializing ``Maybe`` with inconsistent phases.
 
 *Removed:*
