@@ -43,6 +43,10 @@ The following aliases were removed:
     - :py:meth:`get_random_state()` now represents the state of Faker and ``factory_boy`` fuzzy attributes.
     - Add SQLAlchemy ``get_or_create`` support
 
+*Improvements:*
+
+    - :issue:`561`: Display a developer-friendly error message when providing a model instead of a factory in a :class:`~factory.declarations.SubFactory` class.
+
 *Bugfix:*
 
     - Fix issue with SubFactory not preserving signal muting behaviour of the used factory, thanks `Patrick Stein <https://github.com/PFStein>`_.

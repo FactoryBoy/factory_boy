@@ -375,7 +375,7 @@ class FactoryOptions:
         return self.model
 
     def __str__(self):
-        return "<%s for %s>" % (self.__class__.__name__, self.factory.__class__.__name__)
+        return "<%s for %s>" % (self.__class__.__name__, self.factory.__name__)
 
     def __repr__(self):
         return str(self)

@@ -225,8 +225,16 @@ class BuildStep:
         return (self.stub,) + parent_chain
 
     def recurse(self, factory, declarations, force_sequence=None):
+        from . import base
+        if not issubclass(factory, base.BaseFactory):
+            raise errors.AssociatedClassError(
+                "%r: Attempting to recursing into a non-factory object %r"
+                % (self, factory))
         builder = self.builder.recurse(factory._meta, declarations)
         return builder.build(parent_step=self, force_sequence=force_sequence)
+
+    def __repr__(self):
+        return "<BuildStep for {!r}>".format(self.builder)
 
 
 class StepBuilder:
@@ -304,6 +312,9 @@ class StepBuilder:
     def recurse(self, factory_meta, extras):
         """Recurse into a sub-factory call."""
         return self.__class__(factory_meta, extras, strategy=self.strategy)
+
+    def __repr__(self):
+        return "<StepBuilder(%r, strategy=%r)>" % (self.factory_meta, self.strategy)
 
 
 class Resolver:
