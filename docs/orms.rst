@@ -89,6 +89,25 @@ All factories for a Django :class:`~django.db.models.Model` should use the
             >>> User.objects.all()
             [<User: john>, <User: jack>]
 
+        .. warning:: When ``django_get_or_create`` is used, be aware that any new
+            values passed to the Factory are **not** used to update an existing model.
+
+            .. code-block:: pycon
+
+                >>> john = UserFactory(username="john")   # Fetches the existing user
+                <User: john>
+
+                >>> john.email
+                "john@example.com"
+
+                >>> john = UserFactory(                   # Fetches the existing user
+                >>>     username="john",                  # and provides a new email value
+                >>>     email="a_new_email@example.com"
+                >>> )
+                <User: john>
+
+                >>> john.email                            # The email value was not updated
+                "john@example.com"
 
 
 Extra fields
@@ -361,6 +380,26 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
             <User: jack>
             >>> User.query.all()
             [<User: john>, <User: jack>]
+
+        .. warning:: When ``sqlalchemy_get_or_create`` is used, be aware that any new
+            values passed to the Factory are **not** used to update an existing model.
+
+            .. code-block:: pycon
+
+                >>> john = UserFactory(username="john")   # Fetches the existing user
+                <User: john>
+
+                >>> john.email
+                "john@example.com"
+
+                >>> john = UserFactory(                   # Fetches the existing user
+                >>>     username="john",                  # and provides a new email value
+                >>>     email="a_new_email@example.com"
+                >>> )
+                <User: john>
+
+                >>> john.email                            # The email value was not updated
+                "john@example.com"
 
 
 A (very) simple example:
