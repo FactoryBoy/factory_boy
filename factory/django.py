@@ -9,28 +9,15 @@ import io
 import logging
 import os
 
+from django.core import files as django_files
+from django.db import IntegrityError
+
 from . import base, declarations, errors
-
-try:
-    import django
-    from django.core import files as django_files
-    from django.db import IntegrityError
-except ImportError as e:  # pragma: no cover
-    django = None
-    django_files = None
-    import_failure = e
-
 
 logger = logging.getLogger('factory.generate')
 
 
 DEFAULT_DB_ALIAS = 'default'  # Same as django.db.DEFAULT_DB_ALIAS
-
-
-def require_django():
-    """Simple helper to ensure Django is available."""
-    if django_files is None:  # pragma: no cover
-        raise import_failure
 
 
 _LAZY_LOADS = {}
@@ -51,13 +38,8 @@ def _lazy_load_get_model():
     get_model loads django.conf.settings, which may fail if
     the settings haven't been configured yet.
     """
-    if django is None:
-        def _get_model(app, model):
-            raise import_failure
-    else:
-        from django import apps as django_apps
-        _get_model = django_apps.apps.get_model
-    _LAZY_LOADS['get_model'] = _get_model
+    from django import apps as django_apps
+    _LAZY_LOADS['get_model'] = django_apps.apps.get_model
 
 
 class DjangoOptions(base.FactoryOptions):
@@ -195,10 +177,6 @@ class FileField(declarations.ParameteredAttribute):
     """Helper to fill in django.db.models.FileField from a Factory."""
 
     DEFAULT_FILENAME = 'example.dat'
-
-    def __init__(self, **defaults):
-        require_django()
-        super().__init__(**defaults)
 
     def _make_data(self, params):
         """Create data for the field."""
