@@ -76,7 +76,7 @@ example-test:
 lint:
 	$(FLAKE8) --exclude $(PACKAGE)/__init__.py $(EXAMPLES_DIR) $(PACKAGE) $(SETUP_PY) $(TESTS_DIR)
 	$(FLAKE8) --ignore F401 $(PACKAGE)/__init__.py
-	$(ISORT) --recursive --check-only --diff $(EXAMPLES_DIR) $(PACKAGE) $(SETUP_PY) $(TESTS_DIR)
+	$(ISORT) --check-only --diff $(EXAMPLES_DIR) $(PACKAGE) $(SETUP_PY) $(TESTS_DIR)
 	check-manifest
 
 coverage:
