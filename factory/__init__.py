@@ -1,4 +1,5 @@
 # Copyright: See the LICENSE file.
+import importlib
 
 from .base import (
     BaseDictFactory,
@@ -50,6 +51,12 @@ from .helpers import (
     stub,
     stub_batch,
 )
+
+for optmod in ["alchemy", "django", "mogo", "mongoengine"]:
+    try:
+        importlib.import_module(".", f"{__package__}.{optmod}")
+    except ImportError:
+        pass
 
 __author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
 try:
