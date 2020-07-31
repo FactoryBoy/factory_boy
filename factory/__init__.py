@@ -51,6 +51,23 @@ from .helpers import (
     stub_batch,
 )
 
+try:
+    import alchemy
+except ImportError:
+    pass
+try:
+    import django
+except ImportError:
+    pass
+try:
+    import mogo
+except ImportError:
+    pass
+try:
+    import mongoengine
+except ImportError:
+    pass
+
 __author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
 try:
     # Python 3.8+
