@@ -167,7 +167,7 @@ factory_boy supports several different build strategies: build, create, and stub
     obj = UserFactory.stub()
 
 
-You can use the Factory class as a shortcut for the default build strategy:
+You can use the Factory class as a shortcut for the default create strategy:
 
 .. code-block:: python
 
