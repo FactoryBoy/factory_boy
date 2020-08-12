@@ -1,7 +1,7 @@
 ChangeLog
 =========
 
-3.0.0 (unreleased)
+3.0.0 (2020-08-12)
 ------------------
 
 Breaking changes
