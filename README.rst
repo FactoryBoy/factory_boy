@@ -146,7 +146,7 @@ through specific ``factory.Factory`` subclasses:
 * MongoEngine, with ``factory.mongoengine.MongoEngineFactory``
 * SQLAlchemy, with ``factory.alchemy.SQLAlchemyModelFactory``
 
-More details can be found in the :ref:`ORM section <orm>`.
+More details can be found in the ORM section.
 
 
 Using factories
