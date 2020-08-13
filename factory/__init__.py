@@ -52,19 +52,19 @@ from .helpers import (
 )
 
 try:
-    import alchemy
+    from . import alchemy
 except ImportError:
     pass
 try:
-    import django
+    from . import django
 except ImportError:
     pass
 try:
-    import mogo
+    from . import mogo
 except ImportError:
     pass
 try:
-    import mongoengine
+    from . import mongoengine
 except ImportError:
     pass
 

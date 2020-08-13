@@ -4,7 +4,9 @@ ChangeLog
 3.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*Bugfix:*
+
+    - :issue:`769`: Fix ``import factory; factory.django.DjangoModelFactory`` and similar calls.
 
 
 3.0.0 (2020-08-12)
