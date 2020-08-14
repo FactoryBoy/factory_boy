@@ -1,10 +1,12 @@
 ChangeLog
 =========
 
-3.0.2 (unreleased)
+3.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*New:*
+
+    - Allow all types of declarations in :class:`factory.Faker` calls - enables references to other faker-defined attributes.
 
 
 3.0.1 (2020-08-13)

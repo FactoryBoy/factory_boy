@@ -21,7 +21,7 @@ import faker.config
 from . import declarations
 
 
-class Faker(declarations.BaseDeclaration):
+class Faker(declarations.ParameteredDeclaration):
     """Wrapper for 'faker' values.
 
     Args:
@@ -36,20 +36,16 @@ class Faker(declarations.BaseDeclaration):
         >>> foo = factory.Faker('name')
     """
     def __init__(self, provider, **kwargs):
-        super().__init__()
+        locale = kwargs.pop('locale', None)
         self.provider = provider
-        self.provider_kwargs = kwargs
-        self.locale = kwargs.pop('locale', None)
+        super().__init__(
+            locale=locale,
+            **kwargs)
 
-    def generate(self, extra_kwargs=None):
-        kwargs = {}
-        kwargs.update(self.provider_kwargs)
-        kwargs.update(extra_kwargs or {})
-        subfaker = self._get_faker(self.locale)
-        return subfaker.format(self.provider, **kwargs)
-
-    def evaluate(self, instance, step, extra):
-        return self.generate(extra)
+    def generate(self, params):
+        locale = params.pop('locale')
+        subfaker = self._get_faker(locale)
+        return subfaker.format(self.provider, **params)
 
     _FAKER_REGISTRY = {}
     _DEFAULT_LOCALE = faker.config.DEFAULT_LOCALE

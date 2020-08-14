@@ -1,5 +1,7 @@
 # Copyright: See the LICENSE file.
 
+import collections
+import datetime
 import random
 import unittest
 
@@ -17,6 +19,16 @@ class MockFaker:
         return self.expected[provider]
 
 
+class AdvancedMockFaker:
+    def __init__(self, handlers):
+        self.handlers = handlers
+        self.random = random.Random()
+
+    def format(self, provider, **kwargs):
+        handler = self.handlers[provider]
+        return handler(**kwargs)
+
+
 class FakerTests(unittest.TestCase):
     def setUp(self):
         self._real_fakers = factory.Faker._FAKER_REGISTRY
@@ -30,10 +42,15 @@ class FakerTests(unittest.TestCase):
             locale = factory.Faker._DEFAULT_LOCALE
         factory.Faker._FAKER_REGISTRY[locale] = MockFaker(definitions)
 
+    def _setup_advanced_mock_faker(self, locale=None, **handlers):
+        if locale is None:
+            locale = factory.Faker._DEFAULT_LOCALE
+        factory.Faker._FAKER_REGISTRY[locale] = AdvancedMockFaker(handlers)
+
     def test_simple_biased(self):
         self._setup_mock_faker(name="John Doe")
         faker_field = factory.Faker('name')
-        self.assertEqual("John Doe", faker_field.generate())
+        self.assertEqual("John Doe", faker_field.generate({'locale': None}))
 
     def test_full_factory(self):
         class Profile:
@@ -114,3 +131,40 @@ class FakerTests(unittest.TestCase):
         face = FaceFactory()
         self.assertEqual(":)", face.smiley)
         self.assertEqual("(:", face.french_smiley)
+
+    def test_faker_customization(self):
+        """Factory declarations in Faker parameters should be accepted."""
+        Trip = collections.namedtuple('Trip', ['departure', 'transfer', 'arrival'])
+
+        may_4th = datetime.date(1977, 5, 4)
+        may_25th = datetime.date(1977, 5, 25)
+        october_19th = datetime.date(1977, 10, 19)
+
+        class TripFactory(factory.Factory):
+            class Meta:
+                model = Trip
+
+            departure = may_4th
+            arrival = may_25th
+            transfer = factory.Faker(
+                'date_between_dates',
+                start_date=factory.SelfAttribute('..departure'),
+                end_date=factory.SelfAttribute('..arrival'),
+            )
+
+        def fake_select_date(start_date, end_date):
+            """Fake date_between_dates."""
+            # Ensure that dates have been transfered from the factory
+            # to Faker parameters.
+            self.assertEqual(start_date, may_4th)
+            self.assertEqual(end_date, may_25th)
+            return october_19th
+
+        self._setup_advanced_mock_faker(
+            date_between_dates=fake_select_date,
+        )
+
+        trip = TripFactory()
+        self.assertEqual(may_4th, trip.departure)
+        self.assertEqual(october_19th, trip.transfer)
+        self.assertEqual(may_25th, trip.arrival)
