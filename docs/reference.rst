@@ -695,6 +695,43 @@ Faker
         >>> user.name
         'Lucy Cechtelar'
 
+    Some providers accept parameters; they should be passed after the provider name:
+
+    .. code-block:: python
+
+        class UserFactory(fatory.Factory):
+            class Meta:
+                model = User
+
+            arrival = factory.Faker(
+                'date_between_dates',
+                date_start=datetime.date(2020, 1, 1),
+                date_end=datetime.date(2020, 5, 31),
+            )
+
+    As with :class:`~factory.SubFactory`, the parameters can be any valid declaration.
+    This does not apply to the provider name or the locale.
+
+    .. code-block:: python
+
+        class TripFactory(fatory.Factory):
+            class Meta:
+                model = Trip
+
+            departure = factory.Faker(
+                'date',
+                end_datetime=datetime.date.today(),
+            )
+            arrival = factory.Faker(
+                'date_between_dates',
+                date_start=factory.SelfAttribute('..departure'),
+            )
+
+    .. note:: When using :class:`~factory.SelfAttribute` or :class:`~factory.LazyAttribute`
+              in a :class:`factory.Faker`  parameter, the current object is the declarations
+              provided to the :class:`~factory.Faker` declaration; go :ref:`up a level <factory-parent>`
+              to reach fields of the surrounding :class:`~factory.Factory`, as shown
+              in the ``SelfAttribute('..xxx')`` example above.
 
     .. attribute:: locale
 
@@ -1245,6 +1282,8 @@ That declaration takes a single argument, a dot-delimited path to the attribute 
     >>> u.birthmonth
     3
 
+
+.. _factory-parent:
 
 Parents
 ~~~~~~~

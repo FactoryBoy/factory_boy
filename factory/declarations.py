@@ -331,6 +331,39 @@ class ParameteredAttribute(BaseDeclaration):
         raise NotImplementedError()
 
 
+class ParameteredDeclaration(BaseDeclaration):
+    """A declaration with parameters.
+
+    The parameters can be any factory-enabled declaration, and will be resolved
+    before the call to the user-defined code in `self.generate()`.
+
+    Attributes:
+        defaults (dict): Default values for the parameters; can be overridden
+            by call-time parameters. Accepts BaseDeclaration subclasses.
+    """
+
+    def __init__(self, **defaults):
+        self.defaults = defaults
+        super().__init__()
+
+    def unroll_context(self, instance, step, context):
+        merged_context = {}
+        merged_context.update(self.defaults)
+        merged_context.update(context)
+        return super().unroll_context(instance, step, merged_context)
+
+    def evaluate(self, instance, step, extra):
+        return self.generate(extra)
+
+    def generate(self, params):
+        """Generate a value for this declaration.
+
+        Args:
+            params (dict): the parameters, after a factory evaluation.
+        """
+        raise NotImplementedError()
+
+
 class _FactoryWrapper:
     """Handle a 'factory' arg.
 
@@ -375,6 +408,8 @@ class SubFactory(ParameteredAttribute):
     """
 
     EXTEND_CONTAINERS = True
+    # Whether to align the attribute's sequence counter to the holding
+    # factory's sequence counter
     FORCE_SEQUENCE = False
     UNROLL_CONTEXT_BEFORE_EVALUATION = False
 
