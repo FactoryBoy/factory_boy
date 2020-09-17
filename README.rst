@@ -213,7 +213,7 @@ For this, factory_boy relies on the excellent `faker <https://faker.readthedocs.
 
 .. code-block:: pycon
 
-    >>> UserFactory()
+    >>> RandomUserFactory()
     <User: Lucy Murray>
 
 
