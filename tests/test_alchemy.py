@@ -2,8 +2,10 @@
 
 """Tests for factory_boy/SQLAlchemy interactions."""
 
+import gc
 import unittest
 from unittest import mock
+import weakref
 
 import sqlalchemy
 
@@ -70,6 +72,14 @@ class WithMultipleGetOrCreateFieldsFactory(SQLAlchemyModelFactory):
     id = factory.Sequence(lambda n: n)
     slug = factory.Sequence(lambda n: "slug%s" % n)
     text = factory.Sequence(lambda n: "text%s" % n)
+
+
+class ForeignKeyModelFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.ForeignKeyModel
+        sqlalchemy_session = models.session
+
+    standard = factory.SubFactory(StandardFactory)
 
 
 class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
@@ -261,3 +271,26 @@ class SQLAlchemyNoSessionTestCase(unittest.TestCase):
         inst1 = NoSessionFactory.build()
         self.assertEqual(inst0.id, 0)
         self.assertEqual(inst1.id, 1)
+
+
+class SQLAlchemyMemoryTests(unittest.TestCase):
+    def test_no_memleak(self):
+        """A factory class shouldn't keep pointers to its provided parameters."""
+        std = StandardFactory()
+
+        # Get a weak reference to the Standard object
+        std_weak = weakref.ref(std)
+        ForeignKeyModelFactory(standard=std)
+
+        # Drop references to the `std` object:
+        # - Commit the SQLAlchemy session, so no local ref has to be kept by
+        #   SQLAlchemy
+        models.session.commit()
+        # - Delete the local instance
+        del std
+
+        # Garbage collect; the instance should be removed
+        gc.collect()
+
+        # Ensure the instance pointed to by the weak reference is no longer available.
+        self.assertIsNone(std_weak())
