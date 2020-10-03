@@ -81,6 +81,17 @@ class MultifieldModelFactory(factory.django.DjangoModelFactory):
     text = factory.Faker('text')
 
 
+class MultifieldModelFactoryWithParams(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.MultifieldModel
+        django_get_or_create = ['slug']
+
+    text = factory.Faker('text')
+
+    class Params:
+        foobar = factory.Trait(text='')
+
+
 class AbstractBaseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.AbstractBase
@@ -231,6 +242,17 @@ class DjangoGetOrCreateTests(django_test.TestCase):
             ),
             ["alt", "main"],
         )
+
+    def test_params_blank(self):
+        obj = MultifieldModelFactoryWithParams(slug="main")
+        self.assertEqual(obj.slug, "main")
+        self.assertNotEqual(obj.text, "")
+
+
+    def test_params_value(self):
+        obj = MultifieldModelFactoryWithParams(slug="alt", foobar="main")
+        self.assertEqual(obj.slug, "alt")
+        self.assertEqual(obj.text, "")
 
 
 class MultipleGetOrCreateFieldsTest(django_test.TestCase):
