@@ -2,9 +2,11 @@
 
 """Tests for factory_boy/Django interactions."""
 
+import gc
 import io
 import os
 import unittest
+import weakref
 from unittest import mock
 
 import django
@@ -1022,3 +1024,28 @@ class DjangoCustomManagerTestCase(django_test.TestCase):
         # Our CustomManager will remove the 'arg=' argument,
         # invalid for the actual model.
         ObjFactory.create(arg='invalid')
+
+
+class DjangoMemoryTests(django_test.TestCase):
+    def test_no_memleak(self):
+        """A factory class shouldn't keep refs to its parameters."""
+        class PointerFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointerModel
+
+        target = models.PointedModel.objects.create(foo="42")
+
+        # Get a weak reference to the Pointed object
+        target_weak = weakref.ref(target)
+
+        PointerFactory(pointed=target, bar="bar")
+
+        # Drop references to the `target` object
+        del target
+
+        # Garbage collect; the instance should be removed
+        gc.collect()
+
+        # Ensure the instance pointed to by the weak reference is no longer available.
+        self.assertIsNone(target_weak())
+
