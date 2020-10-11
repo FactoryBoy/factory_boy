@@ -255,7 +255,7 @@ Attributes and methods
 .. class:: Factory
 
 
-    **Class-level attributes:**
+    .. rubric:: Class-level attributes:
 
     .. attribute:: Meta
     .. attribute:: _meta
@@ -284,7 +284,7 @@ Attributes and methods
         the :class:`Factory`-building metaclass can use it instead.
 
 
-    **Base functions:**
+    .. rubric:: Base functions
 
     The :class:`Factory` class provides a few methods for getting objects;
     the usual way being to simply call the class:
@@ -350,7 +350,7 @@ Attributes and methods
         according to :obj:`create`.
 
 
-    **Extension points:**
+    .. rubric:: Extension points
 
     A :class:`Factory` subclass may override a couple of class methods to adapt
     its behaviour:
@@ -449,7 +449,7 @@ Attributes and methods
         values, for instance.
 
 
-    **Advanced functions:**
+    .. rubric:: Advanced functions:
 
 
     .. classmethod:: reset_sequence(cls, value=None, force=False)
