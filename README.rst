@@ -318,7 +318,7 @@ The associated object's strategy will be used:
 Support Policy
 --------------
 
-``factory_boy`` supports Python 3.5 to 3.8 as well as PyPy3.
+``factory_boy`` supports Python 3.6 to 3.8 as well as PyPy3.
 
 - **Python**'s `supported versions
   <https://devguide.python.org/#status-of-python-branches>`__.

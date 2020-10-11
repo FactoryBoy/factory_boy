@@ -7,6 +7,7 @@ ChangeLog
 *Removed:*
 
     - Drop support for Django 1.11. This version `is not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
+    - Drop support for Python 3.5. This version `is not maintained anymore <https://devguide.python.org/devcycle/#end-of-life-branches>`__.
 
 
 3.1.0 (2020-10-02)
