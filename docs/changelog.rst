@@ -4,7 +4,9 @@ ChangeLog
 3.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*Removed:*
+
+    - Drop support for Python 3.5. This version `is not maintained anymore <https://devguide.python.org/devcycle/#end-of-life-branches>`_.
 
 
 3.1.0 (2020-10-02)
