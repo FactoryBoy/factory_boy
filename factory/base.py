@@ -109,18 +109,22 @@ class OptionDefault:
         checker: callable or None, an optional function used to detect invalid option
             values at declaration time
     """
-    def __init__(self, name, value, inherit=False, checker=None):
+    def __init__(
+            self, name, default, inherit=False, checker=None, normalize=None):
         self.name = name
-        self.value = value
+        self.default = default
         self.inherit = inherit
         self.checker = checker
+        self.normalize = normalize
 
     def apply(self, meta, base_meta):
-        value = self.value
+        value = self.default
         if self.inherit and base_meta is not None:
             value = getattr(base_meta, self.name, value)
         if meta is not None:
             value = getattr(meta, self.name, value)
+        if self.normalize is not None:
+            value = self.normalize(value)
 
         if self.checker is not None:
             self.checker(meta, value)
