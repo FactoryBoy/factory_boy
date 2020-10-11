@@ -4,7 +4,9 @@ ChangeLog
 3.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*Removed:*
+
+    - Drop support for Django 1.11. This version `is not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
 
 
 3.1.0 (2020-10-02)
