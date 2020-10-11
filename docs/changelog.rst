@@ -1,10 +1,40 @@
 ChangeLog
 =========
 
-3.1.1 (unreleased)
+3.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*New:*
+
+    - Add a generic "get-or-create" mechanism through :attr:`~FactoryOptions.unique_constraints`; this replaces
+      :attr:`~django.DjangoOptions.django_get_or_create` and
+      :attr:`~alchemy.SQLAlchemyOptions.sqlalchemy_get_or_create`.
+
+      Replace ``django_get_or_create = ['foo', 'bar']`` with
+      ``unique_constraints = [ ['foo'], ['bar'] ]``.
+
+    - Only resolve non-constrained attributes once lookups have failed. This addresses
+      :issue:`69`.
+
+    - Add support for composite unique constraints; addressing :issue:`241`.
+
+*Bugfix:*
+
+    - :issue:`781`: Don't leak memory by keeping references to call-time parameters
+      beyond the instance creation.
+
+*Deprecation:*
+
+    - :attr:`~django.DjangoOptions.django_get_or_create` is deprecated;
+      :attr:`~FactoryOptions.unique_constraints` should be used instead.
+    - :attr:`~alchemy.SQLAlchemyOptions.sqlalchemy_get_or_create` is deprecated;
+      :attr:`~FactoryOptions.unique_constraints` should be used instead.
+
+The changes brought to :attr:`~django.DjangoOptions.django_get_or_create`
+and :attr:`~alchemy.SQLAlchemyOptions.sqlalchemy_get_or_create` might alter the
+number and details of SQL queries performed when these attributes were defined with
+more than one field: there is now one query per group until one matching instance is
+found.
 
 
 3.1.0 (2020-10-02)

@@ -3,9 +3,9 @@
 
 """Helpers for testing SQLAlchemy apps."""
 
-from sqlalchemy import Column, Integer, Unicode, create_engine
+from sqlalchemy import Column, ForeignKey, Integer, Unicode, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 
 session = scoped_session(sessionmaker())
 engine = create_engine('sqlite://')
@@ -41,6 +41,14 @@ class NonIntegerPk(Base):
     __tablename__ = 'NonIntegerPk'
 
     id = Column(Unicode(20), primary_key=True)
+
+
+class ForeignKeyModel(Base):
+    __tablename__ = 'ForeignKeyModelTable'
+
+    id = Column(Integer(), primary_key=True)
+    standard_id = Column(Integer, ForeignKey("StandardModelTable.id"))
+    standard = relationship(StandardModel)
 
 
 Base.metadata.create_all(engine)

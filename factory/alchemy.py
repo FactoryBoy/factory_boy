@@ -1,9 +1,6 @@
 # Copyright: See the LICENSE file.
 
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm.exc import NoResultFound
-
-from . import base, errors
+from . import base, enums
 
 SESSION_PERSISTENCE_COMMIT = 'commit'
 SESSION_PERSISTENCE_FLUSH = 'flush'
@@ -24,13 +21,22 @@ class SQLAlchemyOptions(base.FactoryOptions):
 
     def _build_default_options(self):
         return super()._build_default_options() + [
-            base.OptionDefault('sqlalchemy_get_or_create', (), inherit=True),
             base.OptionDefault('sqlalchemy_session', None, inherit=True),
             base.OptionDefault(
                 'sqlalchemy_session_persistence',
                 None,
                 inherit=True,
                 checker=self._check_sqlalchemy_session_persistence,
+            ),
+        ]
+
+    def _get_renamed_options(self):
+        """Map an obsolete option to its new name."""
+        return super()._get_renamed_options() + [
+            base.OptionRenamed(
+                origin='sqlalchemy_get_or_create',
+                target='unique_constraints',
+                transform=lambda fields: [[field] for field in fields],
             ),
         ]
 
@@ -44,48 +50,13 @@ class SQLAlchemyModelFactory(base.Factory):
         abstract = True
 
     @classmethod
-    def _generate(cls, strategy, params):
-        # Original params are used in _get_or_create if it cannot build an
-        # object initially due to an IntegrityError being raised
-        cls._original_params = params
-        return super(SQLAlchemyModelFactory, cls)._generate(strategy, params)
-
-    @classmethod
-    def _get_or_create(cls, model_class, session, *args, **kwargs):
-        key_fields = {}
-        for field in cls._meta.sqlalchemy_get_or_create:
-            if field not in kwargs:
-                raise errors.FactoryError(
-                    "sqlalchemy_get_or_create - "
-                    "Unable to find initialization value for '%s' in factory %s" %
-                    (field, cls.__name__))
-            key_fields[field] = kwargs.pop(field)
-
-        obj = session.query(model_class).filter_by(
-            *args, **key_fields).one_or_none()
-
-        if not obj:
-            try:
-                obj = cls._save(model_class, session, *args, **key_fields, **kwargs)
-            except IntegrityError as e:
-                session.rollback()
-                get_or_create_params = {
-                    lookup: value
-                    for lookup, value in cls._original_params.items()
-                    if lookup in cls._meta.sqlalchemy_get_or_create
-                }
-                if get_or_create_params:
-                    try:
-                        obj = session.query(model_class).filter_by(
-                            **get_or_create_params).one()
-                    except NoResultFound:
-                        # Original params are not a valid lookup and triggered a create(),
-                        # that resulted in an IntegrityError.
-                        raise e
-                else:
-                    raise e
-
-        return obj
+    def _lookup(cls, model_class, strategy, fields):
+        if strategy != enums.CREATE_STRATEGY:
+            return
+        session = cls._meta.sqlalchemy_session
+        if session is None:
+            raise RuntimeError("No session provided.")
+        return session.query(model_class).filter_by(**fields).one_or_none()
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
@@ -94,8 +65,6 @@ class SQLAlchemyModelFactory(base.Factory):
 
         if session is None:
             raise RuntimeError("No session provided.")
-        if cls._meta.sqlalchemy_get_or_create:
-            return cls._get_or_create(model_class, session, *args, **kwargs)
         return cls._save(model_class, session, *args, **kwargs)
 
     @classmethod

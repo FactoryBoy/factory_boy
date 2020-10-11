@@ -2,9 +2,11 @@
 
 """Tests for factory_boy/Django interactions."""
 
+import gc
 import io
 import os
 import unittest
+import weakref
 from unittest import mock
 
 import django
@@ -59,7 +61,7 @@ class StandardFactory(factory.django.DjangoModelFactory):
 class StandardFactoryWithPKField(factory.django.DjangoModelFactory):
     class Meta:
         model = models.StandardModel
-        django_get_or_create = ('pk',)
+        unique_constraints = [['pk']]
 
     foo = factory.Sequence(lambda n: "foo%d" % n)
     pk = None
@@ -76,7 +78,7 @@ class NonIntegerPkFactory(factory.django.DjangoModelFactory):
 class MultifieldModelFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.MultifieldModel
-        django_get_or_create = ['slug']
+        unique_constraints = [['slug']]
 
     text = factory.Faker('text')
 
@@ -133,7 +135,10 @@ class WithCustomManagerFactory(factory.django.DjangoModelFactory):
 class WithMultipleGetOrCreateFieldsFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.MultifieldUniqueModel
-        django_get_or_create = ("slug", "text",)
+        unique_constraints = [
+            ['slug'],
+            ['text'],
+        ]
 
     slug = factory.Sequence(lambda n: "slug%s" % n)
     text = factory.Sequence(lambda n: "text%s" % n)
@@ -213,7 +218,7 @@ class DjangoGetOrCreateTests(django_test.TestCase):
         )
 
     def test_missing_arg(self):
-        with self.assertRaises(factory.FactoryError):
+        with self.assertRaises(AttributeError):
             MultifieldModelFactory()
 
     def test_multicall(self):
@@ -232,9 +237,40 @@ class DjangoGetOrCreateTests(django_test.TestCase):
             ["alt", "main"],
         )
 
+    def test_no_lookup_on_build(self):
+        MultifieldModelFactory(slug='first', text="First")
+        second = MultifieldModelFactory.build(slug='first')
+        self.assertNotEqual("First", second.text)
+
+    def test_no_side_effects(self):
+        class PointedFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointedModel
+            foo = factory.Sequence(lambda n: 'foo%d' % n)
+
+        class PointerGetOrCreate(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointerModel
+                unique_constraints = [
+                    ('bar',),
+                ]
+            bar = factory.Sequence(lambda n: 'bar%d' % n)
+            pointed = factory.SubFactory(PointedFactory)
+
+        first = PointerGetOrCreate()
+        self.assertEqual('bar0', first.bar)
+        second = PointerGetOrCreate(bar='other')
+        self.assertNotEqual(first.pointed, second.pointed)
+        third = PointerGetOrCreate(bar='bar0')
+        self.assertEqual(third, first)
+        self.assertEqual(
+            [first.pointed, second.pointed],
+            list(models.PointedModel.objects.all()),
+        )
+
 
 class MultipleGetOrCreateFieldsTest(django_test.TestCase):
-    def test_one_defined(self):
+    def test_any_field(self):
         obj1 = WithMultipleGetOrCreateFieldsFactory()
         obj2 = WithMultipleGetOrCreateFieldsFactory(slug=obj1.slug)
         self.assertEqual(obj1, obj2)
@@ -1022,3 +1058,27 @@ class DjangoCustomManagerTestCase(django_test.TestCase):
         # Our CustomManager will remove the 'arg=' argument,
         # invalid for the actual model.
         ObjFactory.create(arg='invalid')
+
+
+class DjangoMemoryTests(django_test.TestCase):
+    def test_no_memleak(self):
+        """A factory class shouldn't keep refs to its parameters."""
+        class PointerFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointerModel
+
+        target = models.PointedModel.objects.create(foo="42")
+
+        # Get a weak reference to the Pointed object
+        target_weak = weakref.ref(target)
+
+        PointerFactory(pointed=target, bar="bar")
+
+        # Drop references to the `target` object
+        del target
+
+        # Garbage collect; the instance should be removed
+        gc.collect()
+
+        # Ensure the instance pointed to by the weak reference is no longer available.
+        self.assertIsNone(target_weak())

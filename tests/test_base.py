@@ -1,6 +1,7 @@
 # Copyright: See the LICENSE file.
 
 import unittest
+import warnings
 
 from factory import base, declarations, enums, errors
 
@@ -108,6 +109,7 @@ class OptionsTests(unittest.TestCase):
         self.assertEqual((), AbstractFactory._meta.inline_args)
         self.assertEqual((), AbstractFactory._meta.exclude)
         self.assertEqual(enums.CREATE_STRATEGY, AbstractFactory._meta.strategy)
+        self.assertEqual([], AbstractFactory._meta.unique_constraints)
 
         # Non-declarative attributes
         self.assertEqual({}, AbstractFactory._meta.pre_declarations.as_dict())
@@ -214,6 +216,41 @@ class OptionsTests(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             type("SecondFactory", (base.Factory,), {"Meta": Meta})
+
+    def test_option_renaming(self):
+        class OtherOptions(base.FactoryOptions):
+            def _get_renamed_options(self):
+                return super()._get_renamed_options() + [
+                    base.OptionRenamed(
+                        origin='alias',
+                        target='rename',
+                        transform=lambda pair: {pair[0]: pair[1]},
+                    ),
+                ]
+
+        class OtherFactory(base.Factory):
+            _options_class = OtherOptions
+
+        class NormalFactory(OtherFactory):
+            class Meta:
+                rename = {
+                    'foo': 'bar',
+                }
+
+        self.assertEqual({'foo': 'bar'}, NormalFactory._meta.rename)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.filterwarnings("default", category=DeprecationWarning, module=r"tests\.test_base")
+
+            class RenamedFactory(OtherFactory):
+                class Meta:
+                    alias = ['foo', 'bar']
+
+            self.assertEqual(1, len(w))
+            message = str(w[-1].message)
+            self.assertIn("RenamedFactory", message)
+            self.assertIn("alias", message)
+            self.assertIn("rename = {'foo': 'bar'}", message)
 
 
 class DeclarationParsingTests(unittest.TestCase):

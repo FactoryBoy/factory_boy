@@ -76,7 +76,27 @@ Instantiating, Step 2: Preparing values
    encountering a :class:`SubFactory`.
 
 
-Instantiating, Step 3: Building the object
+Instantiating, step 3: Lookup existing data (optional)
+------------------------------------------------------
+
+Once the ``StepBuilder`` and its ``Resolver`` are ready, the builder looks at the
+:attr:`~Factory.Meta.unique_constraints`:
+
+1. It provides the call-time parameters to the :meth:`FactoryOptions.get_lookup_groups`
+   method;
+2. That method computes groups of lookups to try:
+
+   - Any call-time parameter that appear in any unique constraint will *always* be included;
+   - The first lookups are performed on the unique constraintss sharing the most parameters
+     with the call-time parameters
+
+3. For each group, the ``StepBuilder`` computes the value of the required parameters,
+   and performs a database lookup;
+4. If any lookup returns an instance, it is used; otherwise, the remaining parameters
+   will be resolved by the ``Resolver``.
+
+
+Instantiating, Step 4: Building the object
 ------------------------------------------
 
 1. The ``StepBuilder`` fetches the attributes computed by the ``Resolver``.
