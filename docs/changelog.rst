@@ -4,7 +4,9 @@ ChangeLog
 3.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*New:*
+
+    - Add support for Django 3.1
 
 
 3.1.0 (2020-10-02)
