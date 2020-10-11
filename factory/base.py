@@ -576,8 +576,8 @@ class BaseFactory:
                 "Ensure %(f)s.Meta.model is set and %(f)s.Meta.abstract "
                 "is either not set or False." % dict(f=cls.__name__))
 
-        step = builder.StepBuilder(cls._meta, params, strategy)
-        return step.build()
+        step_builder = builder.StepBuilder(cls._meta, params, strategy)
+        return step_builder.build()
 
     @classmethod
     def _after_postgeneration(cls, instance, create, results=None):
