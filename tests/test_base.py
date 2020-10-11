@@ -109,6 +109,7 @@ class OptionsTests(unittest.TestCase):
         self.assertEqual((), AbstractFactory._meta.inline_args)
         self.assertEqual((), AbstractFactory._meta.exclude)
         self.assertEqual(enums.CREATE_STRATEGY, AbstractFactory._meta.strategy)
+        self.assertEqual([], AbstractFactory._meta.unique_constraints)
 
         # Non-declarative attributes
         self.assertEqual({}, AbstractFactory._meta.pre_declarations.as_dict())

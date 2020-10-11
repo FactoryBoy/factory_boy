@@ -199,21 +199,22 @@ def parse_declarations(decls, base_pre=None, base_post=None):
 
 
 class BuildStep:
-    def __init__(self, builder, sequence, parent_step=None):
+    def __init__(self, *, builder, sequence, declarations, parent_step=None):
         self.builder = builder
         self.sequence = sequence
         self.attributes = {}
+        self.declarations = declarations
         self.parent_step = parent_step
-        self.stub = None
-
-    def resolve(self, declarations):
         self.stub = Resolver(
-            declarations=declarations,
+            declarations=self.declarations,
             step=self,
             sequence=self.sequence,
         )
 
-        for field_name in declarations:
+    def resolve(self, only=None):
+        only = only or self.declarations
+
+        for field_name in only:
             self.attributes[field_name] = getattr(self.stub, field_name)
 
     @property
@@ -272,16 +273,31 @@ class StepBuilder:
             builder=self,
             sequence=sequence,
             parent_step=parent_step,
+            declarations=pre,
         )
-        step.resolve(pre)
 
-        args, kwargs = self.factory_meta.prepare_arguments(step.attributes)
+        instance = None
 
-        instance = self.factory_meta.instantiate(
-            step=step,
-            args=args,
-            kwargs=kwargs,
-        )
+        for group in self.factory_meta.get_lookup_groups(self.extras.keys()):
+            step.resolve(only=group)
+            fields = {
+                field: step.attributes[field]
+                for field in group
+            }
+            instance = self.factory_meta.lookup(fields, strategy=self.strategy)
+            if instance is not None:
+                break
+
+        if instance is None:
+            step.resolve()
+
+            args, kwargs = self.factory_meta.prepare_arguments(step.attributes)
+
+            instance = self.factory_meta.instantiate(
+                step=step,
+                args=args,
+                kwargs=kwargs,
+            )
 
         postgen_results = {}
         for declaration_name in post.sorted():

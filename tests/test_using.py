@@ -32,6 +32,10 @@ class TestObject:
             five=self.five,
         )
 
+    def __repr__(self):
+        return 'TestObject(one=%r, two=%r, three=%r, four=%r, five=%r)' % (
+            self.one, self.two, self.three, self.four, self.five)
+
 
 class Dummy:
     def __init__(self, **kwargs):
@@ -1471,6 +1475,95 @@ class TraitTestCase(unittest.TestCase):
 
         p = PizzaFactory.build()
         self.assertEqual({5: p}, PRICES)
+
+
+class LookupGroupTests(unittest.TestCase):
+    store = []
+
+    class LookupFactory(factory.Factory):
+        # No `class Meta:  model=` here, to ensure
+        # each test's factory has an independent sequence counter.
+
+        @classmethod
+        def _lookup(cls, model_class, strategy, fields):
+            for instance in LookupGroupTests.store:
+                if all(
+                        getattr(instance, field) == value
+                        for field, value in fields.items()
+                ):
+                    return instance
+
+        @classmethod
+        def _create(cls, model_class, *args, **kwargs):
+            instance = super()._create(model_class, *args, **kwargs)
+            LookupGroupTests.store.append(instance)
+            return instance
+
+    def setUp(self):
+        super().setUp()
+        LookupGroupTests.store = []
+
+    def test_simple_lookup(self):
+        class SingleConstraintFactory(self.LookupFactory):
+            class Meta:
+                model = TestObject
+                unique_constraints = [
+                    ['one'],
+                ]
+
+            one = factory.Sequence(lambda n: n)
+            two = factory.Sequence(lambda n: 2 * n)
+
+        o1 = SingleConstraintFactory()
+        o2 = SingleConstraintFactory()
+        o3 = SingleConstraintFactory(one=0)
+        o4 = SingleConstraintFactory(two=0)
+        self.assertEqual(o1, o3)
+        self.assertEqual([o1, o2, o4], LookupGroupTests.store)
+
+    def test_composite_lookup(self):
+        class CompositeConstraintFactory(self.LookupFactory):
+            class Meta:
+                model = TestObject
+                unique_constraints = [
+                    ['one', 'two'],
+                ]
+
+            one = factory.Sequence(lambda n: n)
+            two = factory.Sequence(lambda n: 2 * n)
+            three = factory.Sequence(lambda n: 3 * n)
+
+        o1 = CompositeConstraintFactory()       # 0, 0
+        o2 = CompositeConstraintFactory(one=0)  # 0, 2 => no match
+        o3 = CompositeConstraintFactory(two=0)  # 2, 0 => no match
+        o4 = CompositeConstraintFactory(one=0, two=0)  # 0, 0 => lookup
+        self.assertEqual(o1, o4)
+        self.assertEqual([o1, o2, o3], LookupGroupTests.store)
+
+    def test_multiple_lookups(self):
+        class MultipleConstraintFactory(self.LookupFactory):
+            class Meta:
+                model = TestObject
+                unique_constraints = [
+                    ['one', 'two'],
+                    ['three'],
+                ]
+
+            one = factory.Sequence(lambda n: n)
+            two = factory.Sequence(lambda n: 2 * n)
+            three = factory.Sequence(lambda n: 3 * n)
+            four = factory.Sequence(lambda n: 4 * n)
+
+        o1 = MultipleConstraintFactory()  # 0, 0, 0
+        o2 = MultipleConstraintFactory(one=0)  # 0, 2, 3 => no match
+        o3 = MultipleConstraintFactory(two=0)  # 2, 0, 6 => no match
+        o4 = MultipleConstraintFactory(one=0, two=0)  # 0, 0, 9 => match on one/two
+        o5 = MultipleConstraintFactory(three=4)  # 4, 8, 4 => no match
+        o6 = MultipleConstraintFactory(three=3)  # 10, 10, 6 => match on three
+        o7 = MultipleConstraintFactory(one=3, three=3)  # 3, 12, 3 => no match (one+three)
+        self.assertEqual(o1, o4)
+        self.assertEqual(o2, o6)
+        self.assertEqual([o1, o2, o3, o5, o7], LookupGroupTests.store)
 
 
 class SubFactoryTestCase(unittest.TestCase):

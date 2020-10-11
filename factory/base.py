@@ -238,7 +238,7 @@ class FactoryOptions:
             OptionDefault('exclude', (), inherit=True),
             OptionDefault('rename', {}, inherit=True),
             OptionDefault(
-                'lookup_groups', [], inherit=True,
+                'unique_constraints', [], inherit=True,
                 normalize=lambda groups: [set(group) for group in groups],
             ),
         ]
@@ -371,6 +371,15 @@ class FactoryOptions:
             value = self.counter_reference.factory._setup_next_sequence()
         self._counter.reset(value)
 
+    def apply_renames(self, mapping):
+        """Rename items based on self.renames.
+
+        Mutates the passed-in mapping in place.
+        """
+        for old_name, new_name in self.rename.items():
+            if old_name in mapping:
+                mapping[new_name] = mapping.pop(old_name)
+
     def prepare_arguments(self, attributes):
         """Convert an attributes dict to a (args, kwargs) tuple."""
         kwargs = dict(attributes)
@@ -384,9 +393,7 @@ class FactoryOptions:
         }
 
         # 3. Rename fields
-        for old_name, new_name in self.rename.items():
-            if old_name in kwargs:
-                kwargs[new_name] = kwargs.pop(old_name)
+        self.apply_renames(kwargs)
 
         # 4. Extract inline args
         args = tuple(
@@ -395,6 +402,26 @@ class FactoryOptions:
         )
 
         return args, kwargs
+
+    def get_lookup_groups(self, params):
+        """Retrieve the list of lookup fields based on provided params."""
+        # Extract call-time params that appear in any unique constraint
+        lookup_params = set(params) & set().union(*self.unique_constraints)
+
+        # Sort constraint groups: start with those containing the most
+        # call-time params
+        by_distance = sorted(
+            self.unique_constraints,
+            key=lambda group: -len(group & set(params)),
+        )
+        for group in by_distance:
+            yield group | lookup_params
+
+    def lookup(self, fields, strategy):
+        kwargs = dict(fields)
+        self.apply_renames(kwargs)
+        model = self.get_model_class()
+        return self.factory._lookup(model, strategy, fields=kwargs)
 
     def instantiate(self, step, args, kwargs):
         model = self.get_model_class()
@@ -592,6 +619,13 @@ class BaseFactory:
             kwargs (dict): keyword arguments to use when creating the class
         """
         return model_class(*args, **kwargs)
+
+    @classmethod
+    def _lookup(cls, model_class, params):
+        raise NotImplementedError(
+            "Using `class Meta: unique_constraints` is not available on class %s: "
+            "no `def _lookup()` method has been provided." % cls,
+        )
 
     @classmethod
     def build(cls, **kwargs):

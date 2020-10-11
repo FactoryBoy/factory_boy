@@ -1,10 +1,14 @@
 ChangeLog
 =========
 
-3.1.1 (unreleased)
+3.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*New:*
+
+    - Add a generic "get-or-create" mechanism through :attr:`~FactoryOptions.unique_constraints`.
+
+    - Add support for composite unique constraints; addressing :issue:`241`.
 
 
 3.1.0 (2020-10-02)

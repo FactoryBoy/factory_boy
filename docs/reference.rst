@@ -135,6 +135,86 @@ Meta options
 
         .. versionadded: 2.6.0
 
+    .. attribute:: unique_constraints
+
+        Some models have unicity constraints on parts of their fields.
+        Instead of failing to save an instance, factories may define
+        these unicity constraints here:
+
+        .. code-block:: python
+
+            class EmployeeFactory(factory.Factory):
+                class Meta:
+                    model = Employee
+                    unique_constraints = [
+                        ['email'],
+                        ['access_card_id'],
+                        ['company', 'employee_id'],
+                    ]
+
+        Each group is a list of fields which should be *collectively unique*;
+        in this example, the ``employee_id`` is unique within each company.
+
+        When a new instance is required, the factory will start by resolving
+        the parameter used for each unique constraint, and attempt a lookup for this
+        combination of fields:
+
+        .. code-block:: pycon
+
+            >>> e1 = EmployeeFactory()
+            >>> e2 = EmployeeFactory(access_card_id=42)
+                lookup(email='john.doe@example.org') -> None; continue
+                lookup(access_card_id=42) -> e1; return
+            >>> e1 == e2
+            True
+
+        If the lookup succeeds, the instance is used as is; post-generation hooks
+        will still be called.
+
+        .. note:: The :attr:`~FactoryOptions.unique_constraints` feature requires
+                  a :meth:`Factory._lookup` definition on the factory class
+                  or one of its parents.
+
+        .. tip:: Group parameters are resolved lazily: in the above example,
+                  the `company` declaration will only be evaluated if the `email`
+                  and `access_card_id` lookup failed.
+
+                  This avoids polluting the database with unneeded objects.
+
+        .. note::
+
+            **Lookup priority**
+
+            Unique constraints have a specific interaction with call-time parameters:
+            if a parameter is explicitly set when calling the factory, and appears
+            in any unique constraint, it will be included in each lookup: it is likely
+            a unique identifier of some sort.
+
+            Moreover, unique constraints containing more call-time parameters will be
+            tried first: they are more likely to succeed.
+
+            With the above definition, the following will happen:
+
+            .. code-block:: pycon
+
+                >>> EmployeeFactory()
+                # 1. lookup(email=...)
+                # 2. lookup(access_card_id=...)
+                # 3. lookup(company=..., employee_id=...)
+
+                >>> EmployeeFactory(access_card_id='42')
+                # 1. lookup(access_card_id=42)
+                # 2. lookup(access_card_id=42, email=...)
+                # 3. lookup(access_card_id=42, company=..., employee_id=...)
+
+                >>> EmployeeFactory(access_card_id='42', name="John Doe")
+                # The `name=` is not included in lookups, since it doesn't appear
+                #     in unique constraints.
+                # 1. lookup(access_card_id=42)
+                # 2. lookup(access_card_id=42, email=...)
+                # 3. lookup(access_card_id=42, company=..., employee_id=...)
+
+        .. versionadded:: 3.2.0
 
     .. attribute:: strategy
 
@@ -318,6 +398,17 @@ Attributes and methods
                     return obj
 
         .. OHAI_VIM*
+
+    .. classmethod:: _lookup(cls, model_class, strategy, fields)
+
+        Lookup an instance from the database, using the passed-in fields.
+
+        This is required for the :attr:`~FactoryOptions.unique_constraints` feature.
+
+        The ``strategy`` field can be used to disable lookups with specific
+        strategies - typically for :data:`BUILD_STRATEGY` and :data:`STUB_STRATEGY`.
+
+        .. versionadded:: 3.2.0
 
     .. classmethod:: _after_postgeneration(cls, obj, create, results=None)
 
