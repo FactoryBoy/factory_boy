@@ -4,6 +4,10 @@ ChangeLog
 3.1.1 (unreleased)
 ------------------
 
+*New:*
+
+    - Add support for Django 3.1
+
 *Removed:*
 
     - Drop support for Django 1.11. This version `is not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
