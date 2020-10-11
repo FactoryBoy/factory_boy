@@ -62,18 +62,13 @@ class FakeModel:
         return instance
 
     class FakeModelManager:
-        def get_or_create(self, **kwargs):
-            defaults = kwargs.pop('defaults', {})
-            kwargs.update(defaults)
-            instance = FakeModel.create(**kwargs)
-            instance.id = 2
-            instance._defaults = defaults
-            return instance, True
+        def get(self, **kwargs):
+            self.last_lookup = kwargs
+            return None
 
         def create(self, **kwargs):
             instance = FakeModel.create(**kwargs)
             instance.id = 2
-            instance._defaults = None
             return instance
 
         def values_list(self, *args, **kwargs):
@@ -2114,14 +2109,16 @@ class BetterFakeModelManager:
         self.keys = keys
         self.instance = instance
 
-    def get_or_create(self, **kwargs):
-        defaults = kwargs.pop('defaults', {})
-        if kwargs == self.keys:
-            return self.instance, False
-        kwargs.update(defaults)
+    def create(self, **kwargs):
         instance = FakeModel.create(**kwargs)
         instance.id = 2
-        return instance, True
+        return instance
+
+    def get(self, **kwargs):
+        if kwargs == self.keys:
+            return self.instance
+        else:
+            return None
 
     def using(self, db):
         return self
@@ -2160,7 +2157,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         class MyFakeModelFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = MyFakeModel
-                django_get_or_create = ('x',)
+                unique_constraints = [['x']]
             x = 1
             y = 4
             z = 6
@@ -2182,7 +2179,11 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         class MyFakeModelFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = MyFakeModel
-                django_get_or_create = ('x', 'y', 'z')
+                unique_constraints = [
+                    ['x'],
+                    ['y'],
+                    ['z'],
+                ]
             x = 1
             y = 4
             z = 6
@@ -2204,7 +2205,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         class MyFakeModelFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = MyFakeModel
-                django_get_or_create = ('x',)
+                unique_constraints = [['x']]
             x = 1
             y = 4
             z = 6
@@ -2226,7 +2227,11 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         class MyFakeModelFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = MyFakeModel
-                django_get_or_create = ('x', 'y', 'z')
+                unique_constraints = [
+                    ['x'],
+                    ['y'],
+                    ['z'],
+                ]
             x = 1
             y = 4
             z = 6
@@ -2265,7 +2270,6 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
             a = factory.Sequence(lambda n: 'foo_%s' % n)
 
         o = TestModelFactory()
-        self.assertEqual(None, o._defaults)
         self.assertEqual('foo_0', o.a)
         self.assertEqual(2, o.id)
 
@@ -2273,7 +2277,9 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         class TestModelFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = TestModel
-                django_get_or_create = ('a', 'b')
+                unique_constraints = [
+                    ('a', 'b'),
+                ]
 
             a = factory.Sequence(lambda n: 'foo_%s' % n)
             b = 2
@@ -2281,7 +2287,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
             d = 4
 
         o = TestModelFactory()
-        self.assertEqual({'c': 3, 'd': 4}, o._defaults)
+        self.assertEqual({'a': 'foo_0', 'b': 2}, TestModel.objects.last_lookup)
         self.assertEqual('foo_0', o.a)
         self.assertEqual(2, o.b)
         self.assertEqual(3, o.c)
@@ -2293,7 +2299,9 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
         class TestModelFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = TestModel
-                django_get_or_create = ('a', 'b', 'c', 'd')
+                unique_constraints = [
+                    ('a', 'b', 'c', 'd'),
+                ]
 
             a = factory.Sequence(lambda n: 'foo_%s' % n)
             b = 2
@@ -2301,7 +2309,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
             d = 4
 
         o = TestModelFactory()
-        self.assertEqual({}, o._defaults)
+        self.assertEqual(dict(a='foo_0', b=2, c=3, d=4), TestModel.objects.last_lookup)
         self.assertEqual('foo_0', o.a)
         self.assertEqual(2, o.b)
         self.assertEqual(3, o.c)

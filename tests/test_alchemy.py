@@ -43,7 +43,9 @@ class NoSessionFactory(SQLAlchemyModelFactory):
 class MultifieldModelFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.MultiFieldModel
-        sqlalchemy_get_or_create = ('slug',)
+        unique_constraints = [
+            ['slug'],
+        ]
         sqlalchemy_session = models.session
         sqlalchemy_session_persistence = 'commit'
 
@@ -54,7 +56,9 @@ class MultifieldModelFactory(SQLAlchemyModelFactory):
 class WithGetOrCreateFieldFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.StandardModel
-        sqlalchemy_get_or_create = ('foo',)
+        unique_constraints = [
+            ['foo'],
+        ]
         sqlalchemy_session = models.session
         sqlalchemy_session_persistence = 'commit'
 
@@ -65,7 +69,10 @@ class WithGetOrCreateFieldFactory(SQLAlchemyModelFactory):
 class WithMultipleGetOrCreateFieldsFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.MultifieldUniqueModel
-        sqlalchemy_get_or_create = ("slug", "text",)
+        unique_constraints = [
+            ['slug'],
+            ['text'],
+        ]
         sqlalchemy_session = models.session
         sqlalchemy_session_persistence = 'commit'
 
@@ -129,7 +136,7 @@ class SQLAlchemyGetOrCreateTests(unittest.TestCase):
         self.assertEqual(obj1, obj2)
 
     def test_missing_arg(self):
-        with self.assertRaises(factory.FactoryError):
+        with self.assertRaises(AttributeError):
             MultifieldModelFactory()
 
     def test_raises_exception_when_existing_objs(self):
@@ -152,6 +159,11 @@ class SQLAlchemyGetOrCreateTests(unittest.TestCase):
             ),
             ["alt", "main"],
         )
+
+    def test_no_lookup_on_build(self):
+        MultifieldModelFactory(slug='first', foo="First")
+        second = MultifieldModelFactory.build(slug='first')
+        self.assertNotEqual("First", second.foo)
 
 
 class MultipleGetOrCreateFieldsTest(unittest.TestCase):

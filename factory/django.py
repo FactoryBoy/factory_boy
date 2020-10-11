@@ -10,9 +10,9 @@ import logging
 import os
 
 from django.core import files as django_files
-from django.db import IntegrityError
+from django.core.exceptions import ObjectDoesNotExist
 
-from . import base, declarations, errors
+from . import base, declarations, enums, errors
 
 logger = logging.getLogger('factory.generate')
 
@@ -45,8 +45,17 @@ def _lazy_load_get_model():
 class DjangoOptions(base.FactoryOptions):
     def _build_default_options(self):
         return super()._build_default_options() + [
-            base.OptionDefault('django_get_or_create', (), inherit=True),
             base.OptionDefault('database', DEFAULT_DB_ALIAS, inherit=True),
+        ]
+
+    def _get_renamed_options(self):
+        """Map an obsolete option to its new name."""
+        return super()._get_renamed_options() + [
+            base.OptionRenamed(
+                origin='django_get_or_create',
+                target='unique_constraints',
+                transform=lambda fields: [[field] for field in fields],
+            ),
         ]
 
     def _get_counter_reference(self):
@@ -110,58 +119,20 @@ class DjangoModelFactory(base.Factory):
         return manager
 
     @classmethod
-    def _generate(cls, strategy, params):
-        # Original params are used in _get_or_create if it cannot build an
-        # object initially due to an IntegrityError being raised
-        cls._original_params = params
-        return super()._generate(strategy, params)
+    def _lookup(cls, model_class, strategy, fields):
+        if strategy != enums.CREATE_STRATEGY:
+            return
 
-    @classmethod
-    def _get_or_create(cls, model_class, *args, **kwargs):
-        """Create an instance of the model through objects.get_or_create."""
         manager = cls._get_manager(model_class)
 
-        assert 'defaults' not in cls._meta.django_get_or_create, (
-            "'defaults' is a reserved keyword for get_or_create "
-            "(in %s._meta.django_get_or_create=%r)"
-            % (cls, cls._meta.django_get_or_create))
-
-        key_fields = {}
-        for field in cls._meta.django_get_or_create:
-            if field not in kwargs:
-                raise errors.FactoryError(
-                    "django_get_or_create - "
-                    "Unable to find initialization value for '%s' in factory %s" %
-                    (field, cls.__name__))
-            key_fields[field] = kwargs.pop(field)
-        key_fields['defaults'] = kwargs
-
         try:
-            instance, _created = manager.get_or_create(*args, **key_fields)
-        except IntegrityError as e:
-            get_or_create_params = {
-                lookup: value
-                for lookup, value in cls._original_params.items()
-                if lookup in cls._meta.django_get_or_create
-            }
-            if get_or_create_params:
-                try:
-                    instance = manager.get(**get_or_create_params)
-                except manager.model.DoesNotExist:
-                    # Original params are not a valid lookup and triggered a create(),
-                    # that resulted in an IntegrityError. Follow Django’s behavior.
-                    raise e
-            else:
-                raise e
-
-        return instance
+            return manager.get(**fields)
+        except ObjectDoesNotExist:
+            return None
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
-        if cls._meta.django_get_or_create:
-            return cls._get_or_create(model_class, *args, **kwargs)
-
         manager = cls._get_manager(model_class)
         return manager.create(*args, **kwargs)
 

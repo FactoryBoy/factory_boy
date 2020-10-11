@@ -37,6 +37,8 @@ All factories for a Django :class:`~django.db.models.Model` should use the
     * The :attr:`~factory.FactoryOptions.model` attribute also supports the ``'app.Model'``
       syntax
     * :func:`~factory.Factory.create()` uses :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>`
+    * :func:`~factory.FactoryOptions.unique_constraints` uses a provided :meth:`Factory._lookup`
+      implementation, performin a :meth:`Model.objects.get() <django.db.models.query.QuerySet.get>` call
     * When using :class:`~factory.RelatedFactory` or :class:`~factory.PostGeneration`
       attributes, the base object will be :meth:`saved <django.db.models.Model.save>`
       once all post-generation hooks have run.
@@ -56,6 +58,43 @@ All factories for a Django :class:`~django.db.models.Model` should use the
     .. attribute:: django_get_or_create
 
         .. versionadded:: 2.4.0
+        .. deprecated:: 3.2.0
+
+           Use :attr:`FactoryOptions.unique_constraints` instead.
+
+        .. important::
+
+           Replace ``django_get_or_create = ['foo', 'bar']`` with ``unique_constraints = [ ['foo'], ['bar'] ]``.
+
+           Whereas :attr:`~django_get_or_create` could only provide a list
+           of independantly unique columns, :attr:`~FactoryOptions.unique_constraints`
+           can support :attr:`~django.db.models.Options.unique_together`:
+
+           .. code-block:: python
+
+                class City(models.Model):
+                    region = models.ForeignKey(Region)
+                    name = models.TextField()
+                    zipcode = models.TextField(unique=True)
+
+                    class Meta:
+                        unique_together = [
+                            ('region', 'name'),
+                        ]
+
+                class CityFactory(factory.django.DjangoModelFactory):
+                    class Meta:
+                        model = models.City
+                        unique_constraints = [
+                            ['zipcode'],
+                            ['region', 'name'],
+                        ]
+
+                    ...
+
+        .. note:: The :meth:`django.DjangoModelFactory._lookup` method will only
+                  perform database lookups when using the
+                  :data:`~factory.CREATE_STRATEGY` strategy.
 
         Fields whose name are passed in this list will be used to perform a
         :meth:`Model.objects.get_or_create() <django.db.models.query.QuerySet.get_or_create>`
@@ -347,6 +386,46 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
     .. attribute:: sqlalchemy_get_or_create
 
         .. versionadded:: 3.0.0
+        .. deprecated:: 3.2.0
+
+           Use :attr:`FactoryOptions.unique_constraints` instead.
+
+        .. important::
+
+           Replace ``sqlalchemy_get_or_create = ['foo', 'bar']`` with
+           ``unique_constraints = [ ['foo'], ['bar'] ]``.
+
+           Whereas :attr:`~sqlalchemy_get_or_create` could only provide a list
+           of independantly unique columns, :attr:`~FactoryOptions.unique_constraints`
+           can support :class:`sqlalchemy.schema.UniqueConstraint`:
+
+           .. code-block:: python
+
+                class City(Base):
+                    __tablename__ = 'cities'
+
+                    region_code = Column(Unicode(10))
+                    name = Column(Unicode(200))
+                    zipcode = Column(Unicode(10), unique=True)
+
+                    __table__args = (
+                        UniqueConstraint('region_code', 'name'),
+                    )
+
+
+                class CityFactory(factory.django.DjangoModelFactory):
+                    class Meta:
+                        model = models.City
+                        unique_constraints = [
+                            ['zipcode'],
+                            ['region_code', 'name'],
+                        ]
+
+                    ...
+
+        .. note:: The :meth:`alchemy.SQLAlchemyModelFactory._lookup` method will only
+                  perform database lookups when using the
+                  :data:`~factory.CREATE_STRATEGY` strategy.
 
         Fields whose name are passed in this list will be used to perform a
         :meth:`Model.query.one_or_none() <sqlalchemy.orm.query.Query.one_or_none>`

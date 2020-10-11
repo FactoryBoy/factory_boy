@@ -175,6 +175,10 @@ Meta options
                   a :meth:`Factory._lookup` definition on the factory class
                   or one of its parents.
 
+                  A native implementation is provided for
+                  :class:`django.DjangoModelFactory` and
+                  :class:`alchemy.SQLAlchemyModelFactory`.
+
         .. tip:: Group parameters are resolved lazily: in the above example,
                   the `company` declaration will only be evaluated if the `email`
                   and `access_card_id` lookup failed.
@@ -213,6 +217,27 @@ Meta options
                 # 1. lookup(access_card_id=42)
                 # 2. lookup(access_card_id=42, email=...)
                 # 3. lookup(access_card_id=42, company=..., employee_id=...)
+
+        This feature *replaces* :attr:`django.DjangoOptions.django_get_or_create`
+        and :attr:`alchemy.SQLAlchemyOptions.sqlalchemy_get_or_create` options.
+
+        .. warning:: :attr:`~django.DjangoOptions.django_get_or_create` and
+                     :attr:`~alchemy.SQLAlchemyOptions.sqlalchemy_get_or_create`
+                     where list of fields, understood as "a list of separately
+                     unique columns"; whereas :attr:`~FactoryOptions.unique_constraints`
+                     is a list of *lists of collectively unique columns*.
+
+                     Migrate as follow:
+
+                     .. code-block:: python
+
+                        class EmployeeFactory(factory.django.DjangoModelFactory):
+                            class Meta:
+                                django_get_or_create = ['email', 'employee_id']
+                                unique_constraints = [
+                                    ['email'],
+                                    ['employee_id'],
+                                ]
 
         .. versionadded:: 3.2.0
 
