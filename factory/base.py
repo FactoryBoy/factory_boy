@@ -3,6 +3,7 @@
 
 import collections
 import logging
+import warnings
 
 from . import builder, declarations, enums, errors, utils
 
@@ -116,13 +117,44 @@ class OptionDefault:
         self.inherit = inherit
         self.checker = checker
         self.normalize = normalize
+        self.aliases = {}
+
+    def mark_renamed_from(self, alias):
+        self.aliases[alias.origin] = alias.transform
 
     def apply(self, meta, base_meta):
         value = self.default
         if self.inherit and base_meta is not None:
             value = getattr(base_meta, self.name, value)
         if meta is not None:
-            value = getattr(meta, self.name, value)
+            fields_found = set()
+            for alias, transform in self.aliases.items():
+                if hasattr(meta, alias):
+                    fields_found.add(alias)
+                    origin = getattr(meta, alias)
+                    value = transform(origin)
+                    warning = "Option '{alias}' on {meta} has been renamed to '{name}'."
+                    if origin != value:
+                        warning += " Convert `{alias} = {origin}` into `{name} = {value}`."
+                    warnings.warn(
+                        warning.format(
+                            alias=alias,
+                            name=self.name,
+                            meta=meta,
+                            origin=origin,
+                            value=value,
+                        ),
+                        DeprecationWarning,
+                        stacklevel=5,
+                    )
+            if hasattr(meta, self.name):
+                value = getattr(meta, self.name)
+                fields_found.add(self.name)
+            if len(fields_found) > 1:
+                raise ValueError(
+                    "More than one declaration found for %s: %s. Use only %s - others are obsolete."
+                    % (self.name, ', '.join(sorted(fields_found)), self.name),
+                )
         if self.normalize is not None:
             value = self.normalize(value)
 
@@ -137,7 +169,34 @@ class OptionDefault:
             self.name, self.value, self.inherit)
 
 
+def _noop(value):
+    return value
+
+
+class OptionRenamed:
+    """A renamed option.
+
+    Provide the original option name, the target name
+    and an optional transformation to apply to the original
+    option value.
+
+    If a user class contains a renamed option, a warning will be generated,
+    showing the expected new name and, if applicable, the transformation
+    to apply to the value.
+    """
+    def __init__(self, origin, target, transform=_noop):
+        self.origin = origin
+        self.target = target
+        self.transform = transform
+
+    def __str__(self):
+        return '%s(%r, %r, tranform=%r)' % (
+            self.__class__.__name__,
+            self.origin, self.target, self.transform)
+
+
 class FactoryOptions:
+
     def __init__(self):
         self.factory = None
         self.base_factory = None
@@ -178,7 +237,29 @@ class FactoryOptions:
             OptionDefault('inline_args', (), inherit=True),
             OptionDefault('exclude', (), inherit=True),
             OptionDefault('rename', {}, inherit=True),
+            OptionDefault(
+                'lookup_groups', [], inherit=True,
+                normalize=lambda groups: [set(group) for group in groups],
+            ),
         ]
+
+    def _get_renamed_options(self):
+        """Retrieve a list of renamed options."""
+        return []
+
+    def _prepare_options(self):
+        """Prepare the list of options
+
+        - Compute the options;
+        - Register the renaming rules for relevant options.
+        """
+        options = {
+            option.name: option
+            for option in self._build_default_options()
+        }
+        for move in self._get_renamed_options():
+            options[move.target].mark_renamed_from(move)
+        return options.values()
 
     def _fill_from_meta(self, meta, base_meta):
         # Exclude private/protected fields from the meta
@@ -191,10 +272,14 @@ class FactoryOptions:
                 if not k.startswith('_')
             }
 
-        for option in self._build_default_options():
+        for option in self._prepare_options():
             assert not hasattr(self, option.name), "Can't override field %s." % option.name
             value = option.apply(meta, base_meta)
             meta_attrs.pop(option.name, None)
+
+            # Remove renamed options too
+            for alias in option.aliases:
+                meta_attrs.pop(alias, None)
             setattr(self, option.name, value)
 
         if meta_attrs:
