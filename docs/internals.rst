@@ -46,12 +46,12 @@ Parsing, Step 2: adapting the class definition
           for declaration ``foo``.
 
 
-Instantiating, Step 1: Converging entrypoints
----------------------------------------------
+Instantiating, Step 1: Converging entry points
+----------------------------------------------
 
 First, decide the strategy:
 
-- If the entrypoint is specific to a strategy (:meth:`~Factory.build`,
+- If the entry point is specific to a strategy (:meth:`~Factory.build`,
   :meth:`~Factory.create_batch`, ...), use it
 - If it is generic (:meth:`~Factory.generate`, :meth:`Factory.__call__`),
   use the strategy defined at the :attr:`class Meta <Factory.Meta>` level
@@ -59,7 +59,7 @@ First, decide the strategy:
 
 Then, we'll pass the strategy and passed-in overrides to the :meth:`~Factory._generate` method.
 
-.. note:: According to the project roadmap, a future version will use a :meth:`~Factory._generate_batch`` at its core instead.
+.. note:: According to the project road map, a future version will use a :meth:`~Factory._generate_batch`` at its core instead.
 
 A factory's :meth:`~Factory._generate` function actually delegates to a ``StepBuilder()`` object.
 This object will carry the overall "build an object" context (strategy, depth, and possibly other).

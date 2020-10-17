@@ -266,8 +266,8 @@ This is handled by the :data:`~factory.FactoryOptions.inline_args` attribute:
     <MyClass(1, 4, z=3)>
 
 
-Altering a factory's behaviour: parameters and traits
------------------------------------------------------
+Altering a factory's behavior: parameters and traits
+----------------------------------------------------
 
 Some classes are better described with a few, simple parameters, that aren't fields on the actual model.
 In that case, use a :attr:`~factory.Factory.Params` declaration:

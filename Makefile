@@ -97,6 +97,9 @@ doc:
 linkcheck:
 	$(MAKE) -C $(DOC_DIR) linkcheck
 
+spelling:
+	$(MAKE) -C $(DOC_DIR) SPHINXOPTS=-W spelling
+
 # DOC: Show this help message
 help:
 	@grep -A1 '^# DOC:' Makefile \
