@@ -85,3 +85,9 @@ intersphinx_mapping = {
         'https://docs.sqlalchemy.org/en/latest/objects.inv',
     ),
 }
+
+
+# -- spelling ---------------------------------------------------------------
+spelling_exclude_patterns = [
+    'credits.rst',
+]

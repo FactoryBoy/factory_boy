@@ -136,7 +136,7 @@ Since version 2.9, the :meth:`~factory.django.mute_signals` decorator should be 
     >>> u.get_profile().title
     u"Lord"
 
-Such behaviour can be extended to other situations where a signal interferes with
+Such behavior can be extended to other situations where a signal interferes with
 factory_boy related factories.
 
 Any factories that call these classes with :class:`~factory.SubFactory` will also need to be decorated in the same manner.
@@ -311,8 +311,8 @@ When a field of a related class should match one of the container:
 
 Here, we want:
 
-- The User to have the lang of its country (``factory.SelfAttribute('country.lang')``)
-- The Company owner to live in the country of the company (``factory.SelfAttribute('..country')``)
+- The ``User`` to have the ``lang`` of its country (``factory.SelfAttribute('country.lang')``)
+- The ``Company`` owner to live in the country of the company (``factory.SelfAttribute('..country')``)
 
 .. code-block:: python
 
@@ -386,7 +386,7 @@ A common pattern with factory_boy is to use a :class:`factory.Sequence` declarat
 to provide varying values to attributes declared as unique.
 
 However, it is sometimes useful to force a given value to the counter, for instance
-to ensure that tests are properly reproductible.
+to ensure that tests are properly reproducible.
 
 factory_boy provides a few hooks for this:
 
@@ -448,7 +448,7 @@ Forcing the initial value for all projects
     The sequence counter of a :class:`~factory.Factory` can also be set
     automatically upon the first call through the
     :meth:`~factory.Factory._setup_next_sequence` method; this helps when the
-    objects's attributes mustn't conflict with pre-existing data.
+    objects' attributes mustn't conflict with preexisting data.
 
     A typical example is to ensure that running a Python script twice will create
     non-conflicting objects, by setting up the counter to "max used value plus one":
@@ -477,7 +477,7 @@ Forcing the initial value for all projects
 Using reproducible randomness
 -----------------------------
 
-Although using random values is great, it can provoke test flakyness.
+Although using random values is great, it can provoke test flakiness.
 factory_boy provides a few helpers for this.
 
 .. note:: Those methods will seed the random engine used in both :class:`factory.Faker` and :mod:`factory.fuzzy` objects.
@@ -500,7 +500,7 @@ Reproducing unseeded tests
     For such cases, use a combination of :meth:`factory.random.get_random_state()`
     and :meth:`factory.random.set_random_state()`.
 
-    Since the random state structure is implementation-specific, we recommand passing it around
+    Since the random state structure is implementation-specific, we recommend passing it around
     as a base64-encoded pickle dump.
 
     .. code-block:: python

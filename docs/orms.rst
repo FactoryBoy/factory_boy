@@ -334,7 +334,7 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
 
     .. attribute:: sqlalchemy_session_persistence
 
-        Control the action taken by sqlalchemy session at the end of a create call.
+        Control the action taken by ``sqlalchemy_session`` at the end of a create call.
 
         Valid values are:
 

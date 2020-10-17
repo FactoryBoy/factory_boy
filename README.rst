@@ -61,7 +61,7 @@ while only declaring the test-specific fields:
             )
             # etc.
 
-factory_boy is designed to work well with various ORMs (Django, Mongo, SQLAlchemy),
+factory_boy is designed to work well with various ORMs (Django, MongoDB, SQLAlchemy),
 and can easily be extended for other libraries.
 
 Its main features include:
@@ -325,7 +325,7 @@ Support Policy
 - **Django**'s `supported
   versions <https://www.djangoproject.com/download/#supported-versions>`__.
 - **SQLAlchemy**: `latest version on PyPI <https://pypi.org/project/SQLAlchemy/>`__.
-- **mongoengine**: `latest version on PyPI <https://pypi.org/project/mongoengine/>`__.
+- **MongoEngine**: `latest version on PyPI <https://pypi.org/project/mongoengine/>`__.
 
 Debugging factory_boy
 ---------------------
@@ -407,7 +407,7 @@ Valid options are:
 * ``ALCHEMY`` for ``SQLAlchemy``
 
 
-To avoid running ``mongoengine`` tests (e.g no mongo server installed), run:
+To avoid running ``mongoengine`` tests (e.g no MongoDB server installed), run:
 
 .. code-block:: sh
 

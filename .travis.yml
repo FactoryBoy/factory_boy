@@ -18,6 +18,8 @@ matrix:
     # Documentation
     - python: "3.8"
       env: TOXENV=docs
+      before_install:
+        - sudo apt-get -y install libenchant1c2a
     - python: "3.8"
       env: TOXENV=linkcheck
 

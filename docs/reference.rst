@@ -18,7 +18,7 @@ Meta options
 
     .. versionadded:: 2.4.0
 
-    A :class:`Factory`'s behaviour can be tuned through a few settings.
+    A :class:`Factory`'s behavior can be tuned through a few settings.
 
     For convenience, they are declared in a single ``class Meta`` attribute:
 
@@ -248,7 +248,7 @@ Attributes and methods
     **Extension points:**
 
     A :class:`Factory` subclass may override a couple of class methods to adapt
-    its behaviour:
+    its behavior:
 
     .. classmethod:: _adjust_kwargs(cls, **kwargs)
 
@@ -578,7 +578,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
 
     .. OHAI_VIM*
 
-    .. warning:: For backward compatibility reasons, the default behaviour of
+    .. warning:: For backward compatibility reasons, the default behavior of
                  factory_boy is to call ``MyClass.objects.create(*args, **kwargs)``
                  when using the ``create`` strategy.
 
@@ -637,7 +637,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
 
     Context manager to help debugging factory_boy behavior.
     It will temporarily put the target logger (e.g ``'factory'``) in debug mode,
-    sending all output to :obj`~sys.stderr`;
+    sending all output to ``stream``;
     upon leaving the context, the logging levels are reset.
 
     A typical use case is to understand what happens during a single factory call:
@@ -1356,7 +1356,7 @@ Iterator
 
         .. versionadded:: 1.3.0
             The ``cycle`` argument is available as of v1.3.0; previous versions
-            had a behaviour equivalent to ``cycle=False``.
+            had a behavior equivalent to ``cycle=False``.
 
     .. attribute:: getter
 
@@ -1507,7 +1507,7 @@ with the :class:`Dict` and :class:`List` attributes:
               containing factory's one.
 
 
-    The :class:`Dict` behaviour can be tuned through the following parameters:
+    The :class:`Dict` behavior can be tuned through the following parameters:
 
     .. attribute:: dict_factory
 
@@ -1541,7 +1541,7 @@ with the :class:`Dict` and :class:`List` attributes:
         ['user', 'active', 'superadmin']
 
 
-    The :class:`List` behaviour can be tuned through the following parameters:
+    The :class:`List` behavior can be tuned through the following parameters:
 
     .. attribute:: list_factory
 
@@ -1729,7 +1729,7 @@ If a value is passed for the :class:`RelatedFactory` attribute, this disables
 
 .. note:: The target of the :class:`RelatedFactory` is evaluated *after* the initial factory has been instantiated.
           However, the build context is passed down to that factory; this means that calls to
-          :class:`factory.SelfAttribute` *can* go back to the calling factorry's context:
+          :class:`factory.SelfAttribute` *can* go back to the calling factory's context:
 
           .. code-block:: python
 
