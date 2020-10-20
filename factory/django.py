@@ -285,7 +285,7 @@ class mute_signals:
             logger.debug('mute_signals: Restoring signal handlers %r',
                          receivers)
 
-            signal.receivers = receivers
+            signal.receivers += receivers
             with signal.lock:
                 # Django uses some caching for its signals.
                 # Since we're bypassing signal.connect and signal.disconnect,

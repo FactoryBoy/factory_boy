@@ -884,6 +884,16 @@ class PreventSignalsTestCase(django_test.TestCase):
 
         self.assertSignalsReactivated()
 
+    def test_receiver_created_during_model_instantiation_is_not_lost(self):
+        with factory.django.mute_signals(signals.post_save):
+            instance = WithSignalsFactory(post_save_signal_receiver=self.handlers.created_during_instantiation)
+            self.assertTrue(self.handlers.created_during_instantiation.called)
+
+        self.handlers.created_during_instantiation.reset_mock()
+        instance.save()
+
+        self.assertTrue(self.handlers.created_during_instantiation.called)
+
     def test_signal_cache(self):
         with factory.django.mute_signals(signals.pre_save, signals.post_save):
             signals.post_save.connect(self.handlers.mute_block_receiver)
