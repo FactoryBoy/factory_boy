@@ -17,6 +17,10 @@ ChangeLog
     - Add support for Django 3.1
     - Add support for Python 3.9
 
+*Bugfix:*
+
+    - Do not override signals receivers registered in a :meth:`~factory.django.mute_signals` context.
+
 *Removed:*
 
     - Drop support for Django 1.11. This version `is not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
