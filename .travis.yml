@@ -12,21 +12,22 @@ matrix:
     - python: "3.6"
     - python: "3.7"
     - python: "3.8"
+    - python: "3.9"
 
     - python: "pypy3"
 
     # Documentation
-    - python: "3.8"
+    - python: "3.9"
       env: TOXENV=docs
       before_install:
         - sudo apt-get -y install libenchant1c2a
-    - python: "3.8"
+    - python: "3.9"
       env: TOXENV=linkcheck
 
     # Linting
-    - python: "3.8"
+    - python: "3.9"
       env: TOXENV=examples
-    - python: "3.8"
+    - python: "3.9"
       env: TOXENV=lint
 
 services:
