@@ -440,6 +440,25 @@ class SubFactory(ParameteredAttribute):
         return step.recurse(subfactory, params, force_sequence=force_sequence)
 
 
+class SubFactoryList(SubFactory):
+    """Calls a factory 'size' times once the object has been generated.
+
+    Attributes:
+        factory (Factory): the factory to call "size-times"
+        defaults (dict): Overrides to the defaults defined in the wrapped
+            factory
+        size (int|lambda): the number of times 'factory' is called, ultimately
+            returning a list of 'factory' objects w/ size 'size'.
+    """
+
+    def __init__(self, factory, size=2, **kwargs):
+        self.size = size() if callable(size) else size
+        super().__init__(factory, **kwargs)
+
+    def generate(self, step, params):
+        return [super(SubFactoryList, self).generate(step, params) for _ in range(self.size)]
+
+
 class Dict(SubFactory):
     """Fill a dict with usual declarations."""
 

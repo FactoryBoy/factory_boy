@@ -1924,6 +1924,127 @@ class SubFactoryTestCase(unittest.TestCase):
         self.assertEqual(42, obj.container_len)
 
 
+class SubFactoryListTestCase(unittest.TestCase):
+    def test_sub_factory_list_of_variable_size(self):
+        sizes = [3, 2, 1]
+        size = lambda: sizes.pop()
+
+        class TestSubFactoryParent:
+            def __init__(self, children):
+                self.children = children
+
+        class TestSubFactoryChild:
+            def __init__(self, value):
+                self.value = value
+
+            def __eq__(self, other):
+                if not isinstance(other, TestSubFactoryChild):
+                    return False
+
+                return self.value == other.value
+
+        class TestSubFactoryChildFactory(factory.Factory):
+            value = factory.Sequence(lambda n: n)
+
+            class Meta:
+                model = TestSubFactoryChild
+
+        class TestSubFactoryParentFactory(factory.Factory):
+            children = factory.SubFactoryList(TestSubFactoryChildFactory, size=size)
+
+            class Meta:
+                model = TestSubFactoryParent
+
+            @classmethod
+            def reset_child_sequence_and_build(cls):
+                TestSubFactoryChildFactory.reset_sequence()
+                return cls.build()
+
+        has_three_children = TestSubFactoryParentFactory.reset_child_sequence_and_build()
+        has_two_children = TestSubFactoryParentFactory.reset_child_sequence_and_build()
+        has_one_children = TestSubFactoryParentFactory.reset_child_sequence_and_build()
+
+        self.assertListEqual(
+            has_three_children.children,
+            [
+                TestSubFactoryChild(1),
+                TestSubFactoryChild(2),
+                TestSubFactoryChild(3),
+            ],
+        )
+
+        self.assertListEqual(
+            has_two_children.children,
+            [
+                TestSubFactoryChild(1),
+                TestSubFactoryChild(2),
+            ],
+        )
+
+        self.assertListEqual(
+            has_one_children.children,
+            [
+                TestSubFactoryChild(1),
+            ],
+        )
+
+    def test_sub_factory_list_of_static_size(self):
+        size = 4
+
+        class TestSubFactoryParent:
+            def __init__(self, children):
+                self.children = children
+
+        class TestSubFactoryChild:
+            def __init__(self, value):
+                self.value = value
+
+            def __eq__(self, other):
+                if not isinstance(other, TestSubFactoryChild):
+                    return False
+
+                return self.value == other.value
+
+        class TestSubFactoryChildFactory(factory.Factory):
+            value = factory.Sequence(lambda n: n)
+
+            class Meta:
+                model = TestSubFactoryChild
+
+        class TestSubFactoryParentFactory(factory.Factory):
+            children = factory.SubFactoryList(TestSubFactoryChildFactory, size=size)
+
+            class Meta:
+                model = TestSubFactoryParent
+
+            @classmethod
+            def reset_child_sequence_and_build(cls):
+                TestSubFactoryChildFactory.reset_sequence()
+                return cls.build()
+
+        has_four_children_once = TestSubFactoryParentFactory.reset_child_sequence_and_build()
+        has_four_children_again = TestSubFactoryParentFactory.reset_child_sequence_and_build()
+
+        self.assertListEqual(
+            has_four_children_once.children,
+            [
+                TestSubFactoryChild(1),
+                TestSubFactoryChild(2),
+                TestSubFactoryChild(3),
+                TestSubFactoryChild(4),
+            ],
+        )
+        self.assertListEqual(
+            has_four_children_again.children,
+            [
+                TestSubFactoryChild(1),
+                TestSubFactoryChild(2),
+                TestSubFactoryChild(3),
+                TestSubFactoryChild(4),
+            ],
+        )
+
+
 class IteratorTestCase(unittest.TestCase):
 
     def test_iterator(self):
