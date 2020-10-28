@@ -25,6 +25,7 @@ from .declarations import (
     SelfAttribute,
     Sequence,
     SubFactory,
+    SubFactoryList,
     Trait,
 )
 from .enums import BUILD_STRATEGY, CREATE_STRATEGY, STUB_STRATEGY
