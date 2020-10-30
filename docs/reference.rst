@@ -805,7 +805,7 @@ return a value.
     >>> LogFactory()
     <Log: log at 2016-02-12 17:02:34>
 
-    >>> # The LazyFunction can be overriden
+    >>> # The LazyFunction can be overridden
     >>> LogFactory(timestamp=now - timedelta(days=1))
     <Log: log at 2016-02-11 17:02:34>
 
