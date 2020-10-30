@@ -62,6 +62,16 @@ def create_batch(klass, size, **kwargs):
     return make_factory(klass, **kwargs).create_batch(size)
 
 
+async def create_async(klass, **kwargs):
+    """Create a factory for the given class, and create a Task to create an instance."""
+    return await make_factory(klass, **kwargs).create_async()
+
+
+async def create_async_batch(klass, size, **kwargs):
+    """Create a factory for the given class, and create a batch of instances."""
+    return await make_factory(klass, **kwargs).create_async_batch(size)
+
+
 def stub(klass, **kwargs):
     """Create a factory for the given class, and stub an instance."""
     return make_factory(klass, **kwargs).stub()
