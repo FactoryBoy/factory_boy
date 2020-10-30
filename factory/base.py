@@ -506,12 +506,12 @@ class BaseFactory:
 
     @classmethod
     def build(cls, **kwargs):
-        """Build an instance of the associated class, with overriden attrs."""
+        """Build an instance of the associated class, with overridden attrs."""
         return cls._generate(enums.BUILD_STRATEGY, kwargs)
 
     @classmethod
     def build_batch(cls, size, **kwargs):
-        """Build a batch of instances of the given class, with overriden attrs.
+        """Build a batch of instances of the given class, with overridden attrs.
 
         Args:
             size (int): the number of instances to build
@@ -523,12 +523,12 @@ class BaseFactory:
 
     @classmethod
     def create(cls, **kwargs):
-        """Create an instance of the associated class, with overriden attrs."""
+        """Create an instance of the associated class, with overridden attrs."""
         return cls._generate(enums.CREATE_STRATEGY, kwargs)
 
     @classmethod
     def create_batch(cls, size, **kwargs):
-        """Create a batch of instances of the given class, with overriden attrs.
+        """Create a batch of instances of the given class, with overridden attrs.
 
         Args:
             size (int): the number of instances to create
@@ -540,7 +540,7 @@ class BaseFactory:
 
     @classmethod
     def stub(cls, **kwargs):
-        """Retrieve a stub of the associated class, with overriden attrs.
+        """Retrieve a stub of the associated class, with overridden attrs.
 
         This will return an object whose attributes are those defined in this
         factory's declarations or in the extra kwargs.
@@ -549,7 +549,7 @@ class BaseFactory:
 
     @classmethod
     def stub_batch(cls, size, **kwargs):
-        """Stub a batch of instances of the given class, with overriden attrs.
+        """Stub a batch of instances of the given class, with overridden attrs.
 
         Args:
             size (int): the number of instances to stub
