@@ -717,9 +717,11 @@ class RelatedFactoryList(RelatedFactory):
         super().__init__(factory, factory_related_name, **defaults)
 
     def call(self, instance, step, context):
-        return [super(RelatedFactoryList, self).call(instance, step, context)
-                for i in range(self.size if isinstance(self.size, int)
-                               else self.size())]
+        parent = super()
+        return [
+            parent.call(instance, step, context)
+            for i in range(self.size if isinstance(self.size, int) else self.size())
+        ]
 
 
 class NotProvided:
