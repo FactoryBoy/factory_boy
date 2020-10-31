@@ -393,9 +393,9 @@ class _FactoryWrapper:
 
     def __repr__(self):
         if self.factory is None:
-            return '<_FactoryImport: %s.%s>' % (self.module, self.name)
+            return f'<_FactoryImport: {self.module}.{self.name}>'
         else:
-            return '<_FactoryImport: %s>' % self.factory.__class__
+            return f'<_FactoryImport: {self.factory.__class__}>'
 
 
 class SubFactory(ParameteredAttribute):
@@ -490,7 +490,7 @@ class Maybe(BaseDeclaration):
         used_phases = {phase for phase in phases.values() if phase is not None}
 
         if len(used_phases) > 1:
-            raise TypeError("Inconsistent phases for %r: %r" % (self, phases))
+            raise TypeError(f"Inconsistent phases for {self!r}: {phases!r}")
 
         self.FACTORY_BUILDER_PHASE = used_phases.pop() if used_phases else enums.BuilderPhase.ATTRIBUTE_RESOLUTION
 
@@ -530,7 +530,7 @@ class Maybe(BaseDeclaration):
             return target
 
     def __repr__(self):
-        return 'Maybe(%r, yes=%r, no=%r)' % (self.decider, self.yes, self.no)
+        return f'Maybe({self.decider!r}, yes={self.yes!r}, no={self.no!r})'
 
 
 class Parameter(utils.OrderedBase):

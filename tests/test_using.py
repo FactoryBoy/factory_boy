@@ -1507,7 +1507,7 @@ class SubFactoryTestCase(unittest.TestCase):
             two = factory.SubFactory(
                 TestModelFactory,
                 one=factory.Sequence(lambda n: 'x%dx' % n),
-                two=factory.LazyAttribute(lambda o: '%s%s' % (o.one, o.one)),
+                two=factory.LazyAttribute(lambda o: f'{o.one}{o.one}'),
             )
 
         test_model = TestModel2Factory(one=42)

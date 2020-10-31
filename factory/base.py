@@ -90,7 +90,7 @@ class FactoryMetaClass(type):
         if cls._meta.abstract:
             return '<%s (abstract)>' % cls.__name__
         else:
-            return '<%s for %s>' % (cls.__name__, cls._meta.model)
+            return f'<{cls.__name__} for {cls._meta.model}>'
 
 
 class BaseMeta:
