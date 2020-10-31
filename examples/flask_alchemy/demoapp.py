@@ -33,4 +33,4 @@ class UserLog(db.Model):
         self.user = user
 
     def __repr__(self):
-        return '<Log for %r: %s>' % (self.user, self.message)
+        return f'<Log for {self.user!r}: {self.message}>'

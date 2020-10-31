@@ -234,7 +234,7 @@ class BuildStep:
         return builder.build(parent_step=self, force_sequence=force_sequence)
 
     def __repr__(self):
-        return "<BuildStep for {!r}>".format(self.builder)
+        return f"<BuildStep for {self.builder!r}>"
 
 
 class StepBuilder:
@@ -314,7 +314,7 @@ class StepBuilder:
         return self.__class__(factory_meta, extras, strategy=self.strategy)
 
     def __repr__(self):
-        return "<StepBuilder(%r, strategy=%r)>" % (self.factory_meta, self.strategy)
+        return f"<StepBuilder({self.factory_meta!r}, strategy={self.strategy!r})>"
 
 
 class Resolver:

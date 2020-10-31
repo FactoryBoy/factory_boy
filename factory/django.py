@@ -96,7 +96,7 @@ class DjangoModelFactory(base.Factory):
     def _get_manager(cls, model_class):
         if model_class is None:
             raise errors.AssociatedClassError(
-                "No model set on %s.%s.Meta" % (cls.__module__, cls.__name__))
+                f"No model set on {cls.__module__}.{cls.__name__}.Meta")
 
         try:
             manager = model_class.objects
