@@ -1,0 +1,47 @@
+name: Test
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    name: Python ${{ matrix.python-version }} / ${{ matrix.tox-environment }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - 3.6
+          - 3.7
+          - 3.8
+          - 3.9
+          - pypy3
+        tox-environment:
+          - django22-alchemy-mongoengine
+          - django30-alchemy-mongoengine
+          - django31-alchemy-mongoengine
+
+    services:
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    env:
+      TOXENV: ${{ matrix.tox-environment }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: python -m pip install tox
+
+      - name: Run tests
+        run: tox

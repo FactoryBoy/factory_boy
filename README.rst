@@ -1,8 +1,11 @@
 factory_boy
 ===========
 
-.. image:: https://secure.travis-ci.org/FactoryBoy/factory_boy.svg?branch=master
-    :target: https://travis-ci.org/FactoryBoy/factory_boy/
+.. image:: https://github.com/FactoryBoy/factory_boy/workflows/Test/badge.svg
+    :target: https://github.com/FactoryBoy/factory_boy/actions?query=workflow%3ATest
+
+.. image:: https://github.com/FactoryBoy/factory_boy/workflows/Check/badge.svg
+    :target: https://github.com/FactoryBoy/factory_boy/actions?query=workflow%3ACheck
 
 .. image:: https://img.shields.io/pypi/v/factory_boy.svg
     :target: https://factoryboy.readthedocs.io/en/latest/changelog.html
