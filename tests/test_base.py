@@ -362,18 +362,11 @@ class FactorySequenceTestCase(unittest.TestCase):
 
 
 class FactoryDefaultStrategyTestCase(unittest.TestCase):
-    def setUp(self):
-        self.default_strategy = base.Factory._meta.strategy
-
-    def tearDown(self):
-        base.Factory._meta.strategy = self.default_strategy
-
     def test_build_strategy(self):
-        base.Factory._meta.strategy = enums.BUILD_STRATEGY
-
         class TestModelFactory(base.Factory):
             class Meta:
                 model = TestModel
+                strategy = enums.BUILD_STRATEGY
 
             one = 'one'
 
@@ -395,11 +388,10 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertTrue(test_model.id)
 
     def test_stub_strategy(self):
-        base.Factory._meta.strategy = enums.STUB_STRATEGY
-
         class TestModelFactory(base.Factory):
             class Meta:
                 model = TestModel
+                strategy = enums.STUB_STRATEGY
 
             one = 'one'
 
@@ -408,11 +400,10 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         self.assertFalse(hasattr(test_model, 'id'))  # We should have a plain old object
 
     def test_unknown_strategy(self):
-        base.Factory._meta.strategy = 'unknown'
-
         class TestModelFactory(base.Factory):
             class Meta:
                 model = TestModel
+                strategy = 'unknown'
 
             one = 'one'
 
@@ -423,10 +414,9 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         class TestModelFactory(base.StubFactory):
             class Meta:
                 model = TestModel
+                strategy = enums.CREATE_STRATEGY
 
             one = 'one'
-
-        TestModelFactory._meta.strategy = enums.CREATE_STRATEGY
 
         with self.assertRaises(base.StubFactory.UnsupportedStrategy):
             TestModelFactory()
@@ -435,20 +425,20 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
         class TestModelFactory(base.StubFactory):
             class Meta:
                 model = TestModel
+                strategy = enums.BUILD_STRATEGY
 
             one = 'one'
 
-        TestModelFactory._meta.strategy = enums.BUILD_STRATEGY
         obj = TestModelFactory()
 
         # For stubs, build() is an alias of stub().
         self.assertFalse(isinstance(obj, TestModel))
 
     def test_change_strategy(self):
-        @base.use_strategy(enums.CREATE_STRATEGY)
         class TestModelFactory(base.StubFactory):
             class Meta:
                 model = TestModel
+                strategy = enums.CREATE_STRATEGY
 
             one = 'one'
 
