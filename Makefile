@@ -54,6 +54,7 @@ testall:
 test:
 	python \
 		-b \
+		-X dev \
 		-Werror \
 		-Wdefault:"the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses":DeprecationWarning:distutils: \
 		-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working":DeprecationWarning:: \
