@@ -191,14 +191,12 @@ hook:
 
         @factory.post_generation
         def groups(self, create, extracted, **kwargs):
-            if not create:
-                # Simple build, do nothing.
+            if not create or not extracted:
+                # Simple build, or nothing to add, do nothing.
                 return
 
-            if extracted:
-                # A list of groups were passed in, use them
-                for group in extracted:
-                    self.groups.add(group)
+            # Add the iterable of groups using bulk addition
+            self.groups.add(*extracted)
 
 .. OHAI_VIM**
 
