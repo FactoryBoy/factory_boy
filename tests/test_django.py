@@ -12,7 +12,6 @@ from django import test as django_test
 from django.conf import settings
 from django.db.models import signals
 from django.test import utils as django_test_utils
-from django.test.runner import DiscoverRunner as DjangoTestSuiteRunner
 
 import factory.django
 
@@ -34,18 +33,12 @@ test_state = {}
 
 def setUpModule():
     django_test_utils.setup_test_environment()
-    runner = DjangoTestSuiteRunner()
-    runner_state = runner.setup_databases()
-    test_state.update({
-        'runner': runner,
-        'runner_state': runner_state,
-    })
+    runner_state = django_test_utils.setup_databases(verbosity=0, interactive=False)
+    test_state['runner_state'] = runner_state
 
 
 def tearDownModule():
-    runner = test_state['runner']
-    runner_state = test_state['runner_state']
-    runner.teardown_databases(runner_state)
+    django_test_utils.teardown_databases(test_state['runner_state'], verbosity=0)
     django_test_utils.teardown_test_environment()
 
 
