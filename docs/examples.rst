@@ -72,8 +72,8 @@ And now, we'll define the related factories:
 
         account = factory.SubFactory(AccountFactory)
         gender = factory.Iterator([objects.Profile.GENDER_MALE, objects.Profile.GENDER_FEMALE])
-        firstname = u'John'
-        lastname = u'Doe'
+        firstname = 'John'
+        lastname = 'Doe'
 
 
 
@@ -86,7 +86,7 @@ If we commonly use a specific variant of our objects, we can refine a factory ac
 
     class FemaleProfileFactory(ProfileFactory):
         gender = objects.Profile.GENDER_FEMALE
-        firstname = u'Jane'
+        firstname = 'Jane'
         account__username = factory.Sequence(lambda n: 'jane%s' % n)
 
 

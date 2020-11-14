@@ -432,7 +432,7 @@ A (very) simple example:
             sqlalchemy_session = session   # the SQLAlchemy session object
 
         id = factory.Sequence(lambda n: n)
-        name = factory.Sequence(lambda n: u'User %d' % n)
+        name = factory.Sequence(lambda n: 'User %d' % n)
 
 .. code-block:: pycon
 
