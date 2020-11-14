@@ -3,6 +3,7 @@
 
 import collections
 import logging
+import warnings
 
 from . import builder, declarations, enums, errors, utils
 
@@ -716,6 +717,11 @@ def use_strategy(new_strategy):
 
     This is an alternative to setting default_strategy in the class definition.
     """
+    warnings.warn(
+        "use_strategy() is deprecated and will be removed in the future.",
+        DeprecationWarning,
+    )
+
     def wrapped_class(klass):
         klass._meta.strategy = new_strategy
         return klass
