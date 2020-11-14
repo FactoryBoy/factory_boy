@@ -1,6 +1,24 @@
 ChangeLog
 =========
 
+4.0.0 (unreleased)
+------------------
+
+*Removed:*
+
+    - :func:`factory.use_strategy()`
+
+3.2.0 (unreleased)
+------------------
+
+*Deprecated:*
+
+    - :func:`factory.use_strategy`. Use :attr:`factory.FactoryOptions.strategy` instead.
+      The purpose of :func:`~factory.use_strategy` duplicates the factory option. Follow :pep:`20`: *There should be
+      one-- and preferably only one --obvious way to do it.*
+
+      :func:`~factory.use_strategy()` will be removed in the next major version.
+
 3.1.1 (unreleased)
 ------------------
 

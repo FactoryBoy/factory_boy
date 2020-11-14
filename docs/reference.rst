@@ -590,6 +590,10 @@ factory_boy supports two main strategies for generating instances, plus stubs.
 
 .. function:: use_strategy(strategy)
 
+    .. deprecated:: 3.2
+
+        Use :py:attr:`factory.FactoryOptions.strategy` instead.
+
     *Decorator*
 
     Change the default strategy of the decorated :class:`Factory` to the chosen :obj:`strategy`:

@@ -349,14 +349,13 @@ class UsingFactoryTestCase(unittest.TestCase):
         self.assertEqual(test_object.one, 'one')
 
     def test_inheriting_model_class(self):
-        @factory.use_strategy(factory.BUILD_STRATEGY)
         class TestObjectFactory(factory.Factory, TestObject):
             class Meta:
                 model = TestObject
 
             one = 'one'
 
-        test_object = TestObjectFactory()
+        test_object = TestObjectFactory.build()
         self.assertEqual(test_object.one, 'one')
 
     def test_abstract(self):
