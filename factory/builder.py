@@ -2,7 +2,7 @@
 
 import collections
 
-from . import declarations, enums, errors, utils
+from . import enums, errors, utils
 
 DeclarationWithContext = collections.namedtuple(
     'DeclarationWithContext',
@@ -138,18 +138,6 @@ class DeclarationSet:
 
     def __repr__(self):
         return '<DeclarationSet: %r>' % self.as_dict()
-
-
-class FakePostGenerationDeclaration(declarations.PostGenerationDeclaration):
-    """A fake post-generation declaration, providing simply a hardcoded value.
-
-    Used to disable post-generation when the user has overridden a method.
-    """
-    def __init__(self, value):
-        self.value = value
-
-    def call(self, instance, step, context):
-        return self.value
 
 
 def parse_declarations(decls, base_pre=None, base_post=None):
