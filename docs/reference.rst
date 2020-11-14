@@ -883,7 +883,7 @@ return value of the method:
         class Meta:
             model = User
 
-        name = u"Jean"
+        name = "Jean"
 
         @factory.lazy_attribute
         def email(self):
@@ -891,13 +891,13 @@ return value of the method:
             clean_name = (unicodedata.normalize('NFKD', self.name)
                             .encode('ascii', 'ignore')
                             .decode('utf8'))
-            return u'%s@example.com' % clean_name
+            return '%s@example.com' % clean_name
 
 .. code-block:: pycon
 
-    >>> joel = UserFactory(name=u"Joël")
+    >>> joel = UserFactory(name="Joël")
     >>> joel.email
-    u'joel@example.com'
+    'joel@example.com'
 
 
 Sequence

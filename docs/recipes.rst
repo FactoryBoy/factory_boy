@@ -132,9 +132,9 @@ Since version 2.9, the :meth:`~factory.django.mute_signals` decorator should be 
 
 .. code-block:: pycon
 
-    >>> u = UserFactory(profile__title=u"Lord")
+    >>> u = UserFactory(profile__title="Lord")
     >>> u.get_profile().title
-    u"Lord"
+    "Lord"
 
 Such behavior can be extended to other situations where a signal interferes with
 factory_boy related factories.
