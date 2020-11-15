@@ -9,15 +9,15 @@ factory_boy
     :alt: Latest Version
 
 .. image:: https://img.shields.io/pypi/pyversions/factory_boy.svg
-    :target: https://pypi.org/project/factory_boy/
+    :target: https://pypi.org/project/factory-boy/
     :alt: Supported Python versions
 
 .. image:: https://img.shields.io/pypi/wheel/factory_boy.svg
-    :target: https://pypi.org/project/factory_boy/
+    :target: https://pypi.org/project/factory-boy/
     :alt: Wheel status
 
 .. image:: https://img.shields.io/pypi/l/factory_boy.svg
-    :target: https://pypi.org/project/factory_boy/
+    :target: https://pypi.org/project/factory-boy/
     :alt: License
 
 factory_boy is a fixtures replacement based on thoughtbot's `factory_bot <https://github.com/thoughtbot/factory_bot>`_.
@@ -77,14 +77,14 @@ Links
 
 * Documentation: https://factoryboy.readthedocs.io/
 * Repository: https://github.com/FactoryBoy/factory_boy
-* Package: https://pypi.org/project/factory_boy/
+* Package: https://pypi.org/project/factory-boy/
 * Mailing-list: `factoryboy@googlegroups.com <mailto:factoryboy@googlegroups.com>`_ | https://groups.google.com/forum/#!forum/factoryboy
 
 
 Download
 --------
 
-PyPI: https://pypi.org/project/factory_boy/
+PyPI: https://pypi.org/project/factory-boy/
 
 .. code-block:: sh
 
