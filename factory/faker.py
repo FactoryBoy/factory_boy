@@ -38,13 +38,19 @@ class Faker(declarations.ParameteredDeclaration):
     def __init__(self, provider, **kwargs):
         locale = kwargs.pop('locale', None)
         self.provider = provider
+        self.local_faker_instances = {}
         super().__init__(
             locale=locale,
             **kwargs)
 
     def generate(self, params):
         locale = params.pop('locale')
-        subfaker = self._get_faker(locale)
+        unique = params.pop('unique', False)
+        if unique:
+            subfaker = self._get_local_faker(locale).unique
+        else:
+            subfaker = self._get_faker(locale)
+
         return subfaker.format(self.provider, **params)
 
     _FAKER_REGISTRY = {}
@@ -70,6 +76,15 @@ class Faker(declarations.ParameteredDeclaration):
             cls._FAKER_REGISTRY[locale] = subfaker
 
         return cls._FAKER_REGISTRY[locale]
+
+    def _get_local_faker(self, locale):
+        if locale is None:
+            locale = self._DEFAULT_LOCALE
+
+        local_instance = self.local_faker_instances.get(locale)
+        if not local_instance:
+            self.local_faker_instances[locale] = faker_lib.Faker(locale=locale)
+        return self.local_faker_instances[locale]
 
     @classmethod
     def add_provider(cls, provider, locale=None):
