@@ -246,6 +246,21 @@ class FactoryOptions:
             if self._is_declaration(k, v):
                 self.base_declarations[k] = v
 
+        if not self.abstract and (self.default_auto_fields or self.include_auto_fields):
+            if self.introspector_class:
+                self.introspector = self.introspector_class(
+                    factory,
+                    self.mapping_strategy_auto_fields,
+                    mapping_type_auto_fields=self.mapping_type_auto_fields,
+                    mapping_name_auto_fields=self.mapping_name_auto_fields
+                )
+            else:
+                ValueError(
+                    "Missing inspection class. "
+                    "Add it to {}.Meta.introspector_class.".format(self.__class__.__name__)
+                )
+            self._autogenerate_declarations()
+
         if params is not None:
             for k, v in utils.sort_ordered_objects(vars(params).items(), getter=lambda item: item[1]):
                 if not k.startswith('_'):
@@ -361,6 +376,32 @@ class FactoryOptions:
             # All objects with a defined 'builder phase' are declarations.
             return True
         return not name.startswith("_")
+
+    def _autogenerate_declarations(self):
+        field_names = set()
+        if self.default_auto_fields:
+            field_names.update(self.introspector.get_default_field_names())
+
+        # Apply include_auto_fields/exclude_auto_fields from inheritance chain
+        factory_parents = [f for f in reversed(self.factory.__mro__[1:]) if hasattr(f, '_meta')]
+        for parent in factory_parents:
+            field_names.update(getattr(parent._meta, 'include_auto_fields', []))
+            field_names.difference_update(getattr(parent._meta, 'exclude_auto_fields', []))
+
+        field_names.update(self.include_auto_fields)
+
+        # Exclude the fields defined manually in the factory.
+        exclude_auto_fields = set(self.base_declarations.keys())
+        exclude_auto_fields.update(self.exclude_auto_fields)
+        field_names.difference_update(exclude_auto_fields)
+
+        auto_declarations = self.introspector.build_declarations(field_names, exclude_auto_fields)
+        for field_name, auto_declaration in auto_declarations.items():
+            if field_name not in field_names:
+                raise ValueError(
+                    'Introspector %s returned a field (%s) that it was not asked for'
+                    % (self.introspector.__class__.__name__, field_name))
+            self.base_declarations[field_name] = auto_declaration
 
     def _check_parameter_dependencies(self, parameters):
         """Find out in what order parameters should be called."""
