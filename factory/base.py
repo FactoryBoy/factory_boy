@@ -168,12 +168,34 @@ class FactoryOptions:
                 )
 
         return [
+            # The model this factory build
             OptionDefault('model', None, inherit=True, checker=is_model),
+            # Whether this factory is allowed to build objects
             OptionDefault('abstract', False, inherit=False),
+            # The default strategy (BUILD_STRATEGY or CREATE_STRATEGY)
             OptionDefault('strategy', enums.CREATE_STRATEGY, inherit=True),
+            # Declarations that should be passed as *args instead
             OptionDefault('inline_args', (), inherit=True),
+            # Declarations that shouldn't be passed to the object
             OptionDefault('exclude', (), inherit=True),
+            # Declarations that should be used under another name
+            # to the target model (for name conflict handling)
             OptionDefault('rename', {}, inherit=True),
+
+            # The introspector class to use; if None (the default),
+            OptionDefault('introspector_class', None, inherit=True),
+            # Whether to auto-generate the default set of fields
+            OptionDefault('default_auto_fields', False, inherit=True),
+            # Strategy to use in order to get the right declaration of an auto generated field
+            OptionDefault('mapping_strategy_auto_fields', enums.MAPPING_BY_NAME, inherit=True),
+            # List of fields to include in auto-generation
+            OptionDefault('include_auto_fields', (), inherit=False),
+            # List of fields to exclude from auto-generation
+            OptionDefault('exclude_auto_fields', (), inherit=False),
+            # Custom mapping dict that can override or complete the
+            # default inspector mapping.
+            OptionDefault('mapping_type_auto_fields', {}, inherit=False),
+            OptionDefault('mapping_name_auto_fields', {}, inherit=False),
         ]
 
     def _fill_from_meta(self, meta, base_meta):
