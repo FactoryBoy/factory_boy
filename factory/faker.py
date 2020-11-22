@@ -36,14 +36,11 @@ class Faker(declarations.ParameteredDeclaration):
         >>> foo = factory.Faker('name')
     """
     def __init__(self, provider, **kwargs):
-        locale = kwargs.pop('locale', None)
         self.provider = provider
-        super().__init__(
-            locale=locale,
-            **kwargs)
+        super().__init__(**kwargs)
 
     def generate(self, params):
-        locale = params.pop('locale')
+        locale = params.pop('locale', None)
         subfaker = self._get_faker(locale)
         return subfaker.format(self.provider, **params)
 
