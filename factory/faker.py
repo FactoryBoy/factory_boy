@@ -15,8 +15,8 @@ Usage:
 
 import contextlib
 
-import faker
-import faker.config
+import faker as faker_lib
+import faker.config as faker_lib_config
 
 from . import declarations
 
@@ -48,7 +48,7 @@ class Faker(declarations.ParameteredDeclaration):
         return subfaker.format(self.provider, **params)
 
     _FAKER_REGISTRY = {}
-    _DEFAULT_LOCALE = faker.config.DEFAULT_LOCALE
+    _DEFAULT_LOCALE = faker_lib_config.DEFAULT_LOCALE
 
     @classmethod
     @contextlib.contextmanager
@@ -66,7 +66,7 @@ class Faker(declarations.ParameteredDeclaration):
             locale = cls._DEFAULT_LOCALE
 
         if locale not in cls._FAKER_REGISTRY:
-            subfaker = faker.Faker(locale=locale)
+            subfaker = faker_lib.Faker(locale=locale)
             cls._FAKER_REGISTRY[locale] = subfaker
 
         return cls._FAKER_REGISTRY[locale]
