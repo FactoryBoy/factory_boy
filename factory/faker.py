@@ -90,3 +90,7 @@ class Faker(declarations.ParameteredDeclaration):
     def add_provider(cls, provider, locale=None):
         """Add a new Faker provider for the specified locale"""
         cls._get_faker(locale).add_provider(provider)
+
+    def clear_unique_store(self, locale=None):
+        """Reset the unique store of the local faker instance"""
+        self._get_local_faker(locale).unique.clear()

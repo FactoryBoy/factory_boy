@@ -265,3 +265,18 @@ class RealFakerTest(unittest.TestCase):
         Factory1.build()
         with self.assertRaises(UniquenessException):
             Factory2.build()
+
+    def test_faker_clear_unique_store(self):
+        class Foo:
+            def __init__(self, val):
+                self.val = val
+
+        class Factory1(factory.Factory):
+            val = factory.Faker('pyint', min_value=1, max_value=1, unique=True)
+
+            class Meta:
+                model = Foo
+
+        Factory1.build()
+        Factory1.val.clear_unique_store()
+        Factory1.build()
