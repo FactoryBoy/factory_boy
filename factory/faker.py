@@ -15,9 +15,10 @@ Usage:
 
 import contextlib
 
-import faker
-import faker.config
+import faker as faker_lib
+import faker.config as faker_lib_config
 
+from .sequences import _UniqueStore
 from . import declarations
 
 
@@ -38,17 +39,26 @@ class Faker(declarations.ParameteredDeclaration):
     def __init__(self, provider, **kwargs):
         locale = kwargs.pop('locale', None)
         self.provider = provider
+        self.local_faker_instances = {}
         super().__init__(
             locale=locale,
             **kwargs)
 
+    def evaluate(self, instance, step, extra):
+        unique = extra.pop('unique', False)
+        if unique:
+            extra.pop('locale')
+            generated_value = step.builder.factory_meta.next(_UniqueStore, self.provider, **extra)
+        else:
+            generated_value = self.generate(extra)
+        return generated_value
+
     def generate(self, params):
         locale = params.pop('locale')
-        subfaker = self._get_faker(locale)
-        return subfaker.format(self.provider, **params)
+        return self._get_faker(locale).format(self.provider, **params)
 
     _FAKER_REGISTRY = {}
-    _DEFAULT_LOCALE = faker.config.DEFAULT_LOCALE
+    _DEFAULT_LOCALE = faker_lib_config.DEFAULT_LOCALE
 
     @classmethod
     @contextlib.contextmanager
@@ -66,7 +76,7 @@ class Faker(declarations.ParameteredDeclaration):
             locale = cls._DEFAULT_LOCALE
 
         if locale not in cls._FAKER_REGISTRY:
-            subfaker = faker.Faker(locale=locale)
+            subfaker = faker_lib.Faker(locale=locale)
             cls._FAKER_REGISTRY[locale] = subfaker
 
         return cls._FAKER_REGISTRY[locale]
