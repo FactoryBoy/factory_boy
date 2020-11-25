@@ -18,6 +18,7 @@ import contextlib
 import faker as faker_lib
 import faker.config as faker_lib_config
 
+from .sequences import _UniqueStore
 from . import declarations
 
 
@@ -43,15 +44,18 @@ class Faker(declarations.ParameteredDeclaration):
             locale=locale,
             **kwargs)
 
+    def evaluate(self, instance, step, extra):
+        unique = extra.pop('unique', False)
+        if unique:
+            extra.pop('locale')
+            generated_value = step.builder.factory_meta.next(_UniqueStore, self.provider, **extra)
+        else:
+            generated_value = self.generate(extra)
+        return generated_value
+
     def generate(self, params):
         locale = params.pop('locale')
-        unique = params.pop('unique', False)
-        if unique:
-            subfaker = self._get_local_faker(locale).unique
-        else:
-            subfaker = self._get_faker(locale)
-
-        return subfaker.format(self.provider, **params)
+        return self._get_faker(locale).format(self.provider, **params)
 
     _FAKER_REGISTRY = {}
     _DEFAULT_LOCALE = faker_lib_config.DEFAULT_LOCALE
@@ -77,20 +81,7 @@ class Faker(declarations.ParameteredDeclaration):
 
         return cls._FAKER_REGISTRY[locale]
 
-    def _get_local_faker(self, locale):
-        if locale is None:
-            locale = self._DEFAULT_LOCALE
-
-        local_instance = self.local_faker_instances.get(locale)
-        if not local_instance:
-            self.local_faker_instances[locale] = faker_lib.Faker(locale=locale)
-        return self.local_faker_instances[locale]
-
     @classmethod
     def add_provider(cls, provider, locale=None):
         """Add a new Faker provider for the specified locale"""
         cls._get_faker(locale).add_provider(provider)
-
-    def clear_unique_store(self, locale=None):
-        """Reset the unique store of the local faker instance"""
-        self._get_local_faker(locale).unique.clear()

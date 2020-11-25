@@ -4,6 +4,7 @@
 import collections
 import logging
 
+from .sequences import _Counter, _UniqueStore
 from . import builder, declarations, enums, errors, utils
 
 logger = logging.getLogger('factory.generate')
@@ -143,8 +144,8 @@ class FactoryOptions:
         self.pre_declarations = builder.DeclarationSet()
         self.post_declarations = builder.DeclarationSet()
 
-        self._counter = None
-        self.counter_reference = None
+        self._generators = {}
+        self.generator_references = {}
 
     @property
     def declarations(self):
@@ -210,7 +211,8 @@ class FactoryOptions:
         if self.model is None:
             self.abstract = True
 
-        self.counter_reference = self._get_counter_reference()
+        for generator_type in [_Counter, _UniqueStore]:
+            self.generator_references[generator_type] = self._get_generator_reference(generator_type)
 
         # Scan the inheritance chain, starting from the furthest point,
         # excluding the current class, to retrieve all declarations.
@@ -233,31 +235,37 @@ class FactoryOptions:
 
         self.pre_declarations, self.post_declarations = builder.parse_declarations(self.declarations)
 
-    def _get_counter_reference(self):
+    def _get_generator_reference(self, generator_class):
         """Identify which factory should be used for a shared counter."""
 
         if (self.model is not None
                 and self.base_factory is not None
                 and self.base_factory._meta.model is not None
                 and issubclass(self.model, self.base_factory._meta.model)):
-            return self.base_factory._meta.counter_reference
+            return self.base_factory._meta.generator_references[generator_class]
         else:
             return self
 
-    def _initialize_counter(self):
+    def _initialize_generator(self, generator_class):
         """Initialize our counter pointer.
 
         If we're the top-level factory, instantiate a new counter
         Otherwise, point to the top-level factory's counter.
         """
-        if self._counter is not None:
+        if self._generators.get(generator_class) is not None:
             return
 
-        if self.counter_reference is self:
-            self._counter = _Counter(seq=self.factory._setup_next_sequence())
+        if self.generator_references.get(generator_class) is self:
+            if generator_class == _Counter:
+                self._generators[generator_class] = generator_class(seq=self.factory._setup_next_sequence())
+            elif generator_class == _UniqueStore:
+                self._generators[generator_class] = generator_class(
+                    # locale=self.factory.meta.locale,
+                    # providers=self.factory.meta.custom_providers
+                )
         else:
-            self.counter_reference._initialize_counter()
-            self._counter = self.counter_reference._counter
+            self.generator_references[generator_class]._initialize_generator(generator_class)
+            self._generators[generator_class] = self.generator_references[generator_class]._generators[generator_class]
 
     def next_sequence(self):
         """Retrieve a new sequence ID.
@@ -267,20 +275,26 @@ class FactoryOptions:
         - _setup_next_sequence, if this is the 'toplevel' factory and the
             sequence counter wasn't initialized yet; then increase it.
         """
-        self._initialize_counter()
-        return self._counter.next()
+        return self.next(_Counter)
 
     def reset_sequence(self, value=None, force=False):
-        self._initialize_counter()
+        self.reset(_Counter, value=value, force=force)
 
-        if self.counter_reference is not self and not force:
+    def next(self, generator_class, *args, **kwargs):
+        self._initialize_generator(generator_class)
+        return self._generators[generator_class].next(*args, **kwargs)
+
+    def reset(self, generator_class, value=None, force=False):
+        self._initialize_generator(generator_class)
+        generator_reference = self.generator_references[generator_class]
+        if generator_reference is not self and not force:
             raise ValueError(
                 "Can't reset a sequence on descendant factory %r; reset sequence on %r or use `force=True`."
-                % (self.factory, self.counter_reference.factory))
+                % (self.factory, generator_reference.factory))
 
         if value is None:
-            value = self.counter_reference.factory._setup_next_sequence()
-        self._counter.reset(value)
+            value = generator_reference.factory._setup_next_sequence()
+        self._generators[generator_class].reset(value)
 
     def prepare_arguments(self, attributes):
         """Convert an attributes dict to a (args, kwargs) tuple."""
@@ -382,28 +396,6 @@ class FactoryOptions:
 
 
 # Factory base classes
-
-
-class _Counter:
-    """Simple, naive counter.
-
-    Attributes:
-        for_class (obj): the class this counter related to
-        seq (int): the next value
-    """
-
-    def __init__(self, seq):
-        self.seq = seq
-
-    def next(self):
-        value = self.seq
-        self.seq += 1
-        return value
-
-    def reset(self, next_value=0):
-        self.seq = next_value
-
-
 class BaseFactory:
     """Factory base support for sequences, attributes and stubs."""
 
@@ -419,6 +411,7 @@ class BaseFactory:
 
     # ID to use for the next 'declarations.Sequence' attribute.
     _counter = None
+    _unique_store = None
 
     @classmethod
     def reset_sequence(cls, value=None, force=False):
