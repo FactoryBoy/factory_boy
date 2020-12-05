@@ -337,6 +337,7 @@ All factories support two built-in strategies:
 
 * ``build`` provides a local object
 * ``create`` instantiates a local object, and saves it to the database.
+* ``create async`` similar to ``create`` but can run asynchronous code.
 
 .. note:: For 1.X versions, the ``create`` will actually call ``AssociatedClass.objects.create``,
           as for a Django model.
@@ -370,3 +371,39 @@ Calling a :class:`~factory.Factory` subclass will provide an object through the 
 
 
 The default strategy can be changed by setting the ``class Meta`` :attr:`~factory.FactoryOptions.strategy` attribute.
+
+
+Asynchronous Factories
+----------------------
+
+You need to override the asynchronous method :meth:`factory.Factory._create_model_async`
+to define how your objects are created and saved to the database.
+
+Then, you can then either:
+
+* use :meth:`factory.Factory.create_async`
+* inherit from :class:`factory.AsyncFactory` instead of :class:`~factory.Factory`
+  to make :attr:`enums.ASYNC_CREATE_STRATEGY` the default strategy and then call the factory.
+
+.. code-block:: python
+
+    class MyFactory(factory.AsyncFactory):
+        # ...
+
+        @classmethod
+        async def _create_model_async(cls, model_class, *args, **kwargs):
+            await model_class.write_in_db(*args, **kwargs)
+
+.. code-block:: pycon
+
+    >>> MyFactory.create()
+    <MyClass: X (saved)>
+
+    >>> MyFactory.create_async()
+    <MyClass: X (saved using async code)>
+
+    >>> MyFactory.build()
+    <MyClass: X (unsaved)>
+
+    >>> MyFactory()  # equivalent to MyFactory.create_async()
+    <MyClass: X (saved using async code)>
