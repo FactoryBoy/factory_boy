@@ -8,6 +8,7 @@ SETUP_PY=setup.py
 COVERAGE = python $(shell which coverage)
 FLAKE8 = flake8
 ISORT = isort
+CTAGS = ctags
 
 
 all: default
@@ -85,6 +86,16 @@ coverage:
 
 
 .PHONY: test testall example-test lint coverage
+
+
+# Development
+# ===========
+
+# DOC: Generate a "tags" file
+TAGS:
+	$(CTAGS) --recurse $(PACKAGE) $(TESTS_DIR)
+
+.PHONY: TAGS
 
 
 # Documentation
