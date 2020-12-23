@@ -10,12 +10,6 @@ DeclarationWithContext = collections.namedtuple(
 )
 
 
-PostGenerationContext = collections.namedtuple(
-    'PostGenerationContext',
-    ['value_provided', 'value', 'extra'],
-)
-
-
 class DeclarationSet:
     """A set of declarations, including the recursive parameters.
 
@@ -274,21 +268,10 @@ class StepBuilder:
         postgen_results = {}
         for declaration_name in post.sorted():
             declaration = post[declaration_name]
-            unrolled_context = declaration.declaration.unroll_context(
+            postgen_results[declaration_name] = declaration.declaration.evaluate_post(
                 instance=instance,
                 step=step,
-                context=declaration.context,
-            )
-
-            postgen_context = PostGenerationContext(
-                value_provided='' in unrolled_context,
-                value=unrolled_context.get(''),
-                extra={k: v for k, v in unrolled_context.items() if k != ''},
-            )
-            postgen_results[declaration_name] = declaration.declaration.call(
-                instance=instance,
-                step=step,
-                context=postgen_context,
+                overrides=declaration.context,
             )
         self.factory_meta.use_postgeneration_results(
             instance=instance,
@@ -358,16 +341,10 @@ class Resolver:
             if enums.get_builder_phase(value) == enums.BuilderPhase.ATTRIBUTE_RESOLUTION:
                 self.__pending.append(name)
                 try:
-                    context = value.unroll_context(
+                    value = value.evaluate_pre(
                         instance=self,
                         step=self.__step,
-                        context=declaration.context,
-                    )
-
-                    value = value.evaluate(
-                        instance=self,
-                        step=self.__step,
-                        extra=context,
+                        overrides=declaration.context,
                     )
                 finally:
                     last = self.__pending.pop()
