@@ -66,8 +66,8 @@ class LazyFunction(BaseDeclaration):
             returning the computed value.
     """
 
-    def __init__(self, function, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, function):
+        super().__init__()
         self.function = function
 
     def evaluate(self, instance, step, extra):
@@ -83,8 +83,8 @@ class LazyAttribute(BaseDeclaration):
             returning the computed value.
     """
 
-    def __init__(self, function, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, function):
+        super().__init__()
         self.function = function
 
     def evaluate(self, instance, step, extra):
@@ -138,8 +138,8 @@ class SelfAttribute(BaseDeclaration):
             exist.
     """
 
-    def __init__(self, attribute_name, default=_UNSPECIFIED, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, attribute_name, default=_UNSPECIFIED):
+        super().__init__()
         depth = len(attribute_name) - len(attribute_name.lstrip('.'))
         attribute_name = attribute_name[depth:]
 
@@ -246,8 +246,8 @@ class ContainerAttribute(BaseDeclaration):
         strict (bool): Whether evaluating should fail when the containers are
             not passed in (i.e used outside a SubFactory).
     """
-    def __init__(self, function, strict=True, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, function, strict=True):
+        super().__init__()
         self.function = function
         self.strict = strict
 

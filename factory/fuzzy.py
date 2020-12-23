@@ -39,8 +39,8 @@ class FuzzyAttribute(BaseFuzzyAttribute):
             random value.
     """
 
-    def __init__(self, fuzzer, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, fuzzer):
+        super().__init__()
         self.fuzzer = fuzzer
 
     def fuzz(self):
@@ -64,8 +64,8 @@ class FuzzyText(BaseFuzzyAttribute):
     not important.
     """
 
-    def __init__(self, prefix='', length=12, suffix='', chars=string.ascii_letters, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, prefix='', length=12, suffix='', chars=string.ascii_letters):
+        super().__init__()
         self.prefix = prefix
         self.suffix = suffix
         self.length = length
@@ -85,11 +85,11 @@ class FuzzyChoice(BaseFuzzyAttribute):
         getter (callable or None): a function to parse returned values
     """
 
-    def __init__(self, choices, getter=None, **kwargs):
+    def __init__(self, choices, getter=None):
         self.choices = None
         self.choices_generator = choices
         self.getter = getter
-        super().__init__(**kwargs)
+        super().__init__()
 
     def fuzz(self):
         if self.choices is None:
@@ -103,7 +103,7 @@ class FuzzyChoice(BaseFuzzyAttribute):
 class FuzzyInteger(BaseFuzzyAttribute):
     """Random integer within a given range."""
 
-    def __init__(self, low, high=None, step=1, **kwargs):
+    def __init__(self, low, high=None, step=1):
         if high is None:
             high = low
             low = 0
@@ -112,7 +112,7 @@ class FuzzyInteger(BaseFuzzyAttribute):
         self.high = high
         self.step = step
 
-        super().__init__(**kwargs)
+        super().__init__()
 
     def fuzz(self):
         return random.randgen.randrange(self.low, self.high + 1, self.step)
@@ -121,7 +121,7 @@ class FuzzyInteger(BaseFuzzyAttribute):
 class FuzzyDecimal(BaseFuzzyAttribute):
     """Random decimal within a given range."""
 
-    def __init__(self, low, high=None, precision=2, **kwargs):
+    def __init__(self, low, high=None, precision=2):
         if high is None:
             high = low
             low = 0.0
@@ -130,7 +130,7 @@ class FuzzyDecimal(BaseFuzzyAttribute):
         self.high = high
         self.precision = precision
 
-        super().__init__(**kwargs)
+        super().__init__()
 
     def fuzz(self):
         base = decimal.Decimal(str(random.randgen.uniform(self.low, self.high)))
@@ -140,7 +140,7 @@ class FuzzyDecimal(BaseFuzzyAttribute):
 class FuzzyFloat(BaseFuzzyAttribute):
     """Random float within a given range."""
 
-    def __init__(self, low, high=None, precision=15, **kwargs):
+    def __init__(self, low, high=None, precision=15):
         if high is None:
             high = low
             low = 0
@@ -149,7 +149,7 @@ class FuzzyFloat(BaseFuzzyAttribute):
         self.high = high
         self.precision = precision
 
-        super().__init__(**kwargs)
+        super().__init__()
 
     def fuzz(self):
         base = random.randgen.uniform(self.low, self.high)
@@ -159,8 +159,8 @@ class FuzzyFloat(BaseFuzzyAttribute):
 class FuzzyDate(BaseFuzzyAttribute):
     """Random date within a given date range."""
 
-    def __init__(self, start_date, end_date=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, start_date, end_date=None):
+        super().__init__()
         if end_date is None:
             if random.randgen.state_set:
                 cls_name = self.__class__.__name__
@@ -197,8 +197,8 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
     def __init__(self, start_dt, end_dt=None,
                  force_year=None, force_month=None, force_day=None,
                  force_hour=None, force_minute=None, force_second=None,
-                 force_microsecond=None, **kwargs):
-        super().__init__(**kwargs)
+                 force_microsecond=None):
+        super().__init__()
 
         if end_dt is None:
             if random.randgen.state_set:
