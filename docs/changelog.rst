@@ -11,17 +11,6 @@ ChangeLog
 3.2.0 (unreleased)
 ------------------
 
-*Deprecated:*
-
-    - :func:`factory.use_strategy`. Use :attr:`factory.FactoryOptions.strategy` instead.
-      The purpose of :func:`~factory.use_strategy` duplicates the factory option. Follow :pep:`20`: *There should be
-      one-- and preferably only one --obvious way to do it.*
-
-      :func:`~factory.use_strategy()` will be removed in the next major version.
-
-3.1.1 (unreleased)
-------------------
-
 *New:*
 
     - Add support for Django 3.1
@@ -31,6 +20,20 @@ ChangeLog
 
     - Drop support for Django 1.11. This version `is not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
     - Drop support for Python 3.5. This version `is not maintained anymore <https://devguide.python.org/devcycle/#end-of-life-branches>`__.
+
+*Deprecated:*
+
+    - :func:`factory.use_strategy`. Use :attr:`factory.FactoryOptions.strategy` instead.
+      The purpose of :func:`~factory.use_strategy` duplicates the factory option. Follow :pep:`20`: *There should be
+      one-- and preferably only one --obvious way to do it.*
+
+      :func:`~factory.use_strategy()` will be removed in the next major version.
+
+*Bug fix:*
+
+    - :issue:`785` :issue:`786` :issue:`787` :issue:`788` :issue:`790` :issue:`796`: Calls to :class:`factory.Faker`
+      and :class:`factory.django.FileField` within a :class:`~factory.Trait` or :class:`~factory.Maybe` no longer lead to
+      a ``KeyError`` crash.
 
 
 3.1.0 (2020-10-02)
