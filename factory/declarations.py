@@ -377,7 +377,7 @@ class _FactoryWrapper:
             return f'<_FactoryImport: {self.factory.__class__}>'
 
 
-class SubFactory(ParameteredAttribute):
+class SubFactory(BaseDeclaration):
     """Base class for attributes based upon a sub-factory.
 
     Attributes:
@@ -399,7 +399,7 @@ class SubFactory(ParameteredAttribute):
         """Retrieve the wrapped factory.Factory subclass."""
         return self.factory_wrapper.get()
 
-    def generate(self, step, params):
+    def evaluate(self, instance, step, extra):
         """Evaluate the current definition and fill its attributes.
 
         Args:
@@ -411,11 +411,11 @@ class SubFactory(ParameteredAttribute):
         logger.debug(
             "SubFactory: Instantiating %s.%s(%s), create=%r",
             subfactory.__module__, subfactory.__name__,
-            utils.log_pprint(kwargs=params),
+            utils.log_pprint(kwargs=extra),
             step,
         )
         force_sequence = step.sequence if self.FORCE_SEQUENCE else None
-        return step.recurse(subfactory, params, force_sequence=force_sequence)
+        return step.recurse(subfactory, extra, force_sequence=force_sequence)
 
 
 class Dict(SubFactory):

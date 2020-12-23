@@ -21,7 +21,7 @@ import faker.config
 from . import declarations
 
 
-class Faker(declarations.ParameteredDeclaration):
+class Faker(declarations.BaseDeclaration):
     """Wrapper for 'faker' values.
 
     Args:
@@ -42,10 +42,10 @@ class Faker(declarations.ParameteredDeclaration):
             locale=locale,
             **kwargs)
 
-    def generate(self, params):
-        locale = params.pop('locale')
+    def evaluate(self, instance, step, extra):
+        locale = extra.pop('locale')
         subfaker = self._get_faker(locale)
-        return subfaker.format(self.provider, **params)
+        return subfaker.format(self.provider, **extra)
 
     _FAKER_REGISTRY = {}
     _DEFAULT_LOCALE = faker.config.DEFAULT_LOCALE

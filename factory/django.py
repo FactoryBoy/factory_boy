@@ -173,7 +173,7 @@ class DjangoModelFactory(base.Factory):
             instance.save()
 
 
-class FileField(declarations.ParameteredDeclaration):
+class FileField(declarations.BaseDeclaration):
     """Helper to fill in django.db.models.FileField from a Factory."""
 
     DEFAULT_FILENAME = 'example.dat'
@@ -219,9 +219,9 @@ class FileField(declarations.ParameteredDeclaration):
         filename = params.get('filename', default_filename)
         return filename, content
 
-    def generate(self, params):
+    def evaluate(self, instance, step, extra):
         """Fill in the field."""
-        filename, content = self._make_content(params)
+        filename, content = self._make_content(extra)
         return django_files.File(content.file, filename)
 
 
