@@ -24,16 +24,24 @@ class BaseDeclaration(utils.OrderedBase):
     #: Set to False on declarations that perform their own unrolling.
     UNROLL_CONTEXT_BEFORE_EVALUATION = True
 
+    def __init__(self, **defaults):
+        super().__init__()
+        self._defaults = defaults or {}
+
     def unroll_context(self, instance, step, context):
+        full_context = dict()
+        full_context.update(self._defaults)
+        full_context.update(context)
+
         if not self.UNROLL_CONTEXT_BEFORE_EVALUATION:
-            return context
-        if not any(enums.get_builder_phase(v) for v in context.values()):
+            return full_context
+        if not any(enums.get_builder_phase(v) for v in full_context.values()):
             # Optimization for simple contexts - don't do anything.
-            return context
+            return full_context
 
         import factory.base
         subfactory = factory.base.DictFactory
-        return step.recurse(subfactory, context, force_sequence=step.sequence)
+        return step.recurse(subfactory, full_context, force_sequence=step.sequence)
 
     def evaluate_pre(self, instance, step, overrides):
         context = self.unroll_context(instance, step, overrides)
@@ -279,10 +287,6 @@ class ParameteredAttribute(BaseDeclaration):
             May be overridden by call-time parameters.
     """
 
-    def __init__(self, **kwargs):
-        super().__init__()
-        self.defaults = kwargs
-
     def evaluate(self, instance, step, extra):
         """Evaluate the current definition and fill its attributes.
 
@@ -297,11 +301,7 @@ class ParameteredAttribute(BaseDeclaration):
             extra (dict): additional, call-time added kwargs
                 for the step.
         """
-        defaults = dict(self.defaults)
-        if extra:
-            defaults.update(extra)
-
-        return self.generate(step, defaults)
+        return self.generate(step, extra)
 
     def generate(self, step, params):
         """Actually generate the related attribute.
@@ -330,16 +330,6 @@ class ParameteredDeclaration(BaseDeclaration):
         defaults (dict): Default values for the parameters; can be overridden
             by call-time parameters. Accepts BaseDeclaration subclasses.
     """
-
-    def __init__(self, **defaults):
-        self.defaults = defaults
-        super().__init__()
-
-    def unroll_context(self, instance, step, context):
-        merged_context = {}
-        merged_context.update(self.defaults)
-        merged_context.update(context)
-        return super().unroll_context(instance, step, merged_context)
 
     def evaluate(self, instance, step, extra):
         return self.generate(extra)
