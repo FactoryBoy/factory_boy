@@ -3,6 +3,7 @@
 
 import itertools
 import logging
+import typing as T
 
 from . import enums, errors, utils
 
@@ -33,6 +34,10 @@ class BaseDeclaration(utils.OrderedBase):
         import factory.base
         subfactory = factory.base.DictFactory
         return step.recurse(subfactory, context, force_sequence=step.sequence)
+
+    def evaluate_pre(self, instance, step, overrides):
+        context = self.unroll_context(instance, step, overrides)
+        return self.evaluate(instance, step, context)
 
     def evaluate(self, instance, step, extra):
         """Evaluate this declaration.
@@ -477,36 +482,39 @@ class Maybe(BaseDeclaration):
 
         self.FACTORY_BUILDER_PHASE = used_phases.pop() if used_phases else enums.BuilderPhase.ATTRIBUTE_RESOLUTION
 
-    def call(self, instance, step, context):
+    def evaluate_post(self, instance, step, overrides):
+        """Handle post-generation declarations"""
         decider_phase = enums.get_builder_phase(self.decider)
         if decider_phase == enums.BuilderPhase.ATTRIBUTE_RESOLUTION:
             # Note: we work on the *builder stub*, not on the actual instance.
             # This gives us access to all Params-level definitions.
-            choice = self.decider.evaluate(instance=step.stub, step=step, extra=context.extra)
+            choice = self.decider.evaluate_pre(
+                instance=step.stub, step=step, overrides=overrides)
         else:
             assert decider_phase == enums.BuilderPhase.POST_INSTANTIATION
-            choice = self.decider.call(instance, step, context)
+            choice = self.decider.evaluate_post(
+                instance=instance, step=step, overrides={})
 
         target = self.yes if choice else self.no
         if enums.get_builder_phase(target) == enums.BuilderPhase.POST_INSTANTIATION:
-            return target.call(
+            return target.evaluate_post(
                 instance=instance,
                 step=step,
-                context=context,
+                overrides=overrides,
             )
         else:
             # Flat value (can't be ATTRIBUTE_RESOLUTION, checked in __init__)
             return target
 
-    def evaluate(self, instance, step, extra):
+    def evaluate_pre(self, instance, step, overrides):
         choice = self.decider.evaluate(instance=instance, step=step, extra={})
         target = self.yes if choice else self.no
 
         if isinstance(target, BaseDeclaration):
-            return target.evaluate(
+            return target.evaluate_pre(
                 instance=instance,
                 step=step,
-                extra=extra,
+                overrides=overrides,
             )
         else:
             # Flat value (can't be POST_INSTANTIATION, checked in __init__)
@@ -596,10 +604,25 @@ class Trait(Parameter):
 # ===============
 
 
+class PostGenerationContext(T.NamedTuple):
+    value_provided: bool
+    value: T.Any
+    extra: T.Dict[str, T.Any]
+
+
 class PostGenerationDeclaration(BaseDeclaration):
     """Declarations to be called once the model object has been generated."""
 
     FACTORY_BUILDER_PHASE = enums.BuilderPhase.POST_INSTANTIATION
+
+    def evaluate_post(self, instance, step, overrides):
+        context = self.unroll_context(instance, step, overrides)
+        postgen_context = PostGenerationContext(
+            value_provided=bool('' in context),
+            value=context.get(''),
+            extra={k: v for k, v in context.items() if k != ''},
+        )
+        return self.call(instance, step, postgen_context)
 
     def call(self, instance, step, context):  # pragma: no cover
         """Call this hook; no return value is expected.
