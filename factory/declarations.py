@@ -272,27 +272,11 @@ class ParameteredAttribute(BaseDeclaration):
     Attributes:
         defaults (dict): Default values for the parameters.
             May be overridden by call-time parameters.
-
-    Class attributes:
-        CONTAINERS_FIELD (str): name of the field, if any, where container
-            information (e.g for SubFactory) should be stored. If empty,
-            containers data isn't merged into generate() parameters.
     """
-
-    CONTAINERS_FIELD = '__containers'
-
-    # Whether to add the current object to the stack of containers
-    EXTEND_CONTAINERS = False
 
     def __init__(self, **kwargs):
         super().__init__()
         self.defaults = kwargs
-
-    def _prepare_containers(self, obj, containers=()):
-        if self.EXTEND_CONTAINERS:
-            return (obj,) + tuple(containers)
-
-        return containers
 
     def evaluate(self, instance, step, extra):
         """Evaluate the current definition and fill its attributes.
@@ -407,7 +391,6 @@ class SubFactory(ParameteredAttribute):
         factory (base.Factory): the wrapped factory
     """
 
-    EXTEND_CONTAINERS = True
     # Whether to align the attribute's sequence counter to the holding
     # factory's sequence counter
     FORCE_SEQUENCE = False
