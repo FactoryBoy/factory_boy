@@ -320,29 +320,6 @@ class ParameteredAttribute(BaseDeclaration):
         raise NotImplementedError()
 
 
-class ParameteredDeclaration(BaseDeclaration):
-    """A declaration with parameters.
-
-    The parameters can be any factory-enabled declaration, and will be resolved
-    before the call to the user-defined code in `self.generate()`.
-
-    Attributes:
-        defaults (dict): Default values for the parameters; can be overridden
-            by call-time parameters. Accepts BaseDeclaration subclasses.
-    """
-
-    def evaluate(self, instance, step, extra):
-        return self.generate(extra)
-
-    def generate(self, params):
-        """Generate a value for this declaration.
-
-        Args:
-            params (dict): the parameters, after a factory evaluation.
-        """
-        raise NotImplementedError()
-
-
 class _FactoryWrapper:
     """Handle a 'factory' arg.
 
