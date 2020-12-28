@@ -3,7 +3,7 @@ ChangeLog
 
 .. Note for v4.x: don't forget to check "Deprecated" sections for removal.
 
-3.2.0 (unreleased)
+3.2.0 (2020-12-28)
 ------------------
 
 *New:*
