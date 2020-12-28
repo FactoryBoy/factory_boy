@@ -1,12 +1,7 @@
 ChangeLog
 =========
 
-4.0.0 (unreleased)
-------------------
-
-*Removed:*
-
-    - :func:`factory.use_strategy()`
+.. Note for v4.x: don't forget to check "Deprecated" sections for removal.
 
 3.2.0 (unreleased)
 ------------------
