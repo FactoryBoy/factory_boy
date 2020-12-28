@@ -720,6 +720,7 @@ def use_strategy(new_strategy):
     warnings.warn(
         "use_strategy() is deprecated and will be removed in the future.",
         DeprecationWarning,
+        stacklevel=2,
     )
 
     def wrapped_class(klass):
