@@ -261,3 +261,34 @@ class SQLAlchemyNoSessionTestCase(unittest.TestCase):
         inst1 = NoSessionFactory.build()
         self.assertEqual(inst0.id, 0)
         self.assertEqual(inst1.id, 1)
+
+
+class NameConflictTests(unittest.TestCase):
+    """Regression test for `TypeError: _save() got multiple values for argument 'session'`
+
+    See #775.
+    """
+    def test_no_name_conflict_on_save(self):
+        class SpecialFieldWithSaveFactory(SQLAlchemyModelFactory):
+            class Meta:
+                model = models.SpecialFieldModel
+                sqlalchemy_session = models.session
+
+            id = factory.Sequence(lambda n: n)
+            session = ''
+
+        saved_child = SpecialFieldWithSaveFactory()
+        self.assertEqual(saved_child.session, "")
+
+    def test_no_name_conflict_on_get_or_create(self):
+        class SpecialFieldWithGetOrCreateFactory(SQLAlchemyModelFactory):
+            class Meta:
+                model = models.SpecialFieldModel
+                sqlalchemy_get_or_create = ('session',)
+                sqlalchemy_session = models.session
+
+            id = factory.Sequence(lambda n: n)
+            session = ''
+
+        get_or_created_child = SpecialFieldWithGetOrCreateFactory()
+        self.assertEqual(get_or_created_child.session, "")
