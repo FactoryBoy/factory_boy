@@ -99,13 +99,13 @@ class SQLAlchemyModelFactory(base.Factory):
         return cls._save(model_class, session, *args, **kwargs)
 
     @classmethod
-    def _save(cls, model_class, session, *args, **kwargs):
+    def _save(cls, model_class, sqlalchemy_session, *args, **kwargs):
         session_persistence = cls._meta.sqlalchemy_session_persistence
 
         obj = model_class(*args, **kwargs)
-        session.add(obj)
+        sqlalchemy_session.add(obj)
         if session_persistence == SESSION_PERSISTENCE_FLUSH:
-            session.flush()
+            sqlalchemy_session.flush()
         elif session_persistence == SESSION_PERSISTENCE_COMMIT:
-            session.commit()
+            sqlalchemy_session.commit()
         return obj
