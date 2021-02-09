@@ -10,6 +10,10 @@ ChangeLog
 
     - Do not override signals receivers registered in a :meth:`~factory.django.mute_signals` context.
 
+    - :issue:`775`: Change the signature for :meth:`~factory.alchemy.SQLAlchemyModelFactory._save` and
+      :meth:`~factory.alchemy.SQLAlchemyModelFactory._get_or_create` to avoid argument names clashes with a field named
+      ``session``.
+
 
 3.2.0 (2020-12-28)
 ------------------
