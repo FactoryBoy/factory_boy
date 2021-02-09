@@ -67,7 +67,6 @@ class NameConflictTests(unittest.TestCase):
 
             id = models.Column(models.Integer(), primary_key=True)
             session = models.Column(models.Unicode(20))
-            model_class = models.Column(models.Unicode(20))
 
         class ChildFactory(SQLAlchemyModelFactory):
             class Meta:
