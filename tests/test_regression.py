@@ -62,7 +62,6 @@ class NameConflictTests(unittest.TestCase):
 
         See #775.
         """
-
         class SpecialFieldModel(models.Base):
             __tablename__ = 'SpecialFieldModelTable'
 
