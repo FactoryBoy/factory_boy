@@ -66,7 +66,7 @@ class SQLAlchemyModelFactory(base.Factory):
 
         if not obj:
             try:
-                obj = cls._save(model_class, session, *args, **key_fields, **kwargs)
+                obj = cls._save(model_class, session, args, {**key_fields, **kwargs})
             except IntegrityError as e:
                 session.rollback()
                 get_or_create_params = {
@@ -96,16 +96,16 @@ class SQLAlchemyModelFactory(base.Factory):
             raise RuntimeError("No session provided.")
         if cls._meta.sqlalchemy_get_or_create:
             return cls._get_or_create(model_class, session, *args, **kwargs)
-        return cls._save(model_class, session, *args, **kwargs)
+        return cls._save(model_class, session, args, kwargs)
 
     @classmethod
-    def _save(cls, model_class, sqlalchemy_session, *args, **kwargs):
+    def _save(cls, model_class, session, args, kwargs):
         session_persistence = cls._meta.sqlalchemy_session_persistence
 
         obj = model_class(*args, **kwargs)
-        sqlalchemy_session.add(obj)
+        session.add(obj)
         if session_persistence == SESSION_PERSISTENCE_FLUSH:
-            sqlalchemy_session.flush()
+            session.flush()
         elif session_persistence == SESSION_PERSISTENCE_COMMIT:
-            sqlalchemy_session.commit()
+            session.commit()
         return obj

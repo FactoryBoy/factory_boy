@@ -8,6 +8,9 @@ import typing as T
 import unittest
 
 import factory
+from factory.alchemy import SQLAlchemyModelFactory
+
+from .alchemyapp import models
 
 # Example objects
 # ===============
@@ -51,3 +54,29 @@ class FakerRegressionTests(unittest.TestCase):
 
         unknown_author = AuthorFactory(unknown=True)
         self.assertEqual("", unknown_author.fullname)
+
+
+class NameConflictTests(unittest.TestCase):
+    def test_name_conflict_issue(self):
+        """Regression test for `TypeError: _save() got multiple values for argument 'x'`
+
+        See #775.
+        """
+
+        class SpecialFieldModel(models.Base):
+            __tablename__ = 'SpecialFieldModelTable'
+
+            id = models.Column(models.Integer(), primary_key=True)
+            session = models.Column(models.Unicode(20))
+            model_class = models.Column(models.Unicode(20))
+
+        class ChildFactory(SQLAlchemyModelFactory):
+            class Meta:
+                model = SpecialFieldModel
+                sqlalchemy_session = models.session
+
+            id = factory.Sequence(lambda n: n)
+            session = ''
+
+        child = ChildFactory()
+        self.assertIsNotNone(child.session)
