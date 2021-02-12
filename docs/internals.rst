@@ -59,7 +59,7 @@ First, decide the strategy:
 
 Then, we'll pass the strategy and passed-in overrides to the :meth:`~Factory._generate` method.
 
-.. note:: According to the project road map, a future version will use a :meth:`~Factory._generate_batch`` at its core instead.
+.. note:: According to the project road map, a future version will use a :meth:`~Factory._generate_batch` at its core instead.
 
 A factory's :meth:`~Factory._generate` function actually delegates to a ``StepBuilder()`` object.
 This object will carry the overall "build an object" context (strategy, depth, and possibly other).
