@@ -278,7 +278,7 @@ class NameConflictTests(unittest.TestCase):
             session = ''
 
         saved_child = SpecialFieldWithSaveFactory()
-        self.assertIsNotNone(saved_child.session)
+        self.assertEqual(saved_child.session, "")
 
     def test_no_name_conflict_on_get_or_create(self):
         class SpecialFieldWithGetOrCreateFactory(SQLAlchemyModelFactory):
@@ -291,4 +291,4 @@ class NameConflictTests(unittest.TestCase):
             session = ''
 
         get_or_created_child = SpecialFieldWithGetOrCreateFactory()
-        self.assertIsNotNone(get_or_created_child.session)
+        self.assertEqual(get_or_created_child.session, "")
