@@ -264,24 +264,31 @@ class SQLAlchemyNoSessionTestCase(unittest.TestCase):
 
 
 class NameConflictTests(unittest.TestCase):
-    def test_name_conflict_issue(self):
-        """Regression test for `TypeError: _save() got multiple values for argument 'session'`
+    """Regression test for `TypeError: _save() got multiple values for argument 'session'`
 
-        See #775.
-        """
-        class SpecialFieldModel(models.Base):
-            __tablename__ = 'SpecialFieldModelTable'
-
-            id = models.Column(models.Integer(), primary_key=True)
-            session = models.Column(models.Unicode(20))
-
-        class ChildFactory(SQLAlchemyModelFactory):
+    See #775.
+    """
+    def test_no_name_conflict_on_save(self):
+        class SpecialFieldWithSaveFactory(SQLAlchemyModelFactory):
             class Meta:
-                model = SpecialFieldModel
+                model = models.SpecialFieldModel
                 sqlalchemy_session = models.session
 
             id = factory.Sequence(lambda n: n)
             session = ''
 
-        child = ChildFactory()
-        self.assertIsNotNone(child.session)
+        saved_child = SpecialFieldWithSaveFactory()
+        self.assertIsNotNone(saved_child.session)
+    
+    def test_no_name_conflict_on_get_or_create(self):       
+        class SpecialFieldWithGetOrCreateFactory(SQLAlchemyModelFactory):
+            class Meta:
+                model = models.SpecialFieldModel
+                sqlalchemy_get_or_create = ('session',)
+                sqlalchemy_session = models.session
+
+            id = factory.Sequence(lambda n: n)
+            session = ''
+
+        get_or_created_child = SpecialFieldWithGetOrCreateFactory()
+        self.assertIsNotNone(get_or_created_child.session)

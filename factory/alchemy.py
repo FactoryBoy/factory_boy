@@ -51,7 +51,7 @@ class SQLAlchemyModelFactory(base.Factory):
         return super()._generate(strategy, params)
 
     @classmethod
-    def _get_or_create(cls, model_class, session, *args, **kwargs):
+    def _get_or_create(cls, model_class, session, args, kwargs):
         key_fields = {}
         for field in cls._meta.sqlalchemy_get_or_create:
             if field not in kwargs:
@@ -95,7 +95,7 @@ class SQLAlchemyModelFactory(base.Factory):
         if session is None:
             raise RuntimeError("No session provided.")
         if cls._meta.sqlalchemy_get_or_create:
-            return cls._get_or_create(model_class, session, *args, **kwargs)
+            return cls._get_or_create(model_class, session, args, kwargs)
         return cls._save(model_class, session, args, kwargs)
 
     @classmethod

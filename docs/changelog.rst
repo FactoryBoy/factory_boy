@@ -31,6 +31,12 @@ ChangeLog
           - override :class:`~factory.django.DjangoModelFactory._after_postgeneration` to
             :meth:`~django.db.models.Model.save` the instance.
 
+*Bug fix:*
+
+    - :issue:`775`: Change the signature for :meth:`~factory.alchemy.SQLAlchemyModelFactory._save` and
+      :meth:`~factory.alchemy.SQLAlchemyModelFactory._get_or_create`to avoid argument names clashing
+      with a field with the same name.
+
 *Removed:*
 
 3.2.0 (2020-12-28)

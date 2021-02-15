@@ -43,4 +43,11 @@ class NonIntegerPk(Base):
     id = Column(Unicode(20), primary_key=True)
 
 
+class SpecialFieldModel(Base):
+    __tablename__ = 'SpecialFieldModelTable'
+
+    id = Column(Integer(), primary_key=True)
+    session = Column(Unicode(20))
+
+
 Base.metadata.create_all(engine)
