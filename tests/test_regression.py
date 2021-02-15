@@ -8,9 +8,6 @@ import typing as T
 import unittest
 
 import factory
-from factory.alchemy import SQLAlchemyModelFactory
-
-from .alchemyapp import models
 
 # Example objects
 # ===============
