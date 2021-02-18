@@ -141,6 +141,10 @@ factory_boy related factories.
 
 Any factories that call these classes with :class:`~factory.SubFactory` will also need to be decorated in the same manner.
 
+..
+   _DEPRECATED: Release 4.0: post_generation and RelatedFactory will stop
+                issuing calls to save(). Refs issues 316 and 366.
+
 .. note:: When any :class:`~factory.RelatedFactory` or :class:`~factory.post_generation`
           attribute is defined on the :class:`~factory.django.DjangoModelFactory` subclass,
           a second ``save()`` is performed *after* the call to ``_create()``.
