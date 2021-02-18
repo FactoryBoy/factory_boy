@@ -11,6 +11,10 @@ ChangeLog
     - :issue:`366`: Add :class:`factory.django.Password` to generate Django :class:`~django.contrib.auth.models.User`
       passwords.
 
+*Bugfix:*
+
+    - Do not override signals receivers registered in a :meth:`~factory.django.mute_signals` context.
+
 *Deprecated:*
 
     - :class:`~factory.django.DjangoModelFactory` will stop issuing a second call to
@@ -40,10 +44,6 @@ ChangeLog
 
     - Add support for Django 3.1
     - Add support for Python 3.9
-
-*Bugfix:*
-
-    - Do not override signals receivers registered in a :meth:`~factory.django.mute_signals` context.
 
 *Removed:*
 
