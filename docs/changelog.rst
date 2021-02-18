@@ -6,7 +6,9 @@ ChangeLog
 3.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*Bugfix:*
+
+    - Do not override signals receivers registered in a :meth:`~factory.django.mute_signals` context.
 
 
 3.2.0 (2020-12-28)
@@ -16,10 +18,6 @@ ChangeLog
 
     - Add support for Django 3.1
     - Add support for Python 3.9
-
-*Bugfix:*
-
-    - Do not override signals receivers registered in a :meth:`~factory.django.mute_signals` context.
 
 *Removed:*
 
