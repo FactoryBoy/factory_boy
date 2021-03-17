@@ -514,7 +514,7 @@ Here is an example layout:
 
 .. code-block:: python
 
-    # myprojet/test/common.py
+    # myproject/test/common.py
 
     from sqlalchemy import orm
     Session = orm.scoped_session(orm.sessionmaker())
