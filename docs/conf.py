@@ -73,6 +73,10 @@ if 'READTHEDOCS_VERSION' in os.environ:
 html_static_path = ['_static']
 
 
+# -- linkcheck ---------------------------------------------------------------
+linkcheck_retries = 3
+
+
 # -- intersphinx -------------------------------------------------------------
 intersphinx_mapping = {
     'https://docs.python.org/': None,
