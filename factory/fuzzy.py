@@ -126,8 +126,8 @@ class FuzzyDecimal(BaseFuzzyAttribute):
             high = low
             low = 0.0
 
-        self.low = low
-        self.high = high
+        self.low = float(low)
+        self.high = float(high)
         self.precision = precision
 
         super().__init__()
