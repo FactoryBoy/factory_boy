@@ -8,6 +8,7 @@ import warnings
 from unittest import mock
 
 from factory import fuzzy, random
+
 from . import utils
 
 
@@ -200,6 +201,7 @@ class FuzzyDecimalTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             utils.evaluate_declaration(fuzz)
 
+
 class FuzzyDecimalDecTestCase(unittest.TestCase):
     def test_definition(self):
         """Tests all ways of defining a FuzzyDecimal."""
@@ -278,6 +280,7 @@ class FuzzyDecimalDecTestCase(unittest.TestCase):
 
         res = utils.evaluate_declaration(fuzz)
         self.assertTrue(low <= res <= high, "value %d is not between 5.5 and 10" % res)
+
 
 class FuzzyFloatTestCase(unittest.TestCase):
     def test_definition(self):

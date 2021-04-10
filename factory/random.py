@@ -30,6 +30,7 @@ def reseed_random(seed):
     random_internal_state = r.getstate()
     set_random_state(random_internal_state)
 
+
 def uniform_decimal(low, high):
     modifier = decimal.Decimal(randgen.random())
     return low + (high - low) * modifier
