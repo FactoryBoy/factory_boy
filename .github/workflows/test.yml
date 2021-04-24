@@ -22,6 +22,7 @@ jobs:
           - django22-alchemy-mongoengine
           - django30-alchemy-mongoengine
           - django31-alchemy-mongoengine
+          - django32-alchemy-mongoengine
 
     services:
       mongodb:
