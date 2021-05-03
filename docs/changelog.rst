@@ -441,7 +441,7 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 
 *Bug fix:*
 
-    - Fix badly written assert containing state-changing code, spotted by `chsigi <https://github.com/chsigi>`_ (:pr:`126`)
+    - Fix badly written assert containing state-changing code, spotted by ``chsigi`` (:pr:`126`)
     - Don't crash when handling objects whose ``__repr__`` is non-pure-ASCII bytes on Python 2,
       discovered by `mbertheau <https://github.com/mbertheau>`_ (:issue:`123`) and `strycore <https://github.com/strycore>`_ (:pr:`127`)
 
