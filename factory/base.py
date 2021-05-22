@@ -74,16 +74,16 @@ class FactoryMetaClass(type):
         meta = options_class()
         attrs['_meta'] = meta
 
-        new_class = super().__new__(
-            mcs, class_name, bases, attrs)
-
-        meta.contribute_to_class(
-            new_class,
+        meta.prepare_class(
             meta=attrs_meta,
             base_meta=base_meta,
             base_factory=base_factory,
             params=attrs_params,
         )
+
+        new_class = super().__new__(mcs, class_name, bases, attrs)
+
+        meta.contribute_to_class(new_class)
 
         return new_class
 
@@ -200,9 +200,8 @@ class FactoryOptions:
                 "'class Meta' for %r got unknown attribute(s) %s"
                 % (self.factory, ','.join(sorted(meta_attrs.keys()))))
 
-    def contribute_to_class(self, factory, meta=None, base_meta=None, base_factory=None, params=None):
-
-        self.factory = factory
+    def prepare_class(self, meta=None, base_meta=None, base_factory=None, params=None):
+        self.params = params
         self.base_factory = base_factory
 
         self._fill_from_meta(meta=meta, base_meta=base_meta)
@@ -213,6 +212,8 @@ class FactoryOptions:
 
         self.counter_reference = self._get_counter_reference()
 
+    def contribute_to_class(self, factory):
+        self.factory = factory
         # Scan the inheritance chain, starting from the furthest point,
         # excluding the current class, to retrieve all declarations.
         for parent in reversed(self.factory.__mro__[1:]):
@@ -225,14 +226,14 @@ class FactoryOptions:
             if self._is_declaration(k, v):
                 self.base_declarations[k] = v
 
-        if params is not None:
-            for k, v in utils.sort_ordered_objects(vars(params).items(), getter=lambda item: item[1]):
+        if self.params is not None:
+            for k, v in utils.sort_ordered_objects(vars(self.params).items(), getter=lambda item: item[1]):
                 if not k.startswith('_'):
                     self.parameters[k] = declarations.SimpleParameter.wrap(v)
 
         self._check_parameter_dependencies(self.parameters)
-
         self.pre_declarations, self.post_declarations = builder.parse_declarations(self.declarations)
+
 
     def _get_counter_reference(self):
         """Identify which factory should be used for a shared counter."""
