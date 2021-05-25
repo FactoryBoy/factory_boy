@@ -106,6 +106,8 @@ Since version 2.9, the :meth:`~factory.django.mute_signals` decorator should be 
 
 .. code-block:: python
 
+    from django.db.models.signals import post_save
+    
     @factory.django.mute_signals(post_save)
     class ProfileFactory(factory.django.DjangoModelFactory):
         class Meta:
