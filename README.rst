@@ -174,7 +174,7 @@ You can use the Factory class as a shortcut for the default build strategy:
 
 .. code-block:: python
 
-    # Same as UserFactory.create()
+    # Same as UserFactory.build()
     user = UserFactory()
 
 
