@@ -234,7 +234,6 @@ class FactoryOptions:
         self._check_parameter_dependencies(self.parameters)
         self.pre_declarations, self.post_declarations = builder.parse_declarations(self.declarations)
 
-
     def _get_counter_reference(self):
         """Identify which factory should be used for a shared counter."""
 
