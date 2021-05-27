@@ -703,7 +703,7 @@ Faker
 
     .. code-block:: python
 
-        class UserFactory(fatory.Factory):
+        class UserFactory(factory.Factory):
             class Meta:
                 model = User
 
