@@ -718,7 +718,7 @@ Faker
 
     .. code-block:: python
 
-        class TripFactory(fatory.Factory):
+        class TripFactory(factory.Factory):
             class Meta:
                 model = Trip
 
