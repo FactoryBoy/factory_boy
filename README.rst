@@ -155,7 +155,7 @@ More details can be found in the ORM section.
 Using factories
 """""""""""""""
 
-factory_boy supports several different build strategies: build, create, and stub:
+factory_boy supports several different instantiation strategies: build, create, and stub:
 
 .. code-block:: python
 
@@ -170,11 +170,11 @@ factory_boy supports several different build strategies: build, create, and stub
     obj = UserFactory.stub()
 
 
-You can use the Factory class as a shortcut for the default build strategy:
+You can use the Factory class as a shortcut for the default instantiation strategy:
 
 .. code-block:: python
 
-    # Same as UserFactory.build()
+    # Same as UserFactory.create()
     user = UserFactory()
 
 
