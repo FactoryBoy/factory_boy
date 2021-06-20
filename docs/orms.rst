@@ -476,9 +476,9 @@ A (very) simple example:
     >>> session.query(User).all()
     []
     >>> UserFactory()
-    <User: User 1>
+    <User: User 0>
     >>> session.query(User).all()
-    [<User: User 1>]
+    [<User: User 0>]
 
 
 Managing sessions

@@ -956,10 +956,12 @@ This declaration takes a single argument, a function accepting a single paramete
 .. code-block:: pycon
 
     >>> UserFactory().phone
-    '123-555-0001'
+    '123-555-0000'
     >>> UserFactory().phone
-    '123-555-0002'
+    '123-555-0001'
 
+.. note:: The sequence counter starts at 0 and can be set or reset,
+          see :ref:`Forcing a sequence counter <forcing-a-sequence-counter>`.
 
 Decorator
 ~~~~~~~~~
@@ -985,9 +987,9 @@ be the sequence counter - this might be confusing:
 
 .. code-block:: pycon
 
-    >>> UserFactory().phone
+    >>> UserFactory().phone  # current sequence counter at 9999
     '000-555-9999'
-    >>> UserFactory().phone
+    >>> UserFactory().phone  # current sequence counter at 10000
     '001-555-0000'
 
 
@@ -1010,10 +1012,10 @@ The sequence counter is shared across all :class:`Sequence` attributes of the
 
     >>> u = UserFactory()
     >>> u.phone, u.office
-    '0041', 'A23-B041'
+    '0040', 'A23-B040'
     >>> u2 = UserFactory()
     >>> u2.phone, u2.office
-    '0042', 'A23-B042'
+    '0041', 'A23-B041'
 
 
 Inheritance
@@ -1039,16 +1041,17 @@ is shared across the :class:`Factory` classes:
 
     >>> u = UserFactory()
     >>> u.phone
-    '123-555-0001'
+    '123-555-0000'
 
     >>> e = EmployeeFactory()
     >>> e.phone, e.office_phone
-    '123-555-0002', '0002'
+    '123-555-0001', '0001'
 
     >>> u2 = UserFactory()
     >>> u2.phone
-    '123-555-0003'
+    '123-555-0002'
 
+.. _forcing-a-sequence-counter:
 
 Forcing a sequence counter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1107,9 +1110,9 @@ It takes a single argument, a function whose two parameters are, in order:
 .. code-block:: pycon
 
     >>> UserFactory().email
-    'john@s1.example.com'
+    'john@s0.example.com'
     >>> UserFactory(login='jack').email
-    'jack@s2.example.com'
+    'jack@s1.example.com'
 
 
 Decorator
@@ -1305,7 +1308,7 @@ That declaration takes a single argument, a dot-delimited path to the attribute 
         class Meta:
             model = User
 
-        birthdate = factory.Sequence(lambda n: datetime.date(2000, 1, 1) + datetime.timedelta(days=n))
+        birthdate = factory.fuzzy.FuzzyDate()
         birthmonth = factory.SelfAttribute('birthdate.month')
 
 .. code-block:: pycon
