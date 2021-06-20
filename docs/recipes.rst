@@ -545,13 +545,13 @@ In order to get a dict, we'll just have to swap the model; the easiest way is to
         class Meta:
             model = models.User
 
-        first_name = factory.Sequence(lambda n: "Agent %03d" % n)
+        first_name = factory.Sequence(lambda n: "Agent %03d" % n)  # Agent 000, Agent 001, Agent 002
         username = factory.Faker('user_name')
 
 .. code-block:: pycon
 
     >>> factory.build(dict, FACTORY_CLASS=UserFactory)
-    {'first_name': "Agent 001", 'username': 'john_doe'}
+    {'first_name': "Agent 000", 'username': 'john_doe'}
 
 
 Fuzzying Django model field choices
