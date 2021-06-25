@@ -42,6 +42,8 @@ ChangeLog
 
 *Removed:*
 
+    - Drop support for Django 3.0
+
 3.2.0 (2020-12-28)
 ------------------
 
