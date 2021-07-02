@@ -29,3 +29,7 @@ INSTALLED_APPS = [
 MIDDLEWARE_CLASSES = ()
 
 SECRET_KEY = 'testing.'
+
+# TODO: Will be the default after Django 5.0. Remove this setting when
+# Django 5.0 is the last supported version.
+USE_TZ = True
