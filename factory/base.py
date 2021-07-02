@@ -7,7 +7,7 @@ import warnings
 
 from . import builder, declarations, enums, errors, utils
 
-logger = logging.getLogger('factory.generate')
+logger = logging.getLogger("factory.generate")
 
 # Factory metaclasses
 
@@ -42,7 +42,7 @@ class FactoryMetaClass(type):
             return cls.stub(**kwargs)
         else:
             raise errors.UnknownStrategy(
-                'Unknown Meta.strategy: {}'.format(cls._meta.strategy)
+                "Unknown Meta.strategy: {}".format(cls._meta.strategy)
             )
 
     def __new__(mcs, class_name, bases, attrs):
@@ -66,14 +66,14 @@ class FactoryMetaClass(type):
         else:
             base_factory = None
 
-        attrs_meta = attrs.pop('Meta', None)
-        attrs_params = attrs.pop('Params', None)
+        attrs_meta = attrs.pop("Meta", None)
+        attrs_params = attrs.pop("Params", None)
 
-        base_meta = resolve_attribute('_meta', bases)
-        options_class = resolve_attribute('_options_class', bases, FactoryOptions)
+        base_meta = resolve_attribute("_meta", bases)
+        options_class = resolve_attribute("_options_class", bases, FactoryOptions)
 
         meta = options_class()
-        attrs['_meta'] = meta
+        attrs["_meta"] = meta
 
         new_class = super().__new__(mcs, class_name, bases, attrs)
 
@@ -89,9 +89,9 @@ class FactoryMetaClass(type):
 
     def __str__(cls):
         if cls._meta.abstract:
-            return '<%s (abstract)>' % cls.__name__
+            return "<%s (abstract)>" % cls.__name__
         else:
-            return f'<{cls.__name__} for {cls._meta.model}>'
+            return f"<{cls.__name__} for {cls._meta.model}>"
 
 
 class BaseMeta:
@@ -130,7 +130,7 @@ class OptionDefault:
         return value
 
     def __str__(self):
-        return '%s(%r, %r, inherit=%r)' % (
+        return "%s(%r, %r, inherit=%r)" % (
             self.__class__.__name__,
             self.name,
             self.value,
@@ -173,12 +173,12 @@ class FactoryOptions:
                 raise TypeError("%s is already a %s" % (repr(value), Factory.__name__))
 
         return [
-            OptionDefault('model', None, inherit=True, checker=is_model),
-            OptionDefault('abstract', False, inherit=False),
-            OptionDefault('strategy', enums.CREATE_STRATEGY, inherit=True),
-            OptionDefault('inline_args', (), inherit=True),
-            OptionDefault('exclude', (), inherit=True),
-            OptionDefault('rename', {}, inherit=True),
+            OptionDefault("model", None, inherit=True, checker=is_model),
+            OptionDefault("abstract", False, inherit=False),
+            OptionDefault("strategy", enums.CREATE_STRATEGY, inherit=True),
+            OptionDefault("inline_args", (), inherit=True),
+            OptionDefault("exclude", (), inherit=True),
+            OptionDefault("rename", {}, inherit=True),
         ]
 
     def _fill_from_meta(self, meta, base_meta):
@@ -204,7 +204,7 @@ class FactoryOptions:
             # Some attributes in the Meta aren't allowed here
             raise TypeError(
                 "'class Meta' for %r got unknown attribute(s) %s"
-                % (self.factory, ','.join(sorted(meta_attrs.keys())))
+                % (self.factory, ",".join(sorted(meta_attrs.keys())))
             )
 
     def contribute_to_class(
@@ -225,7 +225,7 @@ class FactoryOptions:
         # Scan the inheritance chain, starting from the furthest point,
         # excluding the current class, to retrieve all declarations.
         for parent in reversed(self.factory.__mro__[1:]):
-            if not hasattr(parent, '_meta'):
+            if not hasattr(parent, "_meta"):
                 continue
             self.base_declarations.update(parent._meta.base_declarations)
             self.parameters.update(parent._meta.parameters)
@@ -238,7 +238,7 @@ class FactoryOptions:
             for k, v in utils.sort_ordered_objects(
                 vars(params).items(), getter=lambda item: item[1]
             ):
-                if not k.startswith('_'):
+                if not k.startswith("_"):
                     self.parameters[k] = declarations.SimpleParameter.wrap(v)
 
         self._check_parameter_dependencies(self.parameters)
@@ -387,7 +387,7 @@ class FactoryOptions:
         if cyclic:
             raise errors.CyclicDefinitionError(
                 "Cyclic definition detected on %r; Params around %s"
-                % (self.factory, ', '.join(cyclic))
+                % (self.factory, ", ".join(cyclic))
             )
         return deps
 
@@ -438,7 +438,7 @@ class BaseFactory:
 
     def __new__(cls, *args, **kwargs):
         """Would be called if trying to instantiate the class."""
-        raise errors.FactoryError('You cannot instantiate BaseFactory')
+        raise errors.FactoryError("You cannot instantiate BaseFactory")
 
     _meta = FactoryOptions()
 
@@ -625,7 +625,7 @@ class BaseFactory:
             enums.BUILD_STRATEGY,
             enums.CREATE_STRATEGY,
         )
-        batch_action = getattr(cls, '%s_batch' % strategy)
+        batch_action = getattr(cls, "%s_batch" % strategy)
         return batch_action(size, **kwargs)
 
     @classmethod

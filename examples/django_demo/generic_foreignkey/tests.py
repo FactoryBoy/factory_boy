@@ -8,15 +8,15 @@ from .factories import GroupFactory, TaggedGroupFactory, TaggedUserFactory, User
 class GenericFactoryTest(TestCase):
     def test_user_factory(self):
         user = UserFactory()
-        self.assertEqual(user.first_name, 'Adam')
+        self.assertEqual(user.first_name, "Adam")
 
     def test_group_factory(self):
         group = GroupFactory()
-        self.assertEqual(group.name, 'group')
+        self.assertEqual(group.name, "group")
 
     def test_generic_user(self):
-        model = TaggedUserFactory(tag='user')
-        self.assertEqual(model.tag, 'user')
+        model = TaggedUserFactory(tag="user")
+        self.assertEqual(model.tag, "user")
         self.assertTrue(isinstance(model.content_object, User))
         self.assertEqual(
             model.content_type,
@@ -24,8 +24,8 @@ class GenericFactoryTest(TestCase):
         )
 
     def test_generic_group(self):
-        model = TaggedGroupFactory(tag='group')
-        self.assertEqual(model.tag, 'group')
+        model = TaggedGroupFactory(tag="group")
+        self.assertEqual(model.tag, "group")
         self.assertTrue(isinstance(model.content_object, Group))
         self.assertEqual(
             model.content_type,

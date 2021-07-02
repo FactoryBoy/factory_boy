@@ -7,7 +7,7 @@ import typing as T
 
 from . import enums, errors, utils
 
-logger = logging.getLogger('factory.generate')
+logger = logging.getLogger("factory.generate")
 
 
 class BaseDeclaration(utils.OrderedBase):
@@ -58,7 +58,7 @@ class BaseDeclaration(utils.OrderedBase):
             extra (dict): additional, call-time added kwargs
                 for the step.
         """
-        raise NotImplementedError('This is an abstract method')
+        raise NotImplementedError("This is an abstract method")
 
 
 class OrderedDeclaration(BaseDeclaration):
@@ -138,8 +138,8 @@ def deepgetattr(obj, name, default=_UNSPECIFIED):
         AttributeError: if obj has no 'name' attribute.
     """
     try:
-        if '.' in name:
-            attr, subname = name.split('.', 1)
+        if "." in name:
+            attr, subname = name.split(".", 1)
             return deepgetattr(getattr(obj, attr), subname, default)
         else:
             return getattr(obj, name)
@@ -165,7 +165,7 @@ class SelfAttribute(BaseDeclaration):
 
     def __init__(self, attribute_name, default=_UNSPECIFIED):
         super().__init__()
-        depth = len(attribute_name) - len(attribute_name.lstrip('.'))
+        depth = len(attribute_name) - len(attribute_name.lstrip("."))
         attribute_name = attribute_name[depth:]
 
         self.depth = depth
@@ -187,7 +187,7 @@ class SelfAttribute(BaseDeclaration):
         return deepgetattr(target, self.attribute_name, self.default)
 
     def __repr__(self):
-        return '<%s(%r, default=%r)>' % (
+        return "<%s(%r, default=%r)>" % (
             self.__class__.__name__,
             self.attribute_name,
             self.default,
@@ -363,17 +363,17 @@ class _FactoryWrapper:
 
     def __init__(self, factory_or_path):
         self.factory = None
-        self.module = self.name = ''
+        self.module = self.name = ""
         if isinstance(factory_or_path, type):
             self.factory = factory_or_path
         else:
-            if not (isinstance(factory_or_path, str) and '.' in factory_or_path):
+            if not (isinstance(factory_or_path, str) and "." in factory_or_path):
                 raise ValueError(
                     "A factory= argument must receive either a class "
                     "or the fully qualified path to a Factory subclass; got "
                     "%r instead." % factory_or_path
                 )
-            self.module, self.name = factory_or_path.rsplit('.', 1)
+            self.module, self.name = factory_or_path.rsplit(".", 1)
 
     def get(self):
         if self.factory is None:
@@ -385,9 +385,9 @@ class _FactoryWrapper:
 
     def __repr__(self):
         if self.factory is None:
-            return f'<_FactoryImport: {self.module}.{self.name}>'
+            return f"<_FactoryImport: {self.module}.{self.name}>"
         else:
-            return f'<_FactoryImport: {self.factory.__class__}>'
+            return f"<_FactoryImport: {self.factory.__class__}>"
 
 
 class SubFactory(BaseDeclaration):
@@ -437,7 +437,7 @@ class Dict(SubFactory):
 
     FORCE_SEQUENCE = True
 
-    def __init__(self, params, dict_factory='factory.DictFactory'):
+    def __init__(self, params, dict_factory="factory.DictFactory"):
         super().__init__(dict_factory, **dict(params))
 
 
@@ -446,7 +446,7 @@ class List(SubFactory):
 
     FORCE_SEQUENCE = True
 
-    def __init__(self, params, list_factory='factory.ListFactory'):
+    def __init__(self, params, list_factory="factory.ListFactory"):
         params = {str(i): v for i, v in enumerate(params)}
         super().__init__(list_factory, **params)
 
@@ -476,8 +476,8 @@ class Maybe(BaseDeclaration):
         self.no = no_declaration
 
         phases = {
-            'yes_declaration': enums.get_builder_phase(yes_declaration),
-            'no_declaration': enums.get_builder_phase(no_declaration),
+            "yes_declaration": enums.get_builder_phase(yes_declaration),
+            "no_declaration": enums.get_builder_phase(no_declaration),
         }
         used_phases = {phase for phase in phases.values() if phase is not None}
 
@@ -531,7 +531,7 @@ class Maybe(BaseDeclaration):
             return target
 
     def __repr__(self):
-        return f'Maybe({self.decider!r}, yes={self.yes!r}, no={self.no!r})'
+        return f"Maybe({self.decider!r}, yes={self.yes!r}, no={self.no!r})"
 
 
 class Parameter(utils.OrderedBase):
@@ -589,9 +589,9 @@ class Trait(Parameter):
         for maybe_field, new_value in self.overrides.items():
             overrides[maybe_field] = Maybe(
                 decider=SelfAttribute(
-                    '%s.%s'
+                    "%s.%s"
                     % (
-                        '.' * maybe_field.count(enums.SPLITTER),
+                        "." * maybe_field.count(enums.SPLITTER),
                         field_name,
                     ),
                     default=False,
@@ -606,9 +606,9 @@ class Trait(Parameter):
         return [param for param in parameters if param in self.overrides]
 
     def __repr__(self):
-        return '%s(%s)' % (
+        return "%s(%s)" % (
             self.__class__.__name__,
-            ', '.join('%s=%r' % t for t in self.overrides.items()),
+            ", ".join("%s=%r" % t for t in self.overrides.items()),
         )
 
 
@@ -630,9 +630,9 @@ class PostGenerationDeclaration(BaseDeclaration):
     def evaluate_post(self, instance, step, overrides):
         context = self.unroll_context(instance, step, overrides)
         postgen_context = PostGenerationContext(
-            value_provided=bool('' in context),
-            value=context.get(''),
-            extra={k: v for k, v in context.items() if k != ''},
+            value_provided=bool("" in context),
+            value=context.get(""),
+            extra={k: v for k, v in context.items() if k != ""},
         )
         return self.call(instance, step, postgen_context)
 
@@ -681,7 +681,7 @@ class RelatedFactory(PostGenerationDeclaration):
 
     UNROLL_CONTEXT_BEFORE_EVALUATION = False
 
-    def __init__(self, factory, factory_related_name='', **defaults):
+    def __init__(self, factory, factory_related_name="", **defaults):
         super().__init__()
 
         self.name = factory_related_name
@@ -731,7 +731,7 @@ class RelatedFactoryList(RelatedFactory):
             returning a list of 'factory' objects w/ size 'size'.
     """
 
-    def __init__(self, factory, factory_related_name='', size=2, **defaults):
+    def __init__(self, factory, factory_related_name="", size=2, **defaults):
         self.size = size
         super().__init__(factory, factory_related_name, **defaults)
 

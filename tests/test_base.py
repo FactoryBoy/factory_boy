@@ -137,11 +137,11 @@ class OptionsTests(unittest.TestCase):
 
         # And are available in class Meta
         self.assertEqual(
-            {'x': 1, 'y': lazy, 'y2': lazy2},
+            {"x": 1, "y": lazy, "y2": lazy2},
             AbstractFactory._meta.pre_declarations.as_dict(),
         )
         self.assertEqual(
-            {'z': postgen},
+            {"z": postgen},
             AbstractFactory._meta.post_declarations.as_dict(),
         )
 
@@ -169,11 +169,11 @@ class OptionsTests(unittest.TestCase):
 
         # And are available in class Meta
         self.assertEqual(
-            {'x': 1, 'y': lazy, 'a': lazy2},
+            {"x": 1, "y": lazy, "a": lazy2},
             OtherFactory._meta.pre_declarations.as_dict(),
         )
         self.assertEqual(
-            {'z': postgen, 'b': postgen2},
+            {"z": postgen, "b": postgen2},
             OtherFactory._meta.post_declarations.as_dict(),
         )
 
@@ -199,11 +199,11 @@ class OptionsTests(unittest.TestCase):
 
         # And are available in class Meta
         self.assertEqual(
-            {'x': 1, 'y': lazy2},
+            {"x": 1, "y": lazy2},
             OtherFactory._meta.pre_declarations.as_dict(),
         )
         self.assertEqual(
-            {'z': postgen2},
+            {"z": postgen2},
             OtherFactory._meta.post_declarations.as_dict(),
         )
 
@@ -228,7 +228,7 @@ class DeclarationParsingTests(unittest.TestCase):
             def some_classmethod(cls):
                 return cls.create()
 
-        self.assertTrue(hasattr(TestObjectFactory, 'some_classmethod'))
+        self.assertTrue(hasattr(TestObjectFactory, "some_classmethod"))
         obj = TestObjectFactory.some_classmethod()
         self.assertEqual(TestObject, obj.__class__)
 
@@ -243,15 +243,15 @@ class FactoryTestCase(unittest.TestCase):
 
         self.assertEqual(TestObject, TestObjectFactory._meta.model)
         obj = TestObjectFactory.build()
-        self.assertFalse(hasattr(obj, '_meta'))
+        self.assertFalse(hasattr(obj, "_meta"))
 
     def test_display(self):
         class TestObjectFactory(base.Factory):
             class Meta:
                 model = FakeDjangoModel
 
-        self.assertIn('TestObjectFactory', str(TestObjectFactory))
-        self.assertIn('FakeDjangoModel', str(TestObjectFactory))
+        self.assertIn("TestObjectFactory", str(TestObjectFactory))
+        self.assertIn("FakeDjangoModel", str(TestObjectFactory))
 
     def test_lazy_attribute_non_existent_param(self):
         class TestObjectFactory(base.Factory):
@@ -376,10 +376,10 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
                 model = TestModel
                 strategy = enums.BUILD_STRATEGY
 
-            one = 'one'
+            one = "one"
 
         test_model = TestModelFactory()
-        self.assertEqual(test_model.one, 'one')
+        self.assertEqual(test_model.one, "one")
         self.assertFalse(test_model.id)
 
     def test_create_strategy(self):
@@ -389,10 +389,10 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
             class Meta:
                 model = TestModel
 
-            one = 'one'
+            one = "one"
 
         test_model = TestModelFactory()
-        self.assertEqual(test_model.one, 'one')
+        self.assertEqual(test_model.one, "one")
         self.assertTrue(test_model.id)
 
     def test_stub_strategy(self):
@@ -401,19 +401,19 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
                 model = TestModel
                 strategy = enums.STUB_STRATEGY
 
-            one = 'one'
+            one = "one"
 
         test_model = TestModelFactory()
-        self.assertEqual(test_model.one, 'one')
-        self.assertFalse(hasattr(test_model, 'id'))  # We should have a plain old object
+        self.assertEqual(test_model.one, "one")
+        self.assertFalse(hasattr(test_model, "id"))  # We should have a plain old object
 
     def test_unknown_strategy(self):
         class TestModelFactory(base.Factory):
             class Meta:
                 model = TestModel
-                strategy = 'unknown'
+                strategy = "unknown"
 
-            one = 'one'
+            one = "one"
 
         with self.assertRaises(base.Factory.UnknownStrategy):
             TestModelFactory()
@@ -424,7 +424,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
                 model = TestModel
                 strategy = enums.CREATE_STRATEGY
 
-            one = 'one'
+            one = "one"
 
         with self.assertRaises(base.StubFactory.UnsupportedStrategy):
             TestModelFactory()
@@ -435,7 +435,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
                 model = TestModel
                 strategy = enums.BUILD_STRATEGY
 
-            one = 'one'
+            one = "one"
 
         obj = TestModelFactory()
 
@@ -448,7 +448,7 @@ class FactoryDefaultStrategyTestCase(unittest.TestCase):
                 model = TestModel
                 strategy = enums.CREATE_STRATEGY
 
-            one = 'one'
+            one = "one"
 
         self.assertEqual(enums.CREATE_STRATEGY, TestModelFactory._meta.strategy)
 
@@ -484,17 +484,17 @@ class FactoryCreationTestCase(unittest.TestCase):
             class Meta:
                 model = TestObject
 
-            one = 'blah'
+            one = "blah"
 
         class StubB(base.StubFactory):
             class Meta:
                 model = TestObject
 
-            stubbed = declarations.SubFactory(StubA, two='two')
+            stubbed = declarations.SubFactory(StubA, two="two")
 
         b = StubB()
-        self.assertEqual('blah', b.stubbed.one)
-        self.assertEqual('two', b.stubbed.two)
+        self.assertEqual("blah", b.stubbed.one)
+        self.assertEqual("two", b.stubbed.two)
 
     def test_custom_creation(self):
         class TestModelFactory(FakeModelFactory):
@@ -503,7 +503,7 @@ class FactoryCreationTestCase(unittest.TestCase):
 
             @classmethod
             def _generate(cls, create, attrs):
-                attrs['four'] = 4
+                attrs["four"] = 4
                 return super()._generate(create, attrs)
 
         b = TestModelFactory.build(one=1)
@@ -533,7 +533,7 @@ class PostGenerationParsingTestCase(unittest.TestCase):
 
             foo = declarations.PostGenerationDeclaration()
 
-        self.assertIn('foo', TestObjectFactory._meta.post_declarations.as_dict())
+        self.assertIn("foo", TestObjectFactory._meta.post_declarations.as_dict())
 
     def test_classlevel_extraction(self):
         class TestObjectFactory(base.Factory):
@@ -543,5 +543,5 @@ class PostGenerationParsingTestCase(unittest.TestCase):
             foo = declarations.PostGenerationDeclaration()
             foo__bar = 42
 
-        self.assertIn('foo', TestObjectFactory._meta.post_declarations.as_dict())
-        self.assertIn('foo__bar', TestObjectFactory._meta.post_declarations.as_dict())
+        self.assertIn("foo", TestObjectFactory._meta.post_declarations.as_dict())
+        self.assertIn("foo__bar", TestObjectFactory._meta.post_declarations.as_dict())

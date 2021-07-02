@@ -19,7 +19,7 @@ class StandardFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = models.session
 
     id = factory.Sequence(lambda n: n)
-    foo = factory.Sequence(lambda n: 'foo%d' % n)
+    foo = factory.Sequence(lambda n: "foo%d" % n)
 
 
 class NonIntegerPkFactory(SQLAlchemyModelFactory):
@@ -27,7 +27,7 @@ class NonIntegerPkFactory(SQLAlchemyModelFactory):
         model = models.NonIntegerPk
         sqlalchemy_session = models.session
 
-    id = factory.Sequence(lambda n: 'foo%d' % n)
+    id = factory.Sequence(lambda n: "foo%d" % n)
 
 
 class NoSessionFactory(SQLAlchemyModelFactory):
@@ -41,23 +41,23 @@ class NoSessionFactory(SQLAlchemyModelFactory):
 class MultifieldModelFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.MultiFieldModel
-        sqlalchemy_get_or_create = ('slug',)
+        sqlalchemy_get_or_create = ("slug",)
         sqlalchemy_session = models.session
-        sqlalchemy_session_persistence = 'commit'
+        sqlalchemy_session_persistence = "commit"
 
     id = factory.Sequence(lambda n: n)
-    foo = factory.Sequence(lambda n: 'foo%d' % n)
+    foo = factory.Sequence(lambda n: "foo%d" % n)
 
 
 class WithGetOrCreateFieldFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.StandardModel
-        sqlalchemy_get_or_create = ('foo',)
+        sqlalchemy_get_or_create = ("foo",)
         sqlalchemy_session = models.session
-        sqlalchemy_session_persistence = 'commit'
+        sqlalchemy_session_persistence = "commit"
 
     id = factory.Sequence(lambda n: n)
-    foo = factory.Sequence(lambda n: 'foo%d' % n)
+    foo = factory.Sequence(lambda n: "foo%d" % n)
 
 
 class WithMultipleGetOrCreateFieldsFactory(SQLAlchemyModelFactory):
@@ -65,7 +65,7 @@ class WithMultipleGetOrCreateFieldsFactory(SQLAlchemyModelFactory):
         model = models.MultifieldUniqueModel
         sqlalchemy_get_or_create = ("slug", "text")
         sqlalchemy_session = models.session
-        sqlalchemy_session_persistence = 'commit'
+        sqlalchemy_session_persistence = "commit"
 
     id = factory.Sequence(lambda n: n)
     slug = factory.Sequence(lambda n: "slug%s" % n)
@@ -80,32 +80,32 @@ class SQLAlchemyPkSequenceTestCase(unittest.TestCase):
 
     def test_pk_first(self):
         std = StandardFactory.build()
-        self.assertEqual('foo1', std.foo)
+        self.assertEqual("foo1", std.foo)
 
     def test_pk_many(self):
         std1 = StandardFactory.build()
         std2 = StandardFactory.build()
-        self.assertEqual('foo1', std1.foo)
-        self.assertEqual('foo2', std2.foo)
+        self.assertEqual("foo1", std1.foo)
+        self.assertEqual("foo2", std2.foo)
 
     def test_pk_creation(self):
         std1 = StandardFactory.create()
-        self.assertEqual('foo1', std1.foo)
+        self.assertEqual("foo1", std1.foo)
         self.assertEqual(1, std1.id)
 
         StandardFactory.reset_sequence()
         std2 = StandardFactory.create()
-        self.assertEqual('foo0', std2.foo)
+        self.assertEqual("foo0", std2.foo)
         self.assertEqual(0, std2.id)
 
     def test_pk_force_value(self):
         std1 = StandardFactory.create(id=10)
-        self.assertEqual('foo1', std1.foo)  # sequence and pk are unrelated
+        self.assertEqual("foo1", std1.foo)  # sequence and pk are unrelated
         self.assertEqual(10, std1.id)
 
         StandardFactory.reset_sequence()
         std2 = StandardFactory.create()
-        self.assertEqual('foo0', std2.foo)  # Sequence doesn't care about pk
+        self.assertEqual("foo0", std2.foo)  # Sequence doesn't care about pk
         self.assertEqual(0, std2.id)
 
 
@@ -114,8 +114,8 @@ class SQLAlchemyGetOrCreateTests(unittest.TestCase):
         models.session.rollback()
 
     def test_simple_call(self):
-        obj1 = WithGetOrCreateFieldFactory(foo='foo1')
-        obj2 = WithGetOrCreateFieldFactory(foo='foo1')
+        obj1 = WithGetOrCreateFieldFactory(foo="foo1")
+        obj2 = WithGetOrCreateFieldFactory(foo="foo1")
         self.assertEqual(obj1, obj2)
 
     def test_missing_arg(self):
@@ -123,14 +123,14 @@ class SQLAlchemyGetOrCreateTests(unittest.TestCase):
             MultifieldModelFactory()
 
     def test_raises_exception_when_existing_objs(self):
-        StandardFactory.create_batch(2, foo='foo')
+        StandardFactory.create_batch(2, foo="foo")
         with self.assertRaises(sqlalchemy.orm.exc.MultipleResultsFound):
-            WithGetOrCreateFieldFactory(foo='foo')
+            WithGetOrCreateFieldFactory(foo="foo")
 
     def test_multicall(self):
         objs = MultifieldModelFactory.create_batch(
             6,
-            slug=factory.Iterator(['main', 'alt']),
+            slug=factory.Iterator(["main", "alt"]),
         )
         self.assertEqual(6, len(objs))
         self.assertEqual(2, len(set(objs)))
@@ -155,9 +155,9 @@ class MultipleGetOrCreateFieldsTest(unittest.TestCase):
             WithMultipleGetOrCreateFieldsFactory(slug=obj1.slug, text="alt")
 
     def test_unique_field_not_in_get_or_create(self):
-        WithMultipleGetOrCreateFieldsFactory(title='Title')
+        WithMultipleGetOrCreateFieldsFactory(title="Title")
         with self.assertRaises(sqlalchemy.exc.IntegrityError):
-            WithMultipleGetOrCreateFieldsFactory(title='Title')
+            WithMultipleGetOrCreateFieldsFactory(title="Title")
 
 
 class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
@@ -169,7 +169,7 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
         class FlushingPersistenceFactory(StandardFactory):
             class Meta:
                 sqlalchemy_session = self.mock_session
-                sqlalchemy_session_persistence = 'flush'
+                sqlalchemy_session_persistence = "flush"
 
         self.mock_session.commit.assert_not_called()
         self.mock_session.flush.assert_not_called()
@@ -182,7 +182,7 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
         class CommittingPersistenceFactory(StandardFactory):
             class Meta:
                 sqlalchemy_session = self.mock_session
-                sqlalchemy_session_persistence = 'commit'
+                sqlalchemy_session_persistence = "commit"
 
         self.mock_session.commit.assert_not_called()
         self.mock_session.flush.assert_not_called()
@@ -209,7 +209,7 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
 
             class BadPersistenceFactory(StandardFactory):
                 class Meta:
-                    sqlalchemy_session_persistence = 'invalid_persistence_option'
+                    sqlalchemy_session_persistence = "invalid_persistence_option"
                     model = models.StandardModel
 
 
@@ -221,30 +221,30 @@ class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
 
     def test_first(self):
         nonint = NonIntegerPkFactory.build()
-        self.assertEqual('foo0', nonint.id)
+        self.assertEqual("foo0", nonint.id)
 
     def test_many(self):
         nonint1 = NonIntegerPkFactory.build()
         nonint2 = NonIntegerPkFactory.build()
 
-        self.assertEqual('foo0', nonint1.id)
-        self.assertEqual('foo1', nonint2.id)
+        self.assertEqual("foo0", nonint1.id)
+        self.assertEqual("foo1", nonint2.id)
 
     def test_creation(self):
         nonint1 = NonIntegerPkFactory.create()
-        self.assertEqual('foo0', nonint1.id)
+        self.assertEqual("foo0", nonint1.id)
 
         NonIntegerPkFactory.reset_sequence()
         nonint2 = NonIntegerPkFactory.build()
-        self.assertEqual('foo0', nonint2.id)
+        self.assertEqual("foo0", nonint2.id)
 
     def test_force_pk(self):
-        nonint1 = NonIntegerPkFactory.create(id='foo10')
-        self.assertEqual('foo10', nonint1.id)
+        nonint1 = NonIntegerPkFactory.create(id="foo10")
+        self.assertEqual("foo10", nonint1.id)
 
         NonIntegerPkFactory.reset_sequence()
         nonint2 = NonIntegerPkFactory.create()
-        self.assertEqual('foo0', nonint2.id)
+        self.assertEqual("foo0", nonint2.id)
 
 
 class SQLAlchemyNoSessionTestCase(unittest.TestCase):
@@ -272,7 +272,7 @@ class NameConflictTests(unittest.TestCase):
                 sqlalchemy_session = models.session
 
             id = factory.Sequence(lambda n: n)
-            session = ''
+            session = ""
 
         saved_child = SpecialFieldWithSaveFactory()
         self.assertEqual(saved_child.session, "")
@@ -281,11 +281,11 @@ class NameConflictTests(unittest.TestCase):
         class SpecialFieldWithGetOrCreateFactory(SQLAlchemyModelFactory):
             class Meta:
                 model = models.SpecialFieldModel
-                sqlalchemy_get_or_create = ('session',)
+                sqlalchemy_get_or_create = ("session",)
                 sqlalchemy_session = models.session
 
             id = factory.Sequence(lambda n: n)
-            session = ''
+            session = ""
 
         get_or_created_child = SpecialFieldWithGetOrCreateFactory()
         self.assertEqual(get_or_created_child.session, "")

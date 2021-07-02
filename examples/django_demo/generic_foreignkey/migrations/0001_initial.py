@@ -7,29 +7,29 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='TaggedItem',
+            name="TaggedItem",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.AutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name='ID',
+                        verbose_name="ID",
                     ),
                 ),
-                ('tag', models.SlugField()),
-                ('object_id', models.PositiveIntegerField()),
+                ("tag", models.SlugField()),
+                ("object_id", models.PositiveIntegerField()),
                 (
-                    'content_type',
+                    "content_type",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to='contenttypes.ContentType',
+                        to="contenttypes.ContentType",
                     ),
                 ),
             ],

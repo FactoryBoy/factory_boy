@@ -52,7 +52,7 @@ class User:
 
 class UserLog:
 
-    ACTIONS = ['create', 'update', 'disable']
+    ACTIONS = ["create", "update", "disable"]
 
     def __init__(self, user, action, timestamp):
         self.user = user
@@ -66,7 +66,7 @@ class UserLogFactory(factory.Factory):
     class Meta:
         model = UserLog
 
-    user = factory.SubFactory('test_docs_internals.UserFactory')
+    user = factory.SubFactory("test_docs_internals.UserFactory")
     timestamp = factory.fuzzy.FuzzyDateTime(
         datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc),
     )
@@ -87,17 +87,17 @@ class UserFactory(factory.Factory):
         enabled = True
 
     # Classic fields
-    username = factory.Faker('user_name')
-    full_name = factory.Faker('name')
+    username = factory.Faker("user_name")
+    full_name = factory.Faker("name")
     creation_date = factory.fuzzy.FuzzyDateTime(
         datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc),
         datetime.datetime(2015, 12, 31, 20, tzinfo=datetime.timezone.utc),
     )
 
     # Conditional flags
-    is_active = factory.SelfAttribute('enabled')
+    is_active = factory.SelfAttribute("enabled")
     deactivation_date = factory.Maybe(
-        'enabled',
+        "enabled",
         None,
         factory.fuzzy.FuzzyDateTime(
             datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
@@ -110,9 +110,9 @@ class UserFactory(factory.Factory):
     # Related logs
     creation_log = factory.RelatedFactory(
         UserLogFactory,
-        factory_related_name='user',
-        action='create',
-        timestamp=factory.SelfAttribute('user.creation_date'),
+        factory_related_name="user",
+        action="create",
+        timestamp=factory.SelfAttribute("user.creation_date"),
     )
 
 
@@ -128,6 +128,6 @@ class DocsInternalsTests(unittest.TestCase):
         # We should have one log
         self.assertEqual(1, len(user.logs))
         # And it should be a 'create' action linked to the user's creation_date
-        self.assertEqual('create', user.logs[0].action)
+        self.assertEqual("create", user.logs[0].action)
         self.assertEqual(user, user.logs[0].user)
         self.assertEqual(user.creation_date, user.logs[0].timestamp)

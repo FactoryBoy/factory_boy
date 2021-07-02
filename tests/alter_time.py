@@ -40,7 +40,7 @@ def mock_datetime_now(target, datetime_module):
         def utcnow(cls):
             return target
 
-    return mock.patch.object(datetime_module, 'datetime', MockedDatetime)
+    return mock.patch.object(datetime_module, "datetime", MockedDatetime)
 
 
 real_date_class = datetime.date
@@ -72,7 +72,7 @@ def mock_date_today(target, datetime_module):
         def today(cls):
             return target
 
-    return mock.patch.object(datetime_module, 'date', MockedDate)
+    return mock.patch.object(datetime_module, "date", MockedDate)
 
 
 def main():  # pragma: no cover

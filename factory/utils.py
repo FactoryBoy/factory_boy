@@ -23,7 +23,7 @@ class log_pprint:
     performed lazily.
     """
 
-    __slots__ = ['args', 'kwargs']
+    __slots__ = ["args", "kwargs"]
 
     def __init__(self, args=(), kwargs=None):
         self.args = args
@@ -33,9 +33,9 @@ class log_pprint:
         return repr(str(self))
 
     def __str__(self):
-        return ', '.join(
+        return ", ".join(
             [repr(arg) for arg in self.args]
-            + ['%s=%s' % (key, repr(value)) for key, value in self.kwargs.items()]
+            + ["%s=%s" % (key, repr(value)) for key, value in self.kwargs.items()]
         )
 
 
@@ -72,7 +72,7 @@ class OrderedBase:
     Each instance (even from subclasses) will share a global creation counter.
     """
 
-    CREATION_COUNTER_FIELD = '_creation_counter'
+    CREATION_COUNTER_FIELD = "_creation_counter"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

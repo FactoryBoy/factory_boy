@@ -5,8 +5,8 @@ import collections
 from . import declarations, enums, errors, utils
 
 DeclarationWithContext = collections.namedtuple(
-    'DeclarationWithContext',
-    ['name', 'declaration', 'context'],
+    "DeclarationWithContext",
+    ["name", "declaration", "context"],
 )
 
 
@@ -132,7 +132,7 @@ class DeclarationSet:
         return dict(self._items())
 
     def __repr__(self):
-        return '<DeclarationSet: %r>' % self.as_dict()
+        return "<DeclarationSet: %r>" % self.as_dict()
 
 
 def parse_declarations(decls, base_pre=None, base_post=None):
@@ -155,7 +155,7 @@ def parse_declarations(decls, base_pre=None, base_post=None):
         elif k in post_declarations:
             # Passing in a scalar value to a PostGenerationDeclaration
             # Set it as `key__`
-            magic_key = post_declarations.join(k, '')
+            magic_key = post_declarations.join(k, "")
             extra_post[magic_key] = v
         elif k in pre_declarations and isinstance(
             pre_declarations[k].declaration, declarations.Transformer
@@ -238,7 +238,7 @@ class StepBuilder:
         self.factory_meta = factory_meta
         self.strategy = strategy
         self.extras = extras
-        self.force_init_sequence = extras.pop('__sequence', None)
+        self.force_init_sequence = extras.pop("__sequence", None)
 
     def build(self, parent_step=None, force_sequence=None):
         """Build a factory instance."""
@@ -327,7 +327,7 @@ class Resolver:
         return self.__step.parent_step.stub if self.__step.parent_step else None
 
     def __repr__(self):
-        return '<Resolver for %r>' % self.__step
+        return "<Resolver for %r>" % self.__step
 
     def __getattr__(self, name):
         """Retrieve an attribute's value.
@@ -373,4 +373,4 @@ class Resolver:
         if not self.__initialized:
             return super().__setattr__(name, value)
         else:
-            raise AttributeError('Setting of object attributes is not allowed')
+            raise AttributeError("Setting of object attributes is not allowed")

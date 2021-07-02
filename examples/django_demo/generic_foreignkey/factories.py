@@ -7,27 +7,27 @@ from .models import TaggedItem
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-    first_name = 'Adam'
+    first_name = "Adam"
 
     class Meta:
         model = User
 
 
 class GroupFactory(factory.django.DjangoModelFactory):
-    name = 'group'
+    name = "group"
 
     class Meta:
         model = Group
 
 
 class TaggedItemFactory(factory.django.DjangoModelFactory):
-    object_id = factory.SelfAttribute('content_object.id')
+    object_id = factory.SelfAttribute("content_object.id")
     content_type = factory.LazyAttribute(
         lambda o: ContentType.objects.get_for_model(o.content_object)
     )
 
     class Meta:
-        exclude = ['content_object']
+        exclude = ["content_object"]
         abstract = True
 
 

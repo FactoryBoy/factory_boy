@@ -10,23 +10,23 @@ FACTORY_ROOT = os.path.join(
     os.pardir,  # /path/to/fboy
 )
 
-MEDIA_ROOT = os.path.join(FACTORY_ROOT, 'tmp_test')
+MEDIA_ROOT = os.path.join(FACTORY_ROOT, "tmp_test")
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
     },
-    'replica': {
-        'ENGINE': 'django.db.backends.sqlite3',
+    "replica": {
+        "ENGINE": "django.db.backends.sqlite3",
     },
 }
 
 
-INSTALLED_APPS = ['tests.djapp']
+INSTALLED_APPS = ["tests.djapp"]
 
 MIDDLEWARE_CLASSES = ()
 
-SECRET_KEY = 'testing.'
+SECRET_KEY = "testing."
 
 # TODO: Will be the default after Django 5.0. Remove this setting when
 # Django 5.0 is the last supported version.

@@ -64,7 +64,7 @@ class FuzzyText(BaseFuzzyAttribute):
     not important.
     """
 
-    def __init__(self, prefix='', length=12, suffix='', chars=string.ascii_letters):
+    def __init__(self, prefix="", length=12, suffix="", chars=string.ascii_letters):
         super().__init__()
         self.prefix = prefix
         self.suffix = suffix
@@ -73,7 +73,7 @@ class FuzzyText(BaseFuzzyAttribute):
 
     def fuzz(self):
         chars = [random.randgen.choice(self.chars) for _i in range(self.length)]
-        return self.prefix + ''.join(chars) + self.suffix
+        return self.prefix + "".join(chars) + self.suffix
 
 
 class FuzzyChoice(BaseFuzzyAttribute):
@@ -153,7 +153,7 @@ class FuzzyFloat(BaseFuzzyAttribute):
 
     def fuzz(self):
         base = random.randgen.uniform(self.low, self.high)
-        return float(format(base, '.%dg' % self.precision))
+        return float(format(base, ".%dg" % self.precision))
 
 
 class FuzzyDate(BaseFuzzyAttribute):

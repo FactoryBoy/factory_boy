@@ -5,8 +5,8 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from . import base, errors
 
-SESSION_PERSISTENCE_COMMIT = 'commit'
-SESSION_PERSISTENCE_FLUSH = 'flush'
+SESSION_PERSISTENCE_COMMIT = "commit"
+SESSION_PERSISTENCE_FLUSH = "flush"
 VALID_SESSION_PERSISTENCE_TYPES = [
     None,
     SESSION_PERSISTENCE_COMMIT,
@@ -24,10 +24,10 @@ class SQLAlchemyOptions(base.FactoryOptions):
 
     def _build_default_options(self):
         return super()._build_default_options() + [
-            base.OptionDefault('sqlalchemy_get_or_create', (), inherit=True),
-            base.OptionDefault('sqlalchemy_session', None, inherit=True),
+            base.OptionDefault("sqlalchemy_get_or_create", (), inherit=True),
+            base.OptionDefault("sqlalchemy_session", None, inherit=True),
             base.OptionDefault(
-                'sqlalchemy_session_persistence',
+                "sqlalchemy_session_persistence",
                 None,
                 inherit=True,
                 checker=self._check_sqlalchemy_session_persistence,

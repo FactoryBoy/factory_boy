@@ -16,10 +16,10 @@ from django.db import IntegrityError
 
 from . import base, declarations, errors
 
-logger = logging.getLogger('factory.generate')
+logger = logging.getLogger("factory.generate")
 
 
-DEFAULT_DB_ALIAS = 'default'  # Same as django.db.DEFAULT_DB_ALIAS
+DEFAULT_DB_ALIAS = "default"  # Same as django.db.DEFAULT_DB_ALIAS
 
 
 _LAZY_LOADS = {}
@@ -27,10 +27,10 @@ _LAZY_LOADS = {}
 
 def get_model(app, model):
     """Wrapper around django's get_model."""
-    if 'get_model' not in _LAZY_LOADS:
+    if "get_model" not in _LAZY_LOADS:
         _lazy_load_get_model()
 
-    _get_model = _LAZY_LOADS['get_model']
+    _get_model = _LAZY_LOADS["get_model"]
     return _get_model(app, model)
 
 
@@ -42,15 +42,15 @@ def _lazy_load_get_model():
     """
     from django import apps as django_apps
 
-    _LAZY_LOADS['get_model'] = django_apps.apps.get_model
+    _LAZY_LOADS["get_model"] = django_apps.apps.get_model
 
 
 class DjangoOptions(base.FactoryOptions):
     def _build_default_options(self):
         return super()._build_default_options() + [
-            base.OptionDefault('django_get_or_create', (), inherit=True),
-            base.OptionDefault('database', DEFAULT_DB_ALIAS, inherit=True),
-            base.OptionDefault('skip_postgeneration_save', False, inherit=True),
+            base.OptionDefault("django_get_or_create", (), inherit=True),
+            base.OptionDefault("database", DEFAULT_DB_ALIAS, inherit=True),
+            base.OptionDefault("skip_postgeneration_save", False, inherit=True),
         ]
 
     def _get_counter_reference(self):
@@ -68,8 +68,8 @@ class DjangoOptions(base.FactoryOptions):
         return counter_reference
 
     def get_model_class(self):
-        if isinstance(self.model, str) and '.' in self.model:
-            app, model_name = self.model.split('.', 1)
+        if isinstance(self.model, str) and "." in self.model:
+            app, model_name = self.model.split(".", 1)
             self.model = get_model(app, model_name)
 
         return self.model
@@ -92,8 +92,8 @@ class DjangoModelFactory(base.Factory):
     @classmethod
     def _load_model_class(cls, definition):
 
-        if isinstance(definition, str) and '.' in definition:
-            app, model = definition.split('.', 1)
+        if isinstance(definition, str) and "." in definition:
+            app, model = definition.split(".", 1)
             return get_model(app, model)
 
         return definition
@@ -128,7 +128,7 @@ class DjangoModelFactory(base.Factory):
         """Create an instance of the model through objects.get_or_create."""
         manager = cls._get_manager(model_class)
 
-        assert 'defaults' not in cls._meta.django_get_or_create, (
+        assert "defaults" not in cls._meta.django_get_or_create, (
             "'defaults' is a reserved keyword for get_or_create "
             "(in %s._meta.django_get_or_create=%r)"
             % (cls, cls._meta.django_get_or_create)
@@ -143,7 +143,7 @@ class DjangoModelFactory(base.Factory):
                     % (field, cls.__name__)
                 )
             key_fields[field] = kwargs.pop(field)
-        key_fields['defaults'] = kwargs
+        key_fields["defaults"] = kwargs
 
         try:
             instance, _created = manager.get_or_create(*args, **key_fields)
@@ -200,19 +200,19 @@ class Password(declarations.Transformer):
 class FileField(declarations.BaseDeclaration):
     """Helper to fill in django.db.models.FileField from a Factory."""
 
-    DEFAULT_FILENAME = 'example.dat'
+    DEFAULT_FILENAME = "example.dat"
 
     def _make_data(self, params):
         """Create data for the field."""
-        return params.get('data', b'')
+        return params.get("data", b"")
 
     def _make_content(self, params):
-        path = ''
+        path = ""
 
         _content_params = [
-            params.get('from_path'),
-            params.get('from_file'),
-            params.get('from_func'),
+            params.get("from_path"),
+            params.get("from_file"),
+            params.get("from_func"),
         ]
         if len([p for p in _content_params if p]) > 1:
             raise ValueError(
@@ -220,18 +220,18 @@ class FileField(declarations.BaseDeclaration):
                 "be non-empty when calling factory.django.FileField."
             )
 
-        if params.get('from_path'):
-            path = params['from_path']
-            with open(path, 'rb') as f:
+        if params.get("from_path"):
+            path = params["from_path"]
+            with open(path, "rb") as f:
                 content = django_files.base.ContentFile(f.read())
 
-        elif params.get('from_file'):
-            f = params['from_file']
+        elif params.get("from_file"):
+            f = params["from_file"]
             content = django_files.File(f)
             path = content.name
 
-        elif params.get('from_func'):
-            func = params['from_func']
+        elif params.get("from_func"):
+            func = params["from_func"]
             content = django_files.File(func())
             path = content.name
 
@@ -244,7 +244,7 @@ class FileField(declarations.BaseDeclaration):
         else:
             default_filename = self.DEFAULT_FILENAME
 
-        filename = params.get('filename', default_filename)
+        filename = params.get("filename", default_filename)
         return filename, content
 
     def evaluate(self, instance, step, extra):
@@ -254,18 +254,18 @@ class FileField(declarations.BaseDeclaration):
 
 
 class ImageField(FileField):
-    DEFAULT_FILENAME = 'example.jpg'
+    DEFAULT_FILENAME = "example.jpg"
 
     def _make_data(self, params):
         # ImageField (both django's and factory_boy's) require PIL.
         # Try to import it along one of its known installation paths.
         from PIL import Image
 
-        width = params.get('width', 100)
-        height = params.get('height', width)
-        color = params.get('color', 'blue')
-        image_format = params.get('format', 'JPEG')
-        image_palette = params.get('palette', 'RGB')
+        width = params.get("width", 100)
+        height = params.get("height", width)
+        color = params.get("color", "blue")
+        image_format = params.get("format", "JPEG")
+        image_palette = params.get("palette", "RGB")
 
         thumb_io = io.BytesIO()
         with Image.new(image_palette, (width, height), color) as thumb:
@@ -299,7 +299,7 @@ class mute_signals:
 
     def __enter__(self):
         for signal in self.signals:
-            logger.debug('mute_signals: Disabling signal handlers %r', signal.receivers)
+            logger.debug("mute_signals: Disabling signal handlers %r", signal.receivers)
 
             # Note that we're using implementation details of
             # django.signals, since arguments to signal.connect()
@@ -309,7 +309,7 @@ class mute_signals:
 
     def __exit__(self, exc_type, exc_value, traceback):
         for signal, receivers in self.paused.items():
-            logger.debug('mute_signals: Restoring signal handlers %r', receivers)
+            logger.debug("mute_signals: Restoring signal handlers %r", receivers)
 
             signal.receivers += receivers
             with signal.lock:

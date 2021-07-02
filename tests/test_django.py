@@ -24,7 +24,7 @@ except ImportError:
     Image = None
 
 # Setup Django before importing Django models.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests.djapp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tests.djapp.settings")
 django.setup()
 
 from .djapp import models  # noqa:E402 isort:skip
@@ -35,11 +35,11 @@ test_state = {}
 def setUpModule():
     django_test_utils.setup_test_environment()
     runner_state = django_test_utils.setup_databases(verbosity=0, interactive=False)
-    test_state['runner_state'] = runner_state
+    test_state["runner_state"] = runner_state
 
 
 def tearDownModule():
-    django_test_utils.teardown_databases(test_state['runner_state'], verbosity=0)
+    django_test_utils.teardown_databases(test_state["runner_state"], verbosity=0)
     django_test_utils.teardown_test_environment()
 
 
@@ -53,7 +53,7 @@ class StandardFactory(factory.django.DjangoModelFactory):
 class StandardFactoryWithPKField(factory.django.DjangoModelFactory):
     class Meta:
         model = models.StandardModel
-        django_get_or_create = ('pk',)
+        django_get_or_create = ("pk",)
 
     foo = factory.Sequence(lambda n: "foo%d" % n)
     pk = None
@@ -64,15 +64,15 @@ class NonIntegerPkFactory(factory.django.DjangoModelFactory):
         model = models.NonIntegerPk
 
     foo = factory.Sequence(lambda n: "foo%d" % n)
-    bar = ''
+    bar = ""
 
 
 class MultifieldModelFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.MultifieldModel
-        django_get_or_create = ['slug']
+        django_get_or_create = ["slug"]
 
-    text = factory.Faker('text')
+    text = factory.Faker("text")
 
 
 class AbstractBaseFactory(factory.django.DjangoModelFactory):
@@ -98,7 +98,7 @@ class ConcreteGrandSonFactory(AbstractBaseFactory):
         model = models.ConcreteGrandSon
 
 
-PASSWORD = 's0_s3cr3t'
+PASSWORD = "s0_s3cr3t"
 
 
 class WithPasswordFactory(factory.django.DjangoModelFactory):
@@ -144,7 +144,7 @@ class WithMultipleGetOrCreateFieldsFactory(factory.django.DjangoModelFactory):
 
 
 class ModelTests(django_test.TestCase):
-    databases = {'default', 'replica'}
+    databases = {"default", "replica"}
 
     def test_unset_model(self):
         class UnsetModelFactory(factory.django.DjangoModelFactory):
@@ -157,11 +157,11 @@ class ModelTests(django_test.TestCase):
         class OtherDBFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.StandardModel
-                database = 'replica'
+                database = "replica"
 
         obj = OtherDBFactory()
         self.assertFalse(models.StandardModel.objects.exists())
-        self.assertEqual(obj, models.StandardModel.objects.using('replica').get())
+        self.assertEqual(obj, models.StandardModel.objects.using("replica").get())
 
 
 class DjangoPkSequenceTestCase(django_test.TestCase):
@@ -171,40 +171,40 @@ class DjangoPkSequenceTestCase(django_test.TestCase):
 
     def test_pk_first(self):
         std = StandardFactory.build()
-        self.assertEqual('foo0', std.foo)
+        self.assertEqual("foo0", std.foo)
 
     def test_pk_many(self):
         std1 = StandardFactory.build()
         std2 = StandardFactory.build()
-        self.assertEqual('foo0', std1.foo)
-        self.assertEqual('foo1', std2.foo)
+        self.assertEqual("foo0", std1.foo)
+        self.assertEqual("foo1", std2.foo)
 
     def test_pk_creation(self):
         std1 = StandardFactory.create()
-        self.assertEqual('foo0', std1.foo)
+        self.assertEqual("foo0", std1.foo)
         self.assertEqual(1, std1.pk)
 
         StandardFactory.reset_sequence()
         std2 = StandardFactory.create()
-        self.assertEqual('foo0', std2.foo)
+        self.assertEqual("foo0", std2.foo)
         self.assertEqual(2, std2.pk)
 
     def test_pk_force_value(self):
         std1 = StandardFactory.create(pk=10)
-        self.assertEqual('foo0', std1.foo)  # sequence is unrelated to pk
+        self.assertEqual("foo0", std1.foo)  # sequence is unrelated to pk
         self.assertEqual(10, std1.pk)
 
         StandardFactory.reset_sequence()
         std2 = StandardFactory.create()
-        self.assertEqual('foo0', std2.foo)
+        self.assertEqual("foo0", std2.foo)
         self.assertEqual(11, std2.pk)
 
 
 class DjangoGetOrCreateTests(django_test.TestCase):
     def test_simple_call(self):
-        obj1 = MultifieldModelFactory(slug='slug1')
-        obj2 = MultifieldModelFactory(slug='slug1')
-        MultifieldModelFactory(slug='alt')
+        obj1 = MultifieldModelFactory(slug="slug1")
+        obj2 = MultifieldModelFactory(slug="slug1")
+        MultifieldModelFactory(slug="alt")
 
         self.assertEqual(obj1, obj2)
         self.assertEqual(
@@ -223,7 +223,7 @@ class DjangoGetOrCreateTests(django_test.TestCase):
     def test_multicall(self):
         objs = MultifieldModelFactory.create_batch(
             6,
-            slug=factory.Iterator(['main', 'alt']),
+            slug=factory.Iterator(["main", "alt"]),
         )
         self.assertEqual(6, len(objs))
         self.assertEqual(2, len(set(objs)))
@@ -262,20 +262,20 @@ class DjangoPkForceTestCase(django_test.TestCase):
     def test_no_pk(self):
         std = StandardFactoryWithPKField()
         self.assertIsNotNone(std.pk)
-        self.assertEqual('foo0', std.foo)
+        self.assertEqual("foo0", std.foo)
 
     def test_force_pk(self):
         std = StandardFactoryWithPKField(pk=42)
         self.assertIsNotNone(std.pk)
-        self.assertEqual('foo0', std.foo)
+        self.assertEqual("foo0", std.foo)
 
     def test_reuse_pk(self):
-        std1 = StandardFactoryWithPKField(foo='bar')
+        std1 = StandardFactoryWithPKField(foo="bar")
         self.assertIsNotNone(std1.pk)
 
-        std2 = StandardFactoryWithPKField(pk=std1.pk, foo='blah')
+        std2 = StandardFactoryWithPKField(pk=std1.pk, foo="blah")
         self.assertEqual(std1.pk, std2.pk)
-        self.assertEqual('bar', std2.foo)
+        self.assertEqual("bar", std2.foo)
 
 
 class DjangoModelLoadingTestCase(django_test.TestCase):
@@ -285,14 +285,14 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
     def test_loading(self):
         class ExampleFactory(factory.django.DjangoModelFactory):
             class Meta:
-                model = 'djapp.StandardModel'
+                model = "djapp.StandardModel"
 
         self.assertEqual(models.StandardModel, ExampleFactory._meta.get_model_class())
 
     def test_building(self):
         class ExampleFactory(factory.django.DjangoModelFactory):
             class Meta:
-                model = 'djapp.StandardModel'
+                model = "djapp.StandardModel"
 
         e = ExampleFactory.build()
         self.assertEqual(models.StandardModel, e.__class__)
@@ -305,7 +305,7 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
 
         class ExampleFactory(factory.django.DjangoModelFactory):
             class Meta:
-                model = 'djapp.StandardModel'
+                model = "djapp.StandardModel"
 
         class Example2Factory(ExampleFactory):
             pass
@@ -321,13 +321,13 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
 
         class ExampleFactory(factory.django.DjangoModelFactory):
             class Meta:
-                model = 'djapp.StandardModel'
+                model = "djapp.StandardModel"
 
             foo = factory.Sequence(lambda n: n)
 
         class Example2Factory(ExampleFactory):
             class Meta:
-                model = 'djapp.StandardSon'
+                model = "djapp.StandardSon"
 
         e1 = ExampleFactory.build()
         e2 = Example2Factory.build()
@@ -347,33 +347,33 @@ class DjangoNonIntegerPkTestCase(django_test.TestCase):
 
     def test_first(self):
         nonint = NonIntegerPkFactory.build()
-        self.assertEqual('foo0', nonint.foo)
+        self.assertEqual("foo0", nonint.foo)
 
     def test_many(self):
         nonint1 = NonIntegerPkFactory.build()
         nonint2 = NonIntegerPkFactory.build()
 
-        self.assertEqual('foo0', nonint1.foo)
-        self.assertEqual('foo1', nonint2.foo)
+        self.assertEqual("foo0", nonint1.foo)
+        self.assertEqual("foo1", nonint2.foo)
 
     def test_creation(self):
         nonint1 = NonIntegerPkFactory.create()
-        self.assertEqual('foo0', nonint1.foo)
-        self.assertEqual('foo0', nonint1.pk)
+        self.assertEqual("foo0", nonint1.foo)
+        self.assertEqual("foo0", nonint1.pk)
 
         NonIntegerPkFactory.reset_sequence()
         nonint2 = NonIntegerPkFactory.build()
-        self.assertEqual('foo0', nonint2.foo)
+        self.assertEqual("foo0", nonint2.foo)
 
     def test_force_pk(self):
-        nonint1 = NonIntegerPkFactory.create(pk='foo10')
-        self.assertEqual('foo10', nonint1.foo)
-        self.assertEqual('foo10', nonint1.pk)
+        nonint1 = NonIntegerPkFactory.create(pk="foo10")
+        self.assertEqual("foo10", nonint1.foo)
+        self.assertEqual("foo10", nonint1.pk)
 
         NonIntegerPkFactory.reset_sequence()
         nonint2 = NonIntegerPkFactory.create()
-        self.assertEqual('foo0', nonint2.foo)
-        self.assertEqual('foo0', nonint2.pk)
+        self.assertEqual("foo0", nonint2.foo)
+        self.assertEqual("foo0", nonint2.pk)
 
 
 class DjangoAbstractBaseSequenceTestCase(django_test.TestCase):
@@ -414,37 +414,37 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
             class Meta:
                 model = models.PointedModel
 
-            foo = 'foo'
+            foo = "foo"
 
         class PointerFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointerModel
 
-            bar = 'bar'
-            pointed = factory.SubFactory(PointedFactory, foo='new_foo')
+            bar = "bar"
+            pointed = factory.SubFactory(PointedFactory, foo="new_foo")
 
         class PointedRelatedFactory(PointedFactory):
             pointer = factory.RelatedFactory(
                 PointerFactory,
-                factory_related_name='pointed',
+                factory_related_name="pointed",
             )
 
             class Meta:
                 skip_postgeneration_save = True
 
         class PointerExtraFactory(PointerFactory):
-            pointed__foo = 'extra_new_foo'
+            pointed__foo = "extra_new_foo"
 
         class PointedRelatedExtraFactory(PointedRelatedFactory):
-            pointer__bar = 'extra_new_bar'
+            pointer__bar = "extra_new_bar"
 
         class PointedRelatedWithTraitFactory(PointedFactory):
             class Params:
                 with_pointer = factory.Trait(
                     pointer=factory.RelatedFactory(
                         PointerFactory,
-                        factory_related_name='pointed',
-                        bar='with_trait',
+                        factory_related_name="pointed",
+                        bar="with_trait",
                     )
                 )
 
@@ -461,54 +461,54 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
     def test_create_pointed(self):
         pointed = self.PointedFactory()
         self.assertEqual(pointed, models.PointedModel.objects.get())
-        self.assertEqual(pointed.foo, 'foo')
+        self.assertEqual(pointed.foo, "foo")
 
     def test_create_pointer(self):
         pointer = self.PointerFactory()
         self.assertEqual(pointer.pointed, models.PointedModel.objects.get())
-        self.assertEqual(pointer.pointed.foo, 'new_foo')
+        self.assertEqual(pointer.pointed.foo, "new_foo")
 
     def test_create_pointer_with_deep_context(self):
-        pointer = self.PointerFactory(pointed__foo='new_new_foo')
+        pointer = self.PointerFactory(pointed__foo="new_new_foo")
         self.assertEqual(pointer, models.PointerModel.objects.get())
-        self.assertEqual(pointer.bar, 'bar')
+        self.assertEqual(pointer.bar, "bar")
         self.assertEqual(pointer.pointed, models.PointedModel.objects.get())
-        self.assertEqual(pointer.pointed.foo, 'new_new_foo')
+        self.assertEqual(pointer.pointed.foo, "new_new_foo")
 
     def test_create_pointed_related(self):
         pointed = self.PointedRelatedFactory()
         self.assertEqual(pointed, models.PointedModel.objects.get())
-        self.assertEqual(pointed.foo, 'foo')
+        self.assertEqual(pointed.foo, "foo")
         self.assertEqual(pointed.pointer, models.PointerModel.objects.get())
-        self.assertEqual(pointed.pointer.bar, 'bar')
+        self.assertEqual(pointed.pointer.bar, "bar")
 
     def test_create_pointed_related_with_deep_context(self):
-        pointed = self.PointedRelatedFactory(pointer__bar='new_new_bar')
+        pointed = self.PointedRelatedFactory(pointer__bar="new_new_bar")
         self.assertEqual(pointed, models.PointedModel.objects.get())
-        self.assertEqual(pointed.foo, 'foo')
+        self.assertEqual(pointed.foo, "foo")
         self.assertEqual(pointed.pointer, models.PointerModel.objects.get())
-        self.assertEqual(pointed.pointer.bar, 'new_new_bar')
+        self.assertEqual(pointed.pointer.bar, "new_new_bar")
 
     def test_create_pointer_extra(self):
         pointer = self.PointerExtraFactory()
         self.assertEqual(pointer, models.PointerModel.objects.get())
-        self.assertEqual(pointer.bar, 'bar')
+        self.assertEqual(pointer.bar, "bar")
         self.assertEqual(pointer.pointed, models.PointedModel.objects.get())
-        self.assertEqual(pointer.pointed.foo, 'extra_new_foo')
+        self.assertEqual(pointer.pointed.foo, "extra_new_foo")
 
     def test_create_pointed_related_extra(self):
         pointed = self.PointedRelatedExtraFactory()
         self.assertEqual(pointed, models.PointedModel.objects.get())
-        self.assertEqual(pointed.foo, 'foo')
+        self.assertEqual(pointed.foo, "foo")
         self.assertEqual(pointed.pointer, models.PointerModel.objects.get())
-        self.assertEqual(pointed.pointer.bar, 'extra_new_bar')
+        self.assertEqual(pointed.pointer.bar, "extra_new_bar")
 
     def test_create_pointed_related_with_trait(self):
         pointed = self.PointedRelatedWithTraitFactory(with_pointer=True)
         self.assertEqual(pointed, models.PointedModel.objects.get())
-        self.assertEqual(pointed.foo, 'foo')
+        self.assertEqual(pointed.foo, "foo")
         self.assertEqual(pointed.pointer, models.PointerModel.objects.get())
-        self.assertEqual(pointed.pointer.bar, 'with_trait')
+        self.assertEqual(pointed.pointer.bar, "with_trait")
 
 
 class DjangoPasswordTestCase(django_test.TestCase):
@@ -517,7 +517,7 @@ class DjangoPasswordTestCase(django_test.TestCase):
         self.assertTrue(check_password(PASSWORD, u.pw))
 
     def test_build_with_kwargs(self):
-        password = 'V3R¥.S€C®€T'
+        password = "V3R¥.S€C®€T"
         u = WithPasswordFactory.build(pw=password)
         self.assertTrue(check_password(password, u.pw))
 
@@ -536,37 +536,37 @@ class DjangoFileFieldTestCase(django_test.TestCase):
     def test_default_build(self):
         o = WithFileFactory.build()
         self.assertIsNone(o.pk)
-        self.assertEqual(b'', o.afile.read())
-        self.assertEqual('example.dat', o.afile.name)
+        self.assertEqual(b"", o.afile.read())
+        self.assertEqual("example.dat", o.afile.name)
 
         o.save()
-        self.assertEqual('django/example.dat', o.afile.name)
+        self.assertEqual("django/example.dat", o.afile.name)
 
     def test_default_create(self):
         o = WithFileFactory.create()
         self.assertIsNotNone(o.pk)
         with o.afile as f:
-            self.assertEqual(b'', f.read())
-        self.assertEqual('django/example.dat', o.afile.name)
+            self.assertEqual(b"", f.read())
+        self.assertEqual("django/example.dat", o.afile.name)
 
     def test_with_content(self):
-        o = WithFileFactory.build(afile__data='foo')
+        o = WithFileFactory.build(afile__data="foo")
         self.assertIsNone(o.pk)
 
         # Django only allocates the full path on save()
         o.save()
         with o.afile as f:
-            self.assertEqual(b'foo', f.read())
-        self.assertEqual('django/example.dat', o.afile.name)
+            self.assertEqual(b"foo", f.read())
+        self.assertEqual("django/example.dat", o.afile.name)
 
     def test_with_file(self):
-        with open(testdata.TESTFILE_PATH, 'rb') as f:
+        with open(testdata.TESTFILE_PATH, "rb") as f:
             o = WithFileFactory.build(afile__from_file=f)
             o.save()
 
         with o.afile as f:
-            self.assertEqual(b'example_data\n', f.read())
-        self.assertEqual('django/example.data', o.afile.name)
+            self.assertEqual(b"example_data\n", f.read())
+        self.assertEqual("django/example.data", o.afile.name)
 
     def test_with_path(self):
         o = WithFileFactory.build(afile__from_path=testdata.TESTFILE_PATH)
@@ -576,21 +576,21 @@ class DjangoFileFieldTestCase(django_test.TestCase):
             # Django only allocates the full path on save()
             o.save()
             f.seek(0)
-            self.assertEqual(b'example_data\n', f.read())
-        self.assertEqual('django/example.data', o.afile.name)
+            self.assertEqual(b"example_data\n", f.read())
+        self.assertEqual("django/example.data", o.afile.name)
 
     def test_with_file_empty_path(self):
-        with open(testdata.TESTFILE_PATH, 'rb') as f:
+        with open(testdata.TESTFILE_PATH, "rb") as f:
             o = WithFileFactory.build(
                 afile__from_file=f,
-                afile__from_path='',
+                afile__from_path="",
             )
             # Django only allocates the full path on save()
             o.save()
 
         with o.afile as f:
-            self.assertEqual(b'example_data\n', f.read())
-        self.assertEqual('django/example.data', o.afile.name)
+            self.assertEqual(b"example_data\n", f.read())
+        self.assertEqual("django/example.data", o.afile.name)
 
     def test_with_path_empty_file(self):
         o = WithFileFactory.build(
@@ -603,20 +603,20 @@ class DjangoFileFieldTestCase(django_test.TestCase):
             # Django only allocates the full path on save()
             o.save()
             f.seek(0)
-            self.assertEqual(b'example_data\n', f.read())
-        self.assertEqual('django/example.data', o.afile.name)
+            self.assertEqual(b"example_data\n", f.read())
+        self.assertEqual("django/example.data", o.afile.name)
 
     def test_error_both_file_and_path(self):
         with self.assertRaises(ValueError):
             WithFileFactory.build(
-                afile__from_file='fakefile',
+                afile__from_file="fakefile",
                 afile__from_path=testdata.TESTFILE_PATH,
             )
 
     def test_override_filename_with_path(self):
         o = WithFileFactory.build(
             afile__from_path=testdata.TESTFILE_PATH,
-            afile__filename='example.foo',
+            afile__filename="example.foo",
         )
         self.assertIsNone(o.pk)
 
@@ -624,23 +624,23 @@ class DjangoFileFieldTestCase(django_test.TestCase):
             # Django only allocates the full path on save()
             o.save()
             f.seek(0)
-            self.assertEqual(b'example_data\n', f.read())
-        self.assertEqual('django/example.foo', o.afile.name)
+            self.assertEqual(b"example_data\n", f.read())
+        self.assertEqual("django/example.foo", o.afile.name)
 
     def test_existing_file(self):
         o1 = WithFileFactory.build(afile__from_path=testdata.TESTFILE_PATH)
         with o1.afile:
             o1.save()
-        self.assertEqual('django/example.data', o1.afile.name)
+        self.assertEqual("django/example.data", o1.afile.name)
 
         o2 = WithFileFactory.build(afile__from_file=o1.afile)
         self.assertIsNone(o2.pk)
         with o2.afile as f:
             o2.save()
             f.seek(0)
-            self.assertEqual(b'example_data\n', f.read())
-        self.assertNotEqual('django/example.data', o2.afile.name)
-        self.assertRegex(o2.afile.name, r'django/example_\w+.data')
+            self.assertEqual(b"example_data\n", f.read())
+        self.assertNotEqual("django/example.data", o2.afile.name)
+        self.assertRegex(o2.afile.name, r"django/example_\w+.data")
 
     def test_no_file(self):
         o = WithFileFactory.build(afile=None)
@@ -656,11 +656,11 @@ class DjangoParamsTestCase(django_test.TestCase):
 
             class Params:
                 with_bar = factory.Trait(
-                    foo='bar',
+                    foo="bar",
                 )
 
         o = WithDefaultValueFactory()
-        self.assertEqual('', o.foo)
+        self.assertEqual("", o.foo)
 
     def test_pointing_with_traits_using_same_name(self):
         class PointedFactory(factory.django.DjangoModelFactory):
@@ -669,7 +669,7 @@ class DjangoParamsTestCase(django_test.TestCase):
 
             class Params:
                 with_bar = factory.Trait(
-                    foo='bar',
+                    foo="bar",
                 )
 
         class PointerFactory(factory.django.DjangoModelFactory):
@@ -680,13 +680,13 @@ class DjangoParamsTestCase(django_test.TestCase):
 
             class Params:
                 with_bar = factory.Trait(
-                    bar='bar',
+                    bar="bar",
                     pointed__with_bar=True,
                 )
 
         o = PointerFactory(with_bar=True)
-        self.assertEqual('bar', o.bar)
-        self.assertEqual('bar', o.pointed.foo)
+        self.assertEqual("bar", o.bar)
+        self.assertEqual("bar", o.pointed.foo)
 
 
 class DjangoFakerTestCase(django_test.TestCase):
@@ -695,7 +695,7 @@ class DjangoFakerTestCase(django_test.TestCase):
             class Meta:
                 model = models.StandardModel
 
-            foo = factory.Faker('pystr')
+            foo = factory.Faker("pystr")
 
         o1 = StandardModelFactory()
         o2 = StandardModelFactory()
@@ -717,7 +717,7 @@ class DjangoImageFieldTestCase(django_test.TestCase):
 
         self.assertEqual(100, o.animage.width)
         self.assertEqual(100, o.animage.height)
-        self.assertEqual('django/example.jpg', o.animage.name)
+        self.assertEqual("django/example.jpg", o.animage.name)
 
     def test_default_create(self):
         o = WithImageFactory.create()
@@ -726,72 +726,72 @@ class DjangoImageFieldTestCase(django_test.TestCase):
 
         self.assertEqual(100, o.animage.width)
         self.assertEqual(100, o.animage.height)
-        self.assertEqual('django/example.jpg', o.animage.name)
+        self.assertEqual("django/example.jpg", o.animage.name)
 
     def test_complex_create(self):
         o = WithImageFactory.create(
             size=10,
-            animage__filename=factory.Sequence(lambda n: 'img%d.jpg' % n),
+            animage__filename=factory.Sequence(lambda n: "img%d.jpg" % n),
             __sequence=42,
-            animage__width=factory.SelfAttribute('..size'),
-            animage__height=factory.SelfAttribute('width'),
+            animage__width=factory.SelfAttribute("..size"),
+            animage__height=factory.SelfAttribute("width"),
         )
         self.assertIsNotNone(o.pk)
-        self.assertEqual('django/img42.jpg', o.animage.name)
+        self.assertEqual("django/img42.jpg", o.animage.name)
 
     def test_with_content(self):
-        o = WithImageFactory.build(animage__width=13, animage__color='red')
+        o = WithImageFactory.build(animage__width=13, animage__color="red")
         self.assertIsNone(o.pk)
         o.save()
 
         self.assertEqual(13, o.animage.width)
         self.assertEqual(13, o.animage.height)
-        self.assertEqual('django/example.jpg', o.animage.name)
+        self.assertEqual("django/example.jpg", o.animage.name)
 
         with Image.open(os.path.join(settings.MEDIA_ROOT, o.animage.name)) as i:
             colors = i.getcolors()
         # 169 pixels with rgb(254, 0, 0)
         self.assertEqual([(169, (254, 0, 0))], colors)
-        self.assertEqual('JPEG', i.format)
+        self.assertEqual("JPEG", i.format)
 
     def test_rgba_image(self):
         o = WithImageFactory.create(
-            animage__palette='RGBA',
-            animage__format='PNG',
+            animage__palette="RGBA",
+            animage__format="PNG",
         )
         self.assertIsNotNone(o.pk)
 
         with Image.open(os.path.join(settings.MEDIA_ROOT, o.animage.name)) as i:
-            self.assertEqual('RGBA', i.mode)
+            self.assertEqual("RGBA", i.mode)
 
     def test_gif(self):
         o = WithImageFactory.build(
             animage__width=13,
-            animage__color='blue',
-            animage__format='GIF',
+            animage__color="blue",
+            animage__format="GIF",
         )
         self.assertIsNone(o.pk)
         o.save()
 
         self.assertEqual(13, o.animage.width)
         self.assertEqual(13, o.animage.height)
-        self.assertEqual('django/example.jpg', o.animage.name)
+        self.assertEqual("django/example.jpg", o.animage.name)
 
         with Image.open(os.path.join(settings.MEDIA_ROOT, o.animage.name)) as i:
-            colors = i.convert('RGB').getcolors()
+            colors = i.convert("RGB").getcolors()
         # 169 pixels with rgb(0, 0, 255)
         self.assertEqual([(169, (0, 0, 255))], colors)
-        self.assertEqual('GIF', i.format)
+        self.assertEqual("GIF", i.format)
 
     def test_with_file(self):
-        with open(testdata.TESTIMAGE_PATH, 'rb') as f:
+        with open(testdata.TESTIMAGE_PATH, "rb") as f:
             o = WithImageFactory.build(animage__from_file=f)
             o.save()
 
         with o.animage as f:
             # Image file for a 42x42 green jpeg: 301 bytes long.
             self.assertEqual(301, len(f.read()))
-        self.assertEqual('django/example.jpeg', o.animage.name)
+        self.assertEqual("django/example.jpeg", o.animage.name)
 
     def test_with_path(self):
         o = WithImageFactory.build(animage__from_path=testdata.TESTIMAGE_PATH)
@@ -801,20 +801,20 @@ class DjangoImageFieldTestCase(django_test.TestCase):
             f.seek(0)
             # Image file for a 42x42 green jpeg: 301 bytes long.
             self.assertEqual(301, len(f.read()))
-        self.assertEqual('django/example.jpeg', o.animage.name)
+        self.assertEqual("django/example.jpeg", o.animage.name)
 
     def test_with_file_empty_path(self):
-        with open(testdata.TESTIMAGE_PATH, 'rb') as f:
+        with open(testdata.TESTIMAGE_PATH, "rb") as f:
             o = WithImageFactory.build(
                 animage__from_file=f,
-                animage__from_path='',
+                animage__from_path="",
             )
             o.save()
 
         with o.animage as f:
             # Image file for a 42x42 green jpeg: 301 bytes long.
             self.assertEqual(301, len(f.read()))
-        self.assertEqual('django/example.jpeg', o.animage.name)
+        self.assertEqual("django/example.jpeg", o.animage.name)
 
     def test_with_path_empty_file(self):
         o = WithImageFactory.build(
@@ -827,19 +827,19 @@ class DjangoImageFieldTestCase(django_test.TestCase):
             f.seek(0)
             # Image file for a 42x42 green jpeg: 301 bytes long.
             self.assertEqual(301, len(f.read()))
-        self.assertEqual('django/example.jpeg', o.animage.name)
+        self.assertEqual("django/example.jpeg", o.animage.name)
 
     def test_error_both_file_and_path(self):
         with self.assertRaises(ValueError):
             WithImageFactory.build(
-                animage__from_file='fakefile',
+                animage__from_file="fakefile",
                 animage__from_path=testdata.TESTIMAGE_PATH,
             )
 
     def test_override_filename_with_path(self):
         o = WithImageFactory.build(
             animage__from_path=testdata.TESTIMAGE_PATH,
-            animage__filename='example.foo',
+            animage__filename="example.foo",
         )
         self.assertIsNone(o.pk)
         with o.animage as f:
@@ -847,7 +847,7 @@ class DjangoImageFieldTestCase(django_test.TestCase):
             f.seek(0)
             # Image file for a 42x42 green jpeg: 301 bytes long.
             self.assertEqual(301, len(f.read()))
-        self.assertEqual('django/example.foo', o.animage.name)
+        self.assertEqual("django/example.foo", o.animage.name)
 
     def test_existing_file(self):
         o1 = WithImageFactory.build(animage__from_path=testdata.TESTIMAGE_PATH)
@@ -861,8 +861,8 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         with o2.animage as f:
             # Image file for a 42x42 green jpeg: 301 bytes long.
             self.assertEqual(301, len(f.read()))
-        self.assertNotEqual('django/example.jpeg', o2.animage.name)
-        self.assertRegex(o2.animage.name, r'django/example_\w+.jpeg')
+        self.assertNotEqual("django/example.jpeg", o2.animage.name)
+        self.assertRegex(o2.animage.name, r"django/example_\w+.jpeg")
 
     def test_no_file(self):
         o = WithImageFactory.build(animage=None)
@@ -870,9 +870,9 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         self.assertFalse(o.animage)
 
     def _img_test_func(self):
-        img = Image.new('RGB', (32, 32), 'blue')
+        img = Image.new("RGB", (32, 32), "blue")
         img_io = io.BytesIO()
-        img.save(img_io, format='JPEG')
+        img.save(img_io, format="JPEG")
         img_io.seek(0)
         return img_io
 
@@ -880,7 +880,7 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         o = WithImageFactory.build(animage__from_func=self._img_test_func)
         self.assertIsNone(o.pk)
         i = Image.open(o.animage.file)
-        self.assertEqual('JPEG', i.format)
+        self.assertEqual("JPEG", i.format)
         self.assertEqual(32, i.width)
         self.assertEqual(32, i.height)
 
@@ -1020,7 +1020,7 @@ class PreventSignalsTestCase(django_test.TestCase):
 
 class PreventChainedSignalsTestCase(django_test.TestCase):
     def setUp(self):
-        self.post_save_mock = mock.Mock(side_effect=Exception('BOOM!'))
+        self.post_save_mock = mock.Mock(side_effect=Exception("BOOM!"))
         signals.post_save.connect(self.post_save_mock, models.PointedModel)
 
     def tearDown(self):
@@ -1056,7 +1056,7 @@ class PreventChainedSignalsTestCase(django_test.TestCase):
 class DjangoCustomManagerTestCase(django_test.TestCase):
     def test_extra_args(self):
         # Our CustomManager will remove the 'arg=' argument.
-        WithCustomManagerFactory(arg='foo')
+        WithCustomManagerFactory(arg="foo")
 
     def test_with_manager_on_abstract(self):
         class ObjFactory(factory.django.DjangoModelFactory):
@@ -1065,7 +1065,7 @@ class DjangoCustomManagerTestCase(django_test.TestCase):
 
         # Our CustomManager will remove the 'arg=' argument,
         # invalid for the actual model.
-        ObjFactory.create(arg='invalid')
+        ObjFactory.create(arg="invalid")
 
 
 class DjangoModelFactoryDuplicateSaveDeprecationTest(django_test.TestCase):

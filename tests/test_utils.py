@@ -9,7 +9,7 @@ from factory import utils
 
 class ImportObjectTestCase(unittest.TestCase):
     def test_datetime(self):
-        imported = utils.import_object('datetime', 'date')
+        imported = utils.import_object("datetime", "date")
         import datetime
 
         d = datetime.date
@@ -17,44 +17,44 @@ class ImportObjectTestCase(unittest.TestCase):
 
     def test_unknown_attribute(self):
         with self.assertRaises(AttributeError):
-            utils.import_object('datetime', 'foo')
+            utils.import_object("datetime", "foo")
 
     def test_invalid_module(self):
         with self.assertRaises(ImportError):
-            utils.import_object('this-is-an-invalid-module', '__name__')
+            utils.import_object("this-is-an-invalid-module", "__name__")
 
 
 class LogPPrintTestCase(unittest.TestCase):
     def test_nothing(self):
         txt = str(utils.log_pprint())
-        self.assertEqual('', txt)
+        self.assertEqual("", txt)
 
     def test_only_args(self):
         txt = str(utils.log_pprint((1, 2, 3)))
-        self.assertEqual('1, 2, 3', txt)
+        self.assertEqual("1, 2, 3", txt)
 
     def test_only_kwargs(self):
-        txt = str(utils.log_pprint(kwargs={'a': 1, 'b': 2}))
-        self.assertIn(txt, ['a=1, b=2', 'b=2, a=1'])
+        txt = str(utils.log_pprint(kwargs={"a": 1, "b": 2}))
+        self.assertIn(txt, ["a=1, b=2", "b=2, a=1"])
 
     def test_bytes_args(self):
-        txt = str(utils.log_pprint((b'\xe1\xe2',)))
+        txt = str(utils.log_pprint((b"\xe1\xe2",)))
         expected = "b'\\xe1\\xe2'"
         self.assertEqual(expected, txt)
 
     def test_text_args(self):
-        txt = str(utils.log_pprint(('ŧêßŧ',)))
+        txt = str(utils.log_pprint(("ŧêßŧ",)))
         expected = "'ŧêßŧ'"
         self.assertEqual(expected, txt)
 
     def test_bytes_kwargs(self):
-        txt = str(utils.log_pprint(kwargs={'x': b'\xe1\xe2', 'y': b'\xe2\xe1'}))
+        txt = str(utils.log_pprint(kwargs={"x": b"\xe1\xe2", "y": b"\xe2\xe1"}))
         expected1 = "x=b'\\xe1\\xe2', y=b'\\xe2\\xe1'"
         expected2 = "y=b'\\xe2\\xe1', x=b'\\xe1\\xe2'"
         self.assertIn(txt, (expected1, expected2))
 
     def test_text_kwargs(self):
-        txt = str(utils.log_pprint(kwargs={'x': 'ŧêßŧ', 'y': 'ŧßêŧ'}))
+        txt = str(utils.log_pprint(kwargs={"x": "ŧêßŧ", "y": "ŧßêŧ"}))
         expected1 = "x='ŧêßŧ', y='ŧßêŧ'"
         expected2 = "y='ŧßêŧ', x='ŧêßŧ'"
         self.assertIn(txt, (expected1, expected2))

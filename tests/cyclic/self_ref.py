@@ -16,4 +16,4 @@ class TreeElementFactory(factory.Factory):
         model = TreeElement
 
     name = factory.Sequence(lambda n: "tree%s" % n)
-    parent = factory.SubFactory('tests.cyclic.self_ref.TreeElementFactory')
+    parent = factory.SubFactory("tests.cyclic.self_ref.TreeElementFactory")

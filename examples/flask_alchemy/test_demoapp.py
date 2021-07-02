@@ -6,8 +6,8 @@ import demoapp_factories
 
 class DemoAppTestCase(unittest.TestCase):
     def setUp(self):
-        demoapp.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
-        demoapp.app.config['TESTING'] = True
+        demoapp.app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
+        demoapp.app.config["TESTING"] = True
         self.app = demoapp.app.test_client()
         self.db = demoapp.db
         self.db.create_all()
