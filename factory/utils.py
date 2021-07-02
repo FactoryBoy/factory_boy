@@ -34,8 +34,7 @@ class log_pprint:
 
     def __str__(self):
         return ", ".join(
-            [repr(arg) for arg in self.args]
-            + ["%s=%s" % (key, repr(value)) for key, value in self.kwargs.items()]
+            [repr(arg) for arg in self.args] + ["%s=%s" % (key, repr(value)) for key, value in self.kwargs.items()]
         )
 
 

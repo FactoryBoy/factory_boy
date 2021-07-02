@@ -78,7 +78,7 @@ class DeclarationSet:
                     {
                         self.join(root, sub): v
                         for root in extra_context_keys
-                        for sub, v in self.contexts[root].items()
+                        for sub, v in self.contexts[root].items()  # fmt: skip
                     },
                     sorted(self.declarations),
                 )
@@ -148,8 +148,7 @@ def parse_declarations(decls, base_pre=None, base_post=None):
                 # Conflict: PostGenerationDeclaration with the same
                 # name as a BaseDeclaration
                 raise errors.InvalidDeclarationError(
-                    "PostGenerationDeclaration %s=%r shadows declaration %r"
-                    % (k, v, pre_declarations[k])
+                    "PostGenerationDeclaration %s=%r shadows declaration %r" % (k, v, pre_declarations[k])
                 )
             extra_post[k] = v
         elif k in post_declarations:
@@ -157,9 +156,7 @@ def parse_declarations(decls, base_pre=None, base_post=None):
             # Set it as `key__`
             magic_key = post_declarations.join(k, "")
             extra_post[magic_key] = v
-        elif k in pre_declarations and isinstance(
-            pre_declarations[k].declaration, declarations.Transformer
-        ):
+        elif k in pre_declarations and isinstance(pre_declarations[k].declaration, declarations.Transformer):
             extra_maybenonpost[k] = pre_declarations[k].declaration.function(v)
         else:
             extra_maybenonpost[k] = v
@@ -214,8 +211,7 @@ class BuildStep:
 
         if not issubclass(factory, base.BaseFactory):
             raise errors.AssociatedClassError(
-                "%r: Attempting to recursing into a non-factory object %r"
-                % (self, factory)
+                "%r: Attempting to recursing into a non-factory object %r" % (self, factory)
             )
         builder = self.builder.recurse(factory._meta, declarations)
         return builder.build(parent_step=self, force_sequence=force_sequence)
@@ -337,18 +333,14 @@ class Resolver:
         """
         if name in self.__pending:
             raise errors.CyclicDefinitionError(
-                "Cyclic lazy attribute definition for %r; cycle found in %r."
-                % (name, self.__pending)
+                "Cyclic lazy attribute definition for %r; cycle found in %r." % (name, self.__pending)
             )
         elif name in self.__values:
             return self.__values[name]
         elif name in self.__declarations:
             declaration = self.__declarations[name]
             value = declaration.declaration
-            if (
-                enums.get_builder_phase(value)
-                == enums.BuilderPhase.ATTRIBUTE_RESOLUTION
-            ):
+            if enums.get_builder_phase(value) == enums.BuilderPhase.ATTRIBUTE_RESOLUTION:
                 self.__pending.append(name)
                 try:
                     value = value.evaluate_pre(

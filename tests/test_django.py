@@ -208,11 +208,7 @@ class DjangoGetOrCreateTests(django_test.TestCase):
 
         self.assertEqual(obj1, obj2)
         self.assertEqual(
-            list(
-                models.MultifieldModel.objects.order_by("slug").values_list(
-                    "slug", flat=True
-                )
-            ),
+            list(models.MultifieldModel.objects.order_by("slug").values_list("slug", flat=True)),
             ["alt", "slug1"],
         )
 
@@ -228,11 +224,7 @@ class DjangoGetOrCreateTests(django_test.TestCase):
         self.assertEqual(6, len(objs))
         self.assertEqual(2, len(set(objs)))
         self.assertEqual(
-            list(
-                models.MultifieldModel.objects.order_by("slug").values_list(
-                    "slug", flat=True
-                )
-            ),
+            list(models.MultifieldModel.objects.order_by("slug").values_list("slug", flat=True)),
             ["alt", "main"],
         )
 
@@ -916,9 +908,7 @@ class PreventSignalsTestCase(django_test.TestCase):
 
     def test_receiver_created_during_model_instantiation_is_not_lost(self):
         with factory.django.mute_signals(signals.post_save):
-            instance = WithSignalsFactory(
-                post_save_signal_receiver=self.handlers.created_during_instantiation
-            )
+            instance = WithSignalsFactory(post_save_signal_receiver=self.handlers.created_during_instantiation)
             self.assertTrue(self.handlers.created_during_instantiation.called)
 
         self.handlers.created_during_instantiation.reset_mock()

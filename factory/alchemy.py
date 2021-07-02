@@ -57,8 +57,7 @@ class SQLAlchemyModelFactory(base.Factory):
             if field not in kwargs:
                 raise errors.FactoryError(
                     "sqlalchemy_get_or_create - "
-                    "Unable to find initialization value for '%s' in factory %s"
-                    % (field, cls.__name__)
+                    "Unable to find initialization value for '%s' in factory %s" % (field, cls.__name__)
                 )
             key_fields[field] = kwargs.pop(field)
 
@@ -76,11 +75,7 @@ class SQLAlchemyModelFactory(base.Factory):
                 }
                 if get_or_create_params:
                     try:
-                        obj = (
-                            session.query(model_class)
-                            .filter_by(**get_or_create_params)
-                            .one()
-                        )
+                        obj = session.query(model_class).filter_by(**get_or_create_params).one()
                     except NoResultFound:
                         # Original params are not a valid lookup and triggered a create(),
                         # that resulted in an IntegrityError.

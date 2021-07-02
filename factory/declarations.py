@@ -210,9 +210,7 @@ class Iterator(BaseDeclaration):
         self.iterator = None
 
         if cycle:
-            self.iterator_builder = lambda: utils.ResetableIterator(
-                itertools.cycle(iterator)
-            )
+            self.iterator_builder = lambda: utils.ResetableIterator(itertools.cycle(iterator))
         else:
             self.iterator_builder = lambda: utils.ResetableIterator(iterator)
 
@@ -305,10 +303,7 @@ class ContainerAttribute(BaseDeclaration):
         # Strip the current instance from the chain
         chain = step.chain[1:]
         if self.strict and not chain:
-            raise TypeError(
-                "A ContainerAttribute in 'strict' mode can only be used "
-                "within a SubFactory."
-            )
+            raise TypeError("A ContainerAttribute in 'strict' mode can only be used within a SubFactory.")
 
         return self.function(instance, chain)
 
@@ -484,11 +479,7 @@ class Maybe(BaseDeclaration):
         if len(used_phases) > 1:
             raise TypeError(f"Inconsistent phases for {self!r}: {phases!r}")
 
-        self.FACTORY_BUILDER_PHASE = (
-            used_phases.pop()
-            if used_phases
-            else enums.BuilderPhase.ATTRIBUTE_RESOLUTION
-        )
+        self.FACTORY_BUILDER_PHASE = used_phases.pop() if used_phases else enums.BuilderPhase.ATTRIBUTE_RESOLUTION
 
     def evaluate_post(self, instance, step, overrides):
         """Handle post-generation declarations"""
@@ -496,14 +487,10 @@ class Maybe(BaseDeclaration):
         if decider_phase == enums.BuilderPhase.ATTRIBUTE_RESOLUTION:
             # Note: we work on the *builder stub*, not on the actual instance.
             # This gives us access to all Params-level definitions.
-            choice = self.decider.evaluate_pre(
-                instance=step.stub, step=step, overrides=overrides
-            )
+            choice = self.decider.evaluate_pre(instance=step.stub, step=step, overrides=overrides)
         else:
             assert decider_phase == enums.BuilderPhase.POST_INSTANTIATION
-            choice = self.decider.evaluate_post(
-                instance=instance, step=step, overrides={}
-            )
+            choice = self.decider.evaluate_post(instance=instance, step=step, overrides={})
 
         target = self.yes if choice else self.no
         if enums.get_builder_phase(target) == enums.BuilderPhase.POST_INSTANTIATION:

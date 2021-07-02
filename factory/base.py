@@ -41,9 +41,7 @@ class FactoryMetaClass(type):
         elif cls._meta.strategy == enums.STUB_STRATEGY:
             return cls.stub(**kwargs)
         else:
-            raise errors.UnknownStrategy(
-                "Unknown Meta.strategy: {}".format(cls._meta.strategy)
-            )
+            raise errors.UnknownStrategy("Unknown Meta.strategy: {}".format(cls._meta.strategy))
 
     def __new__(mcs, class_name, bases, attrs):
         """Record attributes as a pattern for later instance construction.
@@ -193,9 +191,7 @@ class FactoryOptions:
             }
 
         for option in self._build_default_options():
-            assert not hasattr(self, option.name), (
-                "Can't override field %s." % option.name
-            )
+            assert not hasattr(self, option.name), "Can't override field %s." % option.name
             value = option.apply(meta, base_meta)
             meta_attrs.pop(option.name, None)
             setattr(self, option.name, value)
@@ -203,13 +199,10 @@ class FactoryOptions:
         if meta_attrs:
             # Some attributes in the Meta aren't allowed here
             raise TypeError(
-                "'class Meta' for %r got unknown attribute(s) %s"
-                % (self.factory, ",".join(sorted(meta_attrs.keys())))
+                "'class Meta' for %r got unknown attribute(s) %s" % (self.factory, ",".join(sorted(meta_attrs.keys())))
             )
 
-    def contribute_to_class(
-        self, factory, meta=None, base_meta=None, base_factory=None, params=None
-    ):
+    def contribute_to_class(self, factory, meta=None, base_meta=None, base_factory=None, params=None):
 
         self.factory = factory
         self.base_factory = base_factory
@@ -235,17 +228,13 @@ class FactoryOptions:
                 self.base_declarations[k] = v
 
         if params is not None:
-            for k, v in utils.sort_ordered_objects(
-                vars(params).items(), getter=lambda item: item[1]
-            ):
+            for k, v in utils.sort_ordered_objects(vars(params).items(), getter=lambda item: item[1]):
                 if not k.startswith("_"):
                     self.parameters[k] = declarations.SimpleParameter.wrap(v)
 
         self._check_parameter_dependencies(self.parameters)
 
-        self.pre_declarations, self.post_declarations = builder.parse_declarations(
-            self.declarations
-        )
+        self.pre_declarations, self.post_declarations = builder.parse_declarations(self.declarations)
 
     def _get_counter_reference(self):
         """Identify which factory should be used for a shared counter."""
@@ -311,7 +300,7 @@ class FactoryOptions:
             for k, v in kwargs.items()
             if k not in self.exclude
             and k not in self.parameters
-            and v is not declarations.SKIP
+            and v is not declarations.SKIP  # fmt: skip
         }
 
         # 3. Rename fields
@@ -373,21 +362,16 @@ class FactoryOptions:
                 field_revdeps = parameter.get_revdeps(parameters)
                 if not field_revdeps:
                     continue
-                deep_revdeps[name] = set.union(
-                    *(deep_revdeps[dep] for dep in field_revdeps)
-                )
+                deep_revdeps[name] = set.union(*(deep_revdeps[dep] for dep in field_revdeps))
                 deep_revdeps[name] |= set(field_revdeps)
                 for dep in field_revdeps:
                     deps[dep].add(name)
 
         # Check for cyclical dependencies
-        cyclic = [
-            name for name, field_deps in deep_revdeps.items() if name in field_deps
-        ]
+        cyclic = [name for name, field_deps in deep_revdeps.items() if name in field_deps]
         if cyclic:
             raise errors.CyclicDefinitionError(
-                "Cyclic definition detected on %r; Params around %s"
-                % (self.factory, ", ".join(cyclic))
+                "Cyclic definition detected on %r; Params around %s" % (self.factory, ", ".join(cyclic))
             )
         return deps
 

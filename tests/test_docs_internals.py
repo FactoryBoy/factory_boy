@@ -100,10 +100,8 @@ class UserFactory(factory.Factory):
         "enabled",
         None,
         factory.fuzzy.FuzzyDateTime(
-            datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
-            - datetime.timedelta(days=10),
-            datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
-            - datetime.timedelta(days=1),
+            datetime.datetime.now().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(days=10),
+            datetime.datetime.now().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(days=1),
         ),
     )
 

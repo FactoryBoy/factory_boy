@@ -101,9 +101,7 @@ class DjangoModelFactory(base.Factory):
     @classmethod
     def _get_manager(cls, model_class):
         if model_class is None:
-            raise errors.AssociatedClassError(
-                f"No model set on {cls.__module__}.{cls.__name__}.Meta"
-            )
+            raise errors.AssociatedClassError(f"No model set on {cls.__module__}.{cls.__name__}.Meta")
 
         try:
             manager = model_class.objects
@@ -129,18 +127,15 @@ class DjangoModelFactory(base.Factory):
         manager = cls._get_manager(model_class)
 
         assert "defaults" not in cls._meta.django_get_or_create, (
-            "'defaults' is a reserved keyword for get_or_create "
-            "(in %s._meta.django_get_or_create=%r)"
-            % (cls, cls._meta.django_get_or_create)
-        )
+            "'defaults' is a reserved keyword for get_or_create (in %s._meta.django_get_or_create=%r)"
+        ) % (cls, cls._meta.django_get_or_create)
 
         key_fields = {}
         for field in cls._meta.django_get_or_create:
             if field not in kwargs:
                 raise errors.FactoryError(
                     "django_get_or_create - "
-                    "Unable to find initialization value for '%s' in factory %s"
-                    % (field, cls.__name__)
+                    "Unable to find initialization value for '%s' in factory %s" % (field, cls.__name__)
                 )
             key_fields[field] = kwargs.pop(field)
         key_fields["defaults"] = kwargs
