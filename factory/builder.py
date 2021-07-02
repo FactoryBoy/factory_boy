@@ -167,19 +167,17 @@ def parse_declarations(decls, base_pre=None, base_post=None):
     post_declarations.update(extra_post)
 
     # Fill in extra post-declaration context
+    extra_pre_declarations = {}
+    extra_post_declarations = {}
     post_overrides = post_declarations.filter(extra_maybenonpost)
-    post_declarations.update({
-        k: v
-        for k, v in extra_maybenonpost.items()
-        if k in post_overrides
-    })
-
-    # Anything else is pre_declarations
-    pre_declarations.update({
-        k: v
-        for k, v in extra_maybenonpost.items()
-        if k not in post_overrides
-    })
+    for k, v in extra_maybenonpost.items():
+        if k in post_overrides:
+            extra_post_declarations[k] = v
+        else:
+            # Anything else is pre_declarations
+            extra_pre_declarations[k] = v
+    pre_declarations.update(extra_pre_declarations)
+    post_declarations.update(extra_post_declarations)
 
     return pre_declarations, post_declarations
 
