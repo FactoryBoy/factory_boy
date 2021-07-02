@@ -46,7 +46,7 @@ class Dummy:
     def __repr__(self):
         return '%s(%s)' % (
             self.__class__.__name__,
-            ', '.join('%s=%r' % pair for pair in sorted(self.as_dict.items()))
+            ', '.join('%s=%r' % pair for pair in sorted(self.as_dict.items())),
         )
 
 
@@ -113,7 +113,11 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.four, None)
 
     def test_complex(self):
-        obj = factory.build(TestObject, two=2, three=factory.LazyAttribute(lambda o: o.two + 1))
+        obj = factory.build(
+            TestObject,
+            two=2,
+            three=factory.LazyAttribute(lambda o: o.two + 1),
+        )
         self.assertEqual(obj.one, None)
         self.assertEqual(obj.two, 2)
         self.assertEqual(obj.three, 3)
@@ -142,7 +146,11 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.foo, 'bar')
 
     def test_create_custom_base(self):
-        obj = factory.create(FakeModel, foo='bar', FACTORY_CLASS=factory.django.DjangoModelFactory)
+        obj = factory.create(
+            FakeModel,
+            foo='bar',
+            FACTORY_CLASS=factory.django.DjangoModelFactory,
+        )
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
@@ -268,7 +276,12 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.foo, 'bar')
 
     def test_simple_generate_create_custom_base(self):
-        obj = factory.simple_generate(FakeModel, True, foo='bar', FACTORY_CLASS=factory.django.DjangoModelFactory)
+        obj = factory.simple_generate(
+            FakeModel,
+            True,
+            foo='bar',
+            FACTORY_CLASS=factory.django.DjangoModelFactory,
+        )
         self.assertEqual(obj.id, 2)
         self.assertEqual(obj.foo, 'bar')
 
@@ -309,7 +322,11 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.foo, 'bar')
 
     def test_make_factory(self):
-        fact = factory.make_factory(TestObject, two=2, three=factory.LazyAttribute(lambda o: o.two + 1))
+        fact = factory.make_factory(
+            TestObject,
+            two=2,
+            three=factory.LazyAttribute(lambda o: o.two + 1),
+        )
 
         obj = fact.build()
         self.assertEqual(obj.one, None)
@@ -543,12 +560,14 @@ class UsingFactoryTestCase(unittest.TestCase):
         class TestModelFactory(FakeModelFactory):
             class Meta:
                 model = TestModel
+
             one = 3
             three = factory.SelfAttribute('..bar')
 
         class TestModel2Factory(FakeModelFactory):
             class Meta:
                 model = TestModel2
+
             bar = 4
             two = factory.SubFactory(TestModelFactory, one=1)
 
@@ -817,6 +836,7 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_override_inherited(self):
         """Overriding inherited declarations"""
+
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
@@ -831,6 +851,7 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_override_inherited_deep(self):
         """Overriding inherited declarations"""
+
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
@@ -848,6 +869,7 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_inheritance_and_sequences(self):
         """Sequence counters should be kept within an inheritance chain."""
+
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
@@ -869,6 +891,7 @@ class UsingFactoryTestCase(unittest.TestCase):
 
     def test_inheritance_sequence_inheriting_objects(self):
         """Sequence counters are kept with inheritance, incl. misc objects."""
+
         class TestObject2(TestObject):
             pass
 
@@ -951,6 +974,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         class TestOtherFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             two = 'two'
             four = 'four'
 
@@ -1057,7 +1081,7 @@ class NonKwargParametersTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
-                inline_args = ('one', 'two',)
+                inline_args = ('one', 'two')
 
             one = 1
             two = 2
@@ -1181,7 +1205,11 @@ class MaybeTestCase(unittest.TestCase):
             b = 1
 
             # biggest = 'b' if .b > .a else 'a'
-            biggest = factory.Maybe(factory.LazyAttribute(lambda o: o.a < o.b), 'b', 'a')
+            biggest = factory.Maybe(
+                factory.LazyAttribute(lambda o: o.a < o.b),
+                'b',
+                'a',
+            )
             # max_value = .b if .b > .a else .a = max(.a, .b)
             max_value = factory.Maybe(
                 factory.LazyAttribute(lambda o: o.a < o.b),
@@ -1193,9 +1221,18 @@ class MaybeTestCase(unittest.TestCase):
         obj_equal = DummyFactory.build(a=3, b=3)
         obj_reverse = DummyFactory.build(a=5, b=4)
 
-        self.assertEqual(dict(a=1, b=2, biggest='b', max_value=2, ), obj_ordered.as_dict)
-        self.assertEqual(dict(a=3, b=3, biggest='a', max_value=3, ), obj_equal.as_dict)
-        self.assertEqual(dict(a=5, b=4, biggest='a', max_value=5, ), obj_reverse.as_dict)
+        self.assertEqual(
+            dict(a=1, b=2, biggest='b', max_value=2),
+            obj_ordered.as_dict,
+        )
+        self.assertEqual(
+            dict(a=3, b=3, biggest='a', max_value=3),
+            obj_equal.as_dict,
+        )
+        self.assertEqual(
+            dict(a=5, b=4, biggest='a', max_value=5),
+            obj_reverse.as_dict,
+        )
 
     def test_post_generation(self):
 
@@ -1303,6 +1340,7 @@ class TraitTestCase(unittest.TestCase):
 
     def test_traits_inheritance(self):
         """A trait can be set in an inherited class."""
+
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
@@ -1330,6 +1368,7 @@ class TraitTestCase(unittest.TestCase):
 
     def test_traits_override_params(self):
         """Override a Params value in a trait"""
+
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
@@ -1345,6 +1384,7 @@ class TraitTestCase(unittest.TestCase):
 
     def test_traits_override(self):
         """Override a trait in a subclass."""
+
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
@@ -1366,6 +1406,7 @@ class TraitTestCase(unittest.TestCase):
 
     def test_traits_chaining(self):
         """Use a trait to enable other traits."""
+
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
@@ -1412,6 +1453,7 @@ class TraitTestCase(unittest.TestCase):
     def test_prevent_cyclic_traits(self):
 
         with self.assertRaises(errors.CyclicDefinitionError):
+
             class TestObjectFactory(factory.Factory):
                 class Meta:
                     model = TestObject
@@ -1480,11 +1522,13 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModelFactory(FakeModelFactory):
             class Meta:
                 model = TestModel
+
             one = 3
 
         class TestModel2Factory(FakeModelFactory):
             class Meta:
                 model = TestModel2
+
             two = factory.SubFactory(TestModelFactory, one=1)
 
         test_model = TestModel2Factory(two__one=4)
@@ -1503,6 +1547,7 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModel2Factory(FakeModelFactory):
             class Meta:
                 model = TestModel2
+
             two = factory.SubFactory(
                 TestModelFactory,
                 one=factory.Sequence(lambda n: 'x%dx' % n),
@@ -1520,11 +1565,13 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModelFactory(FakeModelFactory):
             class Meta:
                 model = TestModel
+
             one = 3
 
         class TestModel2Factory(FakeModelFactory):
             class Meta:
                 model = TestModel2
+
             one = 'parent'
             child = factory.SubFactory(
                 TestModelFactory,
@@ -1593,18 +1640,21 @@ class SubFactoryTestCase(unittest.TestCase):
         class AuthorFactory(factory.Factory):
             class Meta:
                 model = Author
+
             name = "John"
             country = 'XX'
 
         class BookFactory(factory.Factory):
             class Meta:
                 model = Book
+
             title = "The mighty adventures of nobody."
             author = factory.SubFactory(AuthorFactory)
 
         class ChapterFactory(factory.Factory):
             class Meta:
                 model = Chapter
+
             book = factory.SubFactory(BookFactory)
             number = factory.Sequence(lambda n: n)
             book__author__country = factory.LazyAttribute(lambda o: 'FR')
@@ -1652,6 +1702,7 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             two = 'two'
 
         class WrappingTestObjectFactory(factory.Factory):
@@ -1687,6 +1738,7 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             two = 'two'
 
         # Intermediary factory
@@ -1714,17 +1766,20 @@ class SubFactoryTestCase(unittest.TestCase):
         class LeafFactory(factory.Factory):
             class Meta:
                 model = Node
+
             label = 'leaf'
 
         class BranchFactory(factory.Factory):
             class Meta:
                 model = Node
+
             label = 'branch'
             child = factory.SubFactory(LeafFactory)
 
         class TreeFactory(factory.Factory):
             class Meta:
                 model = Node
+
             label = 'tree'
             child = factory.SubFactory(BranchFactory)
             child__child__label = 'magic-leaf'
@@ -1752,6 +1807,7 @@ class SubFactoryTestCase(unittest.TestCase):
 
     def test_sub_factory_and_inheritance(self):
         """Test inheriting from a factory with subfactories, overriding."""
+
         class TestObject:
             def __init__(self, **kwargs):
                 for k, v in kwargs.items():
@@ -1760,6 +1816,7 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             two = 'two'
 
         class WrappingTestObjectFactory(factory.Factory):
@@ -1778,6 +1835,7 @@ class SubFactoryTestCase(unittest.TestCase):
 
     def test_diamond_sub_factory(self):
         """Tests the case where an object has two fields with a common field."""
+
         class InnerMost:
             def __init__(self, a, b):
                 self.a = a
@@ -1800,17 +1858,20 @@ class SubFactoryTestCase(unittest.TestCase):
         class InnerMostFactory(factory.Factory):
             class Meta:
                 model = InnerMost
+
             a = 15
             b = 20
 
         class SideAFactory(factory.Factory):
             class Meta:
                 model = SideA
+
             inner_from_a = factory.SubFactory(InnerMostFactory, a=20)
 
         class SideBFactory(factory.Factory):
             class Meta:
                 model = SideB
+
             inner_from_b = factory.SubFactory(InnerMostFactory, b=15)
 
         class OuterMostFactory(factory.Factory):
@@ -1822,13 +1883,13 @@ class SubFactoryTestCase(unittest.TestCase):
                 SideAFactory,
                 inner_from_a__a=factory.ContainerAttribute(
                     lambda obj, containers: containers[1].foo * 2,
-                )
+                ),
             )
             side_b = factory.SubFactory(
                 SideBFactory,
                 inner_from_b=factory.ContainerAttribute(
                     lambda obj, containers: containers[0].side_a.inner_from_a,
-                )
+                ),
             )
 
         outer = OuterMostFactory.build()
@@ -1850,12 +1911,17 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModelFactory(FakeModelFactory):
             class Meta:
                 model = TestModel
+
             one = 3
-            two = factory.ContainerAttribute(lambda obj, containers: len(containers or []), strict=False)
+            two = factory.ContainerAttribute(
+                lambda obj, containers: len(containers or []),
+                strict=False,
+            )
 
         class TestModel2Factory(FakeModelFactory):
             class Meta:
                 model = TestModel2
+
             one = 1
             two = factory.SubFactory(TestModelFactory, one=1)
 
@@ -1875,12 +1941,17 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModelFactory(FakeModelFactory):
             class Meta:
                 model = TestModel
+
             sample_int = 3
-            container_len = factory.ContainerAttribute(lambda obj, containers: len(containers or []), strict=True)
+            container_len = factory.ContainerAttribute(
+                lambda obj, containers: len(containers or []),
+                strict=True,
+            )
 
         class TestModel2Factory(FakeModelFactory):
             class Meta:
                 model = TestModel2
+
             sample_int = 1
             descendant = factory.SubFactory(TestModelFactory, sample_int=1)
 
@@ -1899,6 +1970,7 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModelFactory(FakeModelFactory):
             class Meta:
                 model = TestModel
+
             sample_int = 3
 
             @factory.container_attribute
@@ -1910,6 +1982,7 @@ class SubFactoryTestCase(unittest.TestCase):
         class TestModel2Factory(FakeModelFactory):
             class Meta:
                 model = TestModel2
+
             sample_int = 1
             descendant = factory.SubFactory(TestModelFactory, sample_int=1)
 
@@ -1924,7 +1997,6 @@ class SubFactoryTestCase(unittest.TestCase):
 
 
 class IteratorTestCase(unittest.TestCase):
-
     def test_iterator(self):
         class TestObjectFactory(factory.Factory):
             class Meta:
@@ -1972,6 +2044,7 @@ class IteratorTestCase(unittest.TestCase):
         This allows, for Django objects, to call:
         foo = factory.Iterator(models.MyThingy.objects.all())
         """
+
         class DBRequest:
             def __init__(self):
                 self.ready = False
@@ -2067,6 +2140,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
             class Meta:
                 model = MyFakeModel
                 django_get_or_create = ('x',)
+
             x = 1
             y = 4
             z = 6
@@ -2089,6 +2163,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
             class Meta:
                 model = MyFakeModel
                 django_get_or_create = ('x', 'y', 'z')
+
             x = 1
             y = 4
             z = 6
@@ -2111,6 +2186,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
             class Meta:
                 model = MyFakeModel
                 django_get_or_create = ('x',)
+
             x = 1
             y = 4
             z = 6
@@ -2133,6 +2209,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
             class Meta:
                 model = MyFakeModel
                 django_get_or_create = ('x', 'y', 'z')
+
             x = 1
             y = 4
             z = 6
@@ -2196,6 +2273,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
     def test_full_get_or_create(self):
         """Test a DjangoModelFactory with all fields in get_or_create."""
+
         class TestModelFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = TestModel
@@ -2277,7 +2355,6 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertFalse(hasattr(obj, 'incr_one'))
 
     def test_post_generation_extraction_lambda(self):
-
         def my_lambda(obj, create, extracted, **kwargs):
             self.assertTrue(isinstance(obj, TestObject))
             self.assertFalse(create)
@@ -2336,6 +2413,7 @@ class PostGenerationTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = 3
             two = 2
             post_call = factory.PostGenerationMethodCall('call', one=1)
@@ -2382,12 +2460,14 @@ class RelatedFactoryTestCase(unittest.TestCase):
         class TestRelatedObjectFactory(factory.Factory):
             class Meta:
                 model = TestRelatedObject
+
             one = 1
             two = factory.LazyAttribute(lambda o: o.one + 1)
 
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = 3
             two = 2
             three = factory.RelatedFactory(
@@ -2433,12 +2513,14 @@ class RelatedFactoryTestCase(unittest.TestCase):
         class TestRelatedObjectFactory(factory.Factory):
             class Meta:
                 model = TestRelatedObject
+
             one = 1
             two = factory.LazyAttribute(lambda o: o.one + 1)
 
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = 3
             two = 2
             three = factory.RelatedFactory(TestRelatedObjectFactory)
@@ -2478,12 +2560,14 @@ class RelatedFactoryTestCase(unittest.TestCase):
         class TestRelatedObjectFactory(factory.Factory):
             class Meta:
                 model = TestRelatedObject
+
             one = 1
             two = factory.LazyAttribute(lambda o: o.one + 1)
 
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = 3
             two = 2
             three = factory.RelatedFactory(
@@ -2509,6 +2593,7 @@ class RelatedFactoryTestCase(unittest.TestCase):
         class TestRelatedObjectFactory(factory.Factory):
             class Meta:
                 model = TestRelatedObject
+
             one = 1
             two = factory.LazyAttribute(lambda o: o.one + 1)
 
@@ -2557,20 +2642,25 @@ class RelatedListFactoryTestCase(unittest.TestCase):
         class TestRelatedObjectFactoryList(factory.Factory):
             class Meta:
                 model = TestRelatedObject
+
             one = 1
             two = factory.LazyAttribute(lambda o: o.one + 1)
 
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = 3
             two = 2
             # RELATED_LIST_SIZE is a lambda, this allows flexibility, as opposed
             # to creating "n" related objects for every parent object...
-            three = factory.RelatedFactoryList(TestRelatedObjectFactoryList,
-                                               'obj',
-                                               size=RELATED_LIST_SIZE)
+            three = factory.RelatedFactoryList(
+                TestRelatedObjectFactoryList,
+                'obj',
+                size=RELATED_LIST_SIZE,
+            )
             # Create 5 TestObjectFactories: Each with 1, 2, ... 5 related objs
+
         for related_list_size in reversed(related_list_sizes[1::2]):
             obj = TestObjectFactory.build()
             # Normal fields
@@ -2623,16 +2713,21 @@ class RelatedListFactoryTestCase(unittest.TestCase):
         class TestRelatedObjectFactoryList(factory.Factory):
             class Meta:
                 model = TestRelatedObject
+
             one = 1
             two = factory.LazyAttribute(lambda o: o.one + 1)
 
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = 3
             two = 2
-            three = factory.RelatedFactoryList(TestRelatedObjectFactoryList, 'obj',
-                                               size=RELATED_LIST_SIZE)
+            three = factory.RelatedFactoryList(
+                TestRelatedObjectFactoryList,
+                'obj',
+                size=RELATED_LIST_SIZE,
+            )
 
         obj = TestObjectFactory.build()
         # Normal fields
@@ -2685,6 +2780,7 @@ class RelatedFactoryExtractionTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.RelatedFactory(
                 TestRelatedObjectFactory,
                 factory_related_name='obj',
@@ -2717,12 +2813,14 @@ class CircularTestCase(unittest.TestCase):
         sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
         from .cyclic import foo
+
         f = foo.FooFactory.build(bar__foo=None)
         self.assertEqual(42, f.x)
         self.assertEqual(13, f.bar.y)
         self.assertIsNone(f.bar.foo)
 
         from .cyclic import bar
+
         b = bar.BarFactory.build(foo__bar__foo__bar=None)
         self.assertEqual(13, b.y)
         self.assertEqual(42, b.foo.x)
@@ -2777,6 +2875,7 @@ class DictTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.Dict({})
 
         o = TestObjectFactory()
@@ -2786,6 +2885,7 @@ class DictTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.Dict({'a': 1})
 
         o = TestObjectFactory()
@@ -2795,6 +2895,7 @@ class DictTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.Dict({'a': factory.Sequence(lambda n: n + 2)})
 
         o1 = TestObjectFactory()
@@ -2807,6 +2908,7 @@ class DictTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.Dict({'a': 1})
 
         o = TestObjectFactory(one__a=2)
@@ -2816,6 +2918,7 @@ class DictTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.Dict({'a': 1})
 
         o = TestObjectFactory(one__b=2)
@@ -2825,12 +2928,15 @@ class DictTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             two = 13
-            one = factory.Dict({
-                'one': 1,
-                'two': 2,
-                'three': factory.SelfAttribute('two'),
-            })
+            one = factory.Dict(
+                {
+                    'one': 1,
+                    'two': 2,
+                    'three': factory.SelfAttribute('two'),
+                }
+            )
 
         o = TestObjectFactory(one__one=42)
         self.assertEqual({'one': 42, 'two': 2, 'three': 2}, o.one)
@@ -2839,28 +2945,36 @@ class DictTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = 1
-            two = factory.Dict({
-                'one': 3,
-                'two': factory.SelfAttribute('one'),
-                'three': factory.Dict({
-                    'one': 5,
-                    'two': factory.SelfAttribute('..one'),
-                    'three': factory.SelfAttribute('...one'),
-                }),
-            })
+            two = factory.Dict(
+                {
+                    'one': 3,
+                    'two': factory.SelfAttribute('one'),
+                    'three': factory.Dict(
+                        {
+                            'one': 5,
+                            'two': factory.SelfAttribute('..one'),
+                            'three': factory.SelfAttribute('...one'),
+                        }
+                    ),
+                }
+            )
 
         o = TestObjectFactory()
         self.assertEqual(1, o.one)
-        self.assertEqual({
-            'one': 3,
-            'two': 3,
-            'three': {
-                'one': 5,
+        self.assertEqual(
+            {
+                'one': 3,
                 'two': 3,
-                'three': 1,
+                'three': {
+                    'one': 5,
+                    'two': 3,
+                    'three': 1,
+                },
             },
-        }, o.two)
+            o.two,
+        )
 
 
 class ListTestCase(unittest.TestCase):
@@ -2868,6 +2982,7 @@ class ListTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.List([])
 
         o = TestObjectFactory()
@@ -2877,6 +2992,7 @@ class ListTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.List([1])
 
         o = TestObjectFactory()
@@ -2886,6 +3002,7 @@ class ListTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.List(list(range(100)))
 
         o = TestObjectFactory()
@@ -2895,6 +3012,7 @@ class ListTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.List([factory.Sequence(lambda n: n + 2)])
 
         o1 = TestObjectFactory()
@@ -2907,6 +3025,7 @@ class ListTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.List([1])
 
         o = TestObjectFactory(one__0=2)
@@ -2916,6 +3035,7 @@ class ListTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             one = factory.List([1])
 
         o = TestObjectFactory(one__1=2)
@@ -2925,12 +3045,9 @@ class ListTestCase(unittest.TestCase):
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
+
             two = 13
-            one = factory.List([
-                1,
-                2,
-                factory.SelfAttribute('1'),
-            ])
+            one = factory.List([1, 2, factory.SelfAttribute('1')])
 
         o = TestObjectFactory(one__0=42)
         self.assertEqual([42, 2, 2], o.one)
@@ -2941,24 +3058,23 @@ class ListTestCase(unittest.TestCase):
                 model = TestObject
 
             one = 1
-            two = factory.List([
-                3,
-                factory.SelfAttribute('0'),
-                factory.List([
-                    5,
-                    factory.SelfAttribute('..0'),
-                    factory.SelfAttribute('...one'),
-                ]),
-            ])
+            two = factory.List(
+                [
+                    3,
+                    factory.SelfAttribute('0'),
+                    factory.List(
+                        [
+                            5,
+                            factory.SelfAttribute('..0'),
+                            factory.SelfAttribute('...one'),
+                        ]
+                    ),
+                ]
+            )
 
         o = TestObjectFactory()
         self.assertEqual(1, o.one)
-        self.assertEqual([
-            3,
-            3,
-            [
-                5,
-                3,
-                1,
-            ],
-        ], o.two)
+        self.assertEqual(
+            [3, 3, [5, 3, 1]],
+            o.two,
+        )

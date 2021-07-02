@@ -36,7 +36,12 @@ def make_factory(klass, **kwargs):
     kwargs['Meta'] = Meta
     base_class = kwargs.pop('FACTORY_CLASS', base.Factory)
 
-    factory_class = type(base.Factory).__new__(type(base.Factory), factory_name, (base_class,), kwargs)
+    factory_class = type(base.Factory).__new__(
+        type(base.Factory),
+        factory_name,
+        (base_class,),
+        kwargs,
+    )
     factory_class.__name__ = '%sFactory' % klass.__name__
     factory_class.__doc__ = 'Auto-generated factory for class %s' % klass
     return factory_class

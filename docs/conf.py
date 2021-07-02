@@ -65,7 +65,8 @@ html_theme = 'sphinx_rtd_theme'
 if 'READTHEDOCS_VERSION' in os.environ:
     # Use the readthedocs version string in preference to our known version.
     html_title = "{} {} documentation".format(
-        project, os.environ['READTHEDOCS_VERSION'])
+        project, os.environ['READTHEDOCS_VERSION']
+    )
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

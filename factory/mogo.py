@@ -9,6 +9,7 @@ from . import base
 
 class MogoFactory(base.Factory):
     """Factory for mogo objects."""
+
     class Meta:
         abstract = True
 

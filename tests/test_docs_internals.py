@@ -91,7 +91,7 @@ class UserFactory(factory.Factory):
     full_name = factory.Faker('name')
     creation_date = factory.fuzzy.FuzzyDateTime(
         datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc),
-        datetime.datetime(2015, 12, 31, 20, tzinfo=datetime.timezone.utc)
+        datetime.datetime(2015, 12, 31, 20, tzinfo=datetime.timezone.utc),
     )
 
     # Conditional flags
@@ -100,8 +100,10 @@ class UserFactory(factory.Factory):
         'enabled',
         None,
         factory.fuzzy.FuzzyDateTime(
-            datetime.datetime.now().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(days=10),
-            datetime.datetime.now().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(days=1),
+            datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
+            - datetime.timedelta(days=10),
+            datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
+            - datetime.timedelta(days=1),
         ),
     )
 

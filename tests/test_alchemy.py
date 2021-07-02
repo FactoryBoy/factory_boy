@@ -63,7 +63,7 @@ class WithGetOrCreateFieldFactory(SQLAlchemyModelFactory):
 class WithMultipleGetOrCreateFieldsFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.MultifieldUniqueModel
-        sqlalchemy_get_or_create = ("slug", "text",)
+        sqlalchemy_get_or_create = ("slug", "text")
         sqlalchemy_session = models.session
         sqlalchemy_session_persistence = 'commit'
 
@@ -135,11 +135,7 @@ class SQLAlchemyGetOrCreateTests(unittest.TestCase):
         self.assertEqual(6, len(objs))
         self.assertEqual(2, len(set(objs)))
         self.assertEqual(
-            list(
-                obj.slug for obj in models.session.query(
-                    models.MultiFieldModel.slug
-                )
-            ),
+            list(obj.slug for obj in models.session.query(models.MultiFieldModel.slug)),
             ["alt", "main"],
         )
 
@@ -210,6 +206,7 @@ class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
 
     def test_type_error(self):
         with self.assertRaises(TypeError):
+
             class BadPersistenceFactory(StandardFactory):
                 class Meta:
                     sqlalchemy_session_persistence = 'invalid_persistence_option'
@@ -251,7 +248,6 @@ class SQLAlchemyNonIntegerPkTestCase(unittest.TestCase):
 
 
 class SQLAlchemyNoSessionTestCase(unittest.TestCase):
-
     def test_create_raises_exception_when_no_session_was_set(self):
         with self.assertRaises(RuntimeError):
             NoSessionFactory.create()
@@ -268,6 +264,7 @@ class NameConflictTests(unittest.TestCase):
 
     See #775.
     """
+
     def test_no_name_conflict_on_save(self):
         class SpecialFieldWithSaveFactory(SQLAlchemyModelFactory):
             class Meta:

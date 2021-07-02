@@ -11,6 +11,7 @@ class ImportObjectTestCase(unittest.TestCase):
     def test_datetime(self):
         imported = utils.import_object('datetime', 'date')
         import datetime
+
         d = datetime.date
         self.assertEqual(d, imported)
 

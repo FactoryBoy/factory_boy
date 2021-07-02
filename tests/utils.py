@@ -14,6 +14,7 @@ def disable_warnings(fun):
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')
             return fun(*args, **kwargs)
+
     return decorated
 
 

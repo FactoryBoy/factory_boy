@@ -47,7 +47,11 @@ class MaybeTestCase(unittest.TestCase):
         declarations.Maybe('foo', 1, 2)
 
         with self.assertRaisesRegex(TypeError, 'Inconsistent phases'):
-            declarations.Maybe('foo', declarations.LazyAttribute(None), declarations.PostGenerationDeclaration())
+            declarations.Maybe(
+                'foo',
+                declarations.LazyAttribute(None),
+                declarations.PostGenerationDeclaration(),
+            )
 
 
 class SelfAttributeTestCase(unittest.TestCase):
@@ -281,7 +285,6 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
 
 
 class PostGenerationOrdering(unittest.TestCase):
-
     def test_post_generation_declaration_order(self):
         postgen_results = []
 

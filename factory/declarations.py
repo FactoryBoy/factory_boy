@@ -40,6 +40,7 @@ class BaseDeclaration(utils.OrderedBase):
             return full_context
 
         import factory.base
+
         subfactory = factory.base.DictFactory
         return step.recurse(subfactory, full_context, force_sequence=step.sequence)
 
@@ -178,7 +179,11 @@ class SelfAttribute(BaseDeclaration):
         else:
             target = instance
 
-        logger.debug("SelfAttribute: Picking attribute %r on %r", self.attribute_name, target)
+        logger.debug(
+            "SelfAttribute: Picking attribute %r on %r",
+            self.attribute_name,
+            target,
+        )
         return deepgetattr(target, self.attribute_name, self.default)
 
     def __repr__(self):
@@ -205,7 +210,9 @@ class Iterator(BaseDeclaration):
         self.iterator = None
 
         if cycle:
-            self.iterator_builder = lambda: utils.ResetableIterator(itertools.cycle(iterator))
+            self.iterator_builder = lambda: utils.ResetableIterator(
+                itertools.cycle(iterator)
+            )
         else:
             self.iterator_builder = lambda: utils.ResetableIterator(iterator)
 
@@ -236,12 +243,17 @@ class Sequence(BaseDeclaration):
         function (function): A function, expecting the current sequence counter
             and returning the computed value.
     """
+
     def __init__(self, function):
         super().__init__()
         self.function = function
 
     def evaluate(self, instance, step, extra):
-        logger.debug("Sequence: Computing next value of %r for seq=%s", self.function, step.sequence)
+        logger.debug(
+            "Sequence: Computing next value of %r for seq=%s",
+            self.function,
+            step.sequence,
+        )
         return self.function(int(step.sequence))
 
 
@@ -254,10 +266,14 @@ class LazyAttributeSequence(Sequence):
         type (function): A function converting an integer into the expected kind
             of counter for the 'function' attribute.
     """
+
     def evaluate(self, instance, step, extra):
         logger.debug(
             "LazyAttributeSequence: Computing next value of %r for seq=%s, obj=%r",
-            self.function, step.sequence, instance)
+            self.function,
+            step.sequence,
+            instance,
+        )
         return self.function(instance, int(step.sequence))
 
 
@@ -270,6 +286,7 @@ class ContainerAttribute(BaseDeclaration):
         strict (bool): Whether evaluating should fail when the containers are
             not passed in (i.e used outside a SubFactory).
     """
+
     def __init__(self, function, strict=True):
         super().__init__()
         self.function = function
@@ -290,7 +307,8 @@ class ContainerAttribute(BaseDeclaration):
         if self.strict and not chain:
             raise TypeError(
                 "A ContainerAttribute in 'strict' mode can only be used "
-                "within a SubFactory.")
+                "within a SubFactory."
+            )
 
         return self.function(instance, chain)
 
@@ -342,6 +360,7 @@ class _FactoryWrapper:
     Such args can be either a Factory subclass, or a fully qualified import
     path for that subclass (e.g 'myapp.factories.MyFactory').
     """
+
     def __init__(self, factory_or_path):
         self.factory = None
         self.module = self.name = ''
@@ -352,7 +371,8 @@ class _FactoryWrapper:
                 raise ValueError(
                     "A factory= argument must receive either a class "
                     "or the fully qualified path to a Factory subclass; got "
-                    "%r instead." % factory_or_path)
+                    "%r instead." % factory_or_path
+                )
             self.module, self.name = factory_or_path.rsplit('.', 1)
 
     def get(self):
@@ -403,7 +423,8 @@ class SubFactory(BaseDeclaration):
         subfactory = self.get_factory()
         logger.debug(
             "SubFactory: Instantiating %s.%s(%s), create=%r",
-            subfactory.__module__, subfactory.__name__,
+            subfactory.__module__,
+            subfactory.__name__,
             utils.log_pprint(kwargs=extra),
             step,
         )
@@ -463,7 +484,11 @@ class Maybe(BaseDeclaration):
         if len(used_phases) > 1:
             raise TypeError(f"Inconsistent phases for {self!r}: {phases!r}")
 
-        self.FACTORY_BUILDER_PHASE = used_phases.pop() if used_phases else enums.BuilderPhase.ATTRIBUTE_RESOLUTION
+        self.FACTORY_BUILDER_PHASE = (
+            used_phases.pop()
+            if used_phases
+            else enums.BuilderPhase.ATTRIBUTE_RESOLUTION
+        )
 
     def evaluate_post(self, instance, step, overrides):
         """Handle post-generation declarations"""
@@ -472,11 +497,13 @@ class Maybe(BaseDeclaration):
             # Note: we work on the *builder stub*, not on the actual instance.
             # This gives us access to all Params-level definitions.
             choice = self.decider.evaluate_pre(
-                instance=step.stub, step=step, overrides=overrides)
+                instance=step.stub, step=step, overrides=overrides
+            )
         else:
             assert decider_phase == enums.BuilderPhase.POST_INSTANTIATION
             choice = self.decider.evaluate_post(
-                instance=instance, step=step, overrides={})
+                instance=instance, step=step, overrides={}
+            )
 
         target = self.yes if choice else self.no
         if enums.get_builder_phase(target) == enums.BuilderPhase.POST_INSTANTIATION:
@@ -552,6 +579,7 @@ class SimpleParameter(Parameter):
 
 class Trait(Parameter):
     """The simplest complex parameter, it enables a bunch of new declarations based on a boolean flag."""
+
     def __init__(self, **overrides):
         super().__init__()
         self.overrides = overrides
@@ -561,7 +589,8 @@ class Trait(Parameter):
         for maybe_field, new_value in self.overrides.items():
             overrides[maybe_field] = Maybe(
                 decider=SelfAttribute(
-                    '%s.%s' % (
+                    '%s.%s'
+                    % (
                         '.' * maybe_field.count(enums.SPLITTER),
                         field_name,
                     ),
@@ -579,7 +608,7 @@ class Trait(Parameter):
     def __repr__(self):
         return '%s(%s)' % (
             self.__class__.__name__,
-            ', '.join('%s=%r' % t for t in self.overrides.items())
+            ', '.join('%s=%r' % t for t in self.overrides.items()),
         )
 
 
@@ -621,6 +650,7 @@ class PostGenerationDeclaration(BaseDeclaration):
 
 class PostGeneration(PostGenerationDeclaration):
     """Calls a given function once the object has been generated."""
+
     def __init__(self, function):
         super().__init__()
         self.function = function
@@ -636,8 +666,7 @@ class PostGeneration(PostGenerationDeclaration):
             ),
         )
         create = step.builder.strategy == enums.CREATE_STRATEGY
-        return self.function(
-            instance, create, context.value, **context.extra)
+        return self.function(instance, create, context.value, **context.extra)
 
 
 class RelatedFactory(PostGenerationDeclaration):
@@ -671,7 +700,8 @@ class RelatedFactory(PostGenerationDeclaration):
             logger.debug(
                 "RelatedFactory: Using provided %r instead of generating %s.%s.",
                 context.value,
-                factory.__module__, factory.__name__,
+                factory.__module__,
+                factory.__name__,
             )
             return context.value
 
@@ -730,6 +760,7 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
             ...
             password = factory.PostGenerationMethodCall('set_pass', password='')
     """
+
     def __init__(self, method_name, *args, **kwargs):
         super().__init__()
         if len(args) > 1:

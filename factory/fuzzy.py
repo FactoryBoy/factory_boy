@@ -170,13 +170,16 @@ class FuzzyDate(BaseFuzzyAttribute):
         if start_date > end_date:
             raise ValueError(
                 "FuzzyDate boundaries should have start <= end; got %r > %r."
-                % (start_date, end_date))
+                % (start_date, end_date)
+            )
 
         self.start_date = start_date.toordinal()
         self.end_date = end_date.toordinal()
 
     def fuzz(self):
-        return datetime.date.fromordinal(random.randgen.randint(self.start_date, self.end_date))
+        return datetime.date.fromordinal(
+            random.randgen.randint(self.start_date, self.end_date)
+        )
 
 
 class BaseFuzzyDateTime(BaseFuzzyAttribute):
@@ -188,16 +191,25 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
     def _check_bounds(self, start_dt, end_dt):
         if start_dt > end_dt:
             raise ValueError(
-                """%s boundaries should have start <= end, got %r > %r""" % (
-                    self.__class__.__name__, start_dt, end_dt))
+                """%s boundaries should have start <= end, got %r > %r"""
+                % (self.__class__.__name__, start_dt, end_dt)
+            )
 
     def _now(self):
         raise NotImplementedError()
 
-    def __init__(self, start_dt, end_dt=None,
-                 force_year=None, force_month=None, force_day=None,
-                 force_hour=None, force_minute=None, force_second=None,
-                 force_microsecond=None):
+    def __init__(
+        self,
+        start_dt,
+        end_dt=None,
+        force_year=None,
+        force_month=None,
+        force_day=None,
+        force_hour=None,
+        force_minute=None,
+        force_second=None,
+        force_microsecond=None,
+    ):
         super().__init__()
 
         if end_dt is None:
@@ -220,7 +232,9 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
 
     def fuzz(self):
         delta = self.end_dt - self.start_dt
-        microseconds = delta.microseconds + 1000000 * (delta.seconds + (delta.days * 86400))
+        microseconds = delta.microseconds + 1000000 * (
+            delta.seconds + (delta.days * 86400)
+        )
 
         offset = random.randgen.randint(0, microseconds)
         result = self.start_dt + datetime.timedelta(microseconds=offset)
@@ -256,11 +270,12 @@ class FuzzyNaiveDateTime(BaseFuzzyDateTime):
         if start_dt.tzinfo is not None:
             raise ValueError(
                 "FuzzyNaiveDateTime only handles naive datetimes, got start=%r"
-                % start_dt)
+                % start_dt
+            )
         if end_dt.tzinfo is not None:
             raise ValueError(
-                "FuzzyNaiveDateTime only handles naive datetimes, got end=%r"
-                % end_dt)
+                "FuzzyNaiveDateTime only handles naive datetimes, got end=%r" % end_dt
+            )
         super()._check_bounds(start_dt, end_dt)
 
 
@@ -278,9 +293,10 @@ class FuzzyDateTime(BaseFuzzyDateTime):
         if start_dt.tzinfo is None:
             raise ValueError(
                 "FuzzyDateTime requires timezone-aware datetimes, got start=%r"
-                % start_dt)
+                % start_dt
+            )
         if end_dt.tzinfo is None:
             raise ValueError(
-                "FuzzyDateTime requires timezone-aware datetimes, got end=%r"
-                % end_dt)
+                "FuzzyDateTime requires timezone-aware datetimes, got end=%r" % end_dt
+            )
         super()._check_bounds(start_dt, end_dt)

@@ -41,6 +41,7 @@ def _lazy_load_get_model():
     the settings haven't been configured yet.
     """
     from django import apps as django_apps
+
     _LAZY_LOADS['get_model'] = django_apps.apps.get_model
 
 
@@ -54,11 +55,13 @@ class DjangoOptions(base.FactoryOptions):
 
     def _get_counter_reference(self):
         counter_reference = super()._get_counter_reference()
-        if (counter_reference == self.base_factory
-                and self.base_factory._meta.model is not None
-                and self.base_factory._meta.model._meta.abstract
-                and self.model is not None
-                and not self.model._meta.abstract):
+        if (
+            counter_reference == self.base_factory
+            and self.base_factory._meta.model is not None
+            and self.base_factory._meta.model._meta.abstract
+            and self.model is not None
+            and not self.model._meta.abstract
+        ):
             # Target factory is for an abstract model, yet we're for another,
             # concrete subclass => don't reuse the counter.
             return self.factory
@@ -99,7 +102,8 @@ class DjangoModelFactory(base.Factory):
     def _get_manager(cls, model_class):
         if model_class is None:
             raise errors.AssociatedClassError(
-                f"No model set on {cls.__module__}.{cls.__name__}.Meta")
+                f"No model set on {cls.__module__}.{cls.__name__}.Meta"
+            )
 
         try:
             manager = model_class.objects
@@ -127,15 +131,17 @@ class DjangoModelFactory(base.Factory):
         assert 'defaults' not in cls._meta.django_get_or_create, (
             "'defaults' is a reserved keyword for get_or_create "
             "(in %s._meta.django_get_or_create=%r)"
-            % (cls, cls._meta.django_get_or_create))
+            % (cls, cls._meta.django_get_or_create)
+        )
 
         key_fields = {}
         for field in cls._meta.django_get_or_create:
             if field not in kwargs:
                 raise errors.FactoryError(
                     "django_get_or_create - "
-                    "Unable to find initialization value for '%s' in factory %s" %
-                    (field, cls.__name__))
+                    "Unable to find initialization value for '%s' in factory %s"
+                    % (field, cls.__name__)
+                )
             key_fields[field] = kwargs.pop(field)
         key_fields['defaults'] = kwargs
 
@@ -203,7 +209,11 @@ class FileField(declarations.BaseDeclaration):
     def _make_content(self, params):
         path = ''
 
-        _content_params = [params.get('from_path'), params.get('from_file'), params.get('from_func')]
+        _content_params = [
+            params.get('from_path'),
+            params.get('from_file'),
+            params.get('from_func'),
+        ]
         if len([p for p in _content_params if p]) > 1:
             raise ValueError(
                 "At most one argument from 'from_file', 'from_path', and 'from_func' should "
@@ -289,8 +299,7 @@ class mute_signals:
 
     def __enter__(self):
         for signal in self.signals:
-            logger.debug('mute_signals: Disabling signal handlers %r',
-                         signal.receivers)
+            logger.debug('mute_signals: Disabling signal handlers %r', signal.receivers)
 
             # Note that we're using implementation details of
             # django.signals, since arguments to signal.connect()
@@ -300,8 +309,7 @@ class mute_signals:
 
     def __exit__(self, exc_type, exc_value, traceback):
         for signal, receivers in self.paused.items():
-            logger.debug('mute_signals: Restoring signal handlers %r',
-                         receivers)
+            logger.debug('mute_signals: Restoring signal handlers %r', receivers)
 
             signal.receivers += receivers
             with signal.lock:
@@ -322,11 +330,13 @@ class mute_signals:
             return callable_obj
 
         else:
+
             @functools.wraps(callable_obj)
             def wrapper(*args, **kwargs):
                 # A mute_signals() object is not reentrant; use a copy every time.
                 with self.copy():
                     return callable_obj(*args, **kwargs)
+
             return wrapper
 
     def wrap_method(self, method):
@@ -336,4 +346,5 @@ class mute_signals:
             # A mute_signals() object is not reentrant; use a copy every time.
             with self.copy():
                 return method(*args, **kwargs)
+
         return wrapped_method

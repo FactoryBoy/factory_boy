@@ -137,7 +137,7 @@ class WithCustomManagerFactory(factory.django.DjangoModelFactory):
 class WithMultipleGetOrCreateFieldsFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.MultifieldUniqueModel
-        django_get_or_create = ("slug", "text",)
+        django_get_or_create = ("slug", "text")
 
     slug = factory.Sequence(lambda n: "slug%s" % n)
     text = factory.Sequence(lambda n: "text%s" % n)
@@ -280,7 +280,7 @@ class DjangoPkForceTestCase(django_test.TestCase):
 
 class DjangoModelLoadingTestCase(django_test.TestCase):
     """Tests class Meta:
-     model = 'app.Model' pattern."""
+    model = 'app.Model' pattern."""
 
     def test_loading(self):
         class ExampleFactory(factory.django.DjangoModelFactory):
@@ -302,6 +302,7 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
 
         See https://github.com/FactoryBoy/factory_boy/issues/109.
         """
+
         class ExampleFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = 'djapp.StandardModel'
@@ -317,6 +318,7 @@ class DjangoModelLoadingTestCase(django_test.TestCase):
 
         See https://github.com/FactoryBoy/factory_boy/issues/109.
         """
+
         class ExampleFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = 'djapp.StandardModel'
@@ -387,6 +389,7 @@ class DjangoAbstractBaseSequenceTestCase(django_test.TestCase):
 
     def test_optional_abstract(self):
         """Users need not describe the factory for an abstract model as abstract."""
+
         class AbstractBaseFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.AbstractBase
@@ -403,7 +406,6 @@ class DjangoAbstractBaseSequenceTestCase(django_test.TestCase):
 
 
 class DjangoRelatedFieldTestCase(django_test.TestCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -411,11 +413,13 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
         class PointedFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointedModel
+
             foo = 'foo'
 
         class PointerFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointerModel
+
             bar = 'bar'
             pointed = factory.SubFactory(PointedFactory, foo='new_foo')
 
@@ -500,9 +504,7 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
         self.assertEqual(pointed.pointer.bar, 'extra_new_bar')
 
     def test_create_pointed_related_with_trait(self):
-        pointed = self.PointedRelatedWithTraitFactory(
-            with_pointer=True
-        )
+        pointed = self.PointedRelatedWithTraitFactory(with_pointer=True)
         self.assertEqual(pointed, models.PointedModel.objects.get())
         self.assertEqual(pointed.foo, 'foo')
         self.assertEqual(pointed.pointer, models.PointerModel.objects.get())
@@ -525,7 +527,6 @@ class DjangoPasswordTestCase(django_test.TestCase):
 
 
 class DjangoFileFieldTestCase(django_test.TestCase):
-
     def tearDown(self):
         super().tearDown()
         for path in os.listdir(models.WITHFILE_UPLOAD_DIR):
@@ -582,7 +583,7 @@ class DjangoFileFieldTestCase(django_test.TestCase):
         with open(testdata.TESTFILE_PATH, 'rb') as f:
             o = WithFileFactory.build(
                 afile__from_file=f,
-                afile__from_path=''
+                afile__from_path='',
             )
             # Django only allocates the full path on save()
             o.save()
@@ -648,7 +649,6 @@ class DjangoFileFieldTestCase(django_test.TestCase):
 
 
 class DjangoParamsTestCase(django_test.TestCase):
-
     def test_undeclared_fields(self):
         class WithDefaultValueFactory(factory.django.DjangoModelFactory):
             class Meta:
@@ -675,6 +675,7 @@ class DjangoParamsTestCase(django_test.TestCase):
         class PointerFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointerModel
+
             pointed = factory.SubFactory(PointedFactory)
 
             class Params:
@@ -693,6 +694,7 @@ class DjangoFakerTestCase(django_test.TestCase):
         class StandardModelFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.StandardModel
+
             foo = factory.Faker('pystr')
 
         o1 = StandardModelFactory()
@@ -702,7 +704,6 @@ class DjangoFakerTestCase(django_test.TestCase):
 
 @unittest.skipIf(Image is None, "PIL not installed.")
 class DjangoImageFieldTestCase(django_test.TestCase):
-
     def tearDown(self):
         super().tearDown()
         for path in os.listdir(models.WITHFILE_UPLOAD_DIR):
@@ -764,7 +765,11 @@ class DjangoImageFieldTestCase(django_test.TestCase):
             self.assertEqual('RGBA', i.mode)
 
     def test_gif(self):
-        o = WithImageFactory.build(animage__width=13, animage__color='blue', animage__format='GIF')
+        o = WithImageFactory.build(
+            animage__width=13,
+            animage__color='blue',
+            animage__format='GIF',
+        )
         self.assertIsNone(o.pk)
         o.save()
 
@@ -802,7 +807,7 @@ class DjangoImageFieldTestCase(django_test.TestCase):
         with open(testdata.TESTIMAGE_PATH, 'rb') as f:
             o = WithImageFactory.build(
                 animage__from_file=f,
-                animage__from_path=''
+                animage__from_path='',
             )
             o.save()
 
@@ -911,7 +916,9 @@ class PreventSignalsTestCase(django_test.TestCase):
 
     def test_receiver_created_during_model_instantiation_is_not_lost(self):
         with factory.django.mute_signals(signals.post_save):
-            instance = WithSignalsFactory(post_save_signal_receiver=self.handlers.created_during_instantiation)
+            instance = WithSignalsFactory(
+                post_save_signal_receiver=self.handlers.created_during_instantiation
+            )
             self.assertTrue(self.handlers.created_during_instantiation.called)
 
         self.handlers.created_during_instantiation.reset_mock()
@@ -1012,7 +1019,6 @@ class PreventSignalsTestCase(django_test.TestCase):
 
 
 class PreventChainedSignalsTestCase(django_test.TestCase):
-
     def setUp(self):
         self.post_save_mock = mock.Mock(side_effect=Exception('BOOM!'))
         signals.post_save.connect(self.post_save_mock, models.PointedModel)
@@ -1029,6 +1035,7 @@ class PreventChainedSignalsTestCase(django_test.TestCase):
         class UndecoratedFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointerModel
+
             pointed = factory.SubFactory(self.WithSignalsDecoratedFactory)
 
         UndecoratedFactory()
@@ -1039,6 +1046,7 @@ class PreventChainedSignalsTestCase(django_test.TestCase):
             class Meta:
                 model = models.PointerModel
                 skip_postgeneration_save = True
+
             pointed = factory.RelatedFactory(self.WithSignalsDecoratedFactory)
 
         UndecoratedFactory()
@@ -1046,7 +1054,6 @@ class PreventChainedSignalsTestCase(django_test.TestCase):
 
 
 class DjangoCustomManagerTestCase(django_test.TestCase):
-
     def test_extra_args(self):
         # Our CustomManager will remove the 'arg=' argument.
         WithCustomManagerFactory(arg='foo')

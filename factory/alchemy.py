@@ -18,8 +18,8 @@ class SQLAlchemyOptions(base.FactoryOptions):
     def _check_sqlalchemy_session_persistence(self, meta, value):
         if value not in VALID_SESSION_PERSISTENCE_TYPES:
             raise TypeError(
-                "%s.sqlalchemy_session_persistence must be one of %s, got %r" %
-                (meta, VALID_SESSION_PERSISTENCE_TYPES, value)
+                "%s.sqlalchemy_session_persistence must be one of %s, got %r"
+                % (meta, VALID_SESSION_PERSISTENCE_TYPES, value)
             )
 
     def _build_default_options(self):
@@ -36,7 +36,7 @@ class SQLAlchemyOptions(base.FactoryOptions):
 
 
 class SQLAlchemyModelFactory(base.Factory):
-    """Factory for SQLAlchemy models. """
+    """Factory for SQLAlchemy models."""
 
     _options_class = SQLAlchemyOptions
 
@@ -57,12 +57,12 @@ class SQLAlchemyModelFactory(base.Factory):
             if field not in kwargs:
                 raise errors.FactoryError(
                     "sqlalchemy_get_or_create - "
-                    "Unable to find initialization value for '%s' in factory %s" %
-                    (field, cls.__name__))
+                    "Unable to find initialization value for '%s' in factory %s"
+                    % (field, cls.__name__)
+                )
             key_fields[field] = kwargs.pop(field)
 
-        obj = session.query(model_class).filter_by(
-            *args, **key_fields).one_or_none()
+        obj = session.query(model_class).filter_by(*args, **key_fields).one_or_none()
 
         if not obj:
             try:
@@ -76,8 +76,11 @@ class SQLAlchemyModelFactory(base.Factory):
                 }
                 if get_or_create_params:
                     try:
-                        obj = session.query(model_class).filter_by(
-                            **get_or_create_params).one()
+                        obj = (
+                            session.query(model_class)
+                            .filter_by(**get_or_create_params)
+                            .one()
+                        )
                     except NoResultFound:
                         # Original params are not a valid lookup and triggered a create(),
                         # that resulted in an IntegrityError.

@@ -62,12 +62,22 @@ class FakerTests(unittest.TestCase):
         class ProfileFactory(factory.Factory):
             class Meta:
                 model = Profile
+
             first_name = factory.Faker('first_name')
             last_name = factory.Faker('last_name', locale='fr_FR')
             email = factory.Faker('email')
 
-        self._setup_mock_faker(first_name="John", last_name="Doe", email="john.doe@example.org")
-        self._setup_mock_faker(first_name="Jean", last_name="Valjean", email="jvaljean@exemple.fr", locale='fr_FR')
+        self._setup_mock_faker(
+            first_name="John",
+            last_name="Doe",
+            email="john.doe@example.org",
+        )
+        self._setup_mock_faker(
+            first_name="Jean",
+            last_name="Valjean",
+            email="jvaljean@exemple.fr",
+            locale='fr_FR',
+        )
 
         profile = ProfileFactory()
         self.assertEqual("John", profile.first_name)
@@ -89,7 +99,11 @@ class FakerTests(unittest.TestCase):
 
         self._setup_mock_faker(first_name="John", last_name="Doe")
         self._setup_mock_faker(first_name="Jean", last_name="Valjean", locale='fr_FR')
-        self._setup_mock_faker(first_name="Johannes", last_name="Brahms", locale='de_DE')
+        self._setup_mock_faker(
+            first_name="Johannes",
+            last_name="Brahms",
+            locale='de_DE',
+        )
 
         profile = ProfileFactory()
         self.assertEqual("John", profile.first_name)

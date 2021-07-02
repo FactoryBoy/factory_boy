@@ -68,7 +68,7 @@ class PointerModel(models.Model):
         PointedModel,
         related_name='pointer',
         null=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
 
@@ -94,7 +94,9 @@ if Image is not None:  # PIL is available
         animage = models.ImageField(upload_to=WITHFILE_UPLOAD_TO)
         size = models.IntegerField(default=0)
 
+
 else:
+
     class WithImage(models.Model):
         pass
 
@@ -112,7 +114,6 @@ class WithSignals(models.Model):
 
 
 class CustomManager(models.Manager):
-
     def create(self, arg=None, **kwargs):
         return super().create(**kwargs)
 

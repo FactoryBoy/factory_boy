@@ -179,7 +179,10 @@ class FuzzyDecimalTestCase(unittest.TestCase):
         with mock.patch('factory.random.randgen.uniform', fake_uniform):
             res = utils.evaluate_declaration(fuzz)
 
-        self.assertEqual(decimal.Decimal('8.001').quantize(decimal.Decimal(10) ** -3), res)
+        self.assertEqual(
+            decimal.Decimal('8.001').quantize(decimal.Decimal(10) ** -3),
+            res,
+        )
 
     def test_no_approximation(self):
         """We should not go through floats in our fuzzy calls unless actually needed."""
@@ -200,17 +203,26 @@ class FuzzyFloatTestCase(unittest.TestCase):
         fuzz = fuzzy.FuzzyFloat(2.0, 3.0)
         for _i in range(20):
             res = utils.evaluate_declaration(fuzz)
-            self.assertTrue(2.0 <= res <= 3.0, "value %d is not between 2.0 and 3.0" % res)
+            self.assertTrue(
+                2.0 <= res <= 3.0,
+                "value %d is not between 2.0 and 3.0" % res,
+            )
 
         fuzz = fuzzy.FuzzyFloat(4.0)
         for _i in range(20):
             res = utils.evaluate_declaration(fuzz)
-            self.assertTrue(0.0 <= res <= 4.0, "value %d is not between 0.0 and 4.0" % res)
+            self.assertTrue(
+                0.0 <= res <= 4.0,
+                "value %d is not between 0.0 and 4.0" % res,
+            )
 
         fuzz = fuzzy.FuzzyDecimal(1.0, 4.0, precision=5)
         for _i in range(20):
             res = utils.evaluate_declaration(fuzz)
-            self.assertTrue(1.0 <= res <= 4.0, "value %d is not between 1.0 and 4.0" % res)
+            self.assertTrue(
+                1.0 <= res <= 4.0,
+                "value %d is not between 1.0 and 4.0" % res,
+            )
             self.assertTrue(res.as_tuple().exponent, -5)
 
     def test_biased(self):
@@ -343,12 +355,18 @@ class FuzzyNaiveDateTimeTestCase(unittest.TestCase):
     def test_aware_start(self):
         """Tests that a timezone-aware start datetime is rejected."""
         with self.assertRaises(ValueError):
-            fuzzy.FuzzyNaiveDateTime(self.jan1.replace(tzinfo=datetime.timezone.utc), self.jan31)
+            fuzzy.FuzzyNaiveDateTime(
+                self.jan1.replace(tzinfo=datetime.timezone.utc),
+                self.jan31,
+            )
 
     def test_aware_end(self):
         """Tests that a timezone-aware end datetime is rejected."""
         with self.assertRaises(ValueError):
-            fuzzy.FuzzyNaiveDateTime(self.jan1, self.jan31.replace(tzinfo=datetime.timezone.utc))
+            fuzzy.FuzzyNaiveDateTime(
+                self.jan1,
+                self.jan31.replace(tzinfo=datetime.timezone.utc),
+            )
 
     def test_force_year(self):
         fuzz = fuzzy.FuzzyNaiveDateTime(self.jan1, self.jan31, force_year=4)
@@ -535,7 +553,10 @@ class FuzzyDateTimeTestCase(unittest.TestCase):
         with mock.patch('factory.random.randgen.randint', fake_randint):
             res = utils.evaluate_declaration(fuzz)
 
-        self.assertEqual(datetime.datetime(2013, 1, 16, tzinfo=datetime.timezone.utc), res)
+        self.assertEqual(
+            datetime.datetime(2013, 1, 16, tzinfo=datetime.timezone.utc),
+            res,
+        )
 
     def test_biased_partial(self):
         """Tests a FuzzyDate with a biased random and implicit upper bound."""
@@ -546,11 +567,13 @@ class FuzzyDateTimeTestCase(unittest.TestCase):
         with mock.patch('factory.random.randgen.randint', fake_randint):
             res = utils.evaluate_declaration(fuzz)
 
-        self.assertEqual(datetime.datetime(2013, 1, 2, tzinfo=datetime.timezone.utc), res)
+        self.assertEqual(
+            datetime.datetime(2013, 1, 2, tzinfo=datetime.timezone.utc),
+            res,
+        )
 
 
 class FuzzyTextTestCase(unittest.TestCase):
-
     def test_unbiased(self):
         chars = ['a', 'b', 'c']
         fuzz = fuzzy.FuzzyText(prefix='pre', suffix='post', chars=chars, length=12)
@@ -602,7 +625,11 @@ class FuzzyRandomTestCase(unittest.TestCase):
     def test_seeding_warning(self):
         with warnings.catch_warnings(record=True) as w:
             # Do not turn expected warning into an error.
-            warnings.filterwarnings("default", category=UserWarning, module=r"tests\.test_fuzzy")
+            warnings.filterwarnings(
+                "default",
+                category=UserWarning,
+                module=r"tests\.test_fuzzy",
+            )
             fuzz = fuzzy.FuzzyDate(datetime.date(2013, 1, 1))
             utils.evaluate_declaration(fuzz)
             self.assertEqual(1, len(w))

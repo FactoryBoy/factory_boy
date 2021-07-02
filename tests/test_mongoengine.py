@@ -49,6 +49,7 @@ class MongoEngineTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from pymongo import read_preferences as mongo_rp
+
         cls.db = mongoengine.connect(
             db=cls.db_name,
             host=cls.db_host,

@@ -35,6 +35,7 @@ class FakerRegressionTests(unittest.TestCase):
 
         See #785 #786 #787 #788 #790 #796.
         """
+
         class AuthorFactory(factory.Factory):
             class Meta:
                 model = Author

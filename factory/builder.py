@@ -73,7 +73,8 @@ class DeclarationSet:
         extra_context_keys = set(self.contexts) - set(self.declarations)
         if extra_context_keys:
             raise errors.InvalidDeclarationError(
-                "Received deep context for unknown fields: %r (known=%r)" % (
+                "Received deep context for unknown fields: %r (known=%r)"
+                % (
                     {
                         self.join(root, sub): v
                         for root in extra_context_keys
@@ -92,7 +93,7 @@ class DeclarationSet:
         """
         return [
             entry for entry in entries
-            if self.split(entry)[0] in self.declarations
+            if self.split(entry)[0] in self.declarations  # fmt: skip
         ]
 
     def sorted(self):
@@ -210,10 +211,12 @@ class BuildStep:
 
     def recurse(self, factory, declarations, force_sequence=None):
         from . import base
+
         if not issubclass(factory, base.BaseFactory):
             raise errors.AssociatedClassError(
                 "%r: Attempting to recursing into a non-factory object %r"
-                % (self, factory))
+                % (self, factory)
+            )
         builder = self.builder.recurse(factory._meta, declarations)
         return builder.build(parent_step=self, force_sequence=force_sequence)
 
@@ -230,6 +233,7 @@ class StepBuilder:
     - factory: the factory class being built
     - strategy: the strategy to use
     """
+
     def __init__(self, factory_meta, extras, strategy):
         self.factory_meta = factory_meta
         self.strategy = strategy
@@ -333,14 +337,18 @@ class Resolver:
         """
         if name in self.__pending:
             raise errors.CyclicDefinitionError(
-                "Cyclic lazy attribute definition for %r; cycle found in %r." %
-                (name, self.__pending))
+                "Cyclic lazy attribute definition for %r; cycle found in %r."
+                % (name, self.__pending)
+            )
         elif name in self.__values:
             return self.__values[name]
         elif name in self.__declarations:
             declaration = self.__declarations[name]
             value = declaration.declaration
-            if enums.get_builder_phase(value) == enums.BuilderPhase.ATTRIBUTE_RESOLUTION:
+            if (
+                enums.get_builder_phase(value)
+                == enums.BuilderPhase.ATTRIBUTE_RESOLUTION
+            ):
                 self.__pending.append(name)
                 try:
                     value = value.evaluate_pre(
@@ -357,7 +365,8 @@ class Resolver:
         else:
             raise AttributeError(
                 "The parameter %r is unknown. Evaluated attributes are %r, "
-                "definitions are %r." % (name, self.__values, self.__declarations))
+                "definitions are %r." % (name, self.__values, self.__declarations)
+            )
 
     def __setattr__(self, name, value):
         """Prevent setting attributes once __init__ is done."""

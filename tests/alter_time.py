@@ -83,19 +83,24 @@ def main():  # pragma: no cover
     print("Entering mock")
     with mock_datetime_now(target_dt, datetime):
         print("- now                       ->", datetime.datetime.now())
-        print("- isinstance(now, dt)       ->", isinstance(datetime.datetime.now(), datetime.datetime))
-        print("- isinstance(target, dt)    ->", isinstance(target_dt, datetime.datetime))
+        now_is_datetime = isinstance(datetime.datetime.now(), datetime.datetime)
+        print("- isinstance(now, dt)       ->", now_is_datetime)
+        target_dt_is_datetime = isinstance(target_dt, datetime.datetime)
+        print("- isinstance(target, dt)    ->", target_dt_is_datetime)
 
     with mock_date_today(target_date, datetime):
         print("- today                     ->", datetime.date.today())
-        print("- isinstance(now, date)     ->", isinstance(datetime.date.today(), datetime.date))
+        now_is_date = isinstance(datetime.date.today(), datetime.date)
+        print("- isinstance(now, date)     ->", now_is_date)
         print("- isinstance(target, date)  ->", isinstance(target_date, datetime.date))
 
     print("Outside mock")
     print("- now                       ->", datetime.datetime.now())
-    print("- isinstance(now, dt)       ->", isinstance(datetime.datetime.now(), datetime.datetime))
+    now_is_datetime = isinstance(datetime.datetime.now(), datetime.datetime)
+    print("- isinstance(now, dt)       ->", now_is_datetime)
     print("- isinstance(target, dt)    ->", isinstance(target_dt, datetime.datetime))
 
     print("- today                     ->", datetime.date.today())
-    print("- isinstance(now, date)     ->", isinstance(datetime.date.today(), datetime.date))
+    today_is_date = isinstance(datetime.date.today(), datetime.date)
+    print("- isinstance(now, date)     ->", today_is_date)
     print("- isinstance(target, date)  ->", isinstance(target_date, datetime.date))

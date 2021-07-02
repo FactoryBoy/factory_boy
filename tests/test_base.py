@@ -48,6 +48,7 @@ class SafetyTestCase(unittest.TestCase):
 class AbstractFactoryTestCase(unittest.TestCase):
     def test_factory_for_optional(self):
         """Ensure that model= is optional for abstract=True."""
+
         class TestObjectFactory(base.Factory):
             class Meta:
                 abstract = True
@@ -57,6 +58,7 @@ class AbstractFactoryTestCase(unittest.TestCase):
 
     def test_factory_for_and_abstract_factory_optional(self):
         """Ensure that Meta.abstract is optional."""
+
         class TestObjectFactory(base.Factory):
             pass
 
@@ -234,6 +236,7 @@ class DeclarationParsingTests(unittest.TestCase):
 class FactoryTestCase(unittest.TestCase):
     def test_magic_happens(self):
         """Calling a FooFactory doesn't yield a FooFactory instance."""
+
         class TestObjectFactory(base.Factory):
             class Meta:
                 model = TestObject
@@ -262,6 +265,7 @@ class FactoryTestCase(unittest.TestCase):
 
     def test_inheritance_with_sequence(self):
         """Tests that sequence IDs are shared between parent and son."""
+
         class TestObjectFactory(base.Factory):
             class Meta:
                 model = TestObject
@@ -289,6 +293,7 @@ class FactorySequenceTestCase(unittest.TestCase):
         class TestObjectFactory(base.Factory):
             class Meta:
                 model = TestObject
+
             one = declarations.Sequence(lambda n: n)
 
         self.TestObjectFactory = TestObjectFactory
@@ -317,6 +322,7 @@ class FactorySequenceTestCase(unittest.TestCase):
 
     def test_reset_sequence_subclass_fails(self):
         """Tests that the sequence of a 'slave' factory cannot be reseted."""
+
         class SubTestObjectFactory(self.TestObjectFactory):
             pass
 
@@ -325,6 +331,7 @@ class FactorySequenceTestCase(unittest.TestCase):
 
     def test_reset_sequence_subclass_force(self):
         """Tests that reset_sequence(force=True) works."""
+
         class SubTestObjectFactory(self.TestObjectFactory):
             pass
 
@@ -344,6 +351,7 @@ class FactorySequenceTestCase(unittest.TestCase):
 
     def test_reset_sequence_subclass_parent(self):
         """Tests that the sequence of a 'slave' factory cannot be reseted."""
+
         class SubTestObjectFactory(self.TestObjectFactory):
             pass
 
@@ -518,7 +526,6 @@ class FactoryCreationTestCase(unittest.TestCase):
 
 
 class PostGenerationParsingTestCase(unittest.TestCase):
-
     def test_extraction(self):
         class TestObjectFactory(base.Factory):
             class Meta:

@@ -15,6 +15,7 @@ City = collections.namedtuple('City', ['name', 'population'])
 class DeclarationTests(unittest.TestCase):
     def test_subfactory_to_model(self):
         """A helpful error message occurs when pointing a subfactory to a model."""
+
         class CountryFactory(factory.Factory):
             class Meta:
                 model = Country

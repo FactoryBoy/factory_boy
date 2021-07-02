@@ -6,6 +6,7 @@ SETUP_PY=setup.py
 
 # Use current python binary instead of system default.
 COVERAGE = python $(shell which coverage)
+BLACK = black
 FLAKE8 = flake8
 ISORT = isort
 CTAGS = ctags
@@ -70,9 +71,10 @@ example-test:
 
 
 
-# Note: we run the linter in two runs, because our __init__.py files has specific warnings we want to exclude
 # DOC: Perform code quality tasks
 lint:
+	$(BLACK) --target-version py36 --check --diff .
+	# Note: we run the linter in two runs, because our __init__.py files has specific warnings we want to exclude
 	$(FLAKE8) --exclude $(PACKAGE)/__init__.py $(EXAMPLES_DIR) $(PACKAGE) $(SETUP_PY) $(TESTS_DIR)
 	$(FLAKE8) --ignore F401 $(PACKAGE)/__init__.py
 	$(ISORT) --check-only --diff $(EXAMPLES_DIR) $(PACKAGE) $(SETUP_PY) $(TESTS_DIR)
