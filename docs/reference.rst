@@ -1891,7 +1891,6 @@ A decorator is also provided, decorating a single method accepting the same
                 return
             path = extracted or os.path.join('/tmp/mbox/', obj.login)
             os.path.makedirs(path)
-            return path
 
 .. OHAI_VIM**
 
