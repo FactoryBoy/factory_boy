@@ -257,6 +257,7 @@ class SQLAlchemyNoSessionTestCase(unittest.TestCase):
             NoSessionFactory.create()
 
     def test_build_does_not_raises_exception_when_no_session_was_set(self):
+        NoSessionFactory.reset_sequence()  # Make sure we start at test ID 0
         inst0 = NoSessionFactory.build()
         inst1 = NoSessionFactory.build()
         self.assertEqual(inst0.id, 0)
