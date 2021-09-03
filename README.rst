@@ -415,3 +415,43 @@ To avoid running ``mongoengine`` tests (e.g no MongoDB server installed), run:
 .. code-block:: sh
 
     $ make SKIP_MONGOENGINE=1 test
+
+
+Packaging
+---------
+
+For users interesting in packaging FactoryBoy into downstream distribution channels
+(e.g. ``.deb``, ``.rpm``, ``.ebuild``), the following tips might be helpful:
+
+Dependencies
+""""""""""""
+
+The package's run-time dependencies are listed in ``setup.cfg``.
+The dependencies useful for building and testing the library are covered by the
+``dev`` and ``doc`` extras.
+
+Moreover, all development / testing tasks are driven through ``make(1)``.
+
+Building
+""""""""
+
+In order to run the build steps (currently only for docs), run:
+
+.. code-block:: sh
+
+    python setup.py egg_info
+    make doc
+
+Testing
+"""""""
+
+When testing for the active Python environment, run the following:
+
+.. code-block:: sh
+
+    make test
+
+.. note::
+
+    You must make sure that the ``factory`` module is importable, as it is imported from
+    the testing code.
