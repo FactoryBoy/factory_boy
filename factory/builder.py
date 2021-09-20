@@ -156,12 +156,16 @@ def parse_declarations(decls, base_pre=None, base_post=None):
             # Set it as `key__`
             magic_key = post_declarations.join(k, '')
             extra_post[magic_key] = v
-        elif k in pre_declarations and isinstance(
-            pre_declarations[k].declaration, declarations.Transformer
-        ):
-            extra_maybenonpost[k] = pre_declarations[k].declaration.function(v)
         else:
-            extra_maybenonpost[k] = v
+            value = v
+            try:
+                pre_declaration = pre_declarations[k]
+            except KeyError:
+                pass
+            else:
+                if isinstance(pre_declaration.declaration, declarations.Transformer):
+                    value = pre_declaration.declaration.evaluate_extra(v)
+            extra_maybenonpost[k] = value
 
     # Start with adding new post-declarations
     post_declarations.update(extra_post)

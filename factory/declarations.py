@@ -100,6 +100,11 @@ class LazyAttribute(BaseDeclaration):
         return self.function(instance)
 
 
+class RawValue:
+    def __init__(self, value):
+        self.value = value
+
+
 class Transformer(LazyFunction):
     """Transform value using given function.
 
@@ -114,6 +119,11 @@ class Transformer(LazyFunction):
 
     def evaluate(self, instance, step, extra):
         return self.function(self.value)
+
+    def evaluate_extra(self, maybe_raw_value):
+        if isinstance(maybe_raw_value, RawValue):
+            return maybe_raw_value.value
+        return self.function(maybe_raw_value)
 
 
 class _UNSPECIFIED:

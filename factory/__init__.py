@@ -20,6 +20,7 @@ from .declarations import (
     Maybe,
     PostGeneration,
     PostGenerationMethodCall,
+    RawValue,
     RelatedFactory,
     RelatedFactoryList,
     SelfAttribute,

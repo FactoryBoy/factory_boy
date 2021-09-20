@@ -933,6 +933,19 @@ It expects two arguments:
    >>> UpperFactory(name="John").name
    'JOHN'
 
+Escape hatch
+~~~~~~~~~~~~
+
+In order to set a value verbatim on the generated object, wrap the value in a
+:class:`~factory.declarations.RawValue`.
+
+.. code-block:: pycon
+
+   >>> from factory import RawValue
+   >>> # Using RawValue(), the transform function is not applied.
+   >>> UpperFactory(name=RawValue("john")).name
+   'john'
+
 
 Sequence
 """"""""

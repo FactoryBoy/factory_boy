@@ -2,7 +2,7 @@
 
 from unittest import TestCase
 
-from factory import Factory, Transformer
+from factory import Factory, RawValue, Transformer
 
 
 class TransformCounter:
@@ -44,3 +44,7 @@ class TransformerTest(TestCase):
     def test_transform_kwarg(self):
         self.assertEqual("TEST", UpperFactory(name="test").name)
         self.assertEqual(transform.calls_count, 1)
+
+    def test_transform_rawvalue(self):
+        self.assertEqual("lower", UpperFactory(name=RawValue("lower")).name)
+        self.assertEqual(transform.calls_count, 0)
