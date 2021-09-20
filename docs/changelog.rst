@@ -8,6 +8,8 @@ ChangeLog
 
 *New:*
 
+    - The new :class:`~factory.Transformer` declaration applies a ``transform`` function to values passed to a
+      :class:`~factory.Factory` field.
     - :issue:`366`: Add :class:`factory.django.Password` to generate Django :class:`~django.contrib.auth.models.User`
       passwords.
     - Add support for Django 3.2
