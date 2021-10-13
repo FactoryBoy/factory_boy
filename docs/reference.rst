@@ -1946,7 +1946,7 @@ users in an external system.
             self.registration_id = system.register(auth_token)
 
 
-    class UserFactory(factory.DjangoModelFactory):
+    class UserFactory(factory.django.DjangoModelFactory):
         class Meta:
             model = User
 
