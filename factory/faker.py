@@ -14,6 +14,7 @@ Usage:
 
 
 import contextlib
+from typing import Dict
 
 import faker
 import faker.config
@@ -47,7 +48,7 @@ class Faker(declarations.BaseDeclaration):
         subfaker = self._get_faker(locale)
         return subfaker.format(self.provider, **extra)
 
-    _FAKER_REGISTRY = {}
+    _FAKER_REGISTRY: Dict[str, faker.Faker] = {}
     _DEFAULT_LOCALE = faker.config.DEFAULT_LOCALE
 
     @classmethod

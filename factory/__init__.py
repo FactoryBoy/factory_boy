@@ -1,5 +1,7 @@
 # Copyright: See the LICENSE file.
 
+import sys
+
 from .base import (
     BaseDictFactory,
     BaseListFactory,
@@ -70,10 +72,10 @@ except ImportError:
     pass
 
 __author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
-try:
+if sys.version_info >= (3, 8):
     # Python 3.8+
     import importlib.metadata as importlib_metadata
-except ImportError:
+else:
     import importlib_metadata
 
 __version__ = importlib_metadata.version("factory_boy")

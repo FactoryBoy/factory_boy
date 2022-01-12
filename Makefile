@@ -54,6 +54,7 @@ testall:
 # DOC: Run tests for the currently installed version
 # Remove cgi warning when dropping support for Django<=4.1.
 test:
+	mypy --ignore-missing-imports tests/test_typing.py
 	python \
 		-b \
 		-X dev \
