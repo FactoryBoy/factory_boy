@@ -4,10 +4,13 @@
 import collections
 import logging
 import warnings
+from typing import Generic, List, TypeVar
 
 from . import builder, declarations, enums, errors, utils
 
 logger = logging.getLogger('factory.generate')
+
+T = TypeVar('T')
 
 # Factory metaclasses
 
@@ -405,7 +408,7 @@ class _Counter:
         self.seq = next_value
 
 
-class BaseFactory:
+class BaseFactory(Generic[T]):
     """Factory base support for sequences, attributes and stubs."""
 
     # Backwards compatibility
@@ -506,12 +509,12 @@ class BaseFactory:
         return model_class(*args, **kwargs)
 
     @classmethod
-    def build(cls, **kwargs):
+    def build(cls, **kwargs) -> T:
         """Build an instance of the associated class, with overridden attrs."""
         return cls._generate(enums.BUILD_STRATEGY, kwargs)
 
     @classmethod
-    def build_batch(cls, size, **kwargs):
+    def build_batch(cls, size, **kwargs) -> List[T]:
         """Build a batch of instances of the given class, with overridden attrs.
 
         Args:
@@ -523,12 +526,12 @@ class BaseFactory:
         return [cls.build(**kwargs) for _ in range(size)]
 
     @classmethod
-    def create(cls, **kwargs):
+    def create(cls, **kwargs) -> T:
         """Create an instance of the associated class, with overridden attrs."""
         return cls._generate(enums.CREATE_STRATEGY, kwargs)
 
     @classmethod
-    def create_batch(cls, size, **kwargs):
+    def create_batch(cls, size, **kwargs) -> List[T]:
         """Create a batch of instances of the given class, with overridden attrs.
 
         Args:
@@ -627,7 +630,7 @@ class BaseFactory:
         return cls.generate_batch(strategy, size, **kwargs)
 
 
-class Factory(BaseFactory, metaclass=FactoryMetaClass):
+class Factory(BaseFactory[T], metaclass=FactoryMetaClass):
     """Factory base with build and create support.
 
     This class has the ability to support multiple ORMs by using custom creation
