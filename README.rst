@@ -401,7 +401,7 @@ To test with a specific framework version, you may use a ``tox`` target:
     $ tox --listenvs
 
     # run tests inside a specific environment
-    $ tox -e py36-django20-alchemy13-mongoengine017
+    $ tox -e py310-djangomain-alchemy-mongoengine
 
 Valid options are:
 
