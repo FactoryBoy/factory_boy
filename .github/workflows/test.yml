@@ -13,19 +13,22 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - 3.6
-          - 3.7
-          - 3.8
-          - 3.9
-          - pypy3
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "pypy-3.8"
         tox-environment:
-          - django22-alchemy-mongoengine
-          - django31-alchemy-mongoengine
           - django32-alchemy-mongoengine
+          - django40-alchemy-mongoengine
         include:
-          - python-version: 3.9
-            tox-environment: djangomain-alchemy-mongoengine
-
+          - python-version: "3.7"
+            tox-environment: django22-alchemy-mongoengine
+          - python-version: "pypy-3.7"
+            tox-environment: django22-alchemy-mongoengine
+          - python-version: "3.7"
+            tox-environment: django32-alchemy-mongoengine
+          - python-version: "pypy-3.7"
+            tox-environment: django32-alchemy-mongoengine
     services:
       mongodb:
         image: mongo

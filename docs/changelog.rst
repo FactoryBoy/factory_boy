@@ -11,6 +11,8 @@ ChangeLog
     - :issue:`366`: Add :class:`factory.django.Password` to generate Django :class:`~django.contrib.auth.models.User`
       passwords.
     - Add support for Django 3.2
+    - Add support for Django 4.0
+    - Add support for Python 3.10
 
 *Bugfix:*
 
@@ -43,6 +45,8 @@ ChangeLog
 *Removed:*
 
     - Drop support for Django 3.0
+    - Drop support for Django 3.1
+    - Drop support for Python 3.6
 
 3.2.0 (2020-12-28)
 ------------------
