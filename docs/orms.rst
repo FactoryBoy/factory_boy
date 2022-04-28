@@ -64,11 +64,11 @@ All factories for a Django :class:`~django.db.models.Model` should use the
         .. code-block:: python
 
             class UserFactory(factory.django.DjangoModelFactory):
+                username = 'john'
+
                 class Meta:
                     model = 'myapp.User'  # Equivalent to ``model = myapp.models.User``
                     django_get_or_create = ('username',)
-
-                username = 'john'
 
         .. code-block:: pycon
 
@@ -133,10 +133,10 @@ Extra fields
     .. code-block:: python
 
         class UserFactory(factory.django.DjangoModelFactory):
+            password = factory.django.Password('pw')
+
             class Meta:
                 model = models.User
-
-            password = factory.django.Password('pw')
 
     .. code-block:: pycon
 
@@ -171,10 +171,10 @@ Extra fields
 .. code-block:: python
 
     class MyFactory(factory.django.DjangoModelFactory):
+        the_file = factory.django.FileField(filename='the_file.dat')
+
         class Meta:
             model = models.MyModel
-
-        the_file = factory.django.FileField(filename='the_file.dat')
 
 .. code-block:: pycon
 
@@ -211,10 +211,10 @@ Extra fields
 .. code-block:: python
 
     class MyFactory(factory.django.DjangoModelFactory):
+        the_image = factory.django.ImageField(color='blue')
+
         class Meta:
             model = models.MyModel
-
-        the_image = factory.django.ImageField(color='blue')
 
 .. code-block:: pycon
 
@@ -325,17 +325,17 @@ A minimalist example:
     import factory
 
     class AddressFactory(factory.mongoengine.MongoEngineFactory):
+        street = factory.Sequence(lambda n: 'street%d' % n)
+
         class Meta:
             model = Address
 
-        street = factory.Sequence(lambda n: 'street%d' % n)
-
     class PersonFactory(factory.mongoengine.MongoEngineFactory):
-        class Meta:
-            model = Person
-
         name = factory.Sequence(lambda n: 'name%d' % n)
         address = factory.SubFactory(AddressFactory)
+
+        class Meta:
+            model = Person
 
 
 SQLAlchemy
@@ -392,12 +392,12 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
         .. code-block:: python
 
             class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
+                username = 'john'
+
                 class Meta:
                     model = User
                     sqlalchemy_session = session
                     sqlalchemy_get_or_create = ('username',)
-
-                username = 'john'
 
         .. code-block:: pycon
 
@@ -464,12 +464,12 @@ A (very) simple example:
     import factory
 
     class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
+        id = factory.Sequence(lambda n: n)
+        name = factory.Sequence(lambda n: 'User %d' % n)
+
         class Meta:
             model = User
             sqlalchemy_session = session   # the SQLAlchemy session object
-
-        id = factory.Sequence(lambda n: n)
-        name = factory.Sequence(lambda n: 'User %d' % n)
 
 .. code-block:: pycon
 
@@ -532,14 +532,14 @@ Here is an example layout:
     from .test import common
 
     class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
+        name = factory.Sequence(lambda n: "User %d" % n)
+
         class Meta:
             model = models.User
 
             # Use the not-so-global scoped_session
             # Warning: DO NOT USE common.Session()!
             sqlalchemy_session = common.Session
-
-        name = factory.Sequence(lambda n: "User %d" % n)
 
 
 - The test runner configures the :class:`~sqlalchemy.orm.scoping.scoped_session` when it starts:

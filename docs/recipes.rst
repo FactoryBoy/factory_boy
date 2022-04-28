@@ -26,11 +26,11 @@ use the :class:`~factory.SubFactory` declaration:
     from . import models
 
     class UserFactory(factory.django.DjangoModelFactory):
-        class Meta:
-            model = models.User
-
         first_name = factory.Sequence(lambda n: "Agent %03d" % n)
         group = factory.SubFactory(GroupFactory)
+
+        class Meta:
+            model = models.User
 
 
 Choosing from a populated table
@@ -47,10 +47,10 @@ simply use a :class:`factory.Iterator` on the chosen queryset:
     from . import models
 
     class UserFactory(factory.django.DjangoModelFactory):
+        language = factory.Iterator(models.Language.objects.all())
+
         class Meta:
             model = models.User
-
-        language = factory.Iterator(models.Language.objects.all())
 
 Here, ``models.Language.objects.all()`` won't be evaluated until the
 first call to ``UserFactory``; thus avoiding DB queries at import time.
@@ -77,14 +77,14 @@ use a :class:`~factory.RelatedFactory` declaration:
 
     # factories.py
     class UserFactory(factory.django.DjangoModelFactory):
-        class Meta:
-            model = models.User
-
         log = factory.RelatedFactory(
             UserLogFactory,
             factory_related_name='user',
             action=models.UserLog.ACTION_CREATE,
         )
+
+        class Meta:
+            model = models.User
 
 
 When a :class:`UserFactory` is instantiated, factory_boy will call
@@ -110,24 +110,24 @@ Since version 2.9, the :meth:`~factory.django.mute_signals` decorator should be 
     
     @factory.django.mute_signals(post_save)
     class ProfileFactory(factory.django.DjangoModelFactory):
-        class Meta:
-            model = my_models.Profile
-
         title = 'Dr'
         # We pass in profile=None to prevent UserFactory from creating another profile
         # (this disables the RelatedFactory)
         user = factory.SubFactory('app.factories.UserFactory', profile=None)
 
+        class Meta:
+            model = my_models.Profile
+
     @factory.django.mute_signals(post_save)
     class UserFactory(factory.django.DjangoModelFactory):
-        class Meta:
-            model = auth_models.User
-
         username = factory.Sequence(lambda n: "user_%d" % n)
 
         # We pass in 'user' to link the generated Profile to our just-generated User
         # This will call ProfileFactory(user=our_new_user), thus skipping the SubFactory.
         profile = factory.RelatedFactory(ProfileFactory, factory_related_name='user')
+
+        class Meta:
+            model = auth_models.User
 
 .. OHAI_VIM:*
 
@@ -178,16 +178,16 @@ hook:
 
     # factories.py
     class GroupFactory(factory.django.DjangoModelFactory):
+        name = factory.Sequence(lambda n: "Group #%s" % n)
+
         class Meta:
             model = models.Group
 
-        name = factory.Sequence(lambda n: "Group #%s" % n)
-
     class UserFactory(factory.django.DjangoModelFactory):
+        name = "John Doe"
+
         class Meta:
             model = models.User
-
-        name = "John Doe"
 
         @factory.post_generation
         def groups(self, create, extracted, **kwargs):
@@ -235,24 +235,24 @@ If more links are needed, simply add more :class:`RelatedFactory` declarations:
 
     # factories.py
     class UserFactory(factory.django.DjangoModelFactory):
+        name = "John Doe"
+
         class Meta:
             model = models.User
 
-        name = "John Doe"
-
     class GroupFactory(factory.django.DjangoModelFactory):
+        name = "Admins"
+
         class Meta:
             model = models.Group
 
-        name = "Admins"
-
     class GroupLevelFactory(factory.django.DjangoModelFactory):
-        class Meta:
-            model = models.GroupLevel
-
         user = factory.SubFactory(UserFactory)
         group = factory.SubFactory(GroupFactory)
         rank = 1
+
+        class Meta:
+            model = models.GroupLevel
 
     class UserWithGroupFactory(UserFactory):
         membership = factory.RelatedFactory(
@@ -322,27 +322,27 @@ Here, we want:
 
     # factories.py
     class CountryFactory(factory.django.DjangoModelFactory):
-        class Meta:
-            model = models.Country
-
         name = factory.Iterator(["France", "Italy", "Spain"])
         lang = factory.Iterator(['fr', 'it', 'es'])
 
-    class UserFactory(factory.django.DjangoModelFactory):
         class Meta:
-            model = models.User
+            model = models.Country
 
+    class UserFactory(factory.django.DjangoModelFactory):
         name = "John"
         lang = factory.SelfAttribute('country.lang')
         country = factory.SubFactory(CountryFactory)
 
-    class CompanyFactory(factory.django.DjangoModelFactory):
         class Meta:
-            model = models.Company
+            model = models.User
 
+    class CompanyFactory(factory.django.DjangoModelFactory):
         name = "ACME, Inc."
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory, country=factory.SelfAttribute('..country'))
+
+        class Meta:
+            model = models.Company
 
 If the value of a field on the child factory is indirectly derived from a field on the parent factory, you will need to use LazyAttribute and poke the "factory_parent" attribute.
 
@@ -351,13 +351,13 @@ This time, we want the company owner to live in a country neighboring the countr
 .. code-block:: python
 
     class CompanyFactory(factory.django.DjangoModelFactory):
-        class Meta:
-            model = models.Company
-
         name = "ACME, Inc."
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory,
             country=factory.LazyAttribute(lambda o: get_random_neighbor(o.factory_parent.country)))
+
+        class Meta:
+            model = models.Company
 
 Custom manager methods
 ----------------------
@@ -368,12 +368,12 @@ default :meth:`Model.objects.create() <django.db.models.query.QuerySet.create>` 
 .. code-block:: python
 
    class UserFactory(factory.django.DjangoModelFactory):
-       class Meta:
-           model = UserenaSignup
-
        username = "l7d8s"
        email = "my_name@example.com"
        password = "my_password"
+
+       class Meta:
+           model = UserenaSignup
 
        @classmethod
        def _create(cls, model_class, *args, **kwargs):
@@ -402,10 +402,11 @@ Forcing the value on a per-call basis
     .. code-block:: python
 
         class AccountFactory(factory.Factory):
-            class Meta:
-                model = Account
             uid = factory.Sequence(lambda n: n)
             name = "Test"
+
+            class Meta:
+                model = Account
 
     .. code-block:: pycon
 
@@ -546,11 +547,11 @@ In order to get a dict, we'll just have to swap the model; the easiest way is to
 .. code-block:: python
 
     class UserFactory(factory.django.DjangoModelFactory):
-        class Meta:
-            model = models.User
-
         first_name = factory.Sequence(lambda n: "Agent %03d" % n)  # Agent 000, Agent 001, Agent 002
         username = factory.Faker('user_name')
+
+        class Meta:
+            model = models.User
 
 .. code-block:: pycon
 
@@ -568,11 +569,11 @@ Use the ``getter`` kwarg to select the first element from each choice tuple.
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = User
-
         # CATEGORY_CHOICES is a list of (key, title) tuples
         category = factory.fuzzy.FuzzyChoice(User.CATEGORY_CHOICES, getter=lambda c: c[0])
+
+        class Meta:
+            model = User
 
 
 Django models with `GenericForeignKeys`

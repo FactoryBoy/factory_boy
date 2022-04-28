@@ -32,11 +32,11 @@ Factories declare a set of attributes used to instantiate an object, whose class
     from . import base
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = base.User
-
         firstname = "John"
         lastname = "Doe"
+
+        class Meta:
+            model = base.User
 
 You may now get ``base.User`` instances trivially:
 
@@ -58,21 +58,21 @@ A given class may be associated to many :class:`~factory.Factory` subclasses:
 .. code-block:: python
 
     class EnglishUserFactory(factory.Factory):
-        class Meta:
-            model = base.User
-
         firstname = "John"
         lastname = "Doe"
         lang = 'en'
 
-
-    class FrenchUserFactory(factory.Factory):
         class Meta:
             model = base.User
 
+
+    class FrenchUserFactory(factory.Factory):
         firstname = "Jean"
         lastname = "Dupont"
         lang = 'fr'
+
+        class Meta:
+            model = base.User
 
 
 .. code-block:: pycon
@@ -92,10 +92,10 @@ This is achieved with the :class:`~factory.Sequence` declaration:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
+        username = factory.Sequence(lambda n: 'user%d' % n)
+
         class Meta:
             model = models.User
-
-        username = factory.Sequence(lambda n: 'user%d' % n)
 
 .. code-block:: pycon
 
@@ -136,10 +136,10 @@ argument and returning the value for the field:
 .. code-block:: python
 
     class LogFactory(factory.Factory):
+        timestamp = factory.LazyFunction(datetime.now)
+
         class Meta:
             model = models.Log
-
-        timestamp = factory.LazyFunction(datetime.now)
 
 .. code-block:: pycon
 
@@ -165,11 +165,11 @@ taking the object being built and returning the value for the field:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = models.User
-
         username = factory.Sequence(lambda n: 'user%d' % n)
         email = factory.LazyAttribute(lambda obj: '%s@example.com' % obj.username)
+
+        class Meta:
+            model = models.User
 
 .. code-block:: pycon
 
@@ -191,10 +191,10 @@ taking the object being built and returning the value for the field:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
+        username = factory.Sequence(lambda n: 'user%d' % n)
+
         class Meta:
             model = models.User
-
-        username = factory.Sequence(lambda n: 'user%d' % n)
 
         @factory.lazy_attribute
         def email(self):
@@ -214,12 +214,12 @@ and update them with its own declarations:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = base.User
-
         firstname = "John"
         lastname = "Doe"
         group = 'users'
+
+        class Meta:
+            model = base.User
 
     class AdminFactory(UserFactory):
         admin = True
@@ -261,13 +261,13 @@ This is handled by the :data:`~factory.FactoryOptions.inline_args` attribute:
 .. code-block:: python
 
     class MyFactory(factory.Factory):
-        class Meta:
-            model = MyClass
-            inline_args = ('x', 'y')
-
         x = 1
         y = 2
         z = 3
+
+        class Meta:
+            model = MyClass
+            inline_args = ('x', 'y')
 
 .. code-block:: pycon
 
@@ -284,11 +284,11 @@ In that case, use a :attr:`~factory.Factory.Params` declaration:
 .. code-block:: python
 
     class RentalFactory(factory.Factory):
-        class Meta:
-            model = Rental
-
         begin = factory.fuzzy.FuzzyDate(start_date=datetime.date(2000, 1, 1))
         end = factory.LazyAttribute(lambda o: o.begin + o.duration)
+
+        class Meta:
+            model = Rental
 
         class Params:
             duration = 12

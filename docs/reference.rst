@@ -64,13 +64,13 @@ Meta options
         .. code-block:: python
 
             class UserFactory(factory.Factory):
-                class Meta:
-                    model = User
-                    inline_args = ('login', 'email')
-
                 login = 'john'
                 email = factory.LazyAttribute(lambda o: '%s@example.com' % o.login)
                 firstname = "John"
+
+                class Meta:
+                    model = User
+                    inline_args = ('login', 'email')
 
         .. code-block:: pycon
 
@@ -94,13 +94,13 @@ Meta options
         .. code-block:: python
 
             class OrderFactory(factory.Factory):
-                class Meta:
-                    model = Order
-                    exclude = ('now',)
-
                 now = factory.LazyFunction(datetime.datetime.utcnow)
                 started_at = factory.LazyAttribute(lambda o: o.now - datetime.timedelta(hours=1))
                 paid_at = factory.LazyAttribute(lambda o: o.now - datetime.timedelta(minutes=50))
+
+                class Meta:
+                    model = Order
+                    exclude = ('now',)
 
         .. code-block:: pycon
 
@@ -400,12 +400,6 @@ Some factories only need little data:
 .. code-block:: python
 
     class ConferenceFactory(factory.Factory):
-        class Meta:
-            model = Conference
-
-        class Params:
-            duration = 'short' # Or 'long'
-
         start_date = factory.fuzzy.FuzzyDate()
         end_date = factory.LazyAttribute(
             lambda o: o.start_date + datetime.timedelta(days=2 if o.duration == 'short' else 7)
@@ -413,6 +407,12 @@ Some factories only need little data:
         sprints_start = factory.LazyAttribute(
             lambda o: o.end_date - datetime.timedelta(days=0 if o.duration == 'short' else 1)
         )
+
+        class Meta:
+            model = Conference
+
+        class Params:
+            duration = 'short' # Or 'long'
 
 .. code-block:: pycon
 
@@ -443,12 +443,12 @@ For more complex situations, it is helpful to override a few fields at once:
 .. code-block:: python
 
     class OrderFactory(factory.Factory):
-        class Meta:
-            model = Order
-
         state = 'pending'
         shipped_on = None
         shipped_by = None
+
+        class Meta:
+            model = Order
 
         class Params:
             shipped = factory.Trait(
@@ -490,15 +490,15 @@ Values set in a :class:`Trait` can be overridden by call-time values:
 .. code-block:: python
 
     class OrderFactory(factory.Factory):
-        class Meta:
-            model = Order
-
         # Can be pending/shipping/received
         state = 'pending'
         shipped_on = None
         shipped_by = None
         received_on = None
         received_by = None
+
+        class Meta:
+            model = Order
 
         class Params:
             shipped = factory.Trait(
@@ -688,10 +688,10 @@ Faker
     .. code-block:: python
 
         class UserFactory(factory.Factory):
+            name = factory.Faker('name')
+
             class Meta:
                 model = User
-
-            name = factory.Faker('name')
 
     .. code-block:: pycon
 
@@ -704,14 +704,14 @@ Faker
     .. code-block:: python
 
         class UserFactory(factory.Factory):
-            class Meta:
-                model = User
-
             arrival = factory.Faker(
                 'date_between_dates',
                 date_start=datetime.date(2020, 1, 1),
                 date_end=datetime.date(2020, 5, 31),
             )
+
+            class Meta:
+                model = User
 
     As with :class:`~factory.SubFactory`, the parameters can be any valid declaration.
     This does not apply to the provider name or the locale.
@@ -719,9 +719,6 @@ Faker
     .. code-block:: python
 
         class TripFactory(factory.Factory):
-            class Meta:
-                model = Trip
-
             departure = factory.Faker(
                 'date',
                 end_datetime=datetime.date.today(),
@@ -730,6 +727,9 @@ Faker
                 'date_between_dates',
                 date_start=factory.SelfAttribute('..departure'),
             )
+
+            class Meta:
+                model = Trip
 
     .. note:: When using :class:`~factory.SelfAttribute` or :class:`~factory.LazyAttribute`
               in a :class:`factory.Faker`  parameter, the current object is the declarations
@@ -745,10 +745,10 @@ Faker
         .. code-block:: python
 
             class UserFactory(factory.Factory):
+                name = factory.Faker('name', locale='fr_FR')
+
                 class Meta:
                     model = User
-
-                name = factory.Faker('name', locale='fr_FR')
 
         .. code-block:: pycon
 
@@ -779,10 +779,10 @@ Faker
             factory.Faker.add_provider(SmileyProvider)
 
             class FaceFactory(factory.Factory):
+                smiley = factory.Faker('smiley')
+
                 class Meta:
                     model = Face
-
-                smiley = factory.Faker('smiley')
 
 
 LazyFunction
@@ -799,10 +799,10 @@ return a value.
 .. code-block:: python
 
     class LogFactory(factory.Factory):
+        timestamp = factory.LazyFunction(datetime.now)
+
         class Meta:
             model = models.Log
-
-        timestamp = factory.LazyFunction(datetime.now)
 
 .. code-block:: pycon
 
@@ -821,10 +821,10 @@ return a value.
     DEFAULT_TEAM = ['Player1', 'Player2']
 
     class TeamFactory(factory.Factory):
+        teammates = factory.LazyFunction(lambda: list(DEFAULT_TEAM))
+
         class Meta:
             model = models.Team
-
-        teammates = factory.LazyFunction(lambda: list(DEFAULT_TEAM))
 
 
 Decorator
@@ -848,11 +848,11 @@ accept the object being built as sole argument, and return a value.
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = User
-
         username = 'john'
         email = factory.LazyAttribute(lambda o: '%s@example.com' % o.username)
+
+        class Meta:
+            model = User
 
 .. code-block:: pycon
 
@@ -884,10 +884,10 @@ return value of the method:
 .. code-block:: python
 
     class UserFactory(factory.Factory)
+        name = "Jean"
+
         class Meta:
             model = User
-
-        name = "Jean"
 
         @factory.lazy_attribute
         def email(self):
@@ -948,10 +948,10 @@ This declaration takes a single argument, a function accepting a single paramete
 .. code-block:: python
 
     class UserFactory(factory.Factory)
+        phone = factory.Sequence(lambda n: '123-555-%04d' % n)
+
         class Meta:
             model = User
-
-        phone = factory.Sequence(lambda n: '123-555-%04d' % n)
 
 .. code-block:: pycon
 
@@ -1002,11 +1002,11 @@ The sequence counter is shared across all :class:`Sequence` attributes of the
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = User
-
         phone = factory.Sequence(lambda n: '%04d' % n)
         office = factory.Sequence(lambda n: 'A23-B%03d' % n)
+
+        class Meta:
+            model = User
 
 .. code-block:: pycon
 
@@ -1028,10 +1028,10 @@ is shared across the :class:`Factory` classes:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
+        phone = factory.Sequence(lambda n: '123-555-%04d' % n)
+
         class Meta:
             model = User
-
-        phone = factory.Sequence(lambda n: '123-555-%04d' % n)
 
 
     class EmployeeFactory(UserFactory):
@@ -1065,10 +1065,10 @@ class-level value.
 .. code-block:: python
 
     class UserFactory(factory.Factory):
+        uid = factory.Sequence(int)
+
         class Meta:
             model = User
-
-        uid = factory.Sequence(int)
 
 .. code-block:: pycon
 
@@ -1101,11 +1101,11 @@ It takes a single argument, a function whose two parameters are, in order:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = User
-
         login = 'john'
         email = factory.LazyAttributeSequence(lambda o, n: '%s@s%d.example.com' % (o.login, n))
+
+        class Meta:
+            model = User
 
 .. code-block:: pycon
 
@@ -1126,10 +1126,10 @@ handles more complex cases:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
+        login = 'john'
+
         class Meta:
             model = User
-
-        login = 'john'
 
         @lazy_attribute_sequence
         def email(self, n):
@@ -1164,10 +1164,10 @@ The :class:`SubFactory` attribute should be called with:
           .. code-block:: python
 
               class FooFactory(factory.Factory):
+                  bar = factory.SubFactory(BarFactory)  # Not BarFactory()
+
                   class Meta:
                       model = Foo
-
-                  bar = factory.SubFactory(BarFactory)  # Not BarFactory()
 
 
 Definition
@@ -1178,23 +1178,23 @@ Definition
 
     # A standard factory
     class UserFactory(factory.Factory):
-        class Meta:
-            model = User
-
         # Various fields
         first_name = 'John'
         last_name = factory.Sequence(lambda n: 'D%se' % ('o' * n))  # De, Doe, Dooe, Doooe, ...
         email = factory.LazyAttribute(lambda o: '%s.%s@example.org' % (o.first_name.lower(), o.last_name.lower()))
 
+        class Meta:
+            model = User
+
     # A factory for an object with a 'User' field
     class CompanyFactory(factory.Factory):
-        class Meta:
-            model = Company
-
         name = factory.Sequence(lambda n: 'FactoryBoyz' + 'z' * n)
 
         # Let's use our UserFactory to create that user, and override its first name.
         owner = factory.SubFactory(UserFactory, first_name='Jack')
+
+        class Meta:
+            model = Company
 
 
 Calling
@@ -1269,18 +1269,18 @@ This issue can be handled by passing the absolute import path to the target
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = User
-
         username = 'john'
         main_group = factory.SubFactory('users.factories.GroupFactory')
 
-    class GroupFactory(factory.Factory):
         class Meta:
-            model = Group
+            model = User
 
+    class GroupFactory(factory.Factory):
         name = "MyGroup"
         owner = factory.SubFactory(UserFactory)
+
+        class Meta:
+            model = Group
 
 
 Obviously, such circular relationships require careful handling of loops:
@@ -1305,11 +1305,11 @@ That declaration takes a single argument, a dot-delimited path to the attribute 
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = User
-
         birthdate = factory.fuzzy.FuzzyDate()
         birthmonth = factory.SelfAttribute('birthdate.month')
+
+        class Meta:
+            model = User
 
 .. code-block:: pycon
 
@@ -1334,18 +1334,18 @@ gains an "upward" semantic through the double-dot notation, as used in Python im
 .. code-block:: python
 
     class UserFactory(factory.Factory):
+        language = 'en'
+
         class Meta:
             model = User
 
-        language = 'en'
-
 
     class CompanyFactory(factory.Factory):
-        class Meta:
-            model = Company
-
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory, language=factory.SelfAttribute('..country.language'))
+
+        class Meta:
+            model = Company
 
 .. code-block:: pycon
 
@@ -1370,12 +1370,13 @@ through the :attr:`~builder.Resolver.factory_parent` attribute of the passed-in 
 .. code-block:: python
 
     class CompanyFactory(factory.Factory):
-        class Meta:
-            model = Company
         country = factory.SubFactory(CountryFactory)
         owner = factory.SubFactory(UserFactory,
             language=factory.LazyAttribute(lambda user: user.factory_parent.country.language),
         )
+
+        class Meta:
+            model = Company
 
 
 Iterator
@@ -1450,11 +1451,11 @@ adequate value.
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = User
-
         # CATEGORY_CHOICES is a list of (key, title) tuples
         category = factory.Iterator(User.CATEGORY_CHOICES, getter=lambda c: c[0])
+
+        class Meta:
+            model = User
 
 
 Decorator
@@ -1525,9 +1526,6 @@ with the :class:`Dict` and :class:`List` attributes:
     .. code-block:: python
 
         class UserFactory(factory.Factory):
-            class Meta:
-                model = User
-
             is_superuser = False
             roles = factory.Dict({
                 'role1': True,
@@ -1535,6 +1533,9 @@ with the :class:`Dict` and :class:`List` attributes:
                 'role3': factory.Iterator([True, False]),
                 'admin': factory.SelfAttribute('..is_superuser'),
             })
+
+            class Meta:
+                model = User
 
     .. note:: Declarations used as a :class:`Dict` values are evaluated within
               that :class:`Dict`'s context; this means that you must use
@@ -1562,14 +1563,14 @@ with the :class:`Dict` and :class:`List` attributes:
     .. code-block:: python
 
         class UserFactory(factory.Factory):
-            class Meta:
-                model = User
-
             flags = factory.List([
                 'user',
                 'active',
                 'admin',
             ])
+
+            class Meta:
+                model = User
 
     .. code-block:: pycon
 
@@ -1602,15 +1603,15 @@ apply the effects of one or the other declaration:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = User
-
         is_active = True
         deactivation_date = factory.Maybe(
             'is_active',
             yes_declaration=None,
             no_declaration=factory.fuzzy.FuzzyDateTime(timezone.now() - datetime.timedelta(days=10)),
         )
+
+        class Meta:
+            model = User
 
 .. code-block:: pycon
 
@@ -1716,22 +1717,22 @@ RelatedFactory
 .. code-block:: python
 
     class CityFactory(factory.Factory):
-        class Meta:
-            model = City
-
         capital_of = None
         name = "Toronto"
 
-    class CountryFactory(factory.Factory):
         class Meta:
-            model = Country
+            model = City
 
+    class CountryFactory(factory.Factory):
         lang = 'fr'
         capital_city = factory.RelatedFactory(
             CityFactory,  # Not CityFactory()
             factory_related_name='capital_of',
             name="Paris",
         )
+
+        class Meta:
+            model = Country
 
 .. code-block:: pycon
 
@@ -1772,9 +1773,6 @@ If a value is passed for the :class:`RelatedFactory` attribute, this disables
           .. code-block:: python
 
               class CountryFactory(factory.Factory):
-                  class Meta:
-                      model = Country
-
                   lang = 'fr'
                   capital_city = factory.RelatedFactory(
                       CityFactory,
@@ -1782,6 +1780,9 @@ If a value is passed for the :class:`RelatedFactory` attribute, this disables
                       # Would also work with SelfAttribute('capital_of.lang')
                       main_lang=factory.SelfAttribute('..lang'),
                   )
+
+                  class Meta:
+                      model = Country
 
 RelatedFactoryList
 """"""""""""""""""
@@ -1826,12 +1827,13 @@ RelatedFactoryList
           .. code-block:: python
 
               class FooFactory(factory.Factory):
-                  class Meta:
-                      model = Foo
                   # Generate a list of `factory` objects of random size, ranging from 1 -> 5
                   bar = factory.RelatedFactoryList(BarFactory, size=lambda: random.randint(1, 5))
                   # Each Foo object will have exactly 3 Bar objects generated for its foobar attribute.
                   foobar = factory.RelatedFactoryList(BarFactory, size=3)
+
+                  class Meta:
+                      model = Foo
 
 
 PostGeneration
@@ -1859,12 +1861,12 @@ as ``callable(obj, create, extracted, **kwargs)``, where:
 .. code-block:: python
 
     class UserFactory(factory.Factory):
-        class Meta:
-            model = User
-
         login = 'john'
         make_mbox = factory.PostGeneration(
                 lambda obj, create, extracted, **kwargs: os.makedirs(obj.login))
+
+        class Meta:
+            model = User
 
 .. OHAI_VIM**
 
@@ -1880,10 +1882,10 @@ A decorator is also provided, decorating a single method accepting the same
 .. code-block:: python
 
     class UserFactory(factory.Factory):
+        login = 'john'
+
         class Meta:
             model = User
-
-        login = 'john'
 
         @factory.post_generation
         def mbox(obj, create, extracted, **kwargs):
@@ -1947,11 +1949,11 @@ users in an external system.
 
 
     class UserFactory(factory.django.DjangoModelFactory):
-        class Meta:
-            model = User
-
         name = 'user'
         register = factory.PostGenerationMethodCall("register", DefaultRegistry())
+
+        class Meta:
+            model = User
 
 If the :class:`PostGenerationMethodCall` declaration contained no
 arguments or one argument, an overriding value can be passed
@@ -2006,11 +2008,11 @@ Lightweight factory declaration
         # This is equivalent to:
 
         class UserFactory(factory.Factory):
-            class Meta:
-                model = User
-
             login = 'john'
             email = factory.LazyAttribute(lambda u: '%s@example.com' % u.login)
+
+            class Meta:
+                model = User
 
     An alternate base class to :class:`Factory` can be specified in the
     ``FACTORY_CLASS`` argument:
@@ -2026,11 +2028,11 @@ Lightweight factory declaration
         # This is equivalent to:
 
         class UserFactory(factory.django.DjangoModelFactory):
-            class Meta:
-                model = models.User
-
             login = 'john'
             email = factory.LazyAttribute(lambda u: '%s@example.com' % u.login)
+
+            class Meta:
+                model = models.User
 
     .. versionadded:: 2.0.0
         The ``FACTORY_CLASS`` kwarg was added in 2.0.0.
