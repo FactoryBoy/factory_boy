@@ -57,6 +57,7 @@ class MongoEngineTestCase(unittest.TestCase):
             read_preference=mongo_rp.ReadPreference.PRIMARY,
             # PyMongo>=2.1 has a 20s timeout, use 100ms instead
             serverselectiontimeoutms=cls.server_timeout_ms,
+            uuidRepresentation='standard',
         )
 
     @classmethod
