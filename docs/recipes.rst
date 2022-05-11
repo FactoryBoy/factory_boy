@@ -52,8 +52,9 @@ simply use a :class:`factory.Iterator` on the chosen queryset:
 
         language = factory.Iterator(models.Language.objects.all())
 
-Here, ``models.Language.objects.all()`` won't be evaluated until the
-first call to ``UserFactory``; thus avoiding DB queries at import time.
+Here, ``models.Language.objects.all()`` is a QuerySet and will only hit the database
+when factory_boy will start iterating on it, i.e on the first call to ``UserFactory``;
+thus avoiding DB queries at import time.
 
 
 Reverse dependencies (reverse ForeignKey)
