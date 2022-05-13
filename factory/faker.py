@@ -35,15 +35,14 @@ class Faker(declarations.BaseDeclaration):
     Usage:
         >>> foo = factory.Faker('name')
     """
+
     def __init__(self, provider, **kwargs):
-        locale = kwargs.pop('locale', None)
+        locale = kwargs.pop("locale", None)
         self.provider = provider
-        super().__init__(
-            locale=locale,
-            **kwargs)
+        super().__init__(locale=locale, **kwargs)
 
     def evaluate(self, instance, step, extra):
-        locale = extra.pop('locale')
+        locale = extra.pop("locale")
         subfaker = self._get_faker(locale)
         return subfaker.format(self.provider, **extra)
 

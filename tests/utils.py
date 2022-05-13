@@ -12,8 +12,9 @@ def disable_warnings(fun):
     @functools.wraps(fun)
     def decorated(*args, **kwargs):
         with warnings.catch_warnings():
-            warnings.simplefilter('ignore')
+            warnings.simplefilter("ignore")
             return fun(*args, **kwargs)
+
     return decorated
 
 
@@ -45,7 +46,7 @@ class mocked_date_today(MultiModulePatcher):
         super().__init__(*target_modules, **kwargs)
 
     def _build_patcher(self, target_module):
-        module_datetime = getattr(target_module, 'datetime')
+        module_datetime = getattr(target_module, "datetime")
         return alter_time.mock_date_today(self.target_date, module_datetime)
 
 
@@ -55,13 +56,13 @@ class mocked_datetime_now(MultiModulePatcher):
         super().__init__(*target_modules, **kwargs)
 
     def _build_patcher(self, target_module):
-        module_datetime = getattr(target_module, 'datetime')
+        module_datetime = getattr(target_module, "datetime")
         return alter_time.mock_datetime_now(self.target_dt, module_datetime)
 
 
 def evaluate_declaration(declaration, force_sequence=None):
-    kwargs = {'attr': declaration}
+    kwargs = {"attr": declaration}
     if force_sequence is not None:
-        kwargs['__sequence'] = force_sequence
+        kwargs["__sequence"] = force_sequence
 
-    return factory.build(dict, **kwargs)['attr']
+    return factory.build(dict, **kwargs)["attr"]

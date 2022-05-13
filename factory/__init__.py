@@ -69,7 +69,7 @@ try:
 except ImportError:
     pass
 
-__author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
+__author__ = "Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>"
 try:
     # Python 3.8+
     from importlib.metadata import version

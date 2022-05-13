@@ -5,8 +5,8 @@ import collections
 from . import declarations, enums, errors, utils
 
 DeclarationWithContext = collections.namedtuple(
-    'DeclarationWithContext',
-    ['name', 'declaration', 'context'],
+    "DeclarationWithContext",
+    ["name", "declaration", "context"],
 )
 
 
@@ -73,11 +73,12 @@ class DeclarationSet:
         extra_context_keys = set(self.contexts) - set(self.declarations)
         if extra_context_keys:
             raise errors.InvalidDeclarationError(
-                "Received deep context for unknown fields: %r (known=%r)" % (
+                "Received deep context for unknown fields: %r (known=%r)"
+                % (
                     {
                         self.join(root, sub): v
                         for root in extra_context_keys
-                        for sub, v in self.contexts[root].items()
+                        for sub, v in self.contexts[root].items()  # fmt: skip
                     },
                     sorted(self.declarations),
                 )
@@ -92,7 +93,7 @@ class DeclarationSet:
         """
         return [
             entry for entry in entries
-            if self.split(entry)[0] in self.declarations
+            if self.split(entry)[0] in self.declarations  # fmt: skip
         ]
 
     def sorted(self):
@@ -131,7 +132,7 @@ class DeclarationSet:
         return dict(self._items())
 
     def __repr__(self):
-        return '<DeclarationSet: %r>' % self.as_dict()
+        return "<DeclarationSet: %r>" % self.as_dict()
 
 
 def parse_declarations(decls, base_pre=None, base_post=None):
@@ -147,18 +148,15 @@ def parse_declarations(decls, base_pre=None, base_post=None):
                 # Conflict: PostGenerationDeclaration with the same
                 # name as a BaseDeclaration
                 raise errors.InvalidDeclarationError(
-                    "PostGenerationDeclaration %s=%r shadows declaration %r"
-                    % (k, v, pre_declarations[k])
+                    "PostGenerationDeclaration %s=%r shadows declaration %r" % (k, v, pre_declarations[k])
                 )
             extra_post[k] = v
         elif k in post_declarations:
             # Passing in a scalar value to a PostGenerationDeclaration
             # Set it as `key__`
-            magic_key = post_declarations.join(k, '')
+            magic_key = post_declarations.join(k, "")
             extra_post[magic_key] = v
-        elif k in pre_declarations and isinstance(
-            pre_declarations[k].declaration, declarations.Transformer
-        ):
+        elif k in pre_declarations and isinstance(pre_declarations[k].declaration, declarations.Transformer):
             extra_maybenonpost[k] = pre_declarations[k].declaration.function(v)
         else:
             extra_maybenonpost[k] = v
@@ -210,10 +208,11 @@ class BuildStep:
 
     def recurse(self, factory, declarations, force_sequence=None):
         from . import base
+
         if not issubclass(factory, base.BaseFactory):
             raise errors.AssociatedClassError(
-                "%r: Attempting to recursing into a non-factory object %r"
-                % (self, factory))
+                "%r: Attempting to recursing into a non-factory object %r" % (self, factory)
+            )
         builder = self.builder.recurse(factory._meta, declarations)
         return builder.build(parent_step=self, force_sequence=force_sequence)
 
@@ -230,11 +229,12 @@ class StepBuilder:
     - factory: the factory class being built
     - strategy: the strategy to use
     """
+
     def __init__(self, factory_meta, extras, strategy):
         self.factory_meta = factory_meta
         self.strategy = strategy
         self.extras = extras
-        self.force_init_sequence = extras.pop('__sequence', None)
+        self.force_init_sequence = extras.pop("__sequence", None)
 
     def build(self, parent_step=None, force_sequence=None):
         """Build a factory instance."""
@@ -323,7 +323,7 @@ class Resolver:
         return self.__step.parent_step.stub if self.__step.parent_step else None
 
     def __repr__(self):
-        return '<Resolver for %r>' % self.__step
+        return "<Resolver for %r>" % self.__step
 
     def __getattr__(self, name):
         """Retrieve an attribute's value.
@@ -333,8 +333,8 @@ class Resolver:
         """
         if name in self.__pending:
             raise errors.CyclicDefinitionError(
-                "Cyclic lazy attribute definition for %r; cycle found in %r." %
-                (name, self.__pending))
+                "Cyclic lazy attribute definition for %r; cycle found in %r." % (name, self.__pending)
+            )
         elif name in self.__values:
             return self.__values[name]
         elif name in self.__declarations:
@@ -357,11 +357,12 @@ class Resolver:
         else:
             raise AttributeError(
                 "The parameter %r is unknown. Evaluated attributes are %r, "
-                "definitions are %r." % (name, self.__values, self.__declarations))
+                "definitions are %r." % (name, self.__values, self.__declarations)
+            )
 
     def __setattr__(self, name, value):
         """Prevent setting attributes once __init__ is done."""
         if not self.__initialized:
             return super().__setattr__(name, value)
         else:
-            raise AttributeError('Setting of object attributes is not allowed')
+            raise AttributeError("Setting of object attributes is not allowed")

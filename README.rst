@@ -23,6 +23,10 @@ factory_boy
     :target: https://pypi.org/project/factory-boy/
     :alt: License
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+    :alt: Code style using Black
+
 factory_boy is a fixtures replacement based on thoughtbot's `factory_bot <https://github.com/thoughtbot/factory_bot>`_.
 
 As a fixtures replacement tool, it aims to replace static, hard to maintain fixtures

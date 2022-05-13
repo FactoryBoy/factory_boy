@@ -22,7 +22,8 @@ class log_pprint:
     Since it is only used with factory.debug(), the computation is
     performed lazily.
     """
-    __slots__ = ['args', 'kwargs']
+
+    __slots__ = ["args", "kwargs"]
 
     def __init__(self, args=(), kwargs=None):
         self.args = args
@@ -32,18 +33,14 @@ class log_pprint:
         return repr(str(self))
 
     def __str__(self):
-        return ', '.join(
-            [
-                repr(arg) for arg in self.args
-            ] + [
-                '%s=%s' % (key, repr(value))
-                for key, value in self.kwargs.items()
-            ]
+        return ", ".join(
+            [repr(arg) for arg in self.args] + ["%s=%s" % (key, repr(value)) for key, value in self.kwargs.items()]
         )
 
 
 class ResetableIterator:
     """An iterator wrapper that can be 'reset()' to its start."""
+
     def __init__(self, iterator, **kwargs):
         super().__init__(**kwargs)
         self.iterator = iter(iterator)
@@ -74,7 +71,7 @@ class OrderedBase:
     Each instance (even from subclasses) will share a global creation counter.
     """
 
-    CREATION_COUNTER_FIELD = '_creation_counter'
+    CREATION_COUNTER_FIELD = "_creation_counter"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -102,4 +99,7 @@ def sort_ordered_objects(items, getter=lambda x: x):
         >>> sort_ordered_objects([x, y, z])
         >>> sort_ordered_objects(v.items(), getter=lambda e: e[1])
     """
-    return sorted(items, key=lambda x: getattr(getter(x), OrderedBase.CREATION_COUNTER_FIELD, -1))
+    return sorted(
+        items,
+        key=lambda x: getattr(getter(x), OrderedBase.CREATION_COUNTER_FIELD, -1),
+    )

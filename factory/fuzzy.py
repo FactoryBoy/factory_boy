@@ -64,7 +64,7 @@ class FuzzyText(BaseFuzzyAttribute):
     not important.
     """
 
-    def __init__(self, prefix='', length=12, suffix='', chars=string.ascii_letters):
+    def __init__(self, prefix="", length=12, suffix="", chars=string.ascii_letters):
         super().__init__()
         self.prefix = prefix
         self.suffix = suffix
@@ -73,7 +73,7 @@ class FuzzyText(BaseFuzzyAttribute):
 
     def fuzz(self):
         chars = [random.randgen.choice(self.chars) for _i in range(self.length)]
-        return self.prefix + ''.join(chars) + self.suffix
+        return self.prefix + "".join(chars) + self.suffix
 
 
 class FuzzyChoice(BaseFuzzyAttribute):
@@ -153,7 +153,7 @@ class FuzzyFloat(BaseFuzzyAttribute):
 
     def fuzz(self):
         base = random.randgen.uniform(self.low, self.high)
-        return float(format(base, '.%dg' % self.precision))
+        return float(format(base, ".%dg" % self.precision))
 
 
 class FuzzyDate(BaseFuzzyAttribute):
@@ -168,9 +168,7 @@ class FuzzyDate(BaseFuzzyAttribute):
             end_date = datetime.date.today()
 
         if start_date > end_date:
-            raise ValueError(
-                "FuzzyDate boundaries should have start <= end; got %r > %r."
-                % (start_date, end_date))
+            raise ValueError("FuzzyDate boundaries should have start <= end; got %r > %r." % (start_date, end_date))
 
         self.start_date = start_date.toordinal()
         self.end_date = end_date.toordinal()
@@ -188,16 +186,24 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
     def _check_bounds(self, start_dt, end_dt):
         if start_dt > end_dt:
             raise ValueError(
-                """%s boundaries should have start <= end, got %r > %r""" % (
-                    self.__class__.__name__, start_dt, end_dt))
+                """%s boundaries should have start <= end, got %r > %r""" % (self.__class__.__name__, start_dt, end_dt)
+            )
 
     def _now(self):
         raise NotImplementedError()
 
-    def __init__(self, start_dt, end_dt=None,
-                 force_year=None, force_month=None, force_day=None,
-                 force_hour=None, force_minute=None, force_second=None,
-                 force_microsecond=None):
+    def __init__(
+        self,
+        start_dt,
+        end_dt=None,
+        force_year=None,
+        force_month=None,
+        force_day=None,
+        force_hour=None,
+        force_minute=None,
+        force_second=None,
+        force_microsecond=None,
+    ):
         super().__init__()
 
         if end_dt is None:
@@ -254,13 +260,9 @@ class FuzzyNaiveDateTime(BaseFuzzyDateTime):
 
     def _check_bounds(self, start_dt, end_dt):
         if start_dt.tzinfo is not None:
-            raise ValueError(
-                "FuzzyNaiveDateTime only handles naive datetimes, got start=%r"
-                % start_dt)
+            raise ValueError("FuzzyNaiveDateTime only handles naive datetimes, got start=%r" % start_dt)
         if end_dt.tzinfo is not None:
-            raise ValueError(
-                "FuzzyNaiveDateTime only handles naive datetimes, got end=%r"
-                % end_dt)
+            raise ValueError("FuzzyNaiveDateTime only handles naive datetimes, got end=%r" % end_dt)
         super()._check_bounds(start_dt, end_dt)
 
 
@@ -276,11 +278,7 @@ class FuzzyDateTime(BaseFuzzyDateTime):
 
     def _check_bounds(self, start_dt, end_dt):
         if start_dt.tzinfo is None:
-            raise ValueError(
-                "FuzzyDateTime requires timezone-aware datetimes, got start=%r"
-                % start_dt)
+            raise ValueError("FuzzyDateTime requires timezone-aware datetimes, got start=%r" % start_dt)
         if end_dt.tzinfo is None:
-            raise ValueError(
-                "FuzzyDateTime requires timezone-aware datetimes, got end=%r"
-                % end_dt)
+            raise ValueError("FuzzyDateTime requires timezone-aware datetimes, got end=%r" % end_dt)
         super()._check_bounds(start_dt, end_dt)

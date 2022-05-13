@@ -7,7 +7,7 @@ import warnings
 
 from . import builder, declarations, enums, errors, utils
 
-logger = logging.getLogger('factory.generate')
+logger = logging.getLogger("factory.generate")
 
 # Factory metaclasses
 
@@ -41,8 +41,7 @@ class FactoryMetaClass(type):
         elif cls._meta.strategy == enums.STUB_STRATEGY:
             return cls.stub(**kwargs)
         else:
-            raise errors.UnknownStrategy('Unknown Meta.strategy: {}'.format(
-                cls._meta.strategy))
+            raise errors.UnknownStrategy("Unknown Meta.strategy: {}".format(cls._meta.strategy))
 
     def __new__(mcs, class_name, bases, attrs):
         """Record attributes as a pattern for later instance construction.
@@ -65,17 +64,16 @@ class FactoryMetaClass(type):
         else:
             base_factory = None
 
-        attrs_meta = attrs.pop('Meta', None)
-        attrs_params = attrs.pop('Params', None)
+        attrs_meta = attrs.pop("Meta", None)
+        attrs_params = attrs.pop("Params", None)
 
-        base_meta = resolve_attribute('_meta', bases)
-        options_class = resolve_attribute('_options_class', bases, FactoryOptions)
+        base_meta = resolve_attribute("_meta", bases)
+        options_class = resolve_attribute("_options_class", bases, FactoryOptions)
 
         meta = options_class()
-        attrs['_meta'] = meta
+        attrs["_meta"] = meta
 
-        new_class = super().__new__(
-            mcs, class_name, bases, attrs)
+        new_class = super().__new__(mcs, class_name, bases, attrs)
 
         meta.contribute_to_class(
             new_class,
@@ -89,9 +87,9 @@ class FactoryMetaClass(type):
 
     def __str__(cls):
         if cls._meta.abstract:
-            return '<%s (abstract)>' % cls.__name__
+            return "<%s (abstract)>" % cls.__name__
         else:
-            return f'<{cls.__name__} for {cls._meta.model}>'
+            return f"<{cls.__name__} for {cls._meta.model}>"
 
 
 class BaseMeta:
@@ -110,6 +108,7 @@ class OptionDefault:
         checker: callable or None, an optional function used to detect invalid option
             values at declaration time
     """
+
     def __init__(self, name, value, inherit=False, checker=None):
         self.name = name
         self.value = value
@@ -129,9 +128,12 @@ class OptionDefault:
         return value
 
     def __str__(self):
-        return '%s(%r, %r, inherit=%r)' % (
+        return "%s(%r, %r, inherit=%r)" % (
             self.__class__.__name__,
-            self.name, self.value, self.inherit)
+            self.name,
+            self.value,
+            self.inherit,
+        )
 
 
 class FactoryOptions:
@@ -150,12 +152,15 @@ class FactoryOptions:
     @property
     def declarations(self):
         base_declarations = dict(self.base_declarations)
-        for name, param in utils.sort_ordered_objects(self.parameters.items(), getter=lambda item: item[1]):
+        for name, param in utils.sort_ordered_objects(
+            self.parameters.items(),
+            getter=lambda item: item[1],
+        ):
             base_declarations.update(param.as_declarations(name, base_declarations))
         return base_declarations
 
     def _build_default_options(self):
-        """"Provide the default value for all allowed fields.
+        """Provide the default value for all allowed fields.
 
         Custom FactoryOptions classes should override this method
         to update() its return value.
@@ -163,18 +168,15 @@ class FactoryOptions:
 
         def is_model(meta, value):
             if isinstance(value, FactoryMetaClass):
-                raise TypeError(
-                    "%s is already a %s"
-                    % (repr(value), Factory.__name__)
-                )
+                raise TypeError("%s is already a %s" % (repr(value), Factory.__name__))
 
         return [
-            OptionDefault('model', None, inherit=True, checker=is_model),
-            OptionDefault('abstract', False, inherit=False),
-            OptionDefault('strategy', enums.CREATE_STRATEGY, inherit=True),
-            OptionDefault('inline_args', (), inherit=True),
-            OptionDefault('exclude', (), inherit=True),
-            OptionDefault('rename', {}, inherit=True),
+            OptionDefault("model", None, inherit=True, checker=is_model),
+            OptionDefault("abstract", False, inherit=False),
+            OptionDefault("strategy", enums.CREATE_STRATEGY, inherit=True),
+            OptionDefault("inline_args", (), inherit=True),
+            OptionDefault("exclude", (), inherit=True),
+            OptionDefault("rename", {}, inherit=True),
         ]
 
     def _fill_from_meta(self, meta, base_meta):
@@ -185,7 +187,7 @@ class FactoryOptions:
             meta_attrs = {
                 k: v
                 for (k, v) in vars(meta).items()
-                if not k.startswith('_')
+                if not k.startswith('_')  # fmt: skip
             }
 
         for option in self._build_default_options():
@@ -197,8 +199,8 @@ class FactoryOptions:
         if meta_attrs:
             # Some attributes in the Meta aren't allowed here
             raise TypeError(
-                "'class Meta' for %r got unknown attribute(s) %s"
-                % (self.factory, ','.join(sorted(meta_attrs.keys()))))
+                "'class Meta' for %r got unknown attribute(s) %s" % (self.factory, ",".join(sorted(meta_attrs.keys())))
+            )
 
     def contribute_to_class(self, factory, meta=None, base_meta=None, base_factory=None, params=None):
 
@@ -216,7 +218,7 @@ class FactoryOptions:
         # Scan the inheritance chain, starting from the furthest point,
         # excluding the current class, to retrieve all declarations.
         for parent in reversed(self.factory.__mro__[1:]):
-            if not hasattr(parent, '_meta'):
+            if not hasattr(parent, "_meta"):
                 continue
             self.base_declarations.update(parent._meta.base_declarations)
             self.parameters.update(parent._meta.parameters)
@@ -227,7 +229,7 @@ class FactoryOptions:
 
         if params is not None:
             for k, v in utils.sort_ordered_objects(vars(params).items(), getter=lambda item: item[1]):
-                if not k.startswith('_'):
+                if not k.startswith("_"):
                     self.parameters[k] = declarations.SimpleParameter.wrap(v)
 
         self._check_parameter_dependencies(self.parameters)
@@ -237,10 +239,12 @@ class FactoryOptions:
     def _get_counter_reference(self):
         """Identify which factory should be used for a shared counter."""
 
-        if (self.model is not None
-                and self.base_factory is not None
-                and self.base_factory._meta.model is not None
-                and issubclass(self.model, self.base_factory._meta.model)):
+        if (
+            self.model is not None
+            and self.base_factory is not None
+            and self.base_factory._meta.model is not None
+            and issubclass(self.model, self.base_factory._meta.model)
+        ):
             return self.base_factory._meta.counter_reference
         else:
             return self
@@ -277,7 +281,8 @@ class FactoryOptions:
         if self.counter_reference is not self and not force:
             raise ValueError(
                 "Can't reset a sequence on descendant factory %r; reset sequence on %r or use `force=True`."
-                % (self.factory, self.counter_reference.factory))
+                % (self.factory, self.counter_reference.factory)
+            )
 
         if value is None:
             value = self.counter_reference.factory._setup_next_sequence()
@@ -291,8 +296,11 @@ class FactoryOptions:
 
         # 2. Remove hidden objects
         kwargs = {
-            k: v for k, v in kwargs.items()
-            if k not in self.exclude and k not in self.parameters and v is not declarations.SKIP
+            k: v
+            for k, v in kwargs.items()
+            if k not in self.exclude
+            and k not in self.parameters
+            and v is not declarations.SKIP  # fmt: skip
         }
 
         # 3. Rename fields
@@ -303,7 +311,7 @@ class FactoryOptions:
         # 4. Extract inline args
         args = tuple(
             kwargs.pop(arg_name)
-            for arg_name in self.inline_args
+            for arg_name in self.inline_args  # fmt: skip
         )
 
         return args, kwargs
@@ -363,8 +371,8 @@ class FactoryOptions:
         cyclic = [name for name, field_deps in deep_revdeps.items() if name in field_deps]
         if cyclic:
             raise errors.CyclicDefinitionError(
-                "Cyclic definition detected on %r; Params around %s"
-                % (self.factory, ', '.join(cyclic)))
+                "Cyclic definition detected on %r; Params around %s" % (self.factory, ", ".join(cyclic))
+            )
         return deps
 
     def get_model_class(self):
@@ -414,7 +422,7 @@ class BaseFactory:
 
     def __new__(cls, *args, **kwargs):
         """Would be called if trying to instantiate the class."""
-        raise errors.FactoryError('You cannot instantiate BaseFactory')
+        raise errors.FactoryError("You cannot instantiate BaseFactory")
 
     _meta = FactoryOptions()
 
@@ -459,7 +467,8 @@ class BaseFactory:
             raise errors.FactoryError(
                 "Cannot generate instances of abstract factory %(f)s; "
                 "Ensure %(f)s.Meta.model is set and %(f)s.Meta.abstract "
-                "is either not set or False." % dict(f=cls.__name__))
+                "is either not set or False." % dict(f=cls.__name__)
+            )
 
         step = builder.StepBuilder(cls._meta, params, strategy)
         return step.build()
@@ -573,7 +582,11 @@ class BaseFactory:
         Returns:
             object: the generated instance
         """
-        assert strategy in (enums.STUB_STRATEGY, enums.BUILD_STRATEGY, enums.CREATE_STRATEGY)
+        assert strategy in (
+            enums.STUB_STRATEGY,
+            enums.BUILD_STRATEGY,
+            enums.CREATE_STRATEGY,
+        )
         action = getattr(cls, strategy)
         return action(**kwargs)
 
@@ -591,8 +604,12 @@ class BaseFactory:
         Returns:
             object list: the generated instances
         """
-        assert strategy in (enums.STUB_STRATEGY, enums.BUILD_STRATEGY, enums.CREATE_STRATEGY)
-        batch_action = getattr(cls, '%s_batch' % strategy)
+        assert strategy in (
+            enums.STUB_STRATEGY,
+            enums.BUILD_STRATEGY,
+            enums.CREATE_STRATEGY,
+        )
+        batch_action = getattr(cls, "%s_batch" % strategy)
         return batch_action(size, **kwargs)
 
     @classmethod
@@ -644,13 +661,13 @@ Factory.AssociatedClassError = errors.AssociatedClassError
 
 class StubObject:
     """A generic container."""
+
     def __init__(self, **kwargs):
         for field, value in kwargs.items():
             setattr(self, field, value)
 
 
 class StubFactory(Factory):
-
     class Meta:
         strategy = enums.STUB_STRATEGY
         model = StubObject
@@ -666,14 +683,14 @@ class StubFactory(Factory):
 
 class BaseDictFactory(Factory):
     """Factory for dictionary-like classes."""
+
     class Meta:
         abstract = True
 
     @classmethod
     def _build(cls, model_class, *args, **kwargs):
         if args:
-            raise ValueError(
-                "DictFactory %r does not support Meta.inline_args." % cls)
+            raise ValueError("DictFactory %r does not support Meta.inline_args." % cls)
         return model_class(**kwargs)
 
     @classmethod
@@ -688,14 +705,14 @@ class DictFactory(BaseDictFactory):
 
 class BaseListFactory(Factory):
     """Factory for list-like classes."""
+
     class Meta:
         abstract = True
 
     @classmethod
     def _build(cls, model_class, *args, **kwargs):
         if args:
-            raise ValueError(
-                "ListFactory %r does not support Meta.inline_args." % cls)
+            raise ValueError("ListFactory %r does not support Meta.inline_args." % cls)
 
         # kwargs are constructed from a list, their insertion order matches the list
         # order, no additional sorting is required.
@@ -726,4 +743,5 @@ def use_strategy(new_strategy):
     def wrapped_class(klass):
         klass._meta.strategy = new_strategy
         return klass
+
     return wrapped_class

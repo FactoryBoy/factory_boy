@@ -66,21 +66,21 @@ class PointerModel(models.Model):
     bar = models.CharField(max_length=20)
     pointed = models.OneToOneField(
         PointedModel,
-        related_name='pointer',
+        related_name="pointer",
         null=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
 
 class WithDefaultValue(models.Model):
-    foo = models.CharField(max_length=20, default='')
+    foo = models.CharField(max_length=20, default="")
 
 
 class WithPassword(models.Model):
     pw = models.CharField(max_length=128)
 
 
-WITHFILE_UPLOAD_TO = 'django'
+WITHFILE_UPLOAD_TO = "django"
 WITHFILE_UPLOAD_DIR = os.path.join(settings.MEDIA_ROOT, WITHFILE_UPLOAD_TO)
 
 
@@ -94,7 +94,9 @@ if Image is not None:  # PIL is available
         animage = models.ImageField(upload_to=WITHFILE_UPLOAD_TO)
         size = models.IntegerField(default=0)
 
+
 else:
+
     class WithImage(models.Model):
         pass
 
@@ -112,7 +114,6 @@ class WithSignals(models.Model):
 
 
 class CustomManager(models.Manager):
-
     def create(self, arg=None, **kwargs):
         return super().create(**kwargs)
 

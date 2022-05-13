@@ -26,59 +26,63 @@ class DigTestCase(unittest.TestCase):
         obj.a.b = self.MyObj(3)
         obj.a.b.c = self.MyObj(4)
 
-        self.assertEqual(2, declarations.deepgetattr(obj, 'a').n)
+        self.assertEqual(2, declarations.deepgetattr(obj, "a").n)
         with self.assertRaises(AttributeError):
-            declarations.deepgetattr(obj, 'b')
-        self.assertEqual(2, declarations.deepgetattr(obj, 'a.n'))
-        self.assertEqual(3, declarations.deepgetattr(obj, 'a.c', 3))
+            declarations.deepgetattr(obj, "b")
+        self.assertEqual(2, declarations.deepgetattr(obj, "a.n"))
+        self.assertEqual(3, declarations.deepgetattr(obj, "a.c", 3))
         with self.assertRaises(AttributeError):
-            declarations.deepgetattr(obj, 'a.c.n')
+            declarations.deepgetattr(obj, "a.c.n")
         with self.assertRaises(AttributeError):
-            declarations.deepgetattr(obj, 'a.d')
-        self.assertEqual(3, declarations.deepgetattr(obj, 'a.b').n)
-        self.assertEqual(3, declarations.deepgetattr(obj, 'a.b.n'))
-        self.assertEqual(4, declarations.deepgetattr(obj, 'a.b.c').n)
-        self.assertEqual(4, declarations.deepgetattr(obj, 'a.b.c.n'))
-        self.assertEqual(42, declarations.deepgetattr(obj, 'a.b.c.n.x', 42))
+            declarations.deepgetattr(obj, "a.d")
+        self.assertEqual(3, declarations.deepgetattr(obj, "a.b").n)
+        self.assertEqual(3, declarations.deepgetattr(obj, "a.b.n"))
+        self.assertEqual(4, declarations.deepgetattr(obj, "a.b.c").n)
+        self.assertEqual(4, declarations.deepgetattr(obj, "a.b.c.n"))
+        self.assertEqual(42, declarations.deepgetattr(obj, "a.b.c.n.x", 42))
 
 
 class MaybeTestCase(unittest.TestCase):
     def test_init(self):
-        declarations.Maybe('foo', 1, 2)
+        declarations.Maybe("foo", 1, 2)
 
-        with self.assertRaisesRegex(TypeError, 'Inconsistent phases'):
-            declarations.Maybe('foo', declarations.LazyAttribute(None), declarations.PostGenerationDeclaration())
+        with self.assertRaisesRegex(TypeError, "Inconsistent phases"):
+            declarations.Maybe(
+                "foo",
+                declarations.LazyAttribute(None),
+                declarations.PostGenerationDeclaration(),
+            )
 
 
 class SelfAttributeTestCase(unittest.TestCase):
     def test_standard(self):
-        a = declarations.SelfAttribute('foo.bar.baz')
+        a = declarations.SelfAttribute("foo.bar.baz")
         self.assertEqual(0, a.depth)
-        self.assertEqual('foo.bar.baz', a.attribute_name)
+        self.assertEqual("foo.bar.baz", a.attribute_name)
         self.assertEqual(declarations._UNSPECIFIED, a.default)
 
     def test_dot(self):
-        a = declarations.SelfAttribute('.bar.baz')
+        a = declarations.SelfAttribute(".bar.baz")
         self.assertEqual(1, a.depth)
-        self.assertEqual('bar.baz', a.attribute_name)
+        self.assertEqual("bar.baz", a.attribute_name)
         self.assertEqual(declarations._UNSPECIFIED, a.default)
 
     def test_default(self):
-        a = declarations.SelfAttribute('bar.baz', 42)
+        a = declarations.SelfAttribute("bar.baz", 42)
         self.assertEqual(0, a.depth)
-        self.assertEqual('bar.baz', a.attribute_name)
+        self.assertEqual("bar.baz", a.attribute_name)
         self.assertEqual(42, a.default)
 
     def test_parent(self):
-        a = declarations.SelfAttribute('..bar.baz')
+        a = declarations.SelfAttribute("..bar.baz")
         self.assertEqual(2, a.depth)
-        self.assertEqual('bar.baz', a.attribute_name)
+        self.assertEqual("bar.baz", a.attribute_name)
         self.assertEqual(declarations._UNSPECIFIED, a.default)
 
     def test_grandparent(self):
-        a = declarations.SelfAttribute('...bar.baz')
+        a = declarations.SelfAttribute("...bar.baz")
         self.assertEqual(3, a.depth)
-        self.assertEqual('bar.baz', a.attribute_name)
+        self.assertEqual("bar.baz", a.attribute_name)
         self.assertEqual(declarations._UNSPECIFIED, a.default)
 
 
@@ -134,7 +138,7 @@ class IteratorTestCase(unittest.TestCase):
 
 class TransformerTestCase(unittest.TestCase):
     def test_transform(self):
-        t = declarations.Transformer(lambda x: x.upper(), 'foo')
+        t = declarations.Transformer(lambda x: x.upper(), "foo")
         self.assertEqual("FOO", utils.evaluate_declaration(t))
 
 
@@ -156,7 +160,7 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
 
         self.assertEqual(2, len(call_params))
         self.assertEqual(3, len(call_params[0]))  # instance, step, context.value
-        self.assertEqual({'bar': 42}, call_params[1])
+        self.assertEqual({"bar": 42}, call_params[1])
 
     def test_decorator_simple(self):
         call_params = []
@@ -176,13 +180,13 @@ class PostGenerationDeclarationTestCase(unittest.TestCase):
 
         self.assertEqual(2, len(call_params))
         self.assertEqual(3, len(call_params[0]))  # instance, step, context.value
-        self.assertEqual({'bar': 42}, call_params[1])
+        self.assertEqual({"bar": 42}, call_params[1])
 
 
 class FactoryWrapperTestCase(unittest.TestCase):
     def test_invalid_path(self):
         with self.assertRaises(ValueError):
-            declarations._FactoryWrapper('UnqualifiedSymbol')
+            declarations._FactoryWrapper("UnqualifiedSymbol")
         with self.assertRaises(ValueError):
             declarations._FactoryWrapper(42)
 
@@ -191,11 +195,11 @@ class FactoryWrapperTestCase(unittest.TestCase):
         self.assertEqual(datetime.date, w.get())
 
     def test_path(self):
-        w = declarations._FactoryWrapper('datetime.date')
+        w = declarations._FactoryWrapper("datetime.date")
         self.assertEqual(datetime.date, w.get())
 
     def test_lazyness(self):
-        f = declarations._FactoryWrapper('factory.declarations.Sequence')
+        f = declarations._FactoryWrapper("factory.declarations.Sequence")
         self.assertEqual(None, f.factory)
 
         factory_class = f.get()
@@ -204,7 +208,7 @@ class FactoryWrapperTestCase(unittest.TestCase):
     def test_cache(self):
         """Ensure that _FactoryWrapper tries to import only once."""
         orig_date = datetime.date
-        w = declarations._FactoryWrapper('datetime.date')
+        w = declarations._FactoryWrapper("datetime.date")
         self.assertEqual(None, w.factory)
 
         factory_class = w.get()
@@ -229,59 +233,58 @@ class PostGenerationMethodCallTestCase(unittest.TestCase):
 
     def test_simplest_setup_and_call(self):
         obj = self.build(
-            declarations.PostGenerationMethodCall('method'),
+            declarations.PostGenerationMethodCall("method"),
         )
         obj.method.assert_called_once_with()
 
     def test_call_with_method_args(self):
         obj = self.build(
-            declarations.PostGenerationMethodCall('method', 'data'),
+            declarations.PostGenerationMethodCall("method", "data"),
         )
-        obj.method.assert_called_once_with('data')
+        obj.method.assert_called_once_with("data")
 
     def test_call_with_passed_extracted_string(self):
         obj = self.build(
-            declarations.PostGenerationMethodCall('method'),
-            post='data',
+            declarations.PostGenerationMethodCall("method"),
+            post="data",
         )
-        obj.method.assert_called_once_with('data')
+        obj.method.assert_called_once_with("data")
 
     def test_call_with_passed_extracted_int(self):
         obj = self.build(
-            declarations.PostGenerationMethodCall('method'),
+            declarations.PostGenerationMethodCall("method"),
             post=1,
         )
         obj.method.assert_called_once_with(1)
 
     def test_call_with_passed_extracted_iterable(self):
         obj = self.build(
-            declarations.PostGenerationMethodCall('method'),
+            declarations.PostGenerationMethodCall("method"),
             post=(1, 2, 3),
         )
         obj.method.assert_called_once_with((1, 2, 3))
 
     def test_call_with_method_kwargs(self):
         obj = self.build(
-            declarations.PostGenerationMethodCall('method', data='data'),
+            declarations.PostGenerationMethodCall("method", data="data"),
         )
-        obj.method.assert_called_once_with(data='data')
+        obj.method.assert_called_once_with(data="data")
 
     def test_call_with_passed_kwargs(self):
         obj = self.build(
-            declarations.PostGenerationMethodCall('method'),
-            post__data='other',
+            declarations.PostGenerationMethodCall("method"),
+            post__data="other",
         )
-        obj.method.assert_called_once_with(data='other')
+        obj.method.assert_called_once_with(data="other")
 
     def test_multi_call_with_multi_method_args(self):
         with self.assertRaises(errors.InvalidDeclarationError):
             self.build(
-                declarations.PostGenerationMethodCall('method', 'arg1', 'arg2'),
+                declarations.PostGenerationMethodCall("method", "arg1", "arg2"),
             )
 
 
 class PostGenerationOrdering(unittest.TestCase):
-
     def test_post_generation_declaration_order(self):
         postgen_results = []
 
@@ -298,19 +301,19 @@ class PostGenerationOrdering(unittest.TestCase):
 
             @helpers.post_generation
             def a1(*args, **kwargs):
-                postgen_results.append('a1')
+                postgen_results.append("a1")
 
             @helpers.post_generation
             def zz(*args, **kwargs):
-                postgen_results.append('zz')
+                postgen_results.append("zz")
 
             @helpers.post_generation
             def aa(*args, **kwargs):
-                postgen_results.append('aa')
+                postgen_results.append("aa")
 
         postgen_names = Ordered._meta.post_declarations.sorted()
-        self.assertEqual(postgen_names, ['a', 'z', 'a1', 'zz', 'aa'])
+        self.assertEqual(postgen_names, ["a", "z", "a1", "zz", "aa"])
 
         # Test generation happens in desired order
         Ordered()
-        self.assertEqual(postgen_results, ['a1', 'zz', 'aa'])
+        self.assertEqual(postgen_results, ["a1", "zz", "aa"])

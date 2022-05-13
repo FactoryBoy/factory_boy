@@ -10,7 +10,7 @@ from . import base, declarations
 
 
 @contextlib.contextmanager
-def debug(logger='factory', stream=None):
+def debug(logger="factory", stream=None):
     logger_obj = logging.getLogger(logger)
     old_level = logger_obj.level
 
@@ -28,17 +28,22 @@ def debug(logger='factory', stream=None):
 
 def make_factory(klass, **kwargs):
     """Create a new, simple factory for the given class."""
-    factory_name = '%sFactory' % klass.__name__
+    factory_name = "%sFactory" % klass.__name__
 
     class Meta:
         model = klass
 
-    kwargs['Meta'] = Meta
-    base_class = kwargs.pop('FACTORY_CLASS', base.Factory)
+    kwargs["Meta"] = Meta
+    base_class = kwargs.pop("FACTORY_CLASS", base.Factory)
 
-    factory_class = type(base.Factory).__new__(type(base.Factory), factory_name, (base_class,), kwargs)
-    factory_class.__name__ = '%sFactory' % klass.__name__
-    factory_class.__doc__ = 'Auto-generated factory for class %s' % klass
+    factory_class = type(base.Factory).__new__(
+        type(base.Factory),
+        factory_name,
+        (base_class,),
+        kwargs,
+    )
+    factory_class.__name__ = "%sFactory" % klass.__name__
+    factory_class.__doc__ = "Auto-generated factory for class %s" % klass
     return factory_class
 
 

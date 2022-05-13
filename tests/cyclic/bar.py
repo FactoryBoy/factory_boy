@@ -16,4 +16,4 @@ class BarFactory(factory.Factory):
         model = Bar
 
     y = 13
-    foo = factory.SubFactory('cyclic.foo.FooFactory')
+    foo = factory.SubFactory("cyclic.foo.FooFactory")

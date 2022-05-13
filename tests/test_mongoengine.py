@@ -24,31 +24,32 @@ class AddressFactory(MongoEngineFactory):
     class Meta:
         model = Address
 
-    street = factory.Sequence(lambda n: 'street%d' % n)
+    street = factory.Sequence(lambda n: "street%d" % n)
 
 
 class PersonFactory(MongoEngineFactory):
     class Meta:
         model = Person
 
-    name = factory.Sequence(lambda n: 'name%d' % n)
+    name = factory.Sequence(lambda n: "name%d" % n)
     address = factory.SubFactory(AddressFactory)
 
 
-SKIP_MONGODB = bool(os.environ.get('SKIP_MONGOENGINE') == '1')
+SKIP_MONGODB = bool(os.environ.get("SKIP_MONGOENGINE") == "1")
 
 
 @unittest.skipIf(SKIP_MONGODB, "mongodb tests disabled.")
 class MongoEngineTestCase(unittest.TestCase):
 
-    db_name = os.environ.get('MONGO_DATABASE', 'factory_boy_test')
-    db_host = os.environ.get('MONGO_HOST', 'localhost')
-    db_port = int(os.environ.get('MONGO_PORT', '27017'))
-    server_timeout_ms = int(os.environ.get('MONGO_TIMEOUT', '300'))
+    db_name = os.environ.get("MONGO_DATABASE", "factory_boy_test")
+    db_host = os.environ.get("MONGO_HOST", "localhost")
+    db_port = int(os.environ.get("MONGO_PORT", "27017"))
+    server_timeout_ms = int(os.environ.get("MONGO_TIMEOUT", "300"))
 
     @classmethod
     def setUpClass(cls):
         from pymongo import read_preferences as mongo_rp
+
         cls.db = mongoengine.connect(
             db=cls.db_name,
             host=cls.db_host,
@@ -66,12 +67,12 @@ class MongoEngineTestCase(unittest.TestCase):
 
     def test_build(self):
         std = PersonFactory.build()
-        self.assertEqual('name0', std.name)
-        self.assertEqual('street0', std.address.street)
+        self.assertEqual("name0", std.name)
+        self.assertEqual("street0", std.address.street)
         self.assertIsNone(std.id)
 
     def test_creation(self):
         std1 = PersonFactory.create()
-        self.assertEqual('name1', std1.name)
-        self.assertEqual('street1', std1.address.street)
+        self.assertEqual("name1", std1.name)
+        self.assertEqual("street1", std1.address.street)
         self.assertIsNotNone(std1.id)
