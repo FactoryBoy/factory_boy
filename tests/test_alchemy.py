@@ -264,6 +264,34 @@ class SQLAlchemyNoSessionTestCase(unittest.TestCase):
         self.assertEqual(inst1.id, 1)
 
 
+class SQLAlchemySessionFactoryTestCase(unittest.TestCase):
+
+    def test_create_get_session_from_sqlalchemy_session_factory(self):
+        class SessionGetterFactory(SQLAlchemyModelFactory):
+            class Meta:
+                model = models.StandardModel
+                sqlalchemy_session = None
+                sqlalchemy_session_factory = lambda: models.session
+
+            id = factory.Sequence(lambda n: n)
+
+        SessionGetterFactory.create()
+        self.assertEqual(SessionGetterFactory._meta.sqlalchemy_session, models.session)
+        # Reuse the session obtained from sqlalchemy_session_factory.
+        SessionGetterFactory.create()
+
+    def test_create_raise_exception_sqlalchemy_session_factory_not_callable(self):
+        message = "^Provide either a sqlalchemy_session or a sqlalchemy_session_factory, not both$"
+        with self.assertRaisesRegex(RuntimeError, message):
+            class SessionAndGetterFactory(SQLAlchemyModelFactory):
+                class Meta:
+                    model = models.StandardModel
+                    sqlalchemy_session = models.session
+                    sqlalchemy_session_factory = lambda: models.session
+
+                id = factory.Sequence(lambda n: n)
+
+
 class NameConflictTests(unittest.TestCase):
     """Regression test for `TypeError: _save() got multiple values for argument 'session'`
 
