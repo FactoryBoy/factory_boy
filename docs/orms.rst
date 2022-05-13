@@ -369,6 +369,25 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
         SQLAlchemy session to use to communicate with the database when creating
         an object through this :class:`SQLAlchemyModelFactory`.
 
+    .. attribute:: sqlalchemy_session_factory
+
+       .. versionadded:: 3.3.0
+
+         :class:`~collections.abc.Callable` returning a :class:`~sqlalchemy.orm.Session` instance to use to communicate
+         with the database. You can either provide the session through this attribute, or through
+         :attr:`~factory.alchemy.SQLAlchemyOptions.sqlalchemy_session`, but not both at the same time.
+
+        .. code-block:: python
+
+            from . import common
+
+            class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
+                class Meta:
+                    model = User
+                    sqlalchemy_session_factory = lambda: common.Session()
+
+                username = 'john'
+
     .. attribute:: sqlalchemy_session_persistence
 
         Control the action taken by ``sqlalchemy_session`` at the end of a create call.

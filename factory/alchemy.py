@@ -22,10 +22,18 @@ class SQLAlchemyOptions(base.FactoryOptions):
                 (meta, VALID_SESSION_PERSISTENCE_TYPES, value)
             )
 
+    @staticmethod
+    def _check_has_sqlalchemy_session_set(meta, value):
+        if value and meta.sqlalchemy_session:
+            raise RuntimeError("Provide either a sqlalchemy_session or a sqlalchemy_session_factory, not both")
+
     def _build_default_options(self):
         return super()._build_default_options() + [
             base.OptionDefault('sqlalchemy_get_or_create', (), inherit=True),
             base.OptionDefault('sqlalchemy_session', None, inherit=True),
+            base.OptionDefault(
+                'sqlalchemy_session_factory', None, inherit=True, checker=self._check_has_sqlalchemy_session_set
+            ),
             base.OptionDefault(
                 'sqlalchemy_session_persistence',
                 None,
@@ -90,6 +98,10 @@ class SQLAlchemyModelFactory(base.Factory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
+        session_factory = cls._meta.sqlalchemy_session_factory
+        if session_factory:
+            cls._meta.sqlalchemy_session = session_factory()
+
         session = cls._meta.sqlalchemy_session
 
         if session is None:

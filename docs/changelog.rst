@@ -10,6 +10,8 @@ ChangeLog
 
     - :issue:`366`: Add :class:`factory.django.Password` to generate Django :class:`~django.contrib.auth.models.User`
       passwords.
+    - :issue:`304`: Add :attr:`~factory.alchemy.SQLAlchemyOptions.sqlalchemy_session_factory` to dynamically
+      create sessions for use by the :class:`~factory.alchemy.SQLAlchemyModelFactory`.
     - Add support for Django 3.2
     - Add support for Django 4.0
     - Add support for Python 3.10
