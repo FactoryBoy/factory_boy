@@ -202,26 +202,29 @@ class FileField(declarations.BaseDeclaration):
 
     def _make_content(self, params):
         path = ''
+        
+        from_path = params.get('from_path')
+        from_file = params.get('from_file')
+        from_func = params.get('from_func')
 
-        _content_params = [params.get('from_path'), params.get('from_file'), params.get('from_func')]
-        if len([p for p in _content_params if p]) > 1:
+        if sum(bool(p) for p in (from_path, from_file, from_func)) > 1:
             raise ValueError(
                 "At most one argument from 'from_file', 'from_path', and 'from_func' should "
                 "be non-empty when calling factory.django.FileField."
             )
 
-        if params.get('from_path'):
-            path = params['from_path']
+        if from_path:
+            path = from_path
             with open(path, 'rb') as f:
                 content = django_files.base.ContentFile(f.read())
 
-        elif params.get('from_file'):
-            f = params['from_file']
+        elif from_file:
+            f = from_file
             content = django_files.File(f)
             path = content.name
 
-        elif params.get('from_func'):
-            func = params['from_func']
+        elif from_func:
+            func = from_func
             content = django_files.File(func())
             path = content.name
 
