@@ -207,7 +207,7 @@ class FileField(declarations.BaseDeclaration):
         from_file = params.get('from_file')
         from_func = params.get('from_func')
 
-        if sum(bool(p) for p in (from_path, from_file, from_func)) > 1:
+        if len([p for p in (from_path, from_file, from_func) if p]) > 1:
             raise ValueError(
                 "At most one argument from 'from_file', 'from_path', and 'from_func' should "
                 "be non-empty when calling factory.django.FileField."
