@@ -202,7 +202,7 @@ class FileField(declarations.BaseDeclaration):
 
     def _make_content(self, params):
         path = ''
-        
+
         from_path = params.get('from_path')
         from_file = params.get('from_file')
         from_func = params.get('from_func')
