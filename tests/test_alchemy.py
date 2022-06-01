@@ -73,8 +73,12 @@ class WithMultipleGetOrCreateFieldsFactory(SQLAlchemyModelFactory):
 
 
 class TransactionTestCase(unittest.TestCase):
+    def setUp(self):
+        models.Base.metadata.create_all(models.engine)
+
     def tearDown(self):
         models.session.rollback()
+        models.Base.metadata.drop_all(models.engine)
 
 
 class SQLAlchemyPkSequenceTestCase(TransactionTestCase):
