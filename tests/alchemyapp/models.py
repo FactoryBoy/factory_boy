@@ -48,6 +48,3 @@ class SpecialFieldModel(Base):
 
     id = Column(Integer(), primary_key=True)
     session = Column(Unicode(20))
-
-
-Base.metadata.create_all(engine)
