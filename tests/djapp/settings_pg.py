@@ -31,7 +31,7 @@ DATABASES = {
         'PORT': postgres_port,
     },
     'replica': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': postgres_name + '_rp',
         'USER': postgres_user,
         'PASSWORD': postgres_password,
