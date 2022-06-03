@@ -15,11 +15,11 @@ try:
 except ImportError:
     pass
 
-postgres_user = os.getenv('POSTGRES_USER', 'postgres')
+postgres_user = os.environ.get('POSTGRES_USER', 'postgres')
 postgres_name = os.environ.get('POSTGRES_DATABASE', 'factory_boy_test')
-postgres_password = os.getenv('POSTGRES_PASSWORD', 'password')
-postgres_host = os.getenv('POSTGRES_HOST', 'localhost')
-postgres_port = os.getenv('POSTGRES_PORT', '5432')
+postgres_password = os.environ.get('POSTGRES_PASSWORD', 'password')
+postgres_host = os.environ.get('POSTGRES_HOST', 'localhost')
+postgres_port = os.environ.get('POSTGRES_PORT', '5432')
 
 DATABASES = {
     'default': {
