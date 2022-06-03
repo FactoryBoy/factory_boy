@@ -95,6 +95,8 @@ jobs:
           - "alchemy"
           - "mongo"
           - "none"
+        exclude:
+          - { mode-type: "none", database-type: "postgres" }
 
     services:
       mongodb:
