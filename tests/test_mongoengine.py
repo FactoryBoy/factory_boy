@@ -5,7 +5,10 @@
 import os
 import unittest
 
-import mongoengine
+try:
+    import mongoengine
+except ImportError:
+    raise unittest.SkipTest("mongodb tests disabled.")
 
 import factory
 from factory.mongoengine import MongoEngineFactory
@@ -35,10 +38,6 @@ class PersonFactory(MongoEngineFactory):
     address = factory.SubFactory(AddressFactory)
 
 
-SKIP_MONGODB = bool(os.environ.get('SKIP_MONGOENGINE') == '1')
-
-
-@unittest.skipIf(SKIP_MONGODB, "mongodb tests disabled.")
 class MongoEngineTestCase(unittest.TestCase):
 
     db_name = os.environ.get('MONGO_DATABASE', 'factory_boy_test')

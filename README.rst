@@ -400,21 +400,17 @@ To test with a specific framework version, you may use a ``tox`` target:
     # list all tox environments
     $ tox --listenvs
 
-    # run tests inside a specific environment
-    $ tox -e py310-djangomain-alchemy-mongoengine
+    # run tests inside a specific environment (django/mongoengine/SQLAlchemy are not installed)
+    $ tox -e py310-none-sqlite
 
-Valid options are:
+    # run tests inside a specific environment (django)
+    $ tox -e py310-djangomain-sqlite
 
-* ``DJANGO`` for ``Django``
-* ``MONGOENGINE`` for ``mongoengine``
-* ``ALCHEMY`` for ``SQLAlchemy``
+    # run tests inside a specific environment (alchemy)
+    $ tox -e py310-alchemy-postgres
 
-
-To avoid running ``mongoengine`` tests (e.g no MongoDB server installed), run:
-
-.. code-block:: sh
-
-    $ make SKIP_MONGOENGINE=1 test
+    # run tests inside a specific environment (mongoengine)
+    $ tox -e py310-mongo-sqlite
 
 
 Packaging
