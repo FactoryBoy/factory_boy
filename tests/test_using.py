@@ -14,6 +14,12 @@ from factory import errors
 
 from . import utils
 
+try:
+    import django  # noqa: F401
+    SKIP_DJANGO = True
+except ImportError:
+    SKIP_DJANGO = True
+
 
 class TestObject:
     def __init__(self, one=None, two=None, three=None, four=None, five=None):
@@ -141,6 +147,7 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.id, None)
         self.assertEqual(obj.foo, 'bar')
 
+    @unittest.skipIf(SKIP_DJANGO, "django tests disabled.")
     def test_create_custom_base(self):
         obj = factory.create(FakeModel, foo='bar', FACTORY_CLASS=factory.django.DjangoModelFactory)
         self.assertEqual(obj.id, 2)
@@ -156,6 +163,7 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.id, None)
             self.assertEqual(obj.foo, 'bar')
 
+    @unittest.skipIf(SKIP_DJANGO, "django tests disabled.")
     def test_create_batch_custom_base(self):
         objs = factory.create_batch(
             FakeModel,
@@ -196,6 +204,7 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.id, None)
         self.assertEqual(obj.foo, 'bar')
 
+    @unittest.skipIf(SKIP_DJANGO, "django tests disabled.")
     def test_generate_create_custom_base(self):
         obj = factory.generate(
             FakeModel,
@@ -231,6 +240,7 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.id, None)
             self.assertEqual(obj.foo, 'bar')
 
+    @unittest.skipIf(SKIP_DJANGO, "django tests disabled.")
     def test_generate_batch_create_custom_base(self):
         objs = factory.generate_batch(
             FakeModel,
@@ -267,6 +277,7 @@ class SimpleBuildTestCase(unittest.TestCase):
         self.assertEqual(obj.id, None)
         self.assertEqual(obj.foo, 'bar')
 
+    @unittest.skipIf(SKIP_DJANGO, "django tests disabled.")
     def test_simple_generate_create_custom_base(self):
         obj = factory.simple_generate(FakeModel, True, foo='bar', FACTORY_CLASS=factory.django.DjangoModelFactory)
         self.assertEqual(obj.id, 2)
@@ -292,6 +303,7 @@ class SimpleBuildTestCase(unittest.TestCase):
             self.assertEqual(obj.id, None)
             self.assertEqual(obj.foo, 'bar')
 
+    @unittest.skipIf(SKIP_DJANGO, "django tests disabled.")
     def test_simple_generate_batch_create_custom_base(self):
         objs = factory.simple_generate_batch(
             FakeModel,
@@ -2046,6 +2058,7 @@ class BetterFakeModel:
             self.id = None
 
 
+@unittest.skipIf(SKIP_DJANGO, "django tests disabled.")
 class DjangoModelFactoryTestCase(unittest.TestCase):
     def test_simple(self):
         class FakeModelFactory(factory.django.DjangoModelFactory):

@@ -5,7 +5,10 @@
 import unittest
 from unittest import mock
 
-import sqlalchemy
+try:
+    import sqlalchemy
+except ImportError:
+    raise unittest.SkipTest("sqlalchemy tests disabled.")
 
 import factory
 from factory.alchemy import SQLAlchemyModelFactory
