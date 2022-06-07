@@ -16,7 +16,7 @@ from . import utils
 
 try:
     import django  # noqa: F401
-    SKIP_DJANGO = True
+    SKIP_DJANGO = False
 except ImportError:
     SKIP_DJANGO = True
 
