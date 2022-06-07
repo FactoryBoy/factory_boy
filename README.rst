@@ -410,6 +410,7 @@ To test with a specific framework version, you may use a ``tox`` target:
     $ tox -e py310-alchemy-postgres
 
     # run tests inside a specific environment (mongoengine)
+    # Note: do not be fooled by "sqlite" in the name, mongodb needs to be up and running
     $ tox -e py310-mongo-sqlite
 
 
