@@ -9,8 +9,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  django:
-    name: Python ${{ matrix.python-version }}, Django ${{ matrix.django-version }}, Database ${{ matrix.database-type }}
+  tests:
+    name: Python ${{ matrix.python-version }}, Database ${{ matrix.database-type }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -23,21 +23,9 @@ jobs:
           - "3.10"
           - "pypy-3.7"
           - "pypy-3.8"
-        django-version:
-          - "2.2"
-          - "3.2"
-          - "4.0"
-          - "main"
         database-type:
           - "sqlite"
           - "postgres"
-        exclude:
-          - { django-version: "2.2", python-version: "3.9" }
-          - { django-version: "2.2", python-version: "3.10" }
-          - { django-version: "4.0", python-version: "pypy-3.7" }
-          - { django-version: "4.0", python-version: "3.7" }
-          - { django-version: "main", python-version: "pypy-3.7" }
-          - { django-version: "main", python-version: "3.7" }
 
     services:
       mongodb:
@@ -70,58 +58,4 @@ jobs:
       - name: Run tests
         run: tox
         env:
-          DJANGO: ${{ matrix.django-version }}
           DATABASE_TYPE: ${{ matrix.database-type }}
-
-  others:
-    name: Python ${{ matrix.python-version[0] }}, ${{ matrix.mode-type }}, Database ${{ matrix.database-type }}
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - ["3.7", "py37"]
-          - ["3.8", "py38"]
-          - ["3.9", "py39"]
-          - ["3.10", "py310"]
-          - ["pypy-3.7", "pypy37"]
-          - ["pypy-3.8", "pypy38"]
-        database-type:
-          - "sqlite"
-          - "postgres"
-          - "mongo"
-        mode-type:
-          - "alchemy"
-          - "mongo"
-          - "none"
-        exclude:
-          - { mode-type: "none", database-type: "postgres" }
-
-    services:
-      mongodb:
-        image: mongo
-        ports:
-          - 27017:27017
-
-      postgresdb:
-        image: postgres:alpine
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: alch_factory_boy_test
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Python ${{ matrix.python-version[0] }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version[0] }}
-
-      - name: Install dependencies
-        run: python -m pip install tox-gh-actions
-
-      - name: Run tests
-        run: tox -e ${{ matrix.python-version[1] }}-${{ matrix.mode-type }}-${{ matrix.database-type }}
