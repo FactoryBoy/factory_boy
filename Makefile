@@ -63,7 +63,7 @@ test:
 		-Wdefault:"set_output_charset() is deprecated":DeprecationWarning:: \
 		-Wdefault:"parameter codeset is deprecated":DeprecationWarning:: \
 		-Wdefault:"distutils Version classes are deprecated. Use packaging.version instead":DeprecationWarning:: \
-		-m unittest
+		-m unittest -v
 # TODO: Remove "distutils Version classes are deprecated" when django 2.2 is dropped
 
 # DOC: Test the examples
