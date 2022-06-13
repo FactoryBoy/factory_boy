@@ -9,15 +9,16 @@ from unittest import mock
 
 try:
     import django
-    from django import test as django_test
-    from django.conf import settings
-    from django.contrib.auth.hashers import check_password
-    from django.core.management import color
-    from django.db import connections
-    from django.db.models import signals
-    from django.test import utils as django_test_utils
 except ImportError:
     raise unittest.SkipTest("django tests disabled.")
+
+from django import test as django_test
+from django.conf import settings
+from django.contrib.auth.hashers import check_password
+from django.core.management import color
+from django.db import connections
+from django.db.models import signals
+from django.test import utils as django_test_utils
 
 import factory.django
 
