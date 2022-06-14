@@ -39,7 +39,6 @@ jobs:
           - 5432:5432
         env:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: alch_factory_boy_test
 
     env:
       TOXENV: ${{ matrix.tox-environment }}
