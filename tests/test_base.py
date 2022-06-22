@@ -215,6 +215,17 @@ class OptionsTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             type("SecondFactory", (base.Factory,), {"Meta": Meta})
 
+    def test_meta_model_as_path(self):
+        class MailboxFactory(base.Factory):
+            
+            class Meta:
+                model = "mailbox.Mailbox"
+            path = "/tmp/mail"
+
+        import mailbox
+        box = MailboxFactory()
+        assert isinstance(box, mailbox.Mailbox)
+
 
 class DeclarationParsingTests(unittest.TestCase):
     def test_classmethod(self):

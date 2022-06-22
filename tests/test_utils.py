@@ -23,6 +23,26 @@ class ImportObjectTestCase(unittest.TestCase):
             utils.import_object('this-is-an-invalid-module', '__name__')
 
 
+class ResolveTypeTestCase(unittest.TestCase):
+    def test_datetime(self):
+        imported = utils.resolve_type('datetime.date')
+        import datetime
+        d = datetime.date
+        self.assertEqual(d, imported)
+
+    def test_unknown_attribute(self):
+        with self.assertRaises(AttributeError):
+            utils.resolve_type('datetime.foo')
+
+    def test_invalid_module(self):
+        with self.assertRaises(ImportError):
+            utils.resolve_type('this-is-an-invalid-module.__name__')
+
+    def test_is_a_class(self):
+        import datetime
+        return utils.resolve_type(datetime.date) is datetime.date
+
+
 class LogPPrintTestCase(unittest.TestCase):
     def test_nothing(self):
         txt = str(utils.log_pprint())
