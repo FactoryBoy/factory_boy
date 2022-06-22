@@ -217,7 +217,7 @@ class OptionsTests(unittest.TestCase):
 
     def test_meta_model_as_path(self):
         class MailboxFactory(base.Factory):
-            
+
             class Meta:
                 model = "mailbox.Mailbox"
             path = "/tmp/mail"
