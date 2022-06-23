@@ -3,9 +3,21 @@ TESTS_DIR=tests
 DOC_DIR=docs
 EXAMPLES_DIR=examples
 SETUP_PY=setup.py
+PYTHON_TEST=python \
+	-b \
+	-X dev \
+	-Werror \
+	-Wdefault:"the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses":DeprecationWarning:distutils: \
+	-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working":DeprecationWarning:: \
+	-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.9 it will stop working":DeprecationWarning:: \
+	-Wdefault:"set_output_charset() is deprecated":DeprecationWarning:: \
+	-Wdefault:"parameter codeset is deprecated":DeprecationWarning:: \
+	-Wdefault:"distutils Version classes are deprecated. Use packaging.version instead":DeprecationWarning::
+# TODO: Remove "distutils Version classes are deprecated" when django 2.2 is dropped
 
 # Use current python binary instead of system default.
-COVERAGE = python $(shell which coverage)
+COVERAGE_PATH = $(shell which coverage)
+COVERAGE = python $(COVERAGE_PATH)
 FLAKE8 = flake8
 ISORT = isort
 CTAGS = ctags
@@ -53,18 +65,10 @@ testall:
 
 # DOC: Run tests for the currently installed version
 test:
-	python \
-		-b \
-		-X dev \
-		-Werror \
-		-Wdefault:"the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses":DeprecationWarning:distutils: \
-		-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working":DeprecationWarning:: \
-		-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.9 it will stop working":DeprecationWarning:: \
-		-Wdefault:"set_output_charset() is deprecated":DeprecationWarning:: \
-		-Wdefault:"parameter codeset is deprecated":DeprecationWarning:: \
-		-Wdefault:"distutils Version classes are deprecated. Use packaging.version instead":DeprecationWarning:: \
-		-m unittest
-# TODO: Remove "distutils Version classes are deprecated" when django 2.2 is dropped
+	$(PYTHON_TEST) -m unittest
+
+test-coverage:
+	$(PYTHON_TEST) $(COVERAGE_PATH) run -m unittest
 
 # DOC: Test the examples
 example-test:
@@ -82,7 +86,7 @@ lint:
 
 coverage:
 	$(COVERAGE) erase
-	$(COVERAGE) run -m unittest
+	$(PYTHON_TEST) $(COVERAGE_PATH) run -m unittest
 	$(COVERAGE) report
 	$(COVERAGE) html
 
