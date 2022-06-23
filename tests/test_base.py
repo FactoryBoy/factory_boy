@@ -225,6 +225,7 @@ class OptionsTests(unittest.TestCase):
         import mailbox
         box = MailboxFactory()
         assert isinstance(box, mailbox.Mailbox)
+        assert box._path == "/tmp/mail"
 
 
 class DeclarationParsingTests(unittest.TestCase):
