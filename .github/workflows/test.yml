@@ -56,7 +56,6 @@ jobs:
       - name: Run tests
         run: tox
         env:
-          TOXENV: ${{ matrix.tox-environment }}
           DATABASE_TYPE: ${{ matrix.database-type }}
           RUN_COVERAGE: ${{ matrix.run-coverage }}
 
