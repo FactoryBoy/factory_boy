@@ -58,3 +58,4 @@ jobs:
         run: tox
         env:
           DATABASE_TYPE: ${{ matrix.database-type }}
+          RUN_COVERAGE: yes
