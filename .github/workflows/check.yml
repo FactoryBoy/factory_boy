@@ -17,6 +17,9 @@ jobs:
           - examples
           - lint
 
+    env:
+       TOXENV: ${{ matrix.tox-environment }}
+
     steps:
       - uses: actions/checkout@v2
 
