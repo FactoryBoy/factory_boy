@@ -42,9 +42,6 @@ jobs:
         env:
           POSTGRES_PASSWORD: password
 
-    env:
-      TOXENV: ${{ matrix.tox-environment }}
-
     steps:
       - uses: actions/checkout@v2
 
@@ -59,6 +56,7 @@ jobs:
       - name: Run tests
         run: tox
         env:
+          TOXENV: ${{ matrix.tox-environment }}
           DATABASE_TYPE: ${{ matrix.database-type }}
           RUN_COVERAGE: ${{ matrix.run-coverage }}
 
