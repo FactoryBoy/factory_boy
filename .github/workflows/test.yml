@@ -26,6 +26,8 @@ jobs:
         database-type:
           - "sqlite"
           - "postgres"
+        run-coverage:
+          - "no"
 
     services:
       mongodb:
@@ -58,7 +60,16 @@ jobs:
         run: tox
         env:
           DATABASE_TYPE: ${{ matrix.database-type }}
-          RUN_COVERAGE: yes
+          RUN_COVERAGE: ${{ matrix.run-coverage }}
 
       - name: Coverage report
+        if: matrix.run-coverage == 'yes'
         run: tox -e cov-end
+
+      - name: 'Upload coverage'
+        if: matrix.run-coverage == 'yes'
+        uses: actions/upload-artifact@v3
+        with:
+          name: my-artifact
+          path: my_file.txt
+          retention-days: 1
