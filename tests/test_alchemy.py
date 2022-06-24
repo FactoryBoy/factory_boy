@@ -136,18 +136,7 @@ class SQLAlchemyPkSequenceTestCase(TransactionTestCase):
 
 class SQLAlchemyGetOrCreateTests(TransactionTestCase):
     def test_simple_call(self):
-        try:
-            obj1 = WithGetOrCreateFieldFactory(foo='foo1')
-        except Exception:
-            if models.USING_POSTGRES:
-                raise
-            # There is an unknown bug caused by pypy + sqlite + coverage
-            # where this test crashes unexpectedly.
-            models.session.rollback()
-            obj1 = WithGetOrCreateFieldFactory(foo='foo1')
-            print('SQLAlchemyGetOrCreateTests.test_simple_call failed unexpectedly',
-                  file=sys.stderr)
-
+        obj1 = WithGetOrCreateFieldFactory(foo='foo1')
         obj2 = WithGetOrCreateFieldFactory(foo='foo1')
         self.assertEqual(obj1, obj2)
 
