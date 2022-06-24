@@ -141,7 +141,7 @@ class SQLAlchemyGetOrCreateTests(TransactionTestCase):
         except Exception:
             if models.USING_POSTGRES:
                 raise
-            # There is an unknown bug caused by pypy + sqlite + coverage 
+            # There is an unknown bug caused by pypy + sqlite + coverage
             # where this test crashes unexpectedly.
             models.session.rollback()
             obj1 = WithGetOrCreateFieldFactory(foo='foo1')
