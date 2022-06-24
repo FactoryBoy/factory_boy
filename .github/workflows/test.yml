@@ -67,6 +67,6 @@ jobs:
         if: matrix.run-coverage == 'yes'
         uses: actions/upload-artifact@v3
         with:
-          name: factory_coverage_${{ matrix.python-version[1] }}
+          name: factory_coverage_${{ matrix.python-version[1] }}_${{ matrix.database-type }}
           path: htmlcov/
           retention-days: 1
