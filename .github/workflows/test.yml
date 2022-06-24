@@ -25,7 +25,7 @@ jobs:
           - ["pypy-3.8", "pypy38"]
         database-type:
           - "sqlite"
-          # - "postgres"
+          - "postgres"
         run-coverage:
           - "yes"
 
