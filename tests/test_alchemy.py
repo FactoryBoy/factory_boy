@@ -140,6 +140,7 @@ class SQLAlchemyGetOrCreateTests(TransactionTestCase):
         except Exception:
             if models.USING_POSTGRES:
                 raise
+            models.session.rollback()
             # DESPERATE attempt
             obj1 = WithGetOrCreateFieldFactory(foo='foo1')
             raise Exception('it worked the second time!!')  # run it again!
