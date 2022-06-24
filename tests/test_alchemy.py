@@ -142,8 +142,7 @@ class SQLAlchemyGetOrCreateTests(TransactionTestCase):
                 raise
             # DESPERATE attempt
             obj1 = WithGetOrCreateFieldFactory(foo='foo1')
-            import sys  # noqa
-            print('Worked on the second try!', file=sys.stderr)
+            raise Exception('it worked the second time!!')
         obj2 = WithGetOrCreateFieldFactory(foo='foo1')
         self.assertEqual(obj1, obj2)
 
