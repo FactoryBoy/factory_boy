@@ -141,7 +141,7 @@ class SQLAlchemyGetOrCreateTests(TransactionTestCase):
             if models.USING_POSTGRES:
                 raise
             models.session.rollback()
-            # DESPERATE attempt, just checking
+            # DESPERATE attempt, just checking #2
             obj1 = WithGetOrCreateFieldFactory(foo='foo1')
 
         obj2 = WithGetOrCreateFieldFactory(foo='foo1')
