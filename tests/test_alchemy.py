@@ -2,7 +2,6 @@
 
 """Tests for factory_boy/SQLAlchemy interactions."""
 
-import sys
 import unittest
 from unittest import mock
 
