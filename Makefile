@@ -67,9 +67,6 @@ testall:
 test:
 	$(PYTHON_TEST) -m unittest
 
-test-coverage:
-	$(PYTHON_TEST) $(COVERAGE_PATH) run -m unittest
-
 # DOC: Test the examples
 example-test:
 	$(MAKE) -C $(EXAMPLES_DIR) test
@@ -84,14 +81,19 @@ lint:
 	$(ISORT) --check-only --diff $(EXAMPLES_DIR) $(PACKAGE) $(SETUP_PY) $(TESTS_DIR)
 	check-manifest
 
-coverage:
+coverage-clean:
 	$(COVERAGE) erase
+	@rm -rf .coverage htmlcov/
+
+coverage-test:
 	$(PYTHON_TEST) $(COVERAGE_PATH) run -m unittest
+
+coverage-report:
 	$(COVERAGE) report
 	$(COVERAGE) html
 
 
-.PHONY: test testall example-test lint coverage
+.PHONY: test testall example-test lint coverage-clean coverage-test coverage-report
 
 
 # Development
