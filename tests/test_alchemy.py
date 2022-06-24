@@ -95,6 +95,7 @@ class TransactionTestCase(unittest.TestCase):
 
     def tearDown(self):
         models.session.rollback()
+        models.session.remove()
         models.Base.metadata.drop_all(models.engine)
 
 
