@@ -17,10 +17,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - ["3.7", "py37"]
-          - ["3.8", "py38"]
-          - ["3.9", "py39"]
-          - ["3.10", "py310"]
+          # - ["3.7", "py37"]
+          # - ["3.8", "py38"]
+          # - ["3.9", "py39"]
+          # - ["3.10", "py310"]
           - ["pypy-3.7", "pypy37"]
           - ["pypy-3.8", "pypy38"]
         database-type:
