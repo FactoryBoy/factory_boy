@@ -137,7 +137,7 @@ class SQLAlchemyGetOrCreateTests(TransactionTestCase):
     def test_simple_call(self):
         try:
             obj1 = WithGetOrCreateFieldFactory(foo='foo1')
-        except AttributeError:
+        except Exception:
             if not models.USING_POSTGRES:
                 raise
             # DESPERATE attempt
