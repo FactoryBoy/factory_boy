@@ -23,6 +23,7 @@ jobs:
           - ["3.10", "py310"]
           - ["pypy-3.7", "pypy37"]
           - ["pypy-3.8", "pypy38"]
+          - ["pypy-3.9", "pypy39"]
         database-type:
           - "sqlite"
           - "postgres"
