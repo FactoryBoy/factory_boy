@@ -138,7 +138,7 @@ class SQLAlchemyGetOrCreateTests(TransactionTestCase):
         try:
             obj1 = WithGetOrCreateFieldFactory(foo='foo1')
         except Exception:
-            if not models.USING_POSTGRES:
+            if models.USING_POSTGRES:
                 raise
             # DESPERATE attempt
             obj1 = WithGetOrCreateFieldFactory(foo='foo1')
