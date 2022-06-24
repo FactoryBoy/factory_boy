@@ -143,7 +143,7 @@ class SQLAlchemyGetOrCreateTests(TransactionTestCase):
             models.session.rollback()
             # DESPERATE attempt
             obj1 = WithGetOrCreateFieldFactory(foo='foo1')
-            raise Exception('it worked the second time!!')  # run it again!
+            raise Exception('it worked the second time!!')  # run it again!!
         obj2 = WithGetOrCreateFieldFactory(foo='foo1')
         self.assertEqual(obj1, obj2)
 
