@@ -3,7 +3,7 @@ TESTS_DIR=tests
 DOC_DIR=docs
 EXAMPLES_DIR=examples
 SETUP_PY=setup.py
-PYTHON_TEST=python \
+PYTHON_ERROR_ON_WARN=python \
 	-b \
 	-X dev \
 	-Werror \
@@ -65,7 +65,7 @@ testall:
 
 # DOC: Run tests for the currently installed version
 test:
-	$(PYTHON_TEST) -m unittest
+	$(PYTHON_ERROR_ON_WARN) -m unittest
 
 # DOC: Test the examples
 example-test:
@@ -86,7 +86,7 @@ coverage-clean:
 	@rm -rf .coverage htmlcov/
 
 coverage-test:
-	$(PYTHON_TEST) $(COVERAGE_PATH) run -m unittest
+	$(PYTHON_ERROR_ON_WARN) $(COVERAGE_PATH) run -m unittest
 
 coverage-report:
 	$(COVERAGE) report
