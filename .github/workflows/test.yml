@@ -28,7 +28,7 @@ jobs:
           - "sqlite"
           - "postgres"
         run-coverage:
-          - "${{ (github.ref == 'refs/heads/master' || contains(github.event.head_commit.message, 'coverage')) && 'yes' || 'no' }}"
+          - "${{ (github.ref == 'refs/heads/master' || contains(github.event.commits[0].message, 'coverage')) && 'yes' || 'no' }}"
 
     services:
       mongodb:
@@ -58,8 +58,8 @@ jobs:
         run: tox
         env:
           REF: ${{ github.ref }}
-          MSG: ${{ github.event.head_commit.message }}
-          CONT: ${{ contains(github.event.head_commit.message, 'coverage') }}
+          MSG: ${{ github.event.commits[0].message }}
+          CONT: ${{ contains(github.event.commits[0].message, 'coverage') }}
           DATABASE_TYPE: ${{ matrix.database-type }}
           RUN_COVERAGE: ${{ matrix.run-coverage }}
 
