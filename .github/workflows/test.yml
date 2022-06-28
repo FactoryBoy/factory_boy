@@ -57,9 +57,6 @@ jobs:
       - name: Run tests
         run: tox
         env:
-          REF: ${{ github.ref }}
-          MSG: ${{ github.event.commits[0].message }}
-          CONT: ${{ contains(github.event.commits[0].message, 'coverage') }}
           DATABASE_TYPE: ${{ matrix.database-type }}
           RUN_COVERAGE: ${{ matrix.run-coverage }}
 
