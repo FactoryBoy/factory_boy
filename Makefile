@@ -82,9 +82,9 @@ lint:
 
 coverage:
 	$(COVERAGE) erase
-	$(COVERAGE) run "--include=$(PACKAGE)/*.py,$(TESTS_DIR)/*.py" --branch -m unittest
-	$(COVERAGE) report "--include=$(PACKAGE)/*.py,$(TESTS_DIR)/*.py"
-	$(COVERAGE) html "--include=$(PACKAGE)/*.py,$(TESTS_DIR)/*.py"
+	$(COVERAGE) run --branch -m unittest
+	$(COVERAGE) report
+	$(COVERAGE) html
 
 
 .PHONY: test testall example-test lint coverage
