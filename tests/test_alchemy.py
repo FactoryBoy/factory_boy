@@ -93,7 +93,7 @@ class TransactionTestCase(unittest.TestCase):
         models.Base.metadata.create_all(models.engine)
 
     def tearDown(self):
-        models.session.rollback()
+        models.session.remove()
         models.Base.metadata.drop_all(models.engine)
 
 
