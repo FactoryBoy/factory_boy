@@ -28,7 +28,7 @@ jobs:
           - "sqlite"
           - "postgres"
         run-coverage:
-          - "${{ (github.ref == 'refs/heads/master' || contains(github.event.commits[0].message, 'coverage')) && 'yes' || 'no' }}"
+          - "yes"
 
     services:
       mongodb:
