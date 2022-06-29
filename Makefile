@@ -86,7 +86,7 @@ coverage-clean:
 	@rm -rf .coverage htmlcov/
 
 coverage-test:
-	$(PYTHON_ERROR_ON_WARN) $(COVERAGE_PATH) run -m unittest
+	$(PYTHON_ERROR_ON_WARN) $(COVERAGE_PATH) run --branch -m unittest
 
 coverage-report:
 	$(COVERAGE) report
