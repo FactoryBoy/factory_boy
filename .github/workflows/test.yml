@@ -27,8 +27,6 @@ jobs:
         database-type:
           - "sqlite"
           - "postgres"
-        run-coverage:
-          - "yes"
 
     services:
       mongodb:
@@ -62,11 +60,9 @@ jobs:
           RUN_COVERAGE: ${{ matrix.run-coverage }}
 
       - name: Coverage report
-        if: matrix.run-coverage == 'yes'
         run: tox -e cov-report
 
       - name: 'Upload coverage'
-        if: matrix.run-coverage == 'yes'
         uses: actions/upload-artifact@v3
         with:
           name: factory_coverage_${{ matrix.python-version[1] }}_${{ matrix.database-type }}
