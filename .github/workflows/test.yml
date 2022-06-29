@@ -57,7 +57,7 @@ jobs:
         run: tox
         env:
           DATABASE_TYPE: ${{ matrix.database-type }}
-          RUN_COVERAGE: ${{ matrix.run-coverage }}
+          RUN_COVERAGE: yes
 
       - name: Coverage report
         run: tox -e cov-report
