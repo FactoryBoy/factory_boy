@@ -41,9 +41,6 @@ jobs:
         env:
           POSTGRES_PASSWORD: password
 
-    env:
-      TOXENV: ${{ matrix.tox-environment }}
-
     steps:
       - uses: actions/checkout@v2
 
