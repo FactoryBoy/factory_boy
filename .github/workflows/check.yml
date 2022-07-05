@@ -25,7 +25,8 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v2
-        cache: pip
+        with:
+          cache: pip
 
       - name: Install dependencies
         run: python -m pip install tox
