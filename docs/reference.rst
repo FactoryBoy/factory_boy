@@ -39,7 +39,7 @@ Meta options
         .. versionadded:: 2.4.0
 
         .. versionadded:: 3.3
-           Support to be a a fully qualified import path to the class
+           Support fully qualified import path to the class
 
     .. method:: get_model_class()
 
