@@ -52,7 +52,6 @@ And now, we'll define the related factories:
 
     import datetime
     import factory
-    import random
 
     from . import objects
 
