@@ -15,6 +15,8 @@ ChangeLog
     - Add support for Django 3.2
     - Add support for Django 4.0
     - Add support for Python 3.10
+    - :issue:`963`: Add a ``coerce`` argument to :class:`~factory.SelfAttribute`
+    - Add documentation for ``default`` argument of :class:`~factory.SelfAttribute`
 
 *Bugfix:*
 

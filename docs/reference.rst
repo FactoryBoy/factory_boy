@@ -1295,12 +1295,23 @@ Obviously, such circular relationships require careful handling of loops:
 SelfAttribute
 """""""""""""
 
-.. class:: SelfAttribute(dotted_path_to_attribute)
+.. class:: SelfAttribute(dotted_path_to_attribute, default=, coerce=None)
 
-Some fields should reference another field of the object being constructed, or an attribute thereof.
+    Some fields should reference another field of the object being constructed,
+    or an attribute thereof.
 
-This is performed by the :class:`~factory.SelfAttribute` declaration.
-That declaration takes a single argument, a dot-delimited path to the attribute to fetch:
+    This is performed by the :class:`~factory.SelfAttribute` declaration.
+    The declaration requires a dot-delimited path to the attribute to fetch.
+
+    .. attribute:: default
+
+        A default value to use if the specified attribute doesn't exist.
+
+    .. attribute:: coerce
+
+        A function that takes one argument and returns a coerced value.
+        Note that coercion will also happen on a default value.
+
 
 .. code-block:: python
 
@@ -1318,6 +1329,52 @@ That declaration takes a single argument, a dot-delimited path to the attribute 
     date(2000, 3, 15)
     >>> u.birthmonth
     3
+
+
+.. _selfattribute-default:
+
+Default
+~~~~~~~
+
+.. code-block:: python
+
+   class UserFactory(factory.Factory):
+      class Meta:
+          model = User
+
+      name = factory.SelfAttribute('missing_attr', default="John Smith")
+
+.. code-block:: pycon
+
+   >>> u = UserFactory()
+   >>> u.name
+   'John Smith'
+
+
+.. _selfattribute-coerce:
+
+Coerce
+~~~~~~
+
+If the value of a referenced attribute needs to be changed, use the ``coerce`` parameter:
+
+.. code-block:: python
+
+   class UserFactory(factory.Factory):
+      class Meta:
+          model = User
+
+      last_login = factory.fuzzy.FuzzyDateTime(datetime.datetime(2022, 1, 1, tzinfo=UTC))
+      is_active = factory.SelfAttribute("last_login", coerce=bool)
+
+.. code-block:: pycon
+
+   >>> u = UserFactory()
+   >>> u.is_active
+   True
+   >>> u = UserFactory(last_login=None)
+   >>> u.is_active
+   False
 
 
 .. _factory-parent:

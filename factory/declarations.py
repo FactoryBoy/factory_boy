@@ -160,9 +160,11 @@ class SelfAttribute(BaseDeclaration):
         attribute_name (str): the name of the attribute to copy.
         default (object): the default value to use if the attribute doesn't
             exist.
+        coerce (callable or None): A function taking one argument, the
+            attribute value, and returns a coerced value.
     """
 
-    def __init__(self, attribute_name, default=_UNSPECIFIED):
+    def __init__(self, attribute_name, default=_UNSPECIFIED, coerce=None):
         super().__init__()
         depth = len(attribute_name) - len(attribute_name.lstrip('.'))
         attribute_name = attribute_name[depth:]
@@ -170,6 +172,7 @@ class SelfAttribute(BaseDeclaration):
         self.depth = depth
         self.attribute_name = attribute_name
         self.default = default
+        self.coerce = coerce
 
     def evaluate(self, instance, step, extra):
         if self.depth > 1:
@@ -179,7 +182,10 @@ class SelfAttribute(BaseDeclaration):
             target = instance
 
         logger.debug("SelfAttribute: Picking attribute %r on %r", self.attribute_name, target)
-        return deepgetattr(target, self.attribute_name, self.default)
+        value = deepgetattr(target, self.attribute_name, self.default)
+        if self.coerce is None:
+            return value
+        return self.coerce(value)
 
     def __repr__(self):
         return '<%s(%r, default=%r)>' % (

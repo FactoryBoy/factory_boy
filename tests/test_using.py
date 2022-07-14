@@ -567,6 +567,35 @@ class UsingFactoryTestCase(unittest.TestCase):
         test_model = TestModel2Factory()
         self.assertEqual(4, test_model.two.three)
 
+    def test_self_attribute_calls_coercion(self):
+        coerced = False
+
+        def to_str(value):
+            nonlocal coerced
+            coerced = True
+            return str(value)
+
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            one = 1
+            two = factory.SelfAttribute('one', coerce=to_str)
+
+        instance = TestObjectFactory()
+        self.assertEqual("1", instance.two)
+        self.assertIs(coerced, True)
+
+    def test_self_attribute_coerces_default_value(self):
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            one = factory.SelfAttribute("unknown", default=1, coerce=str)
+
+        instance = TestObjectFactory()
+        self.assertEqual("1", instance.one)
+
     def test_sequence_decorator(self):
         class TestObjectFactory(factory.Factory):
             class Meta:

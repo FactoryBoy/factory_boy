@@ -56,30 +56,42 @@ class SelfAttributeTestCase(unittest.TestCase):
         self.assertEqual(0, a.depth)
         self.assertEqual('foo.bar.baz', a.attribute_name)
         self.assertEqual(declarations._UNSPECIFIED, a.default)
+        self.assertIsNone(a.coerce)
 
     def test_dot(self):
         a = declarations.SelfAttribute('.bar.baz')
         self.assertEqual(1, a.depth)
         self.assertEqual('bar.baz', a.attribute_name)
         self.assertEqual(declarations._UNSPECIFIED, a.default)
+        self.assertIsNone(a.coerce)
 
     def test_default(self):
         a = declarations.SelfAttribute('bar.baz', 42)
         self.assertEqual(0, a.depth)
         self.assertEqual('bar.baz', a.attribute_name)
         self.assertEqual(42, a.default)
+        self.assertIsNone(a.coerce)
 
     def test_parent(self):
         a = declarations.SelfAttribute('..bar.baz')
         self.assertEqual(2, a.depth)
         self.assertEqual('bar.baz', a.attribute_name)
         self.assertEqual(declarations._UNSPECIFIED, a.default)
+        self.assertIsNone(a.coerce)
 
     def test_grandparent(self):
         a = declarations.SelfAttribute('...bar.baz')
         self.assertEqual(3, a.depth)
         self.assertEqual('bar.baz', a.attribute_name)
         self.assertEqual(declarations._UNSPECIFIED, a.default)
+        self.assertIsNone(a.coerce)
+
+    def test_sets_coerce(self):
+        a = declarations.SelfAttribute('foo', coerce=str)
+        self.assertEqual(0, a.depth)
+        self.assertEqual('foo', a.attribute_name)
+        self.assertEqual(declarations._UNSPECIFIED, a.default)
+        self.assertIs(str, a.coerce)
 
 
 class IteratorTestCase(unittest.TestCase):
