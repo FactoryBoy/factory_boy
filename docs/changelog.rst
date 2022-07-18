@@ -61,7 +61,7 @@ ChangeLog
 *Removed:*
 
     - Drop support for Django 1.11. This version `is not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
-    - Drop support for Python 3.5. This version `is not maintained anymore <https://devguide.python.org/devcycle/#end-of-life-branches>`__.
+    - Drop support for Python 3.5. This version `is not maintained anymore <https://devguide.python.org/developer-workflow/development-cycle/index.html#end-of-life-branches>`__.
 
 *Deprecated:*
 
@@ -118,7 +118,7 @@ The following aliases were removed:
 
 *Removed:*
 
-    - Drop support for Python 2 and 3.4. These versions `are not maintained anymore <https://devguide.python.org/devcycle/#end-of-life-branches>`__.
+    - Drop support for Python 2 and 3.4. These versions `are not maintained anymore <https://devguide.python.org/developer-workflow/development-cycle/index.html#end-of-life-branches>`__.
     - Drop support for Django 2.0 and 2.1. These versions `are not maintained anymore <https://www.djangoproject.com/download/#supported-versions>`__.
     - Remove deprecated ``force_flush`` from ``SQLAlchemyModelFactory`` options. Use
       ``sqlalchemy_session_persistence = "flush"`` instead.
