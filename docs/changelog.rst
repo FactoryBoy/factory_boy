@@ -14,6 +14,7 @@ ChangeLog
       create sessions for use by the :class:`~factory.alchemy.SQLAlchemyModelFactory`.
     - Add support for Django 3.2
     - Add support for Django 4.0
+    - Add support for Django 4.1
     - Add support for Python 3.10
 
 *Bugfix:*
