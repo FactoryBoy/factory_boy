@@ -46,6 +46,7 @@ ChangeLog
 
 *Removed:*
 
+    - Drop support for Django 2.2
     - Drop support for Django 3.0
     - Drop support for Django 3.1
     - Drop support for Python 3.6
