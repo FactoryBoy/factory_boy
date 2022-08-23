@@ -4,16 +4,14 @@ DOC_DIR=docs
 EXAMPLES_DIR=examples
 SETUP_PY=setup.py
 PYTHON_ERROR_ON_WARN=python \
-	-b \
-	-X dev \
-	-Werror \
-	-Wdefault:"the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses":DeprecationWarning:distutils: \
-	-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working":DeprecationWarning:: \
-	-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.9 it will stop working":DeprecationWarning:: \
-	-Wdefault:"set_output_charset() is deprecated":DeprecationWarning:: \
-	-Wdefault:"parameter codeset is deprecated":DeprecationWarning:: \
-	-Wdefault:"distutils Version classes are deprecated. Use packaging.version instead":DeprecationWarning::
-# TODO: Remove "distutils Version classes are deprecated" when django 2.2 is dropped
+  -b \
+  -X dev \
+  -Werror \
+  -Wdefault:"the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses":DeprecationWarning:distutils: \
+  -Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working":DeprecationWarning:: \
+  -Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.9 it will stop working":DeprecationWarning:: \
+  -Wdefault:"set_output_charset() is deprecated":DeprecationWarning:: \
+  -Wdefault:"parameter codeset is deprecated":DeprecationWarning::
 
 # Use current python binary instead of system default.
 COVERAGE_PATH = $(shell which coverage)
