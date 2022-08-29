@@ -486,7 +486,8 @@ class FuzzyDateTimeTestCase(unittest.TestCase):
 
     def test_force_year_leap(self):
         random.reseed_random(655)
-        fuzz = FuzzyDateTime(start_dt=datetime.datetime(2020, 1, 1, tzinfo=pytz.utc), force_year=2022)
+        start_dt = datetime.datetime(2020, 1, 1, tzinfo=datetime.timezone.utc)
+        fuzz = fuzzy.FuzzyDateTime(start_dt=start_dt, force_year=2022)
         expected = datetime.datetime(2020, 3, 1, tzinfo=datetime.timezone.utc)
         self.assertEqual(expected, utils.evaluate_declaration(fuzz))
 
