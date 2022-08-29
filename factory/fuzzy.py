@@ -226,7 +226,11 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
         result = self.start_dt + datetime.timedelta(microseconds=offset)
 
         if self.force_year is not None:
-            result = result.replace(year=self.force_year)
+            try:
+                result = result.replace(year=self.force_year)
+            except ValueError:
+                result = result - datetime.timedelta(days=1)
+                result = result.replace(year=self.force_year)
         if self.force_month is not None:
             result = result.replace(month=self.force_month)
         if self.force_day is not None:
