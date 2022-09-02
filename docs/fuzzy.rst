@@ -92,6 +92,19 @@ FuzzyChoice
 FuzzyInteger
 ------------
 
+.. warning:: This attribute is deprecated.
+
+.. deprecated:: 3.3
+   Use :meth:`~faker.providers.python.Provider.pyint` instead:
+
+   .. code-block:: python
+
+      class PersonFactory(factory.Factory):
+         age = factory.Faker('pyint', min_value=1, max_value=100, step=5)
+
+         class Meta:
+             model = Person
+
 .. class:: FuzzyInteger(low[, high[, step]])
 
     The :class:`FuzzyInteger` fuzzer generates random integers within a given

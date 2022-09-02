@@ -104,6 +104,11 @@ class FuzzyInteger(BaseFuzzyAttribute):
     """Random integer within a given range."""
 
     def __init__(self, low, high=None, step=1):
+        warnings.warn(
+            f"{self.__class__.__name__} will be removed in the next major version. "
+            "Use Faker.pyint() instead.",
+            DeprecationWarning,
+        )
         if high is None:
             high = low
             low = 0

@@ -80,6 +80,11 @@ class FuzzyChoiceTestCase(unittest.TestCase):
 
 
 class FuzzyIntegerTestCase(unittest.TestCase):
+    def run(self, result=None):
+        with warnings.catch_warnings(record=False):
+            warnings.simplefilter("ignore")
+            return super().run(result=result)
+
     def test_definition(self):
         """Tests all ways of defining a FuzzyInteger."""
         fuzz = fuzzy.FuzzyInteger(2, 3)
@@ -121,6 +126,13 @@ class FuzzyIntegerTestCase(unittest.TestCase):
             res = utils.evaluate_declaration(fuzz)
 
         self.assertEqual((5 + 8 + 1) * 3, res)
+
+    def test_warning(self):
+        with self.assertWarnsRegex(
+            DeprecationWarning,
+            r"^FuzzyInteger will be removed in the next major version. Use Faker.pyint\(\) instead\.$"
+        ):
+            fuzzy.FuzzyInteger(1, 5)
 
 
 class FuzzyDecimalTestCase(unittest.TestCase):
@@ -589,6 +601,11 @@ class FuzzyTextTestCase(unittest.TestCase):
 
 
 class FuzzyRandomTestCase(unittest.TestCase):
+    def run(self, result=None):
+        with warnings.catch_warnings(record=False):
+            warnings.simplefilter("ignore")
+            return super().run(result=result)
+
     def test_seeding(self):
         fuzz = fuzzy.FuzzyInteger(1, 1000)
 
