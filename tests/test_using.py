@@ -1484,6 +1484,139 @@ class TraitTestCase(unittest.TestCase):
         self.assertEqual({5: p}, PRICES)
 
 
+class TransformerTestCase(unittest.TestCase):
+    class SimpleFactory(factory.Factory):
+        class Meta:
+            model = TestObject
+        one = factory.Transformer(str.upper, "")
+
+    def test_transformer(self):
+        self.assertEqual(self.SimpleFactory().one, "")
+        self.assertEqual(self.SimpleFactory(one="john").one, "JOHN")
+
+    def test_transformer_bypass(self):
+        self.assertEqual(self.SimpleFactory(one__="john").one, "john")
+
+    class TransformDeclarationFactory(factory.Factory):
+        class Meta:
+            model = TestObject
+        one = factory.Transformer(str.upper, "")
+        two = factory.Transformer(lambda n: n ** 2, factory.Sequence(int))
+
+    def test_on_sequence(self):
+        instance = self.TransformDeclarationFactory(__sequence=2)
+        self.assertEqual(
+            dict(one="", two=4, three=None, four=None, five=None),
+            instance.as_dict(),
+        )
+
+    def test_on_user_supplied(self):
+        """A transformer can wrap a call-time declaration"""
+        instance = self.TransformDeclarationFactory(
+            one=factory.Sequence(str),
+            two=2,
+            __sequence=2,
+        )
+        self.assertEqual(
+            dict(one="1", two=4, three=None, four=None, five=None),
+            instance.as_dict(),
+        )
+
+    class WithTraitFactory(factory.Factory):
+        class Meta:
+            model = TestObject
+
+        class Params:
+            upper_two = factory.Trait(
+                two=factory.Transformer(str.upper, ""),
+            )
+            odds = factory.Trait(
+                one="one",
+                three="three",
+                five="five",
+            )
+        one = factory.Transformer(str.upper, "")
+
+    def test_traits_off(self):
+        instance = self.WithTraitFactory()
+        self.assertEqual(
+            dict(one="", two=None, three=None, four=None, five=None),
+            instance.as_dict(),
+        )
+
+    def test_trait_value_transformed(self):
+        """A transformer should apply to the value passed by a trait."""
+        instance = self.WithTraitFactory(odds=True)
+        self.assertEqual(
+            dict(one="ONE", two=None, three="three", four=None, five="five"),
+            instance.as_dict(),
+        )
+
+    def test_trait_transform_applies(self):
+        """A trait-provided transformer should apply to existing values"""
+        instance = self.WithTraitFactory(upper_two=True)
+        self.assertEqual(
+            dict(one="", two="", three=None, four=None, five=None),
+            instance.as_dict(),
+        )
+
+    def test_trait_transform_applies_supplied(self):
+        """A trait-provided transformer should apply to caller-provided values"""
+        instance = self.WithTraitFactory(upper_two=True, two="two")
+        self.assertEqual(
+            dict(one="", two="TWO", three=None, four=None, five=None),
+            instance.as_dict(),
+        )
+
+    class TenantFactory(factory.Factory):
+        class Meta:
+            class model:
+                def __init__(self, name):
+                    self.name = name
+                    self.dns = []
+
+                def add_dns_alias(self, alias):
+                    self.dns.append(alias)
+
+                def as_dict(self):
+                    return dict(
+                        name=self.name,
+                        dns=self.dns,
+                    )
+
+        name = "Super Company"
+
+        @factory.post_generation
+        def register_main_dns(self, create, extracted, **kwargs):
+            self.add_dns_alias(extracted)
+
+        register_main_dns__ = factory.Transformer(
+            lambda s: s.lower().replace(" ", "-"),
+            factory.SelfAttribute("name"),
+        )
+
+    def test_post_generation(self):
+        instance = self.TenantFactory()
+        self.assertEqual(
+            dict(name="Super Company", dns=["super-company"]),
+            instance.as_dict(),
+        )
+
+    def test_post_generation_override_source(self):
+        instance = self.TenantFactory(name="Other Company")
+        self.assertEqual(
+            dict(name="Super Company", dns=["other-company"]),
+            instance.as_dict(),
+        )
+
+    def test_post_generation_override_target(self):
+        instance = self.TenantFactory(register_main_dns__="Acme LTD")
+        self.assertEqual(
+            dict(name="Super Company", dns=["acme-ltd"]),
+            instance.as_dict(),
+        )
+
+
 class SubFactoryTestCase(unittest.TestCase):
     def test_sub_factory(self):
         class TestModel2(FakeModel):
