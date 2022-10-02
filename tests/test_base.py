@@ -316,7 +316,7 @@ class FactorySequenceTestCase(unittest.TestCase):
         self.assertEqual(42, o3.one)
 
     def test_reset_sequence_subclass_fails(self):
-        """Tests that the sequence of a 'slave' factory cannot be reseted."""
+        """Tests that the sequence of a 'slave' factory cannot be reset."""
         class SubTestObjectFactory(self.TestObjectFactory):
             pass
 
@@ -343,7 +343,7 @@ class FactorySequenceTestCase(unittest.TestCase):
         self.assertEqual(1, o4.one)
 
     def test_reset_sequence_subclass_parent(self):
-        """Tests that the sequence of a 'slave' factory cannot be reseted."""
+        """Tests that the sequence of a 'slave' factory cannot be reset."""
         class SubTestObjectFactory(self.TestObjectFactory):
             pass
 
