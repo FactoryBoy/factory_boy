@@ -67,7 +67,7 @@ class FakerTests(unittest.TestCase):
             email = factory.Faker('email')
 
         self._setup_mock_faker(first_name="John", last_name="Doe", email="john.doe@example.org")
-        self._setup_mock_faker(first_name="Jean", last_name="Valjean", email="jvaljean@example.fr", locale='fr_FR')
+        self._setup_mock_faker(first_name="Jean", last_name="Valjean", email="jvaljean@exemple.fr", locale='fr_FR')
 
         profile = ProfileFactory()
         self.assertEqual("John", profile.first_name)
