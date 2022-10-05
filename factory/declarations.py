@@ -182,11 +182,7 @@ class SelfAttribute(BaseDeclaration):
         return deepgetattr(target, self.attribute_name, self.default)
 
     def __repr__(self):
-        return '<%s(%r, default=%r)>' % (
-            self.__class__.__name__,
-            self.attribute_name,
-            self.default,
-        )
+        return f'<{self.__class__.__name__}({self.attribute_name!r}, default={self.default!r})>'
 
 
 class Iterator(BaseDeclaration):
@@ -561,10 +557,7 @@ class Trait(Parameter):
         for maybe_field, new_value in self.overrides.items():
             overrides[maybe_field] = Maybe(
                 decider=SelfAttribute(
-                    '%s.%s' % (
-                        '.' * maybe_field.count(enums.SPLITTER),
-                        field_name,
-                    ),
+                    f"{'.' * maybe_field.count(enums.SPLITTER)}.{field_name}",
                     default=False,
                 ),
                 yes_declaration=new_value,
@@ -577,7 +570,7 @@ class Trait(Parameter):
         return [param for param in parameters if param in self.overrides]
 
     def __repr__(self):
-        return '%s(%s)' % (
+        return '{}({})'.format(
             self.__class__.__name__,
             ', '.join('%s=%r' % t for t in self.overrides.items())
         )

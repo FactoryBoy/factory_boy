@@ -28,7 +28,7 @@ def debug(logger='factory', stream=None):
 
 def make_factory(klass, **kwargs):
     """Create a new, simple factory for the given class."""
-    factory_name = '%sFactory' % klass.__name__
+    factory_name = f'{klass.__name__}Factory'
 
     class Meta:
         model = klass
@@ -37,8 +37,8 @@ def make_factory(klass, **kwargs):
     base_class = kwargs.pop('FACTORY_CLASS', base.Factory)
 
     factory_class = type(base.Factory).__new__(type(base.Factory), factory_name, (base_class,), kwargs)
-    factory_class.__name__ = '%sFactory' % klass.__name__
-    factory_class.__doc__ = 'Auto-generated factory for class %s' % klass
+    factory_class.__name__ = f'{klass.__name__}Factory'
+    factory_class.__doc__ = f'Auto-generated factory for class {klass}'
     return factory_class
 
 

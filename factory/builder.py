@@ -73,7 +73,7 @@ class DeclarationSet:
         extra_context_keys = set(self.contexts) - set(self.declarations)
         if extra_context_keys:
             raise errors.InvalidDeclarationError(
-                "Received deep context for unknown fields: %r (known=%r)" % (
+                "Received deep context for unknown fields: {!r} (known={!r})".format(
                     {
                         self.join(root, sub): v
                         for root in extra_context_keys
@@ -131,7 +131,7 @@ class DeclarationSet:
         return dict(self._items())
 
     def __repr__(self):
-        return '<DeclarationSet: %r>' % self.as_dict()
+        return f'<DeclarationSet: {self.as_dict()!r}>'
 
 
 def parse_declarations(decls, base_pre=None, base_post=None):
@@ -323,7 +323,7 @@ class Resolver:
         return self.__step.parent_step.stub if self.__step.parent_step else None
 
     def __repr__(self):
-        return '<Resolver for %r>' % self.__step
+        return f'<Resolver for {self.__step!r}>'
 
     def __getattr__(self, name):
         """Retrieve an attribute's value.

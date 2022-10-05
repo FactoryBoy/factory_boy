@@ -73,8 +73,8 @@ class WithMultipleGetOrCreateFieldsFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = 'commit'
 
     id = factory.Sequence(lambda n: n)
-    slug = factory.Sequence(lambda n: "slug%s" % n)
-    text = factory.Sequence(lambda n: "text%s" % n)
+    slug = factory.Sequence(lambda n: f"slug{n}")
+    text = factory.Sequence(lambda n: f"text{n}")
 
 
 if models.USING_POSTGRES:

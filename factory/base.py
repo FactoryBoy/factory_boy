@@ -41,8 +41,7 @@ class FactoryMetaClass(type):
         elif cls._meta.strategy == enums.STUB_STRATEGY:
             return cls.stub(**kwargs)
         else:
-            raise errors.UnknownStrategy('Unknown Meta.strategy: {}'.format(
-                cls._meta.strategy))
+            raise errors.UnknownStrategy(f'Unknown Meta.strategy: {cls._meta.strategy}')
 
     def __new__(mcs, class_name, bases, attrs):
         """Record attributes as a pattern for later instance construction.
@@ -89,7 +88,7 @@ class FactoryMetaClass(type):
 
     def __str__(cls):
         if cls._meta.abstract:
-            return '<%s (abstract)>' % cls.__name__
+            return f'<{cls.__name__} (abstract)>'
         else:
             return f'<{cls.__name__} for {cls._meta.model}>'
 
@@ -129,9 +128,10 @@ class OptionDefault:
         return value
 
     def __str__(self):
-        return '%s(%r, %r, inherit=%r)' % (
-            self.__class__.__name__,
-            self.name, self.value, self.inherit)
+        return (
+            f'{self.__class__.__name__}({self.name!r}, {self.value!r}, '
+            f'inherit={self.inherit!r})'
+        )
 
 
 class FactoryOptions:
@@ -164,8 +164,7 @@ class FactoryOptions:
         def is_model(meta, value):
             if isinstance(value, FactoryMetaClass):
                 raise TypeError(
-                    "%s is already a %s"
-                    % (repr(value), Factory.__name__)
+                    f"{repr(value)} is already a {Factory.__name__}"
                 )
 
         return [
@@ -189,7 +188,7 @@ class FactoryOptions:
             }
 
         for option in self._build_default_options():
-            assert not hasattr(self, option.name), "Can't override field %s." % option.name
+            assert not hasattr(self, option.name), f"Can't override field {option.name}."
             value = option.apply(meta, base_meta)
             meta_attrs.pop(option.name, None)
             setattr(self, option.name, value)
@@ -376,7 +375,7 @@ class FactoryOptions:
         return self.model
 
     def __str__(self):
-        return "<%s for %s>" % (self.__class__.__name__, self.factory.__name__)
+        return f"<{self.__class__.__name__} for {self.factory.__name__}>"
 
     def __repr__(self):
         return str(self)
@@ -592,7 +591,7 @@ class BaseFactory:
             object list: the generated instances
         """
         assert strategy in (enums.STUB_STRATEGY, enums.BUILD_STRATEGY, enums.CREATE_STRATEGY)
-        batch_action = getattr(cls, '%s_batch' % strategy)
+        batch_action = getattr(cls, f'{strategy}_batch')
         return batch_action(size, **kwargs)
 
     @classmethod
@@ -673,7 +672,7 @@ class BaseDictFactory(Factory):
     def _build(cls, model_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "DictFactory %r does not support Meta.inline_args." % cls)
+                f"DictFactory {cls!r} does not support Meta.inline_args.")
         return model_class(**kwargs)
 
     @classmethod
@@ -695,7 +694,7 @@ class BaseListFactory(Factory):
     def _build(cls, model_class, *args, **kwargs):
         if args:
             raise ValueError(
-                "ListFactory %r does not support Meta.inline_args." % cls)
+                f"ListFactory {cls!r} does not support Meta.inline_args.")
 
         # kwargs are constructed from a list, their insertion order matches the list
         # order, no additional sorting is required.

@@ -145,8 +145,8 @@ class WithMultipleGetOrCreateFieldsFactory(factory.django.DjangoModelFactory):
         model = models.MultifieldUniqueModel
         django_get_or_create = ("slug", "text",)
 
-    slug = factory.Sequence(lambda n: "slug%s" % n)
-    text = factory.Sequence(lambda n: "text%s" % n)
+    slug = factory.Sequence(lambda n: f"slug{n}")
+    text = factory.Sequence(lambda n: f"text{n}")
 
 
 class ModelTests(django_test.TestCase):

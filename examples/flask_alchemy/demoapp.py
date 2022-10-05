@@ -18,7 +18,7 @@ class User(db.Model):
         self.email = email
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return f'<User {self.username!r}>'
 
 
 class UserLog(db.Model):

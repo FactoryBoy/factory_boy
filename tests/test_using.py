@@ -50,7 +50,7 @@ class Dummy:
         return {field: getattr(self, field) for field in self._fields}
 
     def __repr__(self):
-        return '%s(%s)' % (
+        return '{}({})'.format(
             self.__class__.__name__,
             ', '.join('%s=%r' % pair for pair in sorted(self.as_dict.items()))
         )
@@ -1540,7 +1540,7 @@ class SubFactoryTestCase(unittest.TestCase):
             one = 'parent'
             child = factory.SubFactory(
                 TestModelFactory,
-                one=factory.LazyAttribute(lambda o: '%s child' % o.factory_parent.one),
+                one=factory.LazyAttribute(lambda o: f'{o.factory_parent.one} child'),
             )
 
         test_model = TestModel2Factory()
@@ -2162,7 +2162,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
             class Meta:
                 model = TestModel
 
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
+            a = factory.Sequence(lambda n: f'foo_{n}')
 
         o1 = TestModelFactory()
         o2 = TestModelFactory()
@@ -2181,7 +2181,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
             class Meta:
                 model = TestModel
 
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
+            a = factory.Sequence(lambda n: f'foo_{n}')
 
         o = TestModelFactory()
         self.assertEqual(None, o._defaults)
@@ -2194,7 +2194,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
                 model = TestModel
                 django_get_or_create = ('a', 'b')
 
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
+            a = factory.Sequence(lambda n: f'foo_{n}')
             b = 2
             c = 3
             d = 4
@@ -2214,7 +2214,7 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
                 model = TestModel
                 django_get_or_create = ('a', 'b', 'c', 'd')
 
-            a = factory.Sequence(lambda n: 'foo_%s' % n)
+            a = factory.Sequence(lambda n: f'foo_{n}')
             b = 2
             c = 3
             d = 4

@@ -36,7 +36,7 @@ class log_pprint:
             [
                 repr(arg) for arg in self.args
             ] + [
-                '%s=%s' % (key, repr(value))
+                f'{key}={repr(value)}'
                 for key, value in self.kwargs.items()
             ]
         )

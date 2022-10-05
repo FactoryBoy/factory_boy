@@ -188,7 +188,7 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
     def _check_bounds(self, start_dt, end_dt):
         if start_dt > end_dt:
             raise ValueError(
-                """%s boundaries should have start <= end, got %r > %r""" % (
+                """{} boundaries should have start <= end, got {!r} > {!r}""".format(
                     self.__class__.__name__, start_dt, end_dt))
 
     def _now(self):
@@ -259,8 +259,7 @@ class FuzzyNaiveDateTime(BaseFuzzyDateTime):
                 % start_dt)
         if end_dt.tzinfo is not None:
             raise ValueError(
-                "FuzzyNaiveDateTime only handles naive datetimes, got end=%r"
-                % end_dt)
+                f"FuzzyNaiveDateTime only handles naive datetimes, got end={end_dt!r}")
         super()._check_bounds(start_dt, end_dt)
 
 
@@ -281,6 +280,5 @@ class FuzzyDateTime(BaseFuzzyDateTime):
                 % start_dt)
         if end_dt.tzinfo is None:
             raise ValueError(
-                "FuzzyDateTime requires timezone-aware datetimes, got end=%r"
-                % end_dt)
+                f"FuzzyDateTime requires timezone-aware datetimes, got end={end_dt!r}")
         super()._check_bounds(start_dt, end_dt)
