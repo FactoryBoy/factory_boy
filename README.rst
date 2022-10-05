@@ -324,7 +324,7 @@ Support Policy
 ``factory_boy`` supports active Python versions as well as PyPy3.
 
 - **Python**'s `supported versions
-  <https://devguide.python.org/#status-of-python-branches>`__.
+  <https://devguide.python.org/versions/#supported-versions>`__.
 - **Django**'s `supported
   versions <https://www.djangoproject.com/download/#supported-versions>`__.
 - **SQLAlchemy**: `latest version on PyPI <https://pypi.org/project/SQLAlchemy/>`__.
