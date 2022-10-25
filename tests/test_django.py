@@ -321,7 +321,7 @@ class DependencyInsertOrderTest(django_test.TestCase):
     def test_new_m2m(self):
         step = factory.builder.StepBuilder(AWithMFactory._meta, {}, factory.enums.BUILD_STRATEGY)
         created_instances = []
-        a1 = step.build(created_instances=created_instances)
+        a1 = step.build(collect_instances=created_instances)
         p1 = a1.p_o
         p2 = a1.p_f
         p_m1, p_m2 = [x for x in created_instances if isinstance(x, models.A.p_m.through)]
