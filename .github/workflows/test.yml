@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   tests:
-    name: Python ${{ matrix.python-version }}, Database ${{ matrix.database-type }}
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -24,9 +24,6 @@ jobs:
           - "pypy-3.7"
           - "pypy-3.8"
           - "pypy-3.9"
-        database-type:
-          - "sqlite"
-          - "postgres"
 
     services:
       mongodb:
@@ -55,5 +52,3 @@ jobs:
 
       - name: Run tests
         run: tox
-        env:
-          DATABASE_TYPE: ${{ matrix.database-type }}
