@@ -154,7 +154,7 @@ class FakerTests(unittest.TestCase):
 
         def fake_select_date(start_date, end_date):
             """Fake date_between_dates."""
-            # Ensure that dates have been transfered from the factory
+            # Ensure that dates have been transferred from the factory
             # to Faker parameters.
             self.assertEqual(start_date, may_4th)
             self.assertEqual(end_date, may_25th)
