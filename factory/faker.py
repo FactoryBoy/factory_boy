@@ -43,7 +43,7 @@ class Faker(declarations.BaseDeclaration):
             **kwargs)
 
     def evaluate(self, instance, step, extra):
-        locale = extra.pop('locale')
+        locale = extra.pop('locale', None)
         subfaker = self._get_faker(locale)
         return subfaker.format(self.provider, **extra)
 
