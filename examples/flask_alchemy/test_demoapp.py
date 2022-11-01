@@ -9,12 +9,17 @@ class DemoAppTestCase(unittest.TestCase):
     def setUp(self):
         demoapp.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         demoapp.app.config['TESTING'] = True
+
+        self.app_context = demoapp.app.app_context()
+        self.app_context.push()
+
         self.app = demoapp.app.test_client()
         self.db = demoapp.db
         self.db.create_all()
 
     def tearDown(self):
         self.db.drop_all()
+        self.app_context.pop()
 
     def test_user_factory(self):
         user = demoapp_factories.UserFactory()
