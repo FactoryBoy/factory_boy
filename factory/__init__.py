@@ -72,10 +72,8 @@ except ImportError:
 __author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
 try:
     # Python 3.8+
-    from importlib.metadata import version
-
-    __version__ = version("factory_boy")
+    import importlib.metadata as importlib_metadata
 except ImportError:
-    import pkg_resources
+    import importlib_metadata
 
-    __version__ = pkg_resources.get_distribution("factory_boy").version
+__version__ = importlib_metadata.version("factory_boy")
