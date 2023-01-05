@@ -100,6 +100,7 @@ class DjangoModelFactory(base.Factory):
     """
 
     _options_class = DjangoOptions
+    _original_params = None
 
     class Meta:
         abstract = True  # Optional, but explicit.
@@ -160,6 +161,10 @@ class DjangoModelFactory(base.Factory):
         try:
             instance, _created = manager.get_or_create(*args, **key_fields)
         except IntegrityError as e:
+
+            if cls._original_params is None:
+                raise e
+
             get_or_create_params = {
                 lookup: value
                 for lookup, value in cls._original_params.items()

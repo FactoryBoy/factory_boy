@@ -137,6 +137,10 @@ class FromAbstractWithCustomManager(AbstractWithCustomManager):
     pass
 
 
+class HasMultifieldModel(models.Model):
+    multifield = models.ForeignKey(to=MultifieldModel, on_delete=models.CASCADE)
+
+
 class P(models.Model):
     pass
 
