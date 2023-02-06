@@ -47,6 +47,7 @@ class SQLAlchemyModelFactory(base.Factory):
     """Factory for SQLAlchemy models. """
 
     _options_class = SQLAlchemyOptions
+    _original_params = None
 
     class Meta:
         abstract = True
@@ -77,6 +78,10 @@ class SQLAlchemyModelFactory(base.Factory):
                 obj = cls._save(model_class, session, args, {**key_fields, **kwargs})
             except IntegrityError as e:
                 session.rollback()
+
+                if cls._original_params is None:
+                    raise e
+
                 get_or_create_params = {
                     lookup: value
                     for lookup, value in cls._original_params.items()

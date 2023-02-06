@@ -11,7 +11,9 @@ PYTHON_ERROR_ON_WARN=python \
   -Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working":DeprecationWarning:: \
   -Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.9 it will stop working":DeprecationWarning:: \
   -Wdefault:"set_output_charset() is deprecated":DeprecationWarning:: \
-  -Wdefault:"parameter codeset is deprecated":DeprecationWarning::
+  -Wdefault:"parameter codeset is deprecated":DeprecationWarning:: \
+  -Wdefault:"'cgi' is deprecated and slated for removal in Python 3.13":DeprecationWarning::
+# Remove cgi warning when dropping support for Django<=4.1.
 
 # Use current python binary instead of system default.
 COVERAGE_PATH = $(shell which coverage)

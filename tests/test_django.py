@@ -16,7 +16,7 @@ from django import test as django_test
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from django.core.management import color
-from django.db import connections
+from django.db import IntegrityError, connections
 from django.db.models import signals
 from django.test import utils as django_test_utils
 
@@ -1105,3 +1105,29 @@ class DjangoModelFactoryDuplicateSaveDeprecationTest(django_test.TestCase):
 
     def test_build_no_warning(self):
         self.StandardFactoryWithPost.build()
+
+
+class IntegrityErrorForMissingOriginalParamsTest(django_test.TestCase):
+
+    def test_raises_integrity_error(self):
+        """
+        In factory.django.DjangoModelFactory._get_or_create
+        _original_params can give some trouble when None
+
+        This test case verifies if the IntegrityError is correctly re-raised
+        """
+
+        class MultifieldModelFactory2(MultifieldModelFactory):
+            class Meta:
+                model = models.MultifieldModel
+                django_get_or_create = ['text']
+
+        class HasMultifieldModelFactory(factory.django.DjangoModelFactory):
+            multifield = factory.SubFactory(MultifieldModelFactory2)
+
+            class Meta:
+                model = models.HasMultifieldModel
+
+        HasMultifieldModelFactory(multifield__slug="test")
+        with self.assertRaises(IntegrityError):
+            HasMultifieldModelFactory(multifield__slug="test")

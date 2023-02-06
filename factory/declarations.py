@@ -611,8 +611,8 @@ class PostGenerationDeclaration(BaseDeclaration):
         """Call this hook; no return value is expected.
 
         Args:
-            obj (object): the newly generated object
-            create (bool): whether the object was 'built' or 'created'
+            instance (object): the newly generated object
+            step (bool): whether the object was 'built' or 'created'
             context: a builder.PostGenerationContext containing values
                 extracted from the containing factory's declaration
         """
