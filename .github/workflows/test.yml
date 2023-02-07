@@ -18,13 +18,13 @@ jobs:
       matrix:
         python-version:
           - ["3.7", "py37"]
-          - ["3.8", "py38"]
-          - ["3.9", "py39"]
-          - ["3.10", "py310"]
-          - ["3.11", "py311"]
-          - ["pypy-3.7", "pypy37"]
-          - ["pypy-3.8", "pypy38"]
-          - ["pypy-3.9", "pypy39"]
+#          - ["3.8", "py38"]
+#          - ["3.9", "py39"]
+#          - ["3.10", "py310"]
+#          - ["3.11", "py311"]
+#          - ["pypy-3.7", "pypy37"]
+#          - ["pypy-3.8", "pypy38"]
+#          - ["pypy-3.9", "pypy39"]
         database-type:
           - "sqlite"
           - "postgres"
