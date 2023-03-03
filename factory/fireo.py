@@ -16,7 +16,7 @@ from factory.declarations import BaseDeclaration
 
 
 class FireoFactory(factory.Factory):
-    """Factory for mogo objects."""
+    """Factory for FireO models."""
 
     class Meta:
         abstract = True
