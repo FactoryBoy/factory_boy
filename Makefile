@@ -62,9 +62,9 @@ test:
 		-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.9 it will stop working":DeprecationWarning:: \
 		-Wdefault:"set_output_charset() is deprecated":DeprecationWarning:: \
 		-Wdefault:"parameter codeset is deprecated":DeprecationWarning:: \
-		# Remove cgi warning when dropping support for Django<=4.1.
 		-Wdefault:"'cgi' is deprecated and slated for removal in Python 3.13":DeprecationWarning:: \
 		-m unittest
+		# Remove cgi warning when dropping support for Django<=4.1.
 
 # DOC: Test the examples
 example-test:
