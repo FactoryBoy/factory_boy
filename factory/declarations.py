@@ -20,6 +20,11 @@ class BaseDeclaration(utils.OrderedBase):
 
     FACTORY_BUILDER_PHASE = enums.BuilderPhase.ATTRIBUTE_RESOLUTION
 
+    #: Whether this declaration has a special handling for call-time overrides
+    #: (e.g. Tranformer).
+    #: Overridden values will be passed in the `extra` args.
+    CAPTURE_OVERRIDES = False
+
     #: Whether to unroll the context before evaluating the declaration.
     #: Set to False on declarations that perform their own unrolling.
     UNROLL_CONTEXT_BEFORE_EVALUATION = True
@@ -55,8 +60,7 @@ class BaseDeclaration(utils.OrderedBase):
                 step=step,
                 overrides=overrides,
             )
-        else:
-            return wrapped
+        return wrapped
 
     def evaluate_pre(self, instance, step, overrides):
         context = self.unroll_context(instance, step, overrides)
@@ -115,20 +119,26 @@ class LazyAttribute(BaseDeclaration):
         return self.function(instance)
 
 
-class Transformer(LazyFunction):
-    """Transform value using given function.
+class Transformer(BaseDeclaration):
+    CAPTURE_OVERRIDES = True
+    UNROLL_CONTEXT_BEFORE_EVALUATION = False
 
-    Attributes:
-        transform (function): returns the transformed value.
-        value: passed as the first argument to the transform function.
-    """
+    def __init__(self, default, *, transform):
+        super().__init__()
+        self.default = default
+        self.transform = transform
 
-    def __init__(self, transform, value, *args, **kwargs):
-        super().__init__(transform, *args, **kwargs)
-        self.value = value
+    def evaluate_pre(self, instance, step, overrides):
+        # The call-time value, if present, is set under the "" key.
+        value_or_declaration = overrides.pop("", self.default)
 
-    def evaluate(self, instance, step, extra):
-        return self.function(self.value)
+        value = self._unwrap_evaluate_pre(
+            value_or_declaration,
+            instance=instance,
+            step=step,
+            overrides=overrides,
+        )
+        return self.transform(value)
 
 
 class _UNSPECIFIED:

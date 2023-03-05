@@ -134,7 +134,7 @@ class IteratorTestCase(unittest.TestCase):
 
 class TransformerTestCase(unittest.TestCase):
     def test_transform(self):
-        t = declarations.Transformer(lambda x: x.upper(), 'foo')
+        t = declarations.Transformer('foo', transform=str.upper)
         self.assertEqual("FOO", utils.evaluate_declaration(t))
 
 
