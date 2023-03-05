@@ -192,8 +192,8 @@ class DjangoModelFactory(base.Factory):
 
 
 class Password(declarations.Transformer):
-    def __init__(self, password, *args, **kwargs):
-        super().__init__(make_password, password, *args, **kwargs)
+    def __init__(self, password, transform=make_password, **kwargs):
+        super().__init__(password, transform=transform, **kwargs)
 
 
 class FileField(declarations.BaseDeclaration):
