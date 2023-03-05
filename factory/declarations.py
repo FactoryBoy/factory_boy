@@ -100,24 +100,32 @@ class LazyAttribute(BaseDeclaration):
         return self.function(instance)
 
 
-class Transformer(LazyFunction):
+class _UNSPECIFIED:
+    pass
+
+
+class Transformer(BaseDeclaration):
     """Transform value using given function.
 
     Attributes:
-        transform (function): returns the transformed value.
         value: passed as the first argument to the transform function.
+        transform (function): returns the transformed value.
     """
 
-    def __init__(self, transform, value, *args, **kwargs):
-        super().__init__(transform, *args, **kwargs)
-        self.value = value
+    def __init__(self, declaration, *, transform, **defaults):
+        super().__init__(**defaults)
+        self.declaration = declaration
+        self.transform = transform
 
-    def evaluate(self, instance, step, extra):
-        return self.function(self.value)
+    def override_declaration(self, declaration):
+        return type(self)(declaration, transform=self.transform)
 
-
-class _UNSPECIFIED:
-    pass
+    def evaluate_pre(self, instance, step, overrides):
+        if isinstance(self.declaration, BaseDeclaration):
+            value = self.declaration.evaluate_pre(instance, step, overrides)
+        else:
+            value = self.declaration
+        return self.transform(value)
 
 
 def deepgetattr(obj, name, default=_UNSPECIFIED):
