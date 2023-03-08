@@ -18,6 +18,10 @@ class StandardModel(models.Model):
     foo = models.CharField(max_length=20)
 
 
+class WithRelation(models.Model):
+    rel = models.ForeignKey(StandardModel, models.CASCADE)
+
+
 class NonIntegerPk(models.Model):
     foo = models.CharField(max_length=20, primary_key=True)
     bar = models.CharField(max_length=20, blank=True)
