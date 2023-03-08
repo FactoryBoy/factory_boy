@@ -1014,8 +1014,15 @@ class PreventSignalsTestCase(django_test.TestCase):
 
         WithRelationFactory.create()
 
-        # Called only once for WithRelationFactory.
-        self.handlers.post_save.assert_called_once()
+        self.handlers.post_save.assert_called_once_with(
+            signal=mock.ANY,
+            sender=models.WithRelation,
+            instance=mock.ANY,
+            created=True,
+            update_fields=None,
+            raw=False,
+            using="default",
+        )
 
     def test_class_decorator_build(self):
         @factory.django.mute_signals(signals.pre_save, signals.post_save)
