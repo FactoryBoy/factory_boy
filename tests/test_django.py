@@ -998,25 +998,25 @@ class PreventSignalsTestCase(django_test.TestCase):
         """
 
         @factory.django.mute_signals(signals.post_save)
-        class StandardFactory(factory.django.DjangoModelFactory):
+        class PointedFactory(factory.django.DjangoModelFactory):
             class Meta:
-                model = models.StandardModel
+                model = models.PointedModel
 
             @factory.post_generation
             def post_action(obj, create, extracted, **kwargs):
                 pass
 
-        class WithRelationFactory(factory.django.DjangoModelFactory):
-            rel = factory.SubFactory(StandardFactory)
+        class PointerFactory(factory.django.DjangoModelFactory):
+            pointed = factory.SubFactory(PointedFactory)
 
             class Meta:
-                model = models.WithRelation
+                model = models.PointerModel
 
-        WithRelationFactory.create()
+        PointerFactory.create()
 
         self.handlers.post_save.assert_called_once_with(
             signal=mock.ANY,
-            sender=models.WithRelation,
+            sender=models.PointerModel,
             instance=mock.ANY,
             created=True,
             update_fields=None,
