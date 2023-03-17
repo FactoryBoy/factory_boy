@@ -51,6 +51,19 @@ class TransformerTest(TestCase):
         value = UpperFactory(name=factory.Faker("first_name_female", locale="fr")).name
         self.assertIs(value.isupper(), True)
 
+    def test_force_value(self):
+        value = UpperFactory(name=factory.Transformer.Force("Mia")).name
+        self.assertEqual(value, "Mia")
+
+    def test_force_value_declaration(self):
+        """Pretty unlikely use case, but easy enough to cover."""
+        value = UpperFactory(
+            name=factory.Transformer.Force(
+                factory.LazyFunction(lambda: "infinity")
+            )
+        ).name
+        self.assertEqual(value, "infinity")
+
 
 class TestObject:
     def __init__(self, one=None, two=None, three=None):

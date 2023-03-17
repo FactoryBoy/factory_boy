@@ -112,6 +112,13 @@ class Transformer(BaseDeclaration):
         transform (function): returns the transformed value.
     """
 
+    class Force:
+        def __init__(self, forced_value):
+            self.wrapped = forced_value
+
+        def resolve(self, instance, step, overrides):
+            return Transformer._resolve(self.wrapped, instance, step, overrides)
+
     def __init__(self, declaration, *, transform, **defaults):
         super().__init__(**defaults)
         self.declaration = declaration
@@ -121,11 +128,16 @@ class Transformer(BaseDeclaration):
         return type(self)(declaration, transform=self.transform)
 
     def evaluate_pre(self, instance, step, overrides):
-        if isinstance(self.declaration, BaseDeclaration):
-            value = self.declaration.evaluate_pre(instance, step, overrides)
-        else:
-            value = self.declaration
+        value = self._resolve(self.declaration, instance, step, overrides)
+        if isinstance(value, self.Force):
+            return value.resolve(instance, step, overrides)
         return self.transform(value)
+
+    @staticmethod
+    def _resolve(declaration_or_value, instance, step, overrides):
+        if isinstance(declaration_or_value, BaseDeclaration):
+            return declaration_or_value.evaluate_pre(instance, step, overrides)
+        return declaration_or_value
 
 
 def deepgetattr(obj, name, default=_UNSPECIFIED):
