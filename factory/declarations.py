@@ -123,6 +123,19 @@ class Transformer(BaseDeclaration):
     CAPTURE_OVERRIDES = True
     UNROLL_CONTEXT_BEFORE_EVALUATION = False
 
+    class Force:
+        """
+        Bypass a transformer's transformation.
+
+        The forced value can be any declaration, and will be evaluated as if it
+        had been passed instead of the Transformer declaration.
+        """
+        def __init__(self, forced_value):
+            self.forced_value = forced_value
+
+        def __repr__(self):
+            return f'Transformer.Force({repr(self.forced_value)})'
+
     def __init__(self, default, *, transform):
         super().__init__()
         self.default = default
@@ -132,12 +145,20 @@ class Transformer(BaseDeclaration):
         # The call-time value, if present, is set under the "" key.
         value_or_declaration = overrides.pop("", self.default)
 
+        if isinstance(value_or_declaration, self.Force):
+            bypass_transform = True
+            value_or_declaration = value_or_declaration.forced_value
+        else:
+            bypass_transform = False
+
         value = self._unwrap_evaluate_pre(
             value_or_declaration,
             instance=instance,
             step=step,
             overrides=overrides,
         )
+        if bypass_transform:
+            return value
         return self.transform(value)
 
 

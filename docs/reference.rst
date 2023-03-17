@@ -934,6 +934,14 @@ It expects one positional argument and one keyword argument:
    >>> UpperFactory(name="John").name
    'JOHN'
 
+Disabling
+~~~~~~~~~
+To disable a :class:`Transformer`, wrap the value in ``Transformer.Force``:
+
+.. code-block:: pycon
+
+   >>> UpperFactory(name=factory.Transformer.Force("John")).name
+   'John'
 
 Sequence
 """"""""

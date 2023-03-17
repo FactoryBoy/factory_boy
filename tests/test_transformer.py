@@ -59,6 +59,29 @@ class TransformerTest(TestCase):
         ).name
         self.assertEqual(value, "JOHN DOE")
 
+    def test_force_value(self):
+        value = UpperFactory(name=factory.Transformer.Force("Mia")).name
+        self.assertEqual(value, "Mia")
+
+    def test_force_value_declaration(self):
+        """Pretty unlikely use case, but easy enough to cover."""
+        value = UpperFactory(
+            name=factory.Transformer.Force(
+                factory.LazyFunction(lambda: "infinity")
+            )
+        ).name
+        self.assertEqual(value, "infinity")
+
+    def test_force_value_declaration_context(self):
+        """Ensure "forced" values run at the right level."""
+        value = UpperFactory(
+            name=factory.Transformer.Force(
+                factory.LazyAttribute(lambda o: o.username.replace(".", " ")),
+            ),
+            username="john.doe",
+        ).name
+        self.assertEqual(value, "john doe")
+
 
 class TestObject:
     def __init__(self, one=None, two=None, three=None):
