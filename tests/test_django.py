@@ -1001,6 +1001,7 @@ class PreventSignalsTestCase(django_test.TestCase):
         class PointedFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointedModel
+                skip_postgeneration_save = True
 
             @factory.post_generation
             def post_action(obj, create, extracted, **kwargs):
