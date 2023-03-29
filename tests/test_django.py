@@ -20,6 +20,7 @@ from django.db import IntegrityError, connections
 from django.db.models import signals
 from django.test import utils as django_test_utils
 
+import factory
 import factory.django
 
 from . import testdata
@@ -988,6 +989,41 @@ class PreventSignalsTestCase(django_test.TestCase):
         self.assertFalse(self.handlers.post_save.called)
 
         self.assertSignalsReactivated()
+
+    def test_class_decorator_related_model_with_post_hook(self):
+        """
+        Related factory with post_generation hook should not call disabled signals.
+
+        Refs https://github.com/FactoryBoy/factory_boy/issues/424
+        """
+
+        @factory.django.mute_signals(signals.post_save)
+        class PointedFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointedModel
+                skip_postgeneration_save = True
+
+            @factory.post_generation
+            def post_action(obj, create, extracted, **kwargs):
+                pass
+
+        class PointerFactory(factory.django.DjangoModelFactory):
+            pointed = factory.SubFactory(PointedFactory)
+
+            class Meta:
+                model = models.PointerModel
+
+        PointerFactory.create()
+
+        self.handlers.post_save.assert_called_once_with(
+            signal=mock.ANY,
+            sender=models.PointerModel,
+            instance=mock.ANY,
+            created=True,
+            update_fields=None,
+            raw=False,
+            using="default",
+        )
 
     def test_class_decorator_build(self):
         @factory.django.mute_signals(signals.pre_save, signals.post_save)

@@ -463,8 +463,7 @@ A (very) simple example:
 .. code-block:: python
 
     from sqlalchemy import Column, Integer, Unicode, create_engine
-    from sqlalchemy.ext.declarative import declarative_base
-    from sqlalchemy.orm import scoped_session, sessionmaker
+    from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 
     engine = create_engine('sqlite://')
     session = scoped_session(sessionmaker(bind=engine))
