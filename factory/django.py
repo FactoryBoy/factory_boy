@@ -505,6 +505,9 @@ class mute_signals:
             callable_obj._create = self.wrap_method(callable_obj._create.__func__)
             callable_obj._bulk_create = self.wrap_method(callable_obj._bulk_create.__func__)
             callable_obj._generate = self.wrap_method(callable_obj._generate.__func__)
+            callable_obj._after_postgeneration = self.wrap_method(
+                callable_obj._after_postgeneration.__func__
+            )
             return callable_obj
 
         else:
