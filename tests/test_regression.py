@@ -52,7 +52,7 @@ class FakerRegressionTests(unittest.TestCase):
         unknown_author = AuthorFactory(unknown=True)
         self.assertEqual("", unknown_author.fullname)
 
-    def test_locale_issue_in_evaluate(self):
+    def test_evaluated_without_locale(self):
         """Regression test for `KeyError: 'locale'` raised in `evaluate`.
 
         See #965
@@ -62,8 +62,8 @@ class FakerRegressionTests(unittest.TestCase):
             fullname = factory.Faker("name")
             pseudonym = factory.Maybe(
                 decider=factory.Faker("pybool"),
-                yes_declaration=factory.Faker("username"),
-                no_declaration="",
+                yes_declaration="yes",
+                no_declaration="no",
             )
 
             class Meta:
@@ -71,4 +71,4 @@ class FakerRegressionTests(unittest.TestCase):
 
         author = AuthorFactory()
 
-        self.assertIsInstance(author.pseudonym, str)
+        self.assertIn(author.pseudonym, ["yes", "no"])
