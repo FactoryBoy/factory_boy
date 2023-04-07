@@ -20,6 +20,11 @@ class BaseDeclaration(utils.OrderedBase):
 
     FACTORY_BUILDER_PHASE = enums.BuilderPhase.ATTRIBUTE_RESOLUTION
 
+    #: Whether this declaration has a special handling for call-time overrides
+    #: (e.g. Tranformer).
+    #: Overridden values will be passed in the `extra` args.
+    CAPTURE_OVERRIDES = False
+
     #: Whether to unroll the context before evaluating the declaration.
     #: Set to False on declarations that perform their own unrolling.
     UNROLL_CONTEXT_BEFORE_EVALUATION = True
@@ -120,39 +125,50 @@ class _UNSPECIFIED:
 
 
 class Transformer(BaseDeclaration):
-    """Transform value using given function.
-
-    Attributes:
-        value: passed as the first argument to the transform function.
-        transform (function): returns the transformed value.
-    """
+    CAPTURE_OVERRIDES = True
+    UNROLL_CONTEXT_BEFORE_EVALUATION = False
 
     class Force:
+        """
+        Bypass a transformer's transformation.
+
+        The forced value can be any declaration, and will be evaluated as if it
+        had been passed instead of the Transformer declaration.
+        """
         def __init__(self, forced_value):
-            self.wrapped = forced_value
+            self.forced_value = forced_value
 
-        def resolve(self, instance, step, overrides):
-            return Transformer._resolve(self.wrapped, instance, step, overrides)
+        def __repr__(self):
+            return f'Transformer.Force({repr(self.forced_value)})'
 
-    def __init__(self, declaration, *, transform, **defaults):
-        super().__init__(**defaults)
-        self.declaration = declaration
+    def __init__(self, default, *, transform):
+        super().__init__()
+        self.default = default
         self.transform = transform
 
-    def override_declaration(self, declaration):
-        return type(self)(declaration, transform=self.transform)
-
     def evaluate_pre(self, instance, step, overrides):
-        value = self._resolve(self.declaration, instance, step, overrides)
-        if isinstance(value, self.Force):
-            return value.resolve(instance, step, overrides)
-        return self.transform(value)
+        # The call-time value, if present, is set under the "" key.
+        value_or_declaration = overrides.pop("", self.default)
 
-    @staticmethod
-    def _resolve(declaration_or_value, instance, step, overrides):
-        if isinstance(declaration_or_value, BaseDeclaration):
-            return declaration_or_value.evaluate_pre(instance, step, overrides)
-        return declaration_or_value
+        if isinstance(value_or_declaration, self.Force):
+            bypass_transform = True
+            value_or_declaration = value_or_declaration.forced_value
+        else:
+            bypass_transform = False
+
+        # We remove the wrapped declaration from the overrides dict,
+        # since the rest of the dict may be used when resolving the
+        # wrapped declaration.
+        value = self._unwrap_evaluate_pre(
+            value_or_declaration,
+            instance=instance,
+            step=step,
+            overrides=overrides,
+        )
+        if bypass_transform:
+            return value
+        else:
+            return self.transform(value)
 
 
 def deepgetattr(obj, name, default=_UNSPECIFIED):

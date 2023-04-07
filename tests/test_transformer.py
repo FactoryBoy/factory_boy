@@ -22,8 +22,9 @@ transform = TransformCounter()
 
 
 class Upper:
-    def __init__(self, name):
+    def __init__(self, name, **extra):
         self.name = name
+        self.extra = extra
 
 
 class UpperFactory(factory.Factory):
@@ -51,6 +52,13 @@ class TransformerTest(TestCase):
         value = UpperFactory(name=factory.Faker("first_name_female", locale="fr")).name
         self.assertIs(value.isupper(), True)
 
+    def test_transform_linked(self):
+        value = UpperFactory(
+            name=factory.LazyAttribute(lambda o: o.username.replace(".", " ")),
+            username="john.doe",
+        ).name
+        self.assertEqual(value, "JOHN DOE")
+
     def test_force_value(self):
         value = UpperFactory(name=factory.Transformer.Force("Mia")).name
         self.assertEqual(value, "Mia")
@@ -63,6 +71,16 @@ class TransformerTest(TestCase):
             )
         ).name
         self.assertEqual(value, "infinity")
+
+    def test_force_value_declaration_context(self):
+        """Ensure "forced" values run at the right level."""
+        value = UpperFactory(
+            name=factory.Transformer.Force(
+                factory.LazyAttribute(lambda o: o.username.replace(".", " ")),
+            ),
+            username="john.doe",
+        ).name
+        self.assertEqual(value, "john doe")
 
 
 class TestObject:
