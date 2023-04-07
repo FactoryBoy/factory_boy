@@ -43,6 +43,21 @@ class BaseDeclaration(utils.OrderedBase):
         subfactory = factory.base.DictFactory
         return step.recurse(subfactory, full_context, force_sequence=step.sequence)
 
+    def _unwrap_evaluate_pre(self, wrapped, *, instance, step, overrides):
+        """Evaluate a wrapped pre-declaration.
+
+        This is especially useful for declarations wrapping another one,
+        e.g. Maybe or Transformer.
+        """
+        if isinstance(wrapped, BaseDeclaration):
+            return wrapped.evaluate_pre(
+                instance=instance,
+                step=step,
+                overrides=overrides,
+            )
+        else:
+            return wrapped
+
     def evaluate_pre(self, instance, step, overrides):
         context = self.unroll_context(instance, step, overrides)
         return self.evaluate(instance, step, context)
@@ -512,16 +527,14 @@ class Maybe(BaseDeclaration):
     def evaluate_pre(self, instance, step, overrides):
         choice = self.decider.evaluate(instance=instance, step=step, extra={})
         target = self.yes if choice else self.no
-
-        if isinstance(target, BaseDeclaration):
-            return target.evaluate_pre(
-                instance=instance,
-                step=step,
-                overrides=overrides,
-            )
-        else:
-            # Flat value (can't be POST_INSTANTIATION, checked in __init__)
-            return target
+        # The value can't be POST_INSTANTIATION, checked in __init__;
+        # evaluate it as `evaluate_pre`
+        return self._unwrap_evaluate_pre(
+            target,
+            instance=instance,
+            step=step,
+            overrides=overrides,
+        )
 
     def __repr__(self):
         return f'Maybe({self.decider!r}, yes={self.yes!r}, no={self.no!r})'
