@@ -1,0 +1,13 @@
+- case: created_instance_is_of_correct_type
+  main: |
+    from django.db import models
+    import factory.django
+
+    class Book(models.Model):
+        ...
+
+    class BookFactory(factory.django.DjangoModelFactory[Book]):
+        ...
+
+    instance = BookFactory.create()
+    reveal_type(instance)  # N: Revealed type is "main.Book"

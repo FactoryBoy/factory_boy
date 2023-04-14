@@ -65,6 +65,8 @@ test:
 		-Wdefault:"'cgi' is deprecated and slated for removal in Python 3.13":DeprecationWarning:: \
 		-Wdefault:"datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version.":DeprecationWarning:: \
 		-m unittest
+	# Consider using pytest for entire test run (it just works)
+	pytest tests/typecheck --mypy-only-local-stub
 
 # DOC: Test the examples
 example-test:
