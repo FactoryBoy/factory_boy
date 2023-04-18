@@ -490,7 +490,7 @@ class Maybe(BaseDeclaration):
             return target
 
     def evaluate_pre(self, instance, step, overrides):
-        choice = self.decider.evaluate(instance=instance, step=step, extra={})
+        choice = self.decider.evaluate_pre(instance=instance, step=step, overrides={})
         target = self.yes if choice else self.no
 
         if isinstance(target, BaseDeclaration):
