@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      GitHub_Actions:
+        patterns:
+          - "*"  # Group all Actions updates into a single larger pull request
