@@ -12,14 +12,12 @@ ChangeLog
       passwords.
     - :issue:`304`: Add :attr:`~factory.alchemy.SQLAlchemyOptions.sqlalchemy_session_factory` to dynamically
       create sessions for use by the :class:`~factory.alchemy.SQLAlchemyModelFactory`.
-    - Add support for Django 3.2
     - Add support for Django 4.0
     - Add support for Django 4.1
     - Add support for Python 3.10
+    - Add support for Python 3.11
 
 *Bugfix:*
-
-    - Do not override signals receivers registered in a :meth:`~factory.django.mute_signals` context.
 
     - Make :meth:`~factory.django.mute_signals` mute signals during post-generation.
 
@@ -53,6 +51,20 @@ ChangeLog
     - Drop support for Django 3.0
     - Drop support for Django 3.1
     - Drop support for Python 3.6
+
+3.2.1 (2021-10-26)
+------------------
+
+*New:*
+    - Add support for Django 3.2
+
+*Bugfix:*
+
+    - Do not override signals receivers registered in a :meth:`~factory.django.mute_signals` context.
+
+    - :issue:`775`: Change the signature for :meth:`~factory.alchemy.SQLAlchemyModelFactory._save` and
+      :meth:`~factory.alchemy.SQLAlchemyModelFactory._get_or_create` to avoid argument names clashes with a field named
+      ``session``.
 
 3.2.0 (2020-12-28)
 ------------------

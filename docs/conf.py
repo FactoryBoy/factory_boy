@@ -79,7 +79,7 @@ linkcheck_retries = 3
 
 # -- intersphinx -------------------------------------------------------------
 intersphinx_mapping = {
-    'https://docs.python.org/': None,
+    'python': ('https://docs.python.org/3', None),
     'django': (
         'https://docs.djangoproject.com/en/dev/',
         'https://docs.djangoproject.com/en/dev/_objects/',
