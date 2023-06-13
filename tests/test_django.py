@@ -585,8 +585,8 @@ class DjangoFileFieldTestCase(django_test.TestCase):
             o = WithFileFactory.build(afile__from_file=f)
             o.save()
 
-        with o.afile as f:
-            self.assertEqual(b'example_data\n', f.read())
+            with o.afile as f:
+                self.assertEqual(b'example_data\n', f.read())
         self.assertEqual('django/example.data', o.afile.name)
 
     def test_with_path(self):
@@ -609,8 +609,8 @@ class DjangoFileFieldTestCase(django_test.TestCase):
             # Django only allocates the full path on save()
             o.save()
 
-        with o.afile as f:
-            self.assertEqual(b'example_data\n', f.read())
+            with o.afile as f:
+                self.assertEqual(b'example_data\n', f.read())
         self.assertEqual('django/example.data', o.afile.name)
 
     def test_with_path_empty_file(self):
