@@ -907,21 +907,22 @@ return value of the method:
 Transformer
 """""""""""
 
-.. class:: Transformer(transform, value)
+.. class:: Transformer(default_value, *, transform)
 
 A :class:`Transformer` applies a ``transform`` function to the provided value
 before to set the transformed value on the generated object.
 
-It expects two arguments:
+It expects one positional argument and one keyword argument:
 
-- ``transform``: function taking the value as parameter and returning the
+- ``default_value``: the default value, which passes through the ``transform``
+  function.
+- ``transform``: a function taking the value as parameter and returning the
   transformed value,
-- ``value``: the default value.
 
 .. code-block:: python
 
-   class UpperFactory(Factory):
-       name = Transformer(lambda x: x.upper(), "Joe")
+   class UpperFactory(factory.Factory):
+       name = factory.Transformer("Joe", transform=str.upper)
 
        class Meta:
            model = Upper
@@ -933,6 +934,14 @@ It expects two arguments:
    >>> UpperFactory(name="John").name
    'JOHN'
 
+Disabling
+~~~~~~~~~
+To disable a :class:`Transformer`, wrap the value in ``Transformer.Force``:
+
+.. code-block:: pycon
+
+   >>> UpperFactory(name=factory.Transformer.Force("John")).name
+   'John'
 
 Sequence
 """"""""
