@@ -2,7 +2,7 @@
 
 import collections
 
-from . import declarations, enums, errors, utils
+from . import enums, errors, utils
 
 DeclarationWithContext = collections.namedtuple(
     'DeclarationWithContext',
@@ -134,6 +134,14 @@ class DeclarationSet:
         return '<DeclarationSet: %r>' % self.as_dict()
 
 
+def _captures_overrides(declaration_with_context):
+    declaration = declaration_with_context.declaration
+    if enums.get_builder_phase(declaration) == enums.BuilderPhase.ATTRIBUTE_RESOLUTION:
+        return declaration.CAPTURE_OVERRIDES
+    else:
+        return False
+
+
 def parse_declarations(decls, base_pre=None, base_post=None):
     pre_declarations = base_pre.copy() if base_pre else DeclarationSet()
     post_declarations = base_post.copy() if base_post else DeclarationSet()
@@ -156,10 +164,6 @@ def parse_declarations(decls, base_pre=None, base_post=None):
             # Set it as `key__`
             magic_key = post_declarations.join(k, '')
             extra_post[magic_key] = v
-        elif k in pre_declarations and isinstance(
-            pre_declarations[k].declaration, declarations.Transformer
-        ):
-            extra_maybenonpost[k] = pre_declarations[k].declaration.function(v)
         else:
             extra_maybenonpost[k] = v
 
@@ -173,6 +177,12 @@ def parse_declarations(decls, base_pre=None, base_post=None):
     for k, v in extra_maybenonpost.items():
         if k in post_overrides:
             extra_post_declarations[k] = v
+        elif k in pre_declarations and _captures_overrides(pre_declarations[k]):
+            # Send the overriding value to the existing declaration.
+            # By symmetry with the behaviour of PostGenerationDeclaration,
+            # we send it as `key__` -- i.e under the '' key.
+            magic_key = pre_declarations.join(k, '')
+            extra_pre_declarations[magic_key] = v
         else:
             # Anything else is pre_declarations
             extra_pre_declarations[k] = v

@@ -20,6 +20,11 @@ class BaseDeclaration(utils.OrderedBase):
 
     FACTORY_BUILDER_PHASE = enums.BuilderPhase.ATTRIBUTE_RESOLUTION
 
+    #: Whether this declaration has a special handling for call-time overrides
+    #: (e.g. Tranformer).
+    #: Overridden values will be passed in the `extra` args.
+    CAPTURE_OVERRIDES = False
+
     #: Whether to unroll the context before evaluating the declaration.
     #: Set to False on declarations that perform their own unrolling.
     UNROLL_CONTEXT_BEFORE_EVALUATION = True
@@ -42,6 +47,20 @@ class BaseDeclaration(utils.OrderedBase):
         import factory.base
         subfactory = factory.base.DictFactory
         return step.recurse(subfactory, full_context, force_sequence=step.sequence)
+
+    def _unwrap_evaluate_pre(self, wrapped, *, instance, step, overrides):
+        """Evaluate a wrapped pre-declaration.
+
+        This is especially useful for declarations wrapping another one,
+        e.g. Maybe or Transformer.
+        """
+        if isinstance(wrapped, BaseDeclaration):
+            return wrapped.evaluate_pre(
+                instance=instance,
+                step=step,
+                overrides=overrides,
+            )
+        return wrapped
 
     def evaluate_pre(self, instance, step, overrides):
         context = self.unroll_context(instance, step, overrides)
@@ -100,20 +119,47 @@ class LazyAttribute(BaseDeclaration):
         return self.function(instance)
 
 
-class Transformer(LazyFunction):
-    """Transform value using given function.
+class Transformer(BaseDeclaration):
+    CAPTURE_OVERRIDES = True
+    UNROLL_CONTEXT_BEFORE_EVALUATION = False
 
-    Attributes:
-        transform (function): returns the transformed value.
-        value: passed as the first argument to the transform function.
-    """
+    class Force:
+        """
+        Bypass a transformer's transformation.
 
-    def __init__(self, transform, value, *args, **kwargs):
-        super().__init__(transform, *args, **kwargs)
-        self.value = value
+        The forced value can be any declaration, and will be evaluated as if it
+        had been passed instead of the Transformer declaration.
+        """
+        def __init__(self, forced_value):
+            self.forced_value = forced_value
 
-    def evaluate(self, instance, step, extra):
-        return self.function(self.value)
+        def __repr__(self):
+            return f'Transformer.Force({repr(self.forced_value)})'
+
+    def __init__(self, default, *, transform):
+        super().__init__()
+        self.default = default
+        self.transform = transform
+
+    def evaluate_pre(self, instance, step, overrides):
+        # The call-time value, if present, is set under the "" key.
+        value_or_declaration = overrides.pop("", self.default)
+
+        if isinstance(value_or_declaration, self.Force):
+            bypass_transform = True
+            value_or_declaration = value_or_declaration.forced_value
+        else:
+            bypass_transform = False
+
+        value = self._unwrap_evaluate_pre(
+            value_or_declaration,
+            instance=instance,
+            step=step,
+            overrides=overrides,
+        )
+        if bypass_transform:
+            return value
+        return self.transform(value)
 
 
 class _UNSPECIFIED:
@@ -492,16 +538,14 @@ class Maybe(BaseDeclaration):
     def evaluate_pre(self, instance, step, overrides):
         choice = self.decider.evaluate(instance=instance, step=step, extra={})
         target = self.yes if choice else self.no
-
-        if isinstance(target, BaseDeclaration):
-            return target.evaluate_pre(
-                instance=instance,
-                step=step,
-                overrides=overrides,
-            )
-        else:
-            # Flat value (can't be POST_INSTANTIATION, checked in __init__)
-            return target
+        # The value can't be POST_INSTANTIATION, checked in __init__;
+        # evaluate it as `evaluate_pre`
+        return self._unwrap_evaluate_pre(
+            target,
+            instance=instance,
+            step=step,
+            overrides=overrides,
+        )
 
     def __repr__(self):
         return f'Maybe({self.decider!r}, yes={self.yes!r}, no={self.no!r})'
