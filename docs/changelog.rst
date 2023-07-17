@@ -67,6 +67,7 @@ ChangeLog
     - Drop support for Django 3.0
     - Drop support for Django 3.1
     - Drop support for Python 3.6
+    - Drop support for Python 3.7
 
 3.2.1 (2021-10-26)
 ------------------
