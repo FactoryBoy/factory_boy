@@ -8,10 +8,10 @@ factory_boy
     :target: https://github.com/FactoryBoy/factory_boy/actions?query=workflow%3ACheck
 
 .. image:: https://img.shields.io/pypi/v/factory_boy.svg
-    :target: https://factoryboy.readthedocs.io/en/latest/changelog.html
+    :target: https://pypi.org/project/factory-boy/
     :alt: Latest Version
 
-.. image:: https://img.shields.io/pypi/pyversions/factory_boy.svg
+.. image:: https://img.shields.io/badge/python-3.8%20|%203.9%20|%203.10%20|%203.11-blue.svg
     :target: https://pypi.org/project/factory-boy/
     :alt: Supported Python versions
 
@@ -20,7 +20,7 @@ factory_boy
     :alt: Wheel status
 
 .. image:: https://img.shields.io/pypi/l/factory_boy.svg
-    :target: https://pypi.org/project/factory-boy/
+    :target: https://github.com/FactoryBoy/factory_boy/blob/master/LICENSE
     :alt: License
 
 factory_boy is a fixtures replacement based on thoughtbot's `factory_bot <https://github.com/thoughtbot/factory_bot>`_.
