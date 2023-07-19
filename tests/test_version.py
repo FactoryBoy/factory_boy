@@ -7,6 +7,7 @@ import factory
 
 SETUP_CFG_VERSION_PREFIX = "version ="
 
+
 class VersionTestCase(unittest.TestCase):
     def get_setupcfg_version(self):
         setup_cfg_path = pathlib.Path(__file__).parent.parent / "setup.cfg"
