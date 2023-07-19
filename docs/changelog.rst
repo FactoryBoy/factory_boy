@@ -3,6 +3,12 @@ ChangeLog
 
 .. Note for v4.x: don't forget to check "Deprecated" sections for removal.
 
+3.3.1 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
 3.3.0 (2023-07-19)
 ------------------
 
