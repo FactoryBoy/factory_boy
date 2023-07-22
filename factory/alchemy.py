@@ -129,3 +129,19 @@ class SQLAlchemyModelFactory(base.Factory):
         elif session_persistence == SESSION_PERSISTENCE_COMMIT:
             session.commit()
         return obj
+
+
+class SQLAlchemyModelAsyncFactory(SQLAlchemyModelFactory, base.AsyncFactory):
+    """Async Factory for SQLAlchemy models. """
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    async def _create_model_async(cls, model_class, *args, **kwargs):
+        session = cls._meta.sqlalchemy_session
+        async with session.begin():
+            model = model_class(**kwargs)
+            session.add(model)
+
+            return model
