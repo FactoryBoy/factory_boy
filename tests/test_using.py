@@ -2576,6 +2576,28 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(3, obj.one)
         self.assertFalse(hasattr(obj, 'incr_one'))
 
+    def test_post_generation_async(self):
+        class TestAsyncFactory(FakeAsyncModelFactory):
+            class Meta:
+                model = AsyncTestModel
+
+            one = 1
+
+            @factory.post_generation
+            def incr_one(self, _create, _increment):
+                self.one += 1
+
+        async def test():
+            obj = await TestAsyncFactory.create_async()
+            self.assertEqual(2, obj.one)
+            self.assertFalse(hasattr(obj, 'incr_one'))
+
+            obj = await TestAsyncFactory.create_async(one=2)
+            self.assertEqual(3, obj.one)
+            self.assertFalse(hasattr(obj, 'incr_one'))
+
+        asyncio.run(test())
+
     def test_post_generation_hook(self):
         class TestObjectFactory(factory.Factory):
             class Meta:
@@ -2597,6 +2619,31 @@ class PostGenerationTestCase(unittest.TestCase):
         self.assertEqual(2, obj.one)
         self.assertFalse(obj.create)
         self.assertEqual({'incr_one': 42}, obj.results)
+
+    def test_post_generation_hook_async(self):
+        class TestAsyncFactory(FakeAsyncModelFactory):
+            class Meta:
+                model = AsyncTestModel
+
+            one = 1
+
+            @factory.post_generation
+            def incr_one(self, _create, _increment):
+                self.one += 1
+                return 42
+
+            @classmethod
+            def _after_postgeneration(cls, obj, create, results):
+                obj.create = create
+                obj.results = results
+
+        async def test():
+            obj = await TestAsyncFactory.create_async()
+            self.assertEqual(2, obj.one)
+            self.assertTrue(obj.create)
+            self.assertEqual({'incr_one': 42}, obj.results)
+
+        asyncio.run(test())
 
     def test_post_generation_extraction(self):
         class TestObjectFactory(factory.Factory):
