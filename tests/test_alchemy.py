@@ -286,7 +286,6 @@ class SQLAlchemySessionFactoryTestCase(TransactionTestCase):
         class SessionGetterFactory(SQLAlchemyModelFactory):
             class Meta:
                 model = models.StandardModel
-                sqlalchemy_session = None
                 sqlalchemy_session_factory = lambda: models.session
 
             id = factory.Sequence(lambda n: n)
