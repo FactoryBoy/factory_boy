@@ -6,7 +6,10 @@ ChangeLog
 3.3.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*Bugfix:*
+
+- :issue:`1031`: Do not require :attr:`~factory.alchemy.SQLAlchemyOptions.sqlalchemy_session` when
+  :attr:`~factory.alchemy.SQLAlchemyOptions.sqlalchemy_session_factory` is provided.
 
 
 3.3.0 (2023-07-19)
