@@ -909,6 +909,8 @@ Transformer
 
 .. class:: Transformer(default_value, *, transform)
 
+   .. versionadded:: 3.3.0
+
 A :class:`Transformer` applies a ``transform`` function to the provided value
 before to set the transformed value on the generated object.
 
