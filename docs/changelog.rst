@@ -5,6 +5,9 @@ ChangeLog
 
 3.3.1 (unreleased)
 ------------------
+*New:*
+
+- Add support for Django 4.2
 
 *Bugfix:*
 
