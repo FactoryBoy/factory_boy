@@ -14,6 +14,9 @@ ChangeLog
 - :issue:`1031`: Do not require :attr:`~factory.alchemy.SQLAlchemyOptions.sqlalchemy_session` when
   :attr:`~factory.alchemy.SQLAlchemyOptions.sqlalchemy_session_factory` is provided.
 
+*Removed:*
+
+- Drop support for Django 4.0
 
 3.3.0 (2023-07-19)
 ------------------
