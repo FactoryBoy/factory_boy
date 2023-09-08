@@ -25,7 +25,7 @@ class SQLAlchemyOptions(base.FactoryOptions):
     @staticmethod
     def _check_has_sqlalchemy_session_set(meta, value):
         try:
-            if value and meta.sqlalchemy_session:
+            if value and hasattr(meta, "sqlalchemy_session"):
                 raise RuntimeError("Provide either a sqlalchemy_session or a sqlalchemy_session_factory, not both")
         except AttributeError:
             pass
