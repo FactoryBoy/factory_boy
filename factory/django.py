@@ -311,8 +311,13 @@ class mute_signals:
             logger.debug('mute_signals: Restoring signal handlers %r',
                          receivers)
 
-            signal.receivers += receivers
             with signal.lock:
+                new_receivers = signal.receivers
+                signal.receivers = receivers
+                for lookup_key, receiver in new_receivers:
+                    # add dynamic receivers same way django signal adds them
+                    if all(r_key != lookup_key for r_key, _ in signal.receivers):
+                        signal.receivers.append((lookup_key, receiver))
                 # Django uses some caching for its signals.
                 # Since we're bypassing signal.connect and signal.disconnect,
                 # we have to keep messing with django's internals.
