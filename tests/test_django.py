@@ -941,6 +941,22 @@ class PreventSignalsTestCase(django_test.TestCase):
 
         self.assertTrue(self.handlers.created_during_instantiation.called)
 
+    def test_signal_receiver_order_restored_after_mute_signals(self):
+        def must_be_first(*args, **kwargs):
+            self.handlers.do_stuff(1)
+
+        def must_be_second(*args, **kwargs):
+            self.handlers.do_stuff(2)
+
+        signals.post_save.connect(must_be_first)
+        with factory.django.mute_signals(signals.post_save):
+            WithSignalsFactory(post_save_signal_receiver=must_be_second)
+            self.handlers.do_stuff.assert_has_calls([mock.call(2)])
+
+        self.handlers.reset_mock()
+        WithSignalsFactory(post_save_signal_receiver=must_be_second)
+        self.handlers.do_stuff.assert_has_calls([mock.call(1), mock.call(2)])
+
     def test_signal_cache(self):
         with factory.django.mute_signals(signals.pre_save, signals.post_save):
             signals.post_save.connect(self.handlers.mute_block_receiver)
