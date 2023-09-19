@@ -951,11 +951,11 @@ class PreventSignalsTestCase(django_test.TestCase):
         signals.post_save.connect(must_be_first)
         with factory.django.mute_signals(signals.post_save):
             WithSignalsFactory(post_save_signal_receiver=must_be_second)
-            self.handlers.do_stuff.assert_has_calls([mock.call(2)])
+            self.assertEqual(self.handlers.do_stuff.call_args_list, [mock.call(2)])
 
         self.handlers.reset_mock()
         WithSignalsFactory(post_save_signal_receiver=must_be_second)
-        self.handlers.do_stuff.assert_has_calls([mock.call(1), mock.call(2)])
+        self.assertEqual(self.handlers.do_stuff.call_args_list, [mock.call(1), mock.call(2)])
 
     def test_signal_cache(self):
         with factory.django.mute_signals(signals.pre_save, signals.post_save):
