@@ -128,7 +128,11 @@ Extra fields
 
     .. method:: __init__(self, password)
 
-        :param str password: Default password.
+        :param str or None password: Default password.
+
+    .. note:: When the ``password`` argument is ``None``, the resulting password is
+              unusable as if ``set_unusable_password()`` were used. This is distinct
+              from setting the password to an empty string.
 
     .. code-block:: python
 
@@ -149,6 +153,10 @@ Extra fields
         >>> other_user = UserFactory.create(password='other_pw')
         >>> check_password('other_pw', other_user.password)
         True
+        >>> # Set unusable password
+        >>> no_password_user = UserFactory.create(password=None)
+        >>> no_password_user.has_usable_password()
+        False
 
 
 .. class:: FileField
