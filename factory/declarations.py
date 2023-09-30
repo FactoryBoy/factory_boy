@@ -1,11 +1,10 @@
 # Copyright: See the LICENSE file.
 
-
 import itertools
 import logging
 import typing as T
 
-from . import enums, errors, utils
+from . import enums, errors, random, utils
 
 logger = logging.getLogger('factory.generate')
 
@@ -289,6 +288,20 @@ class Sequence(BaseDeclaration):
     def evaluate(self, instance, step, extra):
         logger.debug("Sequence: Computing next value of %r for seq=%s", self.function, step.sequence)
         return self.function(int(step.sequence))
+
+
+class Choice(BaseDeclaration):
+    """Fill this value using a random value from the choices.
+
+    Attributes:
+        choices: A collection of valid values
+    """
+    def __init__(self, choices):
+        super().__init__()
+        self.choices = choices
+
+    def evaluate(self, instance, step, extra):
+        return random.randgen.choice(self.choices)
 
 
 class LazyAttributeSequence(Sequence):

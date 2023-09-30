@@ -132,6 +132,22 @@ class IteratorTestCase(unittest.TestCase):
         self.assertEqual(3, utils.evaluate_declaration(it, force_sequence=3))
 
 
+class ChoiceTestCase(unittest.TestCase):
+    def test_choice(self):
+        choices = [1, 2, 3]
+
+        it = declarations.Choice(choices)
+
+        self.assertIn(utils.evaluate_declaration(it), choices)
+
+    def test_seeding(self):
+        choices = [1, 2, 3]
+        it = declarations.Choice(choices)
+
+        with mock.patch('factory.random.randgen.choice', lambda _: 2):
+            self.assertEqual(2, utils.evaluate_declaration(it))
+
+
 class TransformerTestCase(unittest.TestCase):
     def test_transform(self):
         t = declarations.Transformer('foo', transform=str.upper)
