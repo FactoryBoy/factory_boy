@@ -20,7 +20,7 @@ factory_boy
     :alt: Wheel status
 
 .. image:: https://img.shields.io/pypi/l/factory_boy.svg
-    :target: https://pypi.org/project/factory-boy/
+    :target: https://github.com/FactoryBoy/factory_boy/blob/master/LICENSE
     :alt: License
 
 factory_boy is a fixtures replacement based on thoughtbot's `factory_bot <https://github.com/thoughtbot/factory_bot>`_.
