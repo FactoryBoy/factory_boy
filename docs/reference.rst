@@ -203,7 +203,7 @@ Attributes and methods
 
     .. classmethod:: build_batch(cls, size, **kwargs)
 
-        Provides a list of :obj:`size` instances from the :class:`Factory`,
+        Provides a list of ``size`` instances from the :class:`Factory`,
         through the 'build' strategy.
 
 
@@ -213,18 +213,18 @@ Attributes and methods
 
     .. classmethod:: create_batch(cls, size, **kwargs)
 
-        Provides a list of :obj:`size` instances from the :class:`Factory`,
+        Provides a list of ``size`` instances from the :class:`Factory`,
         through the 'create' strategy.
 
 
     .. classmethod:: create_async(cls, **kwargs)
 
-        Provides a new object, using the `create_async` strategy.
+        Provides a new object, using the ``create_async`` strategy.
 
     .. classmethod:: create_async_batch(cls, size, **kwargs)
 
-        Provides a list of :obj:`size` instances from the :class:`Factory`,
-        through the `create_async` strategy.
+        Asynchronously provides a list of ``size`` instances from the :class:`Factory`,
+        through the ``create_async`` strategy.
 
 
     .. classmethod:: stub(cls, **kwargs)
@@ -415,7 +415,7 @@ Attributes and methods
 
 .. class:: AsyncFactory
 
-Similar to the :class:`Factory` class but with `create_async` as default strategy.
+Similar to the :class:`Factory` class but with ``create_async`` as default strategy.
 
 
 .. _parameters:
@@ -629,13 +629,13 @@ factory_boy supports two main strategies for generating instances, plus stubs.
                  :class:`Factory` wasn't overridden.
 
 
-.. data:: CREATE_ASYNC_STRATEGY
+.. data:: ASYNC_CREATE_STRATEGY
 
-    The `create_async` strategy is similar to the `create` strategy but asynchronous.
+    The ``create_async`` strategy is similar to the ``create`` strategy but asynchronous.
 
     This is the default strategy for subclasses of :class:`AsyncFactory`.
 
-    Default behavior is to call :meth:`~Factory._create`, this can be overridden in :meth:`_create_model_async`.
+    Default behavior is to call :meth:`~Factory._create`, this can be overridden in :meth:`Factory._create_model_async`.
 
 .. function:: use_strategy(strategy)
 

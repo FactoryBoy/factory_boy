@@ -390,8 +390,8 @@ if models.async_engine:
 
                 statement = sqlalchemy.select(
                     sqlalchemy.func.count(models.NoteModel.id)
-                ).where(models.NoteModel.text == "Text 0")
+                )
                 count = await models.async_session.scalar(statement)
-                assert count == 1
+                self.assertEqual(count, 1)
 
             asyncio.run(test())

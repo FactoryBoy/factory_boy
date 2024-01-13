@@ -847,7 +847,7 @@ class UsingFactoryTestCase(unittest.TestCase):
         async def test():
             test_model = await TestModelFactory.create_async()
             self.assertEqual(test_model.one, 'one')
-            self.assertTrue(create_marker, test_model.id)
+            self.assertEqual(create_marker, test_model.id)
 
         asyncio.run(test())
 
@@ -866,7 +866,7 @@ class UsingFactoryTestCase(unittest.TestCase):
             for i, obj in enumerate(objs):
                 self.assertEqual('one', obj.one)
                 self.assertEqual(i, obj.two)
-                self.assertTrue(obj.id)
+                self.assertEqual(obj.id, create_marker)
         asyncio.run(test())
 
     def test_generate_build(self):
@@ -966,7 +966,7 @@ class UsingFactoryTestCase(unittest.TestCase):
             for i, obj in enumerate(objs):
                 self.assertEqual('one', obj.one)
                 self.assertEqual('two', obj.two)
-                self.assertTrue(obj.id)
+                self.assertEqual(obj.id, create_marker)
 
         asyncio.run(test())
 

@@ -679,7 +679,7 @@ class PostGeneration(PostGenerationDeclaration):
                 context._asdict(),
             ),
         )
-        create = step.builder.strategy != enums.BUILD_STRATEGY
+        create = step.builder.strategy in (enums.CREATE_STRATEGY, enums.ASYNC_CREATE_STRATEGY)
 
         return self.function(
             instance, create, context.value, **context.extra)

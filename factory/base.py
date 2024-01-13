@@ -327,7 +327,7 @@ class FactoryOptions:
     def use_postgeneration_results(self, step, instance, results):
         self.factory._after_postgeneration(
             instance,
-            create=step.builder.strategy != enums.BUILD_STRATEGY,
+            create=step.builder.strategy in (enums.CREATE_STRATEGY, enums.ASYNC_CREATE_STRATEGY),
             results=results,
         )
 
