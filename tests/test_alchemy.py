@@ -343,6 +343,7 @@ class NoteFactory(SQLAlchemyModelAsyncFactory):
     class Meta:
         model = models.NoteModel
         sqlalchemy_session = models.async_session
+        sqlalchemy_session_persistence = 'commit'
 
     text = factory.Sequence(lambda n: f"Text {n}")
     completed = factory.Faker('boolean')
