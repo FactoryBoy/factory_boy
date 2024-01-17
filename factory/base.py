@@ -510,12 +510,17 @@ class BaseFactory(Generic[T]):
 
     @classmethod
     def build(cls, **kwargs) -> T:
-        """Build an instance of the associated class, with overridden attrs."""
+        """Build an instance of the associated class, with overridden attrs.
+
+        The instance will not be saved and persisted to any datastore.
+        """
         return cls._generate(enums.BUILD_STRATEGY, kwargs)
 
     @classmethod
     def build_batch(cls, size: int, **kwargs) -> List[T]:
         """Build a batch of instances of the given class, with overridden attrs.
+
+        The instances will not be saved and persisted to any datastore.
 
         Args:
             size (int): the number of instances to build
@@ -527,12 +532,17 @@ class BaseFactory(Generic[T]):
 
     @classmethod
     def create(cls, **kwargs) -> T:
-        """Create an instance of the associated class, with overridden attrs."""
+        """Create an instance of the associated class, with overridden attrs.
+
+        The instance will be saved and persisted in the appropriate datastore.
+        """
         return cls._generate(enums.CREATE_STRATEGY, kwargs)
 
     @classmethod
     def create_batch(cls, size: int, **kwargs) -> List[T]:
         """Create a batch of instances of the given class, with overridden attrs.
+
+        The instances will be saved and persisted in the appropriate datastore.
 
         Args:
             size (int): the number of instances to create
