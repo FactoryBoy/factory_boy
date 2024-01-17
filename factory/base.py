@@ -514,7 +514,7 @@ class BaseFactory(Generic[T]):
         return cls._generate(enums.BUILD_STRATEGY, kwargs)
 
     @classmethod
-    def build_batch(cls, size, **kwargs) -> List[T]:
+    def build_batch(cls, size: int, **kwargs) -> List[T]:
         """Build a batch of instances of the given class, with overridden attrs.
 
         Args:
@@ -531,7 +531,7 @@ class BaseFactory(Generic[T]):
         return cls._generate(enums.CREATE_STRATEGY, kwargs)
 
     @classmethod
-    def create_batch(cls, size, **kwargs) -> List[T]:
+    def create_batch(cls, size: int, **kwargs) -> List[T]:
         """Create a batch of instances of the given class, with overridden attrs.
 
         Args:
