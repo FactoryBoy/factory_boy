@@ -57,4 +57,4 @@ jobs:
       - name: Run tests
         run: tox
         env:
-          DATABASE_TYPE: ${{ matrix.environment }}
+          ENVIRONMENT: ${{ matrix.environment }}
