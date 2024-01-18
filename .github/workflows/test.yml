@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   tests:
-    name: Python ${{ matrix.python-version }}, Database ${{ matrix.environment }}
+    name: Python ${{ matrix.python-version }}, Env ${{ matrix.environment }}
     runs-on: ubuntu-latest
 
     strategy:
