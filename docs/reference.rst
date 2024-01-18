@@ -203,7 +203,7 @@ Attributes and methods
 
     .. classmethod:: build_batch(cls, size, **kwargs)
 
-        Provides a list of :obj:`size` instances from the :class:`Factory`,
+        Provides a list of ``size`` instances from the :class:`Factory`,
         through the 'build' strategy.
 
 
@@ -213,8 +213,18 @@ Attributes and methods
 
     .. classmethod:: create_batch(cls, size, **kwargs)
 
-        Provides a list of :obj:`size` instances from the :class:`Factory`,
+        Provides a list of ``size`` instances from the :class:`Factory`,
         through the 'create' strategy.
+
+
+    .. classmethod:: create_async(cls, **kwargs)
+
+        Provides a new object, using the ``create_async`` strategy.
+
+    .. classmethod:: create_async_batch(cls, size, **kwargs)
+
+        Asynchronously provides a list of ``size`` instances from the :class:`Factory`,
+        through the ``create_async`` strategy.
 
 
     .. classmethod:: stub(cls, **kwargs)
@@ -319,6 +329,32 @@ Attributes and methods
 
         .. OHAI_VIM*
 
+
+    .. classmethod:: _create_model_async(cls, model_class, *args, **kwargs)
+
+        .. OHAI_VIM*
+
+        The :meth:`_create_model_async` method is called whenever an instance needs to be
+        created asynchronously.
+        It receives the same arguments as :meth:`_build` and :meth:`_create`.
+
+        Subclasses may override this for specific persistence backends:
+
+        .. code-block:: python
+
+            class BaseBackendFactory(factory.Factory):
+                class Meta:
+                    abstract = True  # Optional
+
+                @classmethod
+                async def _create_model_async(cls, model_class, *args, **kwargs):
+                    obj = model_class(*args, **kwargs)
+                    await obj.async_save()
+                    return obj
+
+        .. OHAI_VIM*      
+
+
     .. classmethod:: _after_postgeneration(cls, obj, create, results=None)
 
         :arg object obj: The object just generated
@@ -375,6 +411,11 @@ Attributes and methods
 
         This is equivalent to calling :meth:`reset_sequence` on the base
         factory in the chain.
+
+
+.. class:: AsyncFactory
+
+Similar to the :class:`Factory` class but with ``create_async`` as default strategy.
 
 
 .. _parameters:
@@ -587,6 +628,14 @@ factory_boy supports two main strategies for generating instances, plus stubs.
                  attribute *and* the :meth:`~Factory._create` classmethod of the
                  :class:`Factory` wasn't overridden.
 
+
+.. data:: ASYNC_CREATE_STRATEGY
+
+    The ``create_async`` strategy is similar to the ``create`` strategy but asynchronous.
+
+    This is the default strategy for subclasses of :class:`AsyncFactory`.
+
+    Default behavior is to call :meth:`~Factory._create`, this can be overridden in :meth:`Factory._create_model_async`.
 
 .. function:: use_strategy(strategy)
 

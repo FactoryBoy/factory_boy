@@ -2,6 +2,7 @@
 
 """Tests for factory_boy/SQLAlchemy interactions."""
 
+import asyncio
 import unittest
 from unittest import mock
 
@@ -13,7 +14,7 @@ except ImportError:
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
 import factory
-from factory.alchemy import SQLAlchemyModelFactory
+from factory.alchemy import SQLAlchemyModelAsyncFactory, SQLAlchemyModelFactory
 
 from .alchemyapp import models
 
@@ -336,3 +337,62 @@ class NameConflictTests(TransactionTestCase):
 
         get_or_created_child = SpecialFieldWithGetOrCreateFactory()
         self.assertEqual(get_or_created_child.session, "")
+
+
+class NoteFactory(SQLAlchemyModelAsyncFactory):
+    class Meta:
+        model = models.NoteModel
+        sqlalchemy_session = models.async_session
+        sqlalchemy_session_persistence = 'commit'
+
+    text = factory.Sequence(lambda n: f"Text {n}")
+    completed = factory.Faker('boolean')
+
+
+if models.async_engine:
+
+    class SQLAlchemyAsyncTestCase(unittest.TestCase):
+
+        def setUp(self):
+            super().setUp()
+
+            async def asyncSetUp():
+                async with models.async_engine.begin() as conn:
+                    await conn.run_sync(models.Base.metadata.drop_all)
+                    await conn.run_sync(models.Base.metadata.create_all)
+
+                NoteFactory.reset_sequence(0)
+
+            asyncio.run(asyncSetUp())
+
+        def tearDown(self):
+
+            async def asyncTearDown():
+
+                async with models.async_engine.begin() as conn:
+                    await conn.run_sync(models.Base.metadata.drop_all)
+
+            asyncio.run(asyncTearDown())
+
+        def test_build(self):
+            note = NoteFactory.build()
+            self.assertEqual('Text 0', note.text)
+            self.assertIn(note.completed, [True, False])
+            self.assertIsNone(note.id)
+
+        def test_creation(self):
+
+            async def test():
+
+                note = await NoteFactory.create_async()
+                self.assertEqual('Text 0', note.text)
+                self.assertIn(note.completed, [True, False])
+                self.assertIsNotNone(note.id)
+
+                statement = sqlalchemy.select(
+                    sqlalchemy.func.count(models.NoteModel.id)
+                )
+                count = await models.async_session.scalar(statement)
+                self.assertEqual(count, 1)
+
+            asyncio.run(test())

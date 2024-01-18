@@ -129,3 +129,32 @@ class SQLAlchemyModelFactory(base.Factory):
         elif session_persistence == SESSION_PERSISTENCE_COMMIT:
             session.commit()
         return obj
+
+
+class SQLAlchemyModelAsyncFactory(SQLAlchemyModelFactory, base.AsyncFactory):
+    """Async Factory for SQLAlchemy models. """
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    async def _create_model_async(cls, model_class, *args, **kwargs):
+        session = cls._meta.sqlalchemy_session
+
+        if session is None:
+            raise RuntimeError("No session provided.")
+
+        async with session.begin():
+            return await cls._save(model_class, session, args, kwargs)
+
+    @classmethod
+    async def _save(cls, model_class, session, args, kwargs):
+        session_persistence = cls._meta.sqlalchemy_session_persistence
+
+        obj = model_class(*args, **kwargs)
+        session.add(obj)
+        if session_persistence == SESSION_PERSISTENCE_FLUSH:
+            await session.flush()
+        elif session_persistence == SESSION_PERSISTENCE_COMMIT:
+            await session.commit()
+        return obj

@@ -1,5 +1,6 @@
 """Build factory instances."""
 
+import asyncio
 import collections
 
 from . import enums, errors, utils
@@ -277,19 +278,33 @@ class StepBuilder:
             kwargs=kwargs,
         )
 
-        postgen_results = {}
-        for declaration_name in post.sorted():
-            declaration = post[declaration_name]
-            postgen_results[declaration_name] = declaration.declaration.evaluate_post(
+        def _handle_post_generation(instance):
+            postgen_results = {}
+            for declaration_name in post.sorted():
+                declaration = post[declaration_name]
+                postgen_results[declaration_name] = declaration.declaration.evaluate_post(
+                    instance=instance,
+                    step=step,
+                    overrides=declaration.context,
+                )
+
+            self.factory_meta.use_postgeneration_results(
                 instance=instance,
                 step=step,
-                overrides=declaration.context,
+                results=postgen_results,
             )
-        self.factory_meta.use_postgeneration_results(
-            instance=instance,
-            step=step,
-            results=postgen_results,
-        )
+
+        if step.builder.strategy == enums.ASYNC_CREATE_STRATEGY and isinstance(instance, asyncio.Task):
+
+            def post_generation_callback(task):
+                instance = task.result()
+                _handle_post_generation(instance)
+
+            instance.add_done_callback(post_generation_callback)
+
+        else:
+            _handle_post_generation(instance)
+
         return instance
 
     def recurse(self, factory_meta, extras):

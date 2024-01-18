@@ -10,6 +10,7 @@ ChangeLog
 - Add support for Django 4.2
 - Add support for Django 5.0
 - Add support for Python 3.12
+- Add support for asynchronous factories
 
 *Bugfix:*
 

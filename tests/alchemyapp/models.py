@@ -4,7 +4,8 @@
 """Helpers for testing SQLAlchemy apps."""
 import os
 
-from sqlalchemy import Column, Integer, Unicode, create_engine
+from sqlalchemy import Boolean, Column, Integer, Unicode, create_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 
 try:
@@ -28,13 +29,23 @@ if USING_POSTGRES:
     pg_host = os.environ.get('POSTGRES_HOST', 'localhost')
     pg_port = os.environ.get('POSTGRES_PORT', '5432')
     engine_name = f'postgresql+psycopg2://{pg_user}:{pg_password}@{pg_host}:{pg_port}/{pg_database}'
+    async_engine_name = None
 else:
     engine_name = 'sqlite://'
+    async_engine_name = 'sqlite+aiosqlite://'
 
 session = scoped_session(sessionmaker())
 engine = create_engine(engine_name)
 session.configure(bind=engine)
 Base = declarative_base()
+
+if not async_engine_name:
+    async_engine = None
+    async_session = None
+else:
+    async_engine = create_async_engine(async_engine_name)
+    async_sessionmaker = sessionmaker(async_engine, expire_on_commit=False, class_=AsyncSession)
+    async_session = async_sessionmaker()
 
 
 class StandardModel(Base):
@@ -72,3 +83,11 @@ class SpecialFieldModel(Base):
 
     id = Column(Integer(), primary_key=True)
     session = Column(Unicode(20))
+
+
+class NoteModel(Base):
+    __tablename__ = "NoteTable"
+
+    id = Column(Integer(), primary_key=True)
+    text = Column(Unicode(20))
+    completed = Column(Boolean(), default=False)
