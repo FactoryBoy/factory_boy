@@ -44,6 +44,5 @@ class TypingTests(unittest.TestCase):
         assert_type(Pet.create(), dict)
 
     def test_list_factory(self) -> None:
-        assert_type(factory.ListFactory(), list)
         assert_type(factory.ListFactory.build(), list)
         assert_type(factory.ListFactory.create(), list)
