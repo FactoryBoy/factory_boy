@@ -656,7 +656,7 @@ class StubObject:
             setattr(self, field, value)
 
 
-class StubFactory(Factory[T]):
+class StubFactory(Factory[StubObject]):
 
     class Meta:
         strategy = enums.STUB_STRATEGY
@@ -688,7 +688,7 @@ class BaseDictFactory(Factory[T]):
         return cls._build(model_class, *args, **kwargs)
 
 
-class DictFactory(BaseDictFactory[T]):
+class DictFactory(BaseDictFactory[dict]):
     class Meta:
         model = dict
 
@@ -714,7 +714,7 @@ class BaseListFactory(Factory[T]):
         return cls._build(model_class, *args, **kwargs)
 
 
-class ListFactory(BaseListFactory[T]):
+class ListFactory(BaseListFactory[list]):
     class Meta:
         model = list
 
