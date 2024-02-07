@@ -2,6 +2,7 @@
 
 import dataclasses
 import unittest
+from typing import List
 
 from typing_extensions import assert_type
 
@@ -29,8 +30,8 @@ class TypingTests(unittest.TestCase):
 
         assert_type(UserFactory.build(), User)
         assert_type(UserFactory.create(), User)
-        assert_type(UserFactory.build_batch(2), list[User])
-        assert_type(UserFactory.create_batch(2), list[User])
+        assert_type(UserFactory.build_batch(2), List[User])
+        assert_type(UserFactory.create_batch(2), List[User])
         self.assertEqual(UserFactory.create().name, "John Doe")
 
     def test_dict_factory(self) -> None:
@@ -43,5 +44,6 @@ class TypingTests(unittest.TestCase):
         assert_type(Pet.create(), dict)
 
     def test_list_factory(self) -> None:
-        assert_type(factory.ListFactory().build(), list)
-        assert_type(factory.ListFactory().create(), list)
+        assert_type(factory.ListFactory(), list)
+        assert_type(factory.ListFactory.build(), list)
+        assert_type(factory.ListFactory.create(), list)
