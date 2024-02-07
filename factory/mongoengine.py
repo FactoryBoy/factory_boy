@@ -8,6 +8,7 @@ from . import base
 
 T = TypeVar("T")
 
+
 class MongoEngineFactory(base.Factory[T]):
     """Factory for mongoengine objects."""
 

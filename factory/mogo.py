@@ -8,6 +8,7 @@ from . import base
 
 T = TypeVar("T")
 
+
 class MogoFactory(base.Factory[T]):
     """Factory for mogo objects."""
     class Meta:
