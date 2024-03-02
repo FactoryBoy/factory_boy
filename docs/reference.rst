@@ -576,17 +576,6 @@ factory_boy supports two main strategies for generating instances, plus stubs.
         >>> obj.save()
         >>> return obj
 
-    .. OHAI_VIM*
-
-    .. warning:: For backward compatibility reasons, the default behavior of
-                 factory_boy is to call ``MyClass.objects.create(*args, **kwargs)``
-                 when using the ``create`` strategy.
-
-                 That policy will be used if the
-                 :attr:`associated class <FactoryOptions.model>` has an ``objects``
-                 attribute *and* the :meth:`~Factory._create` classmethod of the
-                 :class:`Factory` wasn't overridden.
-
 
 .. function:: use_strategy(strategy)
 
