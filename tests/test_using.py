@@ -1421,6 +1421,60 @@ class TraitTestCase(unittest.TestCase):
             dict(one=None, two=False, three=None, four=True, five=None),
         )
 
+    def test_chaining_traits_and_related_with_nested_factories(self):
+        class TestRelatedObject:
+            def __init__(self, obj=None, one=None, two=None, nested=None):
+                obj.related = self
+                self.nested = nested
+                self.one = one
+                self.two = two
+
+        class TestNestedObject:
+            def __init__(self, one=None, two=None):
+                self.one = one
+                self.two = two
+
+        class TestNestedObjectFactory(factory.Factory):
+            class Meta:
+                model = TestNestedObject
+            one = 1
+            two = 2
+
+        class TestRelatedObjectFactory(factory.Factory):
+            class Meta:
+                model = TestRelatedObject
+            one = 1
+            two = 2
+
+            nested = factory.SubFactory(TestNestedObjectFactory, one=None, two=None)
+
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+            one = 1
+            two = 2
+
+            class Params:
+                with_related = factory.Trait(
+                    related_obj=factory.RelatedFactory(
+                        TestRelatedObjectFactory,
+                        factory_related_name='obj',
+                        nested__one=1,
+                    ),
+                )
+                with_related_nested_override = factory.Trait(
+                    with_related=True,
+                    related_obj__nested__two=2,
+                )
+
+        obj = TestObjectFactory.build(with_related_nested_override=True)
+        self.assertEqual(1, obj.one)
+        self.assertEqual(2, obj.two)
+        self.assertEqual(1, obj.related.one)
+        self.assertEqual(2, obj.related.two)
+        self.assertEqual(1, obj.related.nested.one)
+        self.assertEqual(2, obj.related.nested.two)
+
     def test_prevent_cyclic_traits(self):
 
         with self.assertRaises(errors.CyclicDefinitionError):
