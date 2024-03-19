@@ -52,7 +52,7 @@ testall:
 	tox
 
 # DOC: Run tests for the currently installed version
-# Remove cgi warning when dropping support for Django<=4.1.
+# Remove cgi warning when dropping support for Django 3.2.
 test:
 	mypy --ignore-missing-imports tests/test_typing.py
 	python \

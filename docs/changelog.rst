@@ -20,6 +20,7 @@ ChangeLog
 *Removed:*
 
 - Drop support for Django 4.0
+- Stop advertising and verifying support for Django 4.1
 
 3.3.0 (2023-07-19)
 ------------------
