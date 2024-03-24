@@ -1423,57 +1423,53 @@ class TraitTestCase(unittest.TestCase):
 
     def test_chaining_traits_and_related_with_nested_factories(self):
         class TestRelatedObject:
-            def __init__(self, obj=None, one=None, two=None, nested=None):
+            def __init__(self, obj=None, attr=None, nested=None):
                 obj.related = self
                 self.nested = nested
-                self.one = one
-                self.two = two
+                self.attr = attr
 
         class TestNestedObject:
-            def __init__(self, one=None, two=None):
-                self.one = one
-                self.two = two
+            def __init__(self, attr=None):
+                self.attr = attr
 
         class TestNestedObjectFactory(factory.Factory):
             class Meta:
                 model = TestNestedObject
-            one = 1
-            two = 2
+            attr = 1
 
         class TestRelatedObjectFactory(factory.Factory):
             class Meta:
                 model = TestRelatedObject
-            one = 1
-            two = 2
+            attr = 1
 
-            nested = factory.SubFactory(TestNestedObjectFactory, one=None, two=None)
+            nested = factory.SubFactory(TestNestedObjectFactory, attr=None)
 
         class TestObjectFactory(factory.Factory):
             class Meta:
                 model = TestObject
-            one = 1
-            two = 2
 
             class Params:
                 with_related = factory.Trait(
                     related_obj=factory.RelatedFactory(
                         TestRelatedObjectFactory,
                         factory_related_name='obj',
-                        nested__one=1,
+                        nested__attr=2,
                     ),
                 )
                 with_related_nested_override = factory.Trait(
                     with_related=True,
-                    related_obj__nested__two=2,
+                    related_obj__nested__attr=3,
                 )
 
         obj = TestObjectFactory.build(with_related_nested_override=True)
-        self.assertEqual(1, obj.one)
-        self.assertEqual(2, obj.two)
-        self.assertEqual(1, obj.related.one)
-        self.assertEqual(2, obj.related.two)
-        self.assertEqual(1, obj.related.nested.one)
-        self.assertEqual(2, obj.related.nested.two)
+        self.assertEqual(1, obj.related.attr)
+        self.assertEqual(3, obj.related.nested.attr)
+        obj = TestObjectFactory.build(with_related_nested_override=True, related_obj__nested__attr=4)
+        self.assertEqual(1, obj.related.attr)
+        self.assertEqual(4, obj.related.nested.attr)
+        obj = TestObjectFactory.build(with_related_nested_override=False)
+        with self.assertRaises(AttributeError):
+            obj.related
 
     def test_prevent_cyclic_traits(self):
 
