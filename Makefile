@@ -66,6 +66,7 @@ test:
 		-Wdefault:"'cgi' is deprecated and slated for removal in Python 3.13":DeprecationWarning:: \
 		-Wdefault:"datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version.":DeprecationWarning:: \
 		-m unittest
+		# Remove cgi warning when dropping support for Django<=4.1.
 
 # DOC: Test the examples
 example-test:
