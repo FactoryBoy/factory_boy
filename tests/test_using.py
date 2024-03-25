@@ -1467,6 +1467,9 @@ class TraitTestCase(unittest.TestCase):
         obj = TestObjectFactory.build(with_related_nested_override=True, related_obj__nested__attr=4)
         self.assertEqual(1, obj.related.attr)
         self.assertEqual(4, obj.related.nested.attr)
+        obj = TestObjectFactory.build(with_related=True)
+        self.assertEqual(1, obj.related.attr)
+        self.assertEqual(2, obj.related.nested.attr)
         obj = TestObjectFactory.build(with_related_nested_override=False)
         with self.assertRaises(AttributeError):
             obj.related
