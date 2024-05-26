@@ -64,6 +64,16 @@ ChangeLog
           - override :class:`~factory.django.DjangoModelFactory._after_postgeneration` to
             :meth:`~django.db.models.Model.save` the instance.
 
+    - :class:`~factory.fuzzy.FuzzyInteger` is deprecated. Use :meth:`~faker.providers.python.Provider.pyint` instead:
+
+      .. code-block:: python
+
+         class PersonFactory(factory.Factory):
+            age = factory.Faker('pyint', min_value=1, max_value=100, step=5)
+
+            class Meta:
+                model = Person
+
 *Removed:*
 
     - Drop support for Django 2.2

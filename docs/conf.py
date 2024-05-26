@@ -84,6 +84,10 @@ intersphinx_mapping = {
         'https://docs.djangoproject.com/en/dev/',
         'https://docs.djangoproject.com/en/dev/_objects/',
     ),
+    'faker': (
+        'https://faker.readthedocs.io/en/master/',
+        'https://faker.readthedocs.io/en/master/objects.inv',
+    ),
     'sqlalchemy': (
         'https://docs.sqlalchemy.org/en/latest/',
         'https://docs.sqlalchemy.org/en/latest/objects.inv',
