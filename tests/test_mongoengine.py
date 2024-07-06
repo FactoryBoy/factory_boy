@@ -6,7 +6,7 @@ import os
 import unittest
 
 try:
-    import mongoengine
+    import mongoengine.connection
 except ImportError:
     raise unittest.SkipTest("mongodb tests disabled.")
 
@@ -38,15 +38,14 @@ class PersonFactory(MongoEngineFactory):
     address = factory.SubFactory(AddressFactory)
 
 
-class MongoEngineTestCase(unittest.TestCase):
-
+class BaseMongoEngineTestCase:
     db_name = os.environ.get('MONGO_DATABASE', 'factory_boy_test')
     db_host = os.environ.get('MONGO_HOST', 'localhost')
     db_port = int(os.environ.get('MONGO_PORT', '27017'))
     server_timeout_ms = int(os.environ.get('MONGO_TIMEOUT', '300'))
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls, **kwargs):
         from pymongo import read_preferences as mongo_rp
         cls.db = mongoengine.connect(
             db=cls.db_name,
@@ -57,11 +56,15 @@ class MongoEngineTestCase(unittest.TestCase):
             # PyMongo>=2.1 has a 20s timeout, use 100ms instead
             serverselectiontimeoutms=cls.server_timeout_ms,
             uuidRepresentation='standard',
+            **kwargs,
         )
 
     @classmethod
     def tearDownClass(cls):
         cls.db.drop_database(cls.db_name)
+        mongoengine.connection.disconnect()
+        PersonFactory.reset_sequence()
+        AddressFactory.reset_sequence()
 
     def test_build(self):
         std = PersonFactory.build()
@@ -74,3 +77,22 @@ class MongoEngineTestCase(unittest.TestCase):
         self.assertEqual('name1', std1.name)
         self.assertEqual('street1', std1.address.street)
         self.assertIsNotNone(std1.id)
+
+
+class MongoEngineTestCase(BaseMongoEngineTestCase, unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if os.environ.get('MONGO_USE_MOCK', '0') == '1':
+            raise unittest.SkipTest("Using mongomock, do not run the test suite against MongoDB.")
+        super().setUpClass()
+
+
+class MockMongoEngineTestCase(BaseMongoEngineTestCase, unittest.TestCase):
+    """
+    In some environments, MongoDB isn’t available.
+    Run this smoke test instead.
+    """
+    @classmethod
+    def setUpClass(cls):
+        import mongomock
+        super().setUpClass(mongo_client_class=mongomock.MongoClient)

@@ -65,6 +65,7 @@ test:
 		-Wdefault:"parameter codeset is deprecated":DeprecationWarning:: \
 		-Wdefault:"'cgi' is deprecated and slated for removal in Python 3.13":DeprecationWarning:: \
 		-Wdefault:"datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version.":DeprecationWarning:: \
+		-Wdefault:"pkg_resources is deprecated as an API.":DeprecationWarning:: \
 		-m unittest
 
 # DOC: Test the examples
