@@ -59,12 +59,12 @@ class BaseMongoEngineTestCase:
             **kwargs,
         )
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.db.drop_database(cls.db_name)
-        mongoengine.connection.disconnect()
-        PersonFactory.reset_sequence()
-        AddressFactory.reset_sequence()
+        def cleanup():
+            cls.db.drop_database(cls.db_name)
+            mongoengine.connection.disconnect()
+            PersonFactory.reset_sequence()
+            AddressFactory.reset_sequence()
+        cls.addClassCleanup(cleanup)
 
     def test_build(self):
         std = PersonFactory.build()
