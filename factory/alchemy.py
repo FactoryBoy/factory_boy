@@ -24,11 +24,8 @@ class SQLAlchemyOptions(base.FactoryOptions):
 
     @staticmethod
     def _check_has_sqlalchemy_session_set(meta, value):
-        try:
-            if value and meta.sqlalchemy_session:
-                raise RuntimeError("Provide either a sqlalchemy_session or a sqlalchemy_session_factory, not both")
-        except AttributeError:
-            pass
+        if value is not None and getattr(meta, "sqlalchemy_session", None) is not None:
+            raise RuntimeError("Provide either a sqlalchemy_session or a sqlalchemy_session_factory, not both")
 
     def _build_default_options(self):
         return super()._build_default_options() + [
