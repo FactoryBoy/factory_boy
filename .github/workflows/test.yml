@@ -31,11 +31,6 @@ jobs:
           - "postgres"
 
     services:
-      mongodb:
-        image: mongo
-        ports:
-          - 27017:27017
-
       postgresdb:
         image: postgres:alpine
         ports:

@@ -11,6 +11,7 @@ ChangeLog
 - Add support for Django 5.0
 - Add support for Python 3.12
 - :issue:`903`: Add basic typing annotations
+- Run the test suite against ``mongomock`` instead of an actual MongoDB server
 
 *Bugfix:*
 

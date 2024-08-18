@@ -10,6 +10,8 @@ try:
 except ImportError:
     raise unittest.SkipTest("mongodb tests disabled.")
 
+import mongomock
+
 import factory
 from factory.mongoengine import MongoEngineFactory
 
@@ -52,6 +54,7 @@ class MongoEngineTestCase(unittest.TestCase):
             db=cls.db_name,
             host=cls.db_host,
             port=cls.db_port,
+            mongo_client_class=mongomock.MongoClient,
             # PyMongo>=2.1 requires an explicit read_preference.
             read_preference=mongo_rp.ReadPreference.PRIMARY,
             # PyMongo>=2.1 has a 20s timeout, use 100ms instead

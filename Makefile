@@ -59,6 +59,9 @@ test:
 		-b \
 		-X dev \
 		-Werror \
+		-Wignore:::mongomock: \
+		-Wignore:::mongomock.__version__: \
+		-Wignore:::pkg_resources: \
 		-m unittest
 
 # DOC: Test the examples
