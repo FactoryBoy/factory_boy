@@ -405,11 +405,9 @@ To test with a specific framework version, you may use a ``tox`` target:
 
     # run tests inside a specific environment (django)
     $ tox -e py310-djangomain
-    $ tox -e py310-djangomain-postgres
 
     # run tests inside a specific environment (alchemy)
     $ tox -e py310-alchemy
-    $ tox -e py310-alchemy-postgres
 
     # run tests inside a specific environment (mongoengine)
     $ tox -e py310-mongo

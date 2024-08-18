@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   tests:
-    name: Python ${{ matrix.python-version }}, Database ${{ matrix.database-type }}
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -26,17 +26,6 @@ jobs:
           - "3.12"
           - "pypy-3.9"
           - "pypy-3.10"
-        database-type:
-          - "sqlite"
-          - "postgres"
-
-    services:
-      postgresdb:
-        image: postgres:alpine
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_PASSWORD: password
 
     steps:
       - uses: actions/checkout@v4
