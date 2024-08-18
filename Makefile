@@ -59,12 +59,6 @@ test:
 		-b \
 		-X dev \
 		-Werror \
-		-Wdefault:"the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses":DeprecationWarning:distutils: \
-		-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.9 it will stop working":DeprecationWarning:: \
-		-Wdefault:"set_output_charset() is deprecated":DeprecationWarning:: \
-		-Wdefault:"parameter codeset is deprecated":DeprecationWarning:: \
-		-Wdefault:"'cgi' is deprecated and slated for removal in Python 3.13":DeprecationWarning:: \
-		-Wdefault:"datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version.":DeprecationWarning:: \
 		-m unittest
 
 # DOC: Test the examples
