@@ -112,7 +112,7 @@ This is achieved with the :class:`~factory.Sequence` declaration:
     >>> UserFactory()
     <User: user3>
 
-.. note:: For more complex situations, you may also use the :meth:`~factory.@sequence` decorator (note that ``self`` is not added as first parameter):
+.. note:: For more complex situations, you may also use the :meth:`@factory.sequence <factory.sequence>` decorator (note that ``self`` is not added as first parameter):
 
           .. code-block:: python
 
@@ -152,7 +152,7 @@ argument and returning the value for the field:
 
 
 .. note:: For complex cases when you happen to write a specific function,
-          the :meth:`~factory.@lazy_attribute` decorator should be more appropriate.
+          the :meth:`@factory.lazy_attribute <factory.lazy_attribute>` decorator should be more appropriate.
 
 
 LazyAttribute
@@ -185,7 +185,7 @@ taking the object being built and returning the value for the field:
     <User: user2 (doe@example.com)>
 
 
-.. note:: As for :class:`~factory.Sequence`, a :meth:`~factory.@lazy_attribute` decorator is available:
+.. note:: As for :class:`~factory.Sequence`, a :meth:`@factory.lazy_attribute <factory.lazy_attribute>` decorator is available:
 
 
 .. code-block:: python

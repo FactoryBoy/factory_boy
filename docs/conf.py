@@ -21,7 +21,7 @@ import factory  # noqa
 
 project = 'Factory Boy'
 copyright = '2011-2015, Raphaël Barrois, Mark Sandstrom'
-author = 'adfasf'
+author = 'Raphaël Barrois, Mark Sandstrom'
 
 # The full version, including alpha/beta/rc tags
 release = factory.__version__
@@ -83,6 +83,10 @@ intersphinx_mapping = {
     'django': (
         'https://docs.djangoproject.com/en/dev/',
         'https://docs.djangoproject.com/en/dev/_objects/',
+    ),
+    'mongoengine': (
+        'https://mongoengine-odm.readthedocs.io/',
+        None,
     ),
     'sqlalchemy': (
         'https://docs.sqlalchemy.org/en/latest/',

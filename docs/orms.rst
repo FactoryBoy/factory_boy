@@ -13,7 +13,7 @@ adding dedicated features.
 Django
 ------
 
-.. currentmodule:: factory.django
+.. module:: factory.django
 
 
 The first versions of factory_boy were designed specifically for Django,
@@ -111,11 +111,10 @@ All factories for a Django :class:`~django.db.models.Model` should use the
 
     .. attribute:: skip_postgeneration_save
 
-        Transitional option to prevent
-        :meth:`~factory.django.DjangoModelFactory._after_postgeneration` from
-        issuing a duplicate call to :meth:`~django.db.models.Model.save` on the
-        created instance when :class:`factory.PostGeneration` hooks return a
-        value.
+        Transitional option to prevent :class:`~factory.django.DjangoModelFactory`'s
+        ``_after_postgeneration`` from issuing a duplicate call to
+        :meth:`~django.db.models.Model.save` on the created instance when
+        :class:`factory.PostGeneration` hooks return a value.
 
 
 Extra fields
@@ -167,9 +166,9 @@ Extra fields
 
         :param str from_path: Use data from the file located at ``from_path``,
                               and keep its filename
-        :param file from_file: Use the contents of the provided file object; use its filename
+        :param io.BytesIO from_file: Use the contents of the provided file object; use its filename
                                if available, unless ``filename`` is also provided.
-        :param func from_func: Use function that returns a file object
+        :param Callable from_func: Use function that returns a file object
         :param bytes data: Use the provided bytes as file contents
         :param str filename: The filename for the FileField
 
@@ -200,9 +199,9 @@ Extra fields
 
         :param str from_path: Use data from the file located at ``from_path``,
                               and keep its filename
-        :param file from_file: Use the contents of the provided file object; use its filename
+        :param io.BytesIO from_file: Use the contents of the provided file object; use its filename
                                if available
-        :param func from_func: Use function that returns a file object
+        :param Callable from_func: Use function that returns a file object
         :param str filename: The filename for the ImageField
         :param int width: The width of the generated image (default: ``100``)
         :param int height: The height of the generated image (default: ``100``)
@@ -272,7 +271,7 @@ To work around this problem, use the :meth:`mute_signals()` decorator/context ma
 Mogo
 ----
 
-.. currentmodule:: factory.mogo
+.. module:: factory.mogo
 
 factory_boy supports `Mogo`_-style models, through the :class:`MogoFactory` class.
 
@@ -294,7 +293,7 @@ factory_boy supports `Mogo`_-style models, through the :class:`MogoFactory` clas
 MongoEngine
 -----------
 
-.. currentmodule:: factory.mongoengine
+.. module:: factory.mongoengine
 
 factory_boy supports `MongoEngine`_-style models, through the :class:`MongoEngineFactory` class.
 
@@ -312,8 +311,8 @@ factory_boy supports `MongoEngine`_-style models, through the :class:`MongoEngin
     * :func:`~factory.Factory.create()` builds an instance through ``__init__`` then
       saves it.
 
-    .. note:: If the :attr:`associated class <factory.FactoryOptions.model` is a :class:`mongoengine.EmbeddedDocument`,
-              the :meth:`~MongoEngineFactory.create` function won't "save" it, since this wouldn't make sense.
+    .. note:: If the :attr:`associated class <factory.FactoryOptions.model>` is a :class:`mongoengine.EmbeddedDocument`,
+              the :class:`~MongoEngineFactory`'s ``create`` function won't "save" it, since this wouldn't make sense.
 
               This feature makes it possible to use :class:`~factory.SubFactory` to create embedded document.
 
@@ -349,7 +348,7 @@ A minimalist example:
 SQLAlchemy
 ----------
 
-.. currentmodule:: factory.alchemy
+.. module:: factory.alchemy
 
 
 Factory_boy also supports `SQLAlchemy`_  models through the :class:`SQLAlchemyModelFactory` class.
@@ -364,12 +363,12 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
 
     This class provides the following features:
 
-    * :func:`~factory.Factory.create()` uses :meth:`sqlalchemy.orm.session.Session.add`
+    * :func:`~factory.Factory.create()` uses :meth:`sqlalchemy.orm.Session.add`
 
 
 .. class:: SQLAlchemyOptions(factory.base.FactoryOptions)
 
-    In addition to the usual parameters available in :class:`class Meta <factory.base.FactoryOptions>`,
+    In addition to the usual parameters available in :class:`class Meta <factory.FactoryOptions>`,
     a :class:`SQLAlchemyModelFactory` also supports the following settings:
 
     .. attribute:: sqlalchemy_session
@@ -403,8 +402,8 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
         Valid values are:
 
         * ``None``: do nothing
-        * ``'flush'``: perform a session :meth:`~sqlalchemy.orm.session.Session.flush`
-        * ``'commit'``: perform a session :meth:`~sqlalchemy.orm.session.Session.commit`
+        * ``'flush'``: perform a session :meth:`~sqlalchemy.orm.Session.flush`
+        * ``'commit'``: perform a session :meth:`~sqlalchemy.orm.Session.commit`
 
         The default value is ``None``.
 
@@ -413,8 +412,8 @@ To work, this class needs an `SQLAlchemy`_ session object affected to the :attr:
         .. versionadded:: 3.0.0
 
         Fields whose name are passed in this list will be used to perform a
-        :meth:`Model.query.one_or_none() <sqlalchemy.orm.query.Query.one_or_none>`
-        or the usual :meth:`Session.add() <sqlalchemy.orm.session.Session.add>`:
+        :meth:`Model.query.one_or_none() <sqlalchemy.orm.Query.one_or_none>`
+        or the usual :meth:`Session.add() <sqlalchemy.orm.Session.add>`:
 
         .. code-block:: python
 
@@ -516,15 +515,15 @@ there is no "global" session management system.
 The most common pattern when working with unit tests and ``factory_boy``
 is to use `SQLAlchemy`_'s :class:`sqlalchemy.orm.scoping.scoped_session`:
 
-* The test runner configures some project-wide :class:`~sqlalchemy.orm.scoping.scoped_session`
+* The test runner configures some project-wide :class:`~sqlalchemy.orm.scoped_session`
 * Each :class:`~SQLAlchemyModelFactory` subclass uses this
-  :class:`~sqlalchemy.orm.scoping.scoped_session` as its :attr:`~SQLAlchemyOptions.sqlalchemy_session`
+  :class:`~sqlalchemy.orm.scoped_session` as its :attr:`~SQLAlchemyOptions.sqlalchemy_session`
 * The :meth:`~unittest.TestCase.tearDown` method of tests calls
-  :meth:`Session.remove <sqlalchemy.orm.scoping.scoped_session.remove>`
+  :meth:`Session.remove <sqlalchemy.orm.scoped_session.remove>`
   to reset the session.
 
 .. note:: See the excellent :ref:`SQLAlchemy guide on scoped_session <sqlalchemy:unitofwork_contextual>`
-          for details of :class:`~sqlalchemy.orm.scoping.scoped_session`'s usage.
+          for details of :class:`~sqlalchemy.orm.scoped_session`'s usage.
 
           The basic idea is that declarative parts of the code (including factories)
           need a simple way to access the "current session",
@@ -536,7 +535,7 @@ is to use `SQLAlchemy`_'s :class:`sqlalchemy.orm.scoping.scoped_session`:
 
 Here is an example layout:
 
-- A global (test-only?) file holds the :class:`~sqlalchemy.orm.scoping.scoped_session`:
+- A global (test-only?) file holds the :class:`~sqlalchemy.orm.scoped_session`:
 
 .. code-block:: python
 
@@ -568,7 +567,7 @@ Here is an example layout:
         name = factory.Sequence(lambda n: "User %d" % n)
 
 
-- The test runner configures the :class:`~sqlalchemy.orm.scoping.scoped_session` when it starts:
+- The test runner configures the :class:`~sqlalchemy.orm.scoped_session` when it starts:
 
 .. code-block:: python
 

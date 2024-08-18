@@ -40,16 +40,15 @@ ChangeLog
 
     - Make :meth:`~factory.django.mute_signals` mute signals during post-generation.
 
-    - :issue:`775`: Change the signature for :meth:`~factory.alchemy.SQLAlchemyModelFactory._save` and
-      :meth:`~factory.alchemy.SQLAlchemyModelFactory._get_or_create` to avoid argument names clashes with a field named
-      ``session``.
+    - :issue:`775`: Change the signature for :class:`~factory.alchemy.SQLAlchemyModelFactory`'s ``_save`` and
+      ``_get_or_create`` methods to avoid argument names clashes with a field named ``session``.
 
 *Deprecated:*
 
     - :class:`~factory.django.DjangoModelFactory` will stop issuing a second call to
       :meth:`~django.db.models.Model.save` on the created instance when :ref:`post-generation-hooks` return a value.
 
-      To help with the transition, :class:`factory.django.DjangoModelFactory._after_postgeneration` raises a
+      To help with the transition, :class:`factory.django.DjangoModelFactory`'s ``_after_postgeneration`` raises a
       :class:`DeprecationWarning` when calling :meth:`~django.db.models.Model.save`. Inspect your
       :class:`~factory.django.DjangoModelFactory` subclasses:
 
@@ -61,7 +60,7 @@ ChangeLog
 
           - call :meth:`django.db.models.Model.save` in the :class:`~factory.PostGeneration` hook that modifies the
             instance, or
-          - override :class:`~factory.django.DjangoModelFactory._after_postgeneration` to
+          - override the :class:`~factory.Factory._after_postgeneration` method to
             :meth:`~django.db.models.Model.save` the instance.
 
 *Removed:*
@@ -82,9 +81,8 @@ ChangeLog
 
     - Do not override signals receivers registered in a :meth:`~factory.django.mute_signals` context.
 
-    - :issue:`775`: Change the signature for :meth:`~factory.alchemy.SQLAlchemyModelFactory._save` and
-      :meth:`~factory.alchemy.SQLAlchemyModelFactory._get_or_create` to avoid argument names clashes with a field named
-      ``session``.
+    - :issue:`775`: Change the signature for :class:`~factory.alchemy.SQLAlchemyModelFactory`'s ``_save`` and
+      ``_get_or_create`` methods to avoid argument names clashes with a field named ``session``.
 
 3.2.0 (2020-12-28)
 ------------------
@@ -138,7 +136,7 @@ Breaking changes
 
 The following aliases were removed:
 
-+------------------------------------------------+---------------------------------------------------+
++================================================+===================================================+
 | Broken alias                                   | New import                                        |
 +================================================+===================================================+
 | ``from factory import DjangoModelFactory``     | ``from factory.django import DjangoModelFactory`` |
@@ -150,7 +148,7 @@ The following aliases were removed:
 | ``from factory.fuzzy import set_random_state`` | ``from factory.random import set_random_state``   |
 +------------------------------------------------+---------------------------------------------------+
 | ``from factory.fuzzy import reseed_random``    | ``from factory.random import reseed_random``      |
-+------------------------------------------------+---------------------------------------------------+
++================================================+===================================================+
 
 *Removed:*
 
@@ -167,14 +165,14 @@ The following aliases were removed:
 
     - Add support for Python 3.8
     - Add support for Django 2.2 and 3.0
-    - Report misconfiguration when a :py:class:`~factory.Factory` is used as the :py:attr:`~factory.Factory.model` for another :py:class:`~factory.Factory`.
+    - Report misconfiguration when a :py:class:`~factory.Factory` is used as the :py:attr:`~factory.FactoryOptions.model` for another :py:class:`~factory.Factory`.
     - Allow configuring the color palette of :py:class:`~factory.django.ImageField`.
-    - :py:meth:`get_random_state()` now represents the state of Faker and ``factory_boy`` fuzzy attributes.
+    - :py:meth:`~factory.random.get_random_state()` now represents the state of Faker and ``factory_boy`` fuzzy attributes.
     - Add SQLAlchemy ``get_or_create`` support
 
 *Improvements:*
 
-    - :issue:`561`: Display a developer-friendly error message when providing a model instead of a factory in a :class:`~factory.declarations.SubFactory` class.
+    - :issue:`561`: Display a developer-friendly error message when providing a model instead of a factory in a :class:`~factory.SubFactory` class.
 
 *Bug fix:*
 
@@ -192,11 +190,11 @@ The following aliases were removed:
 
     - Add support for Python 3.7
     - Add support for Django 2.1
-    - Add :attr:`~factory.fuzzy.FuzzyChoice.getter` to :class:`~factory.fuzzy.FuzzyChoice` that mimics
+    - Add ``getter`` to :class:`~factory.fuzzy.FuzzyChoice` that mimics
       the behavior of ``getter`` in :class:`~factory.Iterator`
-    - Make the ``extra_kwargs`` parameter of :meth:`~factory.faker.Faker.generate` optional
+    - Make the ``extra_kwargs`` parameter of :class:`~factory.Faker`'s ``generate`` method optional
     - Add :class:`~factory.RelatedFactoryList` class for one-to-many support, thanks `Sean Harrington <https://github.com/seanharr11>`_.
-    - Make the `locale` argument for :class:`~factory.faker.Faker` keyword-only
+    - Make the `locale` argument for :class:`~factory.Faker` keyword-only
 
 *Bug fix:*
 
@@ -219,7 +217,7 @@ The following aliases were removed:
 
     - Fix :class:`~factory.fuzzy.FuzzyFloat` to return a 15 decimal digits precision float by default
     - :issue:`451`: Restore :class:`~factory.django.FileField` to a
-      :class:`~factory.declarations.ParameteredAttribute`, relying on composition to parse the provided parameters.
+      ``factory.declarations.ParameteredAttribute``, relying on composition to parse the provided parameters.
     - :issue:`389`: Fix random state management with ``faker``.
     - :issue:`466`: Restore mixing :class:`~factory.Trait` and :meth:`~factory.post_generation`.
 
@@ -233,7 +231,7 @@ The following aliases were removed:
 
 *New:*
 
-    - :issue:`397`: Allow a :class:`factory.Maybe` to contain a :class:`~factory.PostGenerationDeclaration`.
+    - :issue:`397`: Allow a :class:`factory.Maybe` to contain a :class:`~factory.PostGeneration` declaration.
       This also applies to :class:`factory.Trait`, since they use a :class:`factory.Maybe` declaration internally.
 
 .. _v2.9.2:
@@ -355,8 +353,8 @@ corner cases and weird behaviors.
 
     - :issue:`201`: Properly handle custom Django managers when dealing with abstract Django models.
     - :issue:`212`: Fix :meth:`factory.django.mute_signals` to handle Django's signal caching
-    - :issue:`228`: Don't load :func:`django.apps.apps.get_model()` until required
-    - :pr:`219`: Stop using :meth:`mogo.model.Model.new()`, deprecated 4 years ago.
+    - :issue:`228`: Don't load ``django.apps.apps.get_model()`` until required
+    - :pr:`219`: Stop using ``mogo.model.Model.new()``, deprecated 4 years ago.
 
 .. _v2.5.2:
 
@@ -465,19 +463,19 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 
       For :class:`factory.Factory`:
 
-      * Rename :attr:`~factory.Factory.FACTORY_FOR` to :attr:`~factory.FactoryOptions.model`
-      * Rename :attr:`~factory.Factory.ABSTRACT_FACTORY` to :attr:`~factory.FactoryOptions.abstract`
-      * Rename :attr:`~factory.Factory.FACTORY_STRATEGY` to :attr:`~factory.FactoryOptions.strategy`
-      * Rename :attr:`~factory.Factory.FACTORY_ARG_PARAMETERS` to :attr:`~factory.FactoryOptions.inline_args`
-      * Rename :attr:`~factory.Factory.FACTORY_HIDDEN_ARGS` to :attr:`~factory.FactoryOptions.exclude`
+      * Rename ``factory.Factory.FACTORY_FOR`` to :attr:`~factory.FactoryOptions.model`
+      * Rename ``factory.Factory.ABSTRACT_FACTORY`` to :attr:`~factory.FactoryOptions.abstract`
+      * Rename ``factory.Factory.FACTORY_STRATEGY`` to :attr:`~factory.FactoryOptions.strategy`
+      * Rename ``factory.Factory.FACTORY_ARG_PARAMETERS`` to :attr:`~factory.FactoryOptions.inline_args`
+      * Rename ``factory.Factory.FACTORY_HIDDEN_ARGS`` to :attr:`~factory.FactoryOptions.exclude`
 
       For :class:`factory.django.DjangoModelFactory`:
 
-      * Rename :attr:`~factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE` to :attr:`~factory.django.DjangoOptions.django_get_or_create`
+      * Rename ``factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE`` to :attr:`~factory.django.DjangoOptions.django_get_or_create`
 
       For :class:`factory.alchemy.SQLAlchemyModelFactory`:
 
-      * Rename :attr:`~factory.alchemy.SQLAlchemyModelFactory.FACTORY_SESSION` to :attr:`~factory.alchemy.SQLAlchemyOptions.sqlalchemy_session`
+      * Rename ``factory.alchemy.SQLAlchemyModelFactory.FACTORY_SESSION`` to :attr:`~factory.alchemy.SQLAlchemyOptions.sqlalchemy_session`
 
 .. _v2.3.1:
 
@@ -539,9 +537,9 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 
 *New:*
 
-    - The :class:`~factory.Factory.ABSTRACT_FACTORY` keyword is now optional, and automatically set
+    - The ``factory.Factory.ABSTRACT_FACTORY`` keyword is now optional, and automatically set
       to ``True`` if neither the :class:`~factory.Factory` subclass nor its parent declare the
-      :class:`~factory.Factory.FACTORY_FOR` attribute (:issue:`74`)
+      ``factory.Factory.FACTORY_FOR`` attribute (:issue:`74`)
 
 
 .. _v2.1.1:
@@ -562,8 +560,8 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 
     - Add :class:`~factory.fuzzy.FuzzyDate` thanks to `saulshanabrook <https://github.com/saulshanabrook>`_
     - Add :class:`~factory.fuzzy.FuzzyDateTime` and :class:`~factory.fuzzy.FuzzyNaiveDateTime`.
-    - Add a :attr:`~factory.builder.Resolver.factory_parent` attribute to the
-      :class:`~factory.builder.Resolver` passed to :class:`~factory.LazyAttribute`, in order to access
+    - Add a ``factory_parent`` attribute to the
+      ``factory.builder.Resolver`` passed to :class:`~factory.LazyAttribute`, in order to access
       fields defined in wrapping factories.
     - Move :class:`~factory.django.DjangoModelFactory` and :class:`~factory.mogo.MogoFactory`
       to their own modules (:mod:`factory.django` and :mod:`factory.mogo`)
@@ -594,7 +592,7 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 
 *New:*
 
-    - When :attr:`~factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE` is
+    - When ``factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE`` is
       empty, use ``Model.objects.create()`` instead of ``Model.objects.get_or_create``.
 
 
@@ -606,7 +604,7 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 *New:*
 
     - Don't push ``defaults`` to ``get_or_create`` when
-      :attr:`~factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE` is not set.
+      ``factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE`` is not set.
 
 
 .. _v2.0.0:
@@ -618,11 +616,11 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 
     - Allow overriding the base factory class for :func:`~factory.make_factory` and friends.
     - Add support for Python3 (Thanks to `kmike <https://github.com/kmike>`_ and `nkryptic <https://github.com/nkryptic>`_)
-    - The default :attr:`~factory.Sequence.type` for :class:`~factory.Sequence` is now :obj:`int`
-    - Fields listed in :attr:`~factory.Factory.FACTORY_HIDDEN_ARGS` won't be passed to
+    - The default type for :class:`~factory.Sequence` is now :obj:`int`
+    - Fields listed in ``factory.Factory.FACTORY_HIDDEN_ARGS`` won't be passed to
       the associated class' constructor
     - Add support for ``get_or_create`` in :class:`~factory.django.DjangoModelFactory`,
-      through :attr:`~factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE`.
+      through ``factory.django.DjangoModelFactory.FACTORY_DJANGO_GET_OR_CREATE``.
     - Add support for :mod:`~factory.fuzzy` attribute definitions.
     - The :class:`Sequence` counter can be overridden when calling a generating function
     - Add :class:`~factory.Dict` and :class:`~factory.List` declarations (Closes :issue:`18`).
@@ -630,12 +628,12 @@ This takes care of all ``FACTORY_FOR`` occurrences; the files containing other a
 *Removed:*
 
     - Remove associated class discovery
-    - Remove :class:`~factory.InfiniteIterator` and :func:`~factory.infinite_iterator`
-    - Remove :class:`~factory.CircularSubFactory`
+    - Remove ``factory.InfiniteIterator`` and ``factory.infinite_iterator``
+    - Remove ``factory.CircularSubFactory``
     - Remove ``extract_prefix`` kwarg to post-generation hooks.
     - Stop defaulting to Django's ``Foo.objects.create()`` when "creating" instances
     - Remove STRATEGY_*
-    - Remove :meth:`~factory.Factory.set_building_function` / :meth:`~factory.Factory.set_creation_function`
+    - Remove ``factory.Factory.set_building_function`` / ``factory.Factory.set_creation_function``
 
 
 .. _v1.3.0:
@@ -659,8 +657,8 @@ New
 - **The Factory class:**
     - Better creation/building customization hooks at :meth:`factory.Factory._build` and :meth:`factory.Factory.create`
     - Add support for passing non-kwarg parameters to a :class:`~factory.Factory`
-      wrapped class through :attr:`~factory.Factory.FACTORY_ARG_PARAMETERS`.
-    - Keep the :attr:`~factory.Factory.FACTORY_FOR` attribute in :class:`~factory.Factory` classes
+      wrapped class through ``FACTORY_ARG_PARAMETERS``.
+    - Keep the ``FACTORY_FOR`` attribute in :class:`~factory.Factory` classes
 
 - **Declarations:**
     - Allow :class:`~factory.SubFactory` to solve circular dependencies between factories
@@ -681,14 +679,14 @@ Pending deprecation
 The following features have been deprecated and will be removed in an upcoming release.
 
 - **Declarations:**
-    - :class:`~factory.InfiniteIterator` is deprecated in favor of :class:`~factory.Iterator`
-    - :class:`~factory.CircularSubFactory` is deprecated in favor of :class:`~factory.SubFactory`
+    - ``factory.InfiniteIterator`` is deprecated in favor of :class:`~factory.Iterator`
+    - ``factory.CircularSubFactory`` is deprecated in favor of :class:`~factory.SubFactory`
     - The ``extract_prefix`` argument to :meth:`~factory.post_generation` is now deprecated
 
 - **Factory:**
-    - Usage of :meth:`~factory.Factory.set_creation_function` and :meth:`~factory.Factory.set_building_function`
+    - Usage of ``factory.Factory.set_creation_function`` and ``factory.Factory.set_building_function``
       are now deprecated
-    - Implicit associated class discovery is no longer supported, you must set the :attr:`~factory.Factory.FACTORY_FOR`
+    - Implicit associated class discovery is no longer supported, you must set the ``FACTORY_FOR``
       attribute on all :class:`~factory.Factory` subclasses
 
 
@@ -725,7 +723,7 @@ In order to upgrade client code, apply the following rules:
 
 *New:*
 
-    - Add :class:`~factory.CircularSubFactory` to solve circular dependencies between factories
+    - Add ``factory.CircularSubFactory`` to solve circular dependencies between factories
 
 
 .. _v1.1.5:
@@ -735,7 +733,7 @@ In order to upgrade client code, apply the following rules:
 
 *Bug fix:*
 
-    - Fix :class:`~factory.PostGenerationDeclaration` and derived classes.
+    - Fix ``factory.PostGenerationDeclaration`` and derived classes.
 
 
 .. _v1.1.4:
@@ -769,7 +767,7 @@ In order to upgrade client code, apply the following rules:
 
 *New:*
 
-  - Add :class:`~factory.Iterator` and :class:`~factory.InfiniteIterator` for :class:`~factory.Factory` attribute declarations.
+  - Add :class:`~factory.Iterator` and ``factory.InfiniteIterator`` for :class:`~factory.Factory` attribute declarations.
   - Provide :func:`~factory.Factory.generate` and :func:`~factory.Factory.simple_generate`, that allow specifying the instantiation strategy directly.
     Also provides :func:`~factory.Factory.generate_batch` and :func:`~factory.Factory.simple_generate_batch`.
 
@@ -792,7 +790,7 @@ In order to upgrade client code, apply the following rules:
 *New:*
 
   - Improve the :class:`~factory.SelfAttribute` syntax to fetch sub-attributes using the ``foo.bar`` syntax;
-  - Add :class:`~factory.ContainerAttribute` to fetch attributes from the container of a :class:`~factory.SubFactory`.
+  - Add ``factory.ContainerAttribute`` to fetch attributes from the container of a :class:`~factory.SubFactory`.
   - Provide the :func:`~factory.make_factory` helper: ``MyClassFactory = make_factory(MyClass, x=3, y=4)``
   - Add :func:`~factory.build`, :func:`~factory.create`, :func:`~factory.stub` helpers
 
@@ -802,7 +800,7 @@ In order to upgrade client code, apply the following rules:
 
 *Deprecation:*
 
-  - Auto-discovery of :attr:`~factory.Factory.FACTORY_FOR` based on class name is now deprecated
+  - Auto-discovery of ``factory.Factory.FACTORY_FOR`` based on class name is now deprecated
 
 
 .. _v1.0.4:
@@ -815,9 +813,9 @@ In order to upgrade client code, apply the following rules:
   - Improve the algorithm for populating a :class:`~factory.Factory` attributes dict
   - Add ``python setup.py test`` command to run the test suite
   - Allow custom build functions
-  - Introduce :data:`~factory.MOGO_BUILD` build function
+  - Introduce ``factory.MOGO_BUILD`` build function
   - Add support for inheriting from multiple :class:`~factory.Factory`
-  - Base :class:`~factory.Factory` classes can now be declared :attr:`abstract <factory.Factory.ABSTRACT_FACTORY>`.
+  - Base :class:`~factory.Factory` classes can now be declared abstract through ``factory.Factory.ABSTRACT_FACTORY``.
   - Provide :class:`~factory.django.DjangoModelFactory`, whose :class:`~factory.Sequence` counter starts at the next free database id
   - Introduce :class:`~factory.SelfAttribute`, a shortcut for ``factory.LazyAttribute(lambda o: o.foo.bar.baz``.
 

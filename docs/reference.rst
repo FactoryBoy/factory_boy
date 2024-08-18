@@ -1,7 +1,7 @@
 Reference
 =========
 
-.. currentmodule:: factory
+.. module:: factory
 
 This section offers an in-depth description of factory_boy features.
 
@@ -181,17 +181,19 @@ Attributes and methods
 
     **Base functions:**
 
-    The :class:`Factory` class provides a few methods for getting objects;
-    the usual way being to simply call the class:
+    .. classmethod:: __call__(**kwargs)
 
-    .. code-block:: pycon
+        The :class:`Factory` class provides a few methods for getting objects;
+        the usual way being to simply call the class:
 
-        >>> UserFactory()               # Calls UserFactory.create()
-        >>> UserFactory(login='john')   # Calls UserFactory.create(login='john')
+        .. code-block:: pycon
 
-    Under the hood, factory_boy will define the :class:`Factory`
-    :meth:`~object.__new__` method to call the default :ref:`strategy <strategies>`
-    of the :class:`Factory`.
+            >>> UserFactory()               # Calls UserFactory.create()
+            >>> UserFactory(login='john')   # Calls UserFactory.create(login='john')
+
+        Under the hood, factory_boy will define the :class:`Factory`
+        :meth:`~object.__new__` method to call the default :ref:`strategy <strategies>`
+        of the :class:`Factory`.
 
 
     A specific strategy for getting instance can be selected by calling the
@@ -203,7 +205,7 @@ Attributes and methods
 
     .. classmethod:: build_batch(cls, size, **kwargs)
 
-        Provides a list of :obj:`size` instances from the :class:`Factory`,
+        Provides a list of ``size`` instances from the :class:`Factory`,
         through the 'build' strategy.
 
 
@@ -213,7 +215,7 @@ Attributes and methods
 
     .. classmethod:: create_batch(cls, size, **kwargs)
 
-        Provides a list of :obj:`size` instances from the :class:`Factory`,
+        Provides a list of ``size`` instances from the :class:`Factory`,
         through the 'create' strategy.
 
 
@@ -223,16 +225,16 @@ Attributes and methods
 
     .. classmethod:: stub_batch(cls, size, **kwargs)
 
-        Provides a list of :obj:`size` stubs from the :class:`Factory`.
+        Provides a list of ``size`` stubs from the :class:`Factory`.
 
 
     .. classmethod:: generate(cls, strategy, **kwargs)
 
-        Provide a new instance, with the provided :obj:`strategy`.
+        Provide a new instance, with the provided ``strategy``.
 
     .. classmethod:: generate_batch(cls, strategy, size, **kwargs)
 
-        Provides a list of :obj:`size` instances using the specified strategy.
+        Provides a list of ``size`` instances using the specified strategy.
 
 
     .. classmethod:: simple_generate(cls, create, **kwargs)
@@ -241,8 +243,8 @@ Attributes and methods
 
     .. classmethod:: simple_generate_batch(cls, create, size, **kwargs)
 
-        Provides a list of :obj:`size` instances, either built or created
-        according to :obj:`create`.
+        Provides a list of ``size`` instances, either built or created
+        according to ``create``.
 
 
     **Extension points:**
@@ -585,7 +587,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
 
     *Decorator*
 
-    Change the default strategy of the decorated :class:`Factory` to the chosen :obj:`strategy`:
+    Change the default strategy of the decorated :class:`Factory` to the chosen ``strategy``:
 
     .. code-block:: python
 
@@ -626,7 +628,7 @@ factory_boy supports two main strategies for generating instances, plus stubs.
 .. function:: debug(logger='factory', stream=None)
 
     :param str logger: The name of the logger to enable debug for
-    :param file stream: The stream to send debug output to, defaults to :obj:`sys.stderr`
+    :param io.StringIO stream: The stream to send debug output to, defaults to :obj:`sys.stderr`
 
     Context manager to help debugging factory_boy behavior.
     It will temporarily put the target logger (e.g ``'factory'``) in debug mode,
@@ -821,7 +823,7 @@ Decorator
 
 The class :class:`LazyFunction` does not provide a decorator.
 
-For complex cases, use :meth:`LazyAttribute.lazy_attribute` directly.
+For complex cases, use :meth:`~factory.lazy_attribute` directly.
 
 LazyAttribute
 """""""""""""
@@ -855,7 +857,7 @@ accept the object being built as sole argument, and return a value.
 
 
 The object passed to :class:`LazyAttribute` is not an instance of the target class,
-but instead a :class:`~builder.Resolver`: a temporary container that computes
+but instead a ``builder.Resolver``: a temporary container that computes
 the value of all declared fields.
 
 
@@ -1158,7 +1160,7 @@ The :class:`SubFactory` attribute should be called with:
 .. note::
 
           When passing an actual :class:`~factory.Factory` for the
-          :attr:`~factory.SubFactory.factory` argument, make sure to pass
+          :class:`~factory.SubFactory`'s ``factory`` argument, make sure to pass
           the class and not instance (i.e no ``()`` after the class):
 
           .. code-block:: python
@@ -1365,7 +1367,7 @@ Obviously, this "follow parents" ability also handles overriding some attributes
 
 
 This feature is also available to :class:`LazyAttribute` and :class:`LazyAttributeSequence`,
-through the :attr:`~builder.Resolver.factory_parent` attribute of the passed-in object:
+through the ``factory_parent`` attribute of the passed-in object:
 
 .. code-block:: python
 
@@ -1819,7 +1821,7 @@ RelatedFactoryList
         in a future version for increased consistency with other declarations.
 
 .. note::
-          Note that using a ``lambda`` for :attr:`size` allows the number of related objects per
+          Note that using a ``lambda`` for ``size`` allows the number of related objects per
           parents object to vary. This is useful for testing, when you likely don't want your mock
           data to have parent objects with the exact same, static number of related objects.
 
@@ -2047,18 +2049,18 @@ Internally, helper methods use :func:`make_factory` to create a new
 :class:`Factory` according to the method name.
 
 Please note, that all Factories created with this methods inherit from the
-:class:`factory.base.Factory` class. For full support of your ``ORM``, specify
+:class:`factory.Factory` class. For full support of your ``ORM``, specify
 a base class with the ``FACTORY_CLASS`` parameter as shown in
 :func:`make_factory` examples.
 
 .. function:: build(klass, FACTORY_CLASS=None, **kwargs)
 .. function:: build_batch(klass, size, FACTORY_CLASS=None, **kwargs)
 
-    Create a factory for :obj:`klass` using declarations passed in kwargs;
+    Create a factory for ``klass`` using declarations passed in kwargs;
     return an instance built from that factory with :data:`BUILD_STRATEGY`,
-    or a list of :obj:`size` instances (for :func:`build_batch`).
+    or a list of ``size`` instances (for :func:`build_batch`).
 
-    :param class klass: Class of the instance to build
+    :param type klass: Class of the instance to build
     :param int size: Number of instances to build
     :param kwargs: Declarations to use for the generated factory
     :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
@@ -2068,11 +2070,11 @@ a base class with the ``FACTORY_CLASS`` parameter as shown in
 .. function:: create(klass, FACTORY_CLASS=None, **kwargs)
 .. function:: create_batch(klass, size, FACTORY_CLASS=None, **kwargs)
 
-    Create a factory for :obj:`klass` using declarations passed in kwargs;
+    Create a factory for ``klass`` using declarations passed in kwargs;
     return an instance created from that factory with :data:`CREATE_STRATEGY`,
-    or a list of :obj:`size` instances (for :func:`create_batch`).
+    or a list of ``size`` instances (for :func:`create_batch`).
 
-    :param class klass: Class of the instance to create
+    :param type klass: Class of the instance to create
     :param int size: Number of instances to create
     :param kwargs: Declarations to use for the generated factory
     :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
@@ -2082,11 +2084,11 @@ a base class with the ``FACTORY_CLASS`` parameter as shown in
 .. function:: stub(klass, FACTORY_CLASS=None, **kwargs)
 .. function:: stub_batch(klass, size, FACTORY_CLASS=None, **kwargs)
 
-    Create a factory for :obj:`klass` using declarations passed in kwargs;
+    Create a factory for ``klass`` using declarations passed in kwargs;
     return an instance stubbed from that factory with :data:`STUB_STRATEGY`,
-    or a list of :obj:`size` instances (for :func:`stub_batch`).
+    or a list of ``size`` instances (for :func:`stub_batch`).
 
-    :param class klass: Class of the instance to stub
+    :param type klass: Class of the instance to stub
     :param int size: Number of instances to stub
     :param kwargs: Declarations to use for the generated factory
     :param FACTORY_CLASS: Alternate base class (instead of :class:`Factory`)
@@ -2096,11 +2098,11 @@ a base class with the ``FACTORY_CLASS`` parameter as shown in
 .. function:: generate(klass, strategy, FACTORY_CLASS=None, **kwargs)
 .. function:: generate_batch(klass, strategy, size, FACTORY_CLASS=None, **kwargs)
 
-    Create a factory for :obj:`klass` using declarations passed in kwargs;
-    return an instance generated from that factory with the :obj:`strategy` strategy,
-    or a list of :obj:`size` instances (for :func:`generate_batch`).
+    Create a factory for ``klass`` using declarations passed in kwargs;
+    return an instance generated from that factory with the ``strategy`` strategy,
+    or a list of ``size`` instances (for :func:`generate_batch`).
 
-    :param class klass: Class of the instance to generate
+    :param type klass: Class of the instance to generate
     :param str strategy: The strategy to use
     :param int size: Number of instances to generate
     :param kwargs: Declarations to use for the generated factory
@@ -2111,11 +2113,11 @@ a base class with the ``FACTORY_CLASS`` parameter as shown in
 .. function:: simple_generate(klass, create, FACTORY_CLASS=None, **kwargs)
 .. function:: simple_generate_batch(klass, create, size, FACTORY_CLASS=None, **kwargs)
 
-    Create a factory for :obj:`klass` using declarations passed in kwargs;
-    return an instance generated from that factory according to the :obj:`create` flag,
-    or a list of :obj:`size` instances (for :func:`simple_generate_batch`).
+    Create a factory for ``klass`` using declarations passed in kwargs;
+    return an instance generated from that factory according to the ``create`` flag,
+    or a list of ``size`` instances (for :func:`simple_generate_batch`).
 
-    :param class klass: Class of the instance to generate
+    :param type klass: Class of the instance to generate
     :param bool create: Whether to build (``False``) or create (``True``) instances
     :param int size: Number of instances to generate
     :param kwargs: Declarations to use for the generated factory
@@ -2125,7 +2127,7 @@ a base class with the ``FACTORY_CLASS`` parameter as shown in
 Randomness management
 ---------------------
 
-.. currentmodule:: factory.random
+.. module:: factory.random
 
 Using :mod:`random` in factories allows to "fuzz" a program efficiently.
 However, it's sometimes required to *reproduce* a failing test.
@@ -2147,6 +2149,11 @@ of :class:`random.Random`, which can be managed through the :mod:`factory.random
 .. method:: reseed_random(seed)
 
     The :meth:`reseed_random` function allows to load a chosen seed into the random generator.
-    That seed can be anything accepted by :meth:`random.seed`.
+    That seed can be anything accepted by :func:`random.seed`.
+
+.. data:: randgen
+
+    The :class:`random.Random` global instance used by :mod:`factory.fuzzy`
+    and :class:`factory.Faker`.
 
 See :ref:`recipe-random-management` for help in using those methods in a test setup.
