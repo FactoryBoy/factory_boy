@@ -6,7 +6,7 @@ ChangeLog
 3.3.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add typing information to SQLAlchemy model factory
 
 
 3.3.1 (2024-08-18)
