@@ -57,11 +57,11 @@ First, decide the strategy:
   use the strategy defined at the :attr:`class Meta <Factory.Meta>` level
 
 
-Then, we'll pass the strategy and passed-in overrides to the :meth:`~Factory._generate` method.
+Then, we'll pass the strategy and passed-in overrides to the ``Factory._generate`` method.
 
-.. note:: According to the project road map, a future version will use a :meth:`~Factory._generate_batch` at its core instead.
+.. note:: According to the project road map, a future version will use a ``Factory._generate_batch`` at its core instead.
 
-A factory's :meth:`~Factory._generate` function actually delegates to a ``StepBuilder()`` object.
+A factory's ``Factory._generate`` function actually delegates to a ``StepBuilder()`` object.
 This object will carry the overall "build an object" context (strategy, depth, and possibly other).
 
 
@@ -81,7 +81,7 @@ Instantiating, Step 3: Building the object
 
 1. The ``StepBuilder`` fetches the attributes computed by the ``Resolver``.
 2. It applies renaming/adjustment rules
-3. It passes them to the :meth:`FactoryOptions.instantiate` method, which
+3. It passes them to the ``FactoryOptions.instantiate`` method, which
    forwards to the proper methods.
 4. Post-declaration are applied (in declaration order)
 

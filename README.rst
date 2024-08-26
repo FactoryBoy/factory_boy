@@ -20,7 +20,7 @@ factory_boy
     :alt: Wheel status
 
 .. image:: https://img.shields.io/pypi/l/factory_boy.svg
-    :target: https://pypi.org/project/factory-boy/
+    :target: https://github.com/FactoryBoy/factory_boy/blob/master/LICENSE
     :alt: License
 
 factory_boy is a fixtures replacement based on thoughtbot's `factory_bot <https://github.com/thoughtbot/factory_bot>`_.
@@ -405,11 +405,9 @@ To test with a specific framework version, you may use a ``tox`` target:
 
     # run tests inside a specific environment (django)
     $ tox -e py310-djangomain
-    $ tox -e py310-djangomain-postgres
 
     # run tests inside a specific environment (alchemy)
     $ tox -e py310-alchemy
-    $ tox -e py310-alchemy-postgres
 
     # run tests inside a specific environment (mongoengine)
     $ tox -e py310-mongo

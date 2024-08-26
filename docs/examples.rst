@@ -76,7 +76,7 @@ And now, we'll define the related factories:
 
 
 
-We have now defined basic factories for our :class:`~Account` and :class:`~Profile` classes.
+We have now defined basic factories for our ``Account`` and ``Profile`` classes.
 
 If we commonly use a specific variant of our objects, we can refine a factory accordingly:
 

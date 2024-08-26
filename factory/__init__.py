@@ -1,5 +1,7 @@
 # Copyright: See the LICENSE file.
 
+import importlib.metadata
+
 from .base import (
     BaseDictFactory,
     BaseListFactory,
@@ -70,10 +72,4 @@ except ImportError:
     pass
 
 __author__ = 'Raphaël Barrois <raphael.barrois+fboy@polytechnique.org>'
-try:
-    # Python 3.8+
-    import importlib.metadata as importlib_metadata
-except ImportError:
-    import importlib_metadata
-
-__version__ = importlib_metadata.version("factory_boy")
+__version__ = importlib.metadata.version("factory_boy")

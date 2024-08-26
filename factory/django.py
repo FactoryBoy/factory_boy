@@ -10,6 +10,7 @@ import logging
 import os
 import warnings
 from collections import defaultdict
+from typing import Dict, TypeVar
 
 from django.contrib.auth.hashers import make_password
 from django.core import files as django_files
@@ -21,8 +22,8 @@ from . import base, builder, declarations, enums, errors
 logger = logging.getLogger('factory.generate')
 
 DEFAULT_DB_ALIAS = 'default'  # Same as django.db.DEFAULT_DB_ALIAS
-
-_LAZY_LOADS = {}
+T = TypeVar("T")
+_LAZY_LOADS: Dict[str, object] = {}
 
 
 def get_model(app, model):
@@ -90,7 +91,7 @@ class DjangoOptions(base.FactoryOptions):
         return self.model
 
 
-class DjangoModelFactory(base.Factory):
+class DjangoModelFactory(base.Factory[T]):
     """Factory for Django models.
 
     This makes sure that the 'sequence' field of created objects is a new id.
@@ -488,7 +489,7 @@ class mute_signals:
             logger.debug('mute_signals: Restoring signal handlers %r',
                          receivers)
 
-            signal.receivers += receivers
+            signal.receivers = receivers + signal.receivers
             with signal.lock:
                 # Django uses some caching for its signals.
                 # Since we're bypassing signal.connect and signal.disconnect,

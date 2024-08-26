@@ -19,6 +19,7 @@ kwargs
 metaclass
 misconfiguration
 Mogo
+MongoDB
 mongoengine
 pre
 prepend

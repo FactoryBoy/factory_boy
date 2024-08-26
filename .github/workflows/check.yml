@@ -1,8 +1,10 @@
 name: Check
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - "master"
+  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -25,10 +27,10 @@ jobs:
       TOXENV: ${{ matrix.tox-environment }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3'
           cache: pip

@@ -52,18 +52,16 @@ testall:
 	tox
 
 # DOC: Run tests for the currently installed version
-# Remove cgi warning when dropping support for Django<=4.1.
+# Remove cgi warning when dropping support for Django 3.2.
 test:
+	mypy --ignore-missing-imports tests/test_typing.py
 	python \
 		-b \
 		-X dev \
 		-Werror \
-		-Wdefault:"the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses":DeprecationWarning:distutils: \
-		-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working":DeprecationWarning:: \
-		-Wdefault:"Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.9 it will stop working":DeprecationWarning:: \
-		-Wdefault:"set_output_charset() is deprecated":DeprecationWarning:: \
-		-Wdefault:"parameter codeset is deprecated":DeprecationWarning:: \
-		-Wdefault:"'cgi' is deprecated and slated for removal in Python 3.13":DeprecationWarning:: \
+		-Wignore:::mongomock: \
+		-Wignore:::mongomock.__version__: \
+		-Wignore:::pkg_resources: \
 		-m unittest
 
 # DOC: Test the examples
@@ -106,7 +104,7 @@ TAGS:
 
 # DOC: Compile the documentation
 doc:
-	$(MAKE) -C $(DOC_DIR) SPHINXOPTS=-W html
+	$(MAKE) -C $(DOC_DIR) SPHINXOPTS="-n -W" html
 
 linkcheck:
 	$(MAKE) -C $(DOC_DIR) linkcheck

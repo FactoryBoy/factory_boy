@@ -89,7 +89,7 @@ use a :class:`~factory.RelatedFactory` declaration:
         )
 
 
-When a :class:`UserFactory` is instantiated, factory_boy will call
+When a ``UserFactory`` is instantiated, factory_boy will call
 ``UserLogFactory(user=that_user, action=...)`` just before returning the created ``User``.
 
 
@@ -101,7 +101,7 @@ using a :class:`~django.db.models.OneToOneField` from the ``Profile`` to the ``U
 
 A typical way to create those profiles was to hook a post-save signal to the ``User`` model.
 
-Prior to version 2.9, the solution to this was to override the :meth:`~factory.Factory._generate` method on the factory.
+Prior to version 2.9, the solution to this was to override the ``factory.Factory._generate`` method on the factory.
 
 Since version 2.9, the :meth:`~factory.django.mute_signals` decorator should be used:
 
@@ -216,8 +216,8 @@ Many-to-many relation with a 'through'
 --------------------------------------
 
 
-If only one link is required, this can be simply performed with a :class:`RelatedFactory`.
-If more links are needed, simply add more :class:`RelatedFactory` declarations:
+If only one link is required, this can be simply performed with a :class:`~factory.RelatedFactory`.
+If more links are needed, simply add more :class:`~factory.RelatedFactory` declarations:
 
 .. code-block:: python
 
