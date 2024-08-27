@@ -13,6 +13,7 @@ ChangeLog
 
   The transitional setting :attr:`factory.django.DjangoOptions.skip_postgeneration_save` can be removed.
 
+- :func:`factory.use_strategy`. Use :attr:`factory.FactoryOptions.strategy` instead.
 
 3.3.1 (2024-08-18)
 ------------------
