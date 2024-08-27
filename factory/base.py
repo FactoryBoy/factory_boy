@@ -727,20 +727,3 @@ class BaseListFactory(Factory):
 class ListFactory(BaseListFactory):
     class Meta:
         model = list
-
-
-def use_strategy(new_strategy):
-    """Force the use of a different strategy.
-
-    This is an alternative to setting default_strategy in the class definition.
-    """
-    warnings.warn(
-        "use_strategy() is deprecated and will be removed in the future.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-
-    def wrapped_class(klass):
-        klass._meta.strategy = new_strategy
-        return klass
-    return wrapped_class

@@ -579,23 +579,6 @@ factory_boy supports two main strategies for generating instances, plus stubs.
         >>> return obj
 
 
-.. function:: use_strategy(strategy)
-
-    .. deprecated:: 3.2
-
-        Use :py:attr:`factory.FactoryOptions.strategy` instead.
-
-    *Decorator*
-
-    Change the default strategy of the decorated :class:`Factory` to the chosen ``strategy``:
-
-    .. code-block:: python
-
-        @use_strategy(factory.BUILD_STRATEGY)
-        class UserBuildingFactory(UserFactory):
-            pass
-
-
 .. data:: STUB_STRATEGY
 
     The 'stub' strategy is an exception in the factory_boy world: it doesn't return

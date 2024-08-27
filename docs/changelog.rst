@@ -3,11 +3,17 @@ ChangeLog
 
 .. Note for v4.x: don't forget to check "Deprecated" sections for removal.
 
-3.3.2 (unreleased)
+4.0.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*Removed:*
 
+- :class:`~factory.django.DjangoModelFactory` no longer issues a second call to
+  :meth:`~django.db.models.Model.save` on the created instance when :ref:`post-generation-hooks` return a value.
+
+  The transitional setting :attr:`factory.django.DjangoOptions.skip_postgeneration_save` can be removed.
+
+- :func:`factory.use_strategy`. Use :attr:`factory.FactoryOptions.strategy` instead.
 
 3.3.1 (2024-08-18)
 ------------------
