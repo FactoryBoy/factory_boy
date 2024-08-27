@@ -447,9 +447,6 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
                 factory_related_name='pointed',
             )
 
-            class Meta:
-                skip_postgeneration_save = True
-
         class PointerExtraFactory(PointerFactory):
             pointed__foo = 'extra_new_foo'
 
@@ -465,9 +462,6 @@ class DjangoRelatedFieldTestCase(django_test.TestCase):
                         bar='with_trait',
                     )
                 )
-
-            class Meta:
-                skip_postgeneration_save = True
 
         cls.PointedFactory = PointedFactory
         cls.PointerFactory = PointerFactory
@@ -989,7 +983,6 @@ class PreventSignalsTestCase(django_test.TestCase):
         class WithSignalsDecoratedFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.WithSignals
-                skip_postgeneration_save = True
 
             @factory.post_generation
             def post(obj, create, extracted, **kwargs):
@@ -1017,7 +1010,6 @@ class PreventSignalsTestCase(django_test.TestCase):
         class PointedFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointedModel
-                skip_postgeneration_save = True
 
             @factory.post_generation
             def post_action(obj, create, extracted, **kwargs):
@@ -1111,7 +1103,6 @@ class PreventChainedSignalsTestCase(django_test.TestCase):
         class UndecoratedFactory(factory.django.DjangoModelFactory):
             class Meta:
                 model = models.PointerModel
-                skip_postgeneration_save = True
             pointed = factory.RelatedFactory(self.WithSignalsDecoratedFactory)
 
         UndecoratedFactory()
@@ -1132,31 +1123,6 @@ class DjangoCustomManagerTestCase(django_test.TestCase):
         # Our CustomManager will remove the 'arg=' argument,
         # invalid for the actual model.
         ObjFactory.create(arg='invalid')
-
-
-class DjangoModelFactoryDuplicateSaveDeprecationTest(django_test.TestCase):
-    class StandardFactoryWithPost(StandardFactory):
-        @factory.post_generation
-        def post_action(obj, create, extracted, **kwargs):
-            return 3
-
-    def test_create_warning(self):
-        with self.assertWarns(DeprecationWarning) as cm:
-            self.StandardFactoryWithPost.create()
-
-        [msg] = cm.warning.args
-        self.assertEqual(
-            msg,
-            "StandardFactoryWithPost._after_postgeneration will stop saving the "
-            "instance after postgeneration hooks in the next major release.\n"
-            "If the save call is extraneous, set skip_postgeneration_save=True in the "
-            "StandardFactoryWithPost.Meta.\n"
-            "To keep saving the instance, move the save call to your postgeneration "
-            "hooks or override _after_postgeneration.",
-        )
-
-    def test_build_no_warning(self):
-        self.StandardFactoryWithPost.build()
 
 
 class IntegrityErrorForMissingOriginalParamsTest(django_test.TestCase):
