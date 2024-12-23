@@ -9,7 +9,6 @@ from .base import (
     Factory,
     ListFactory,
     StubFactory,
-    use_strategy,
 )
 from .declarations import (
     ContainerAttribute,

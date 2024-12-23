@@ -109,13 +109,6 @@ All factories for a Django :class:`~django.db.models.Model` should use the
                 >>> john.email                            # The email value was not updated
                 "john@example.com"
 
-    .. attribute:: skip_postgeneration_save
-
-        Transitional option to prevent :class:`~factory.django.DjangoModelFactory`'s
-        ``_after_postgeneration`` from issuing a duplicate call to
-        :meth:`~django.db.models.Model.save` on the created instance when
-        :class:`factory.PostGeneration` hooks return a value.
-
 
 Extra fields
 """"""""""""
