@@ -6,7 +6,13 @@ ChangeLog
 3.3.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*Bugfix:*
+
+  - Fix docs generation
+
+*New:*
+
+  - Add support for Python 3.13
 
 
 3.3.1 (2024-08-18)
