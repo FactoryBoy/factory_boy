@@ -6,7 +6,9 @@ ChangeLog
 3.3.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+*New:*
+
+  - Publish type annotations
 
 
 3.3.2 (2025-02-03)
