@@ -6,7 +6,7 @@ ChangeLog
 3.3.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Values on the `factory` namespace are now explicitly exported.
 
 
 3.3.3 (2025-02-03)
