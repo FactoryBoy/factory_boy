@@ -7,6 +7,7 @@ ChangeLog
 ------------------
 
 - Add support for Django 5.2
+- Values on the `factory` namespace are now explicitly exported.
 
 
 3.3.3 (2025-02-03)
