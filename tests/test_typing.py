@@ -36,9 +36,9 @@ class TypingTests(unittest.TestCase):
             species = "dog"
             name = "rover"
 
-        self.assertTrue(isinstance(Pet.build(), dict))
-        self.assertTrue(isinstance(Pet.create(), dict))
+        self.assertIsInstance(Pet.build(), dict)
+        self.assertIsInstance(Pet.create(), dict)
 
     def test_list_factory(self) -> None:
-        self.assertTrue(isinstance(factory.ListFactory.build(), list))
-        self.assertTrue(isinstance(factory.ListFactory.create(), list))
+        self.assertIsInstance(factory.ListFactory.build(), list)
+        self.assertIsInstance(factory.ListFactory.create(), list)
