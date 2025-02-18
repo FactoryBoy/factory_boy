@@ -209,7 +209,7 @@ Extra fields
         :param str format: The image format (as supported by PIL) (default: ``'JPEG'``)
         :param str palette: The image palette (as supported by PIL) (default: ``'RGB'``)
 
-.. note:: If the value ``None`` was passed for the :class:`FileField` field, this will
+.. note:: If the value ``None`` was passed for the :class:`ImageField` field, this will
           disable field generation:
 
 .. note:: Just as Django's :class:`django.db.models.ImageField` requires the

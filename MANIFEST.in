@@ -7,7 +7,7 @@ graft docs
 graft examples
 graft tests
 
-exclude readthedocs.yml
+exclude .readthedocs.yaml
 global-exclude *.py[cod] __pycache__ .*.sw[po]
 prune .github
 prune docs/_build

@@ -3,10 +3,30 @@ ChangeLog
 
 .. Note for v4.x: don't forget to check "Deprecated" sections for removal.
 
-3.3.2 (unreleased)
+3.3.4 (unreleased)
 ------------------
 
 - Nothing changed yet.
+
+
+3.3.3 (2025-02-03)
+------------------
+
+*New:*
+
+  - Publish type annotations
+
+
+3.3.2 (2025-02-03)
+------------------
+
+*Bugfix:*
+
+  - Fix docs generation
+
+*New:*
+
+  - Add support for Python 3.13
 
 
 3.3.1 (2024-08-18)
