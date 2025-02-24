@@ -657,7 +657,7 @@ class PostGenerationDeclaration(BaseDeclaration):
         Args:
             instance (object): the newly generated object
             step (bool): whether the object was 'built' or 'created'
-            context: a builder.PostGenerationContext containing values
+            context: a declarations.PostGenerationContext containing values
                 extracted from the containing factory's declaration
         """
         raise NotImplementedError()
