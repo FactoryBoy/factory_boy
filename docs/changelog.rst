@@ -6,7 +6,7 @@ ChangeLog
 3.3.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add support for Django 5.2
 
 
 3.3.3 (2025-02-03)
