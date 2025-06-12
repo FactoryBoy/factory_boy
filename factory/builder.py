@@ -366,8 +366,9 @@ class Resolver:
             return value
         else:
             raise AttributeError(
-                "The parameter %r is unknown. Evaluated attributes are %r, "
-                "definitions are %r." % (name, self.__values, self.__declarations))
+                "The parameter %r is unknown. Available attributes are: %s."
+                % (name, ", ".join(list(self.__declarations)))
+            )
 
     def __setattr__(self, name, value):
         """Prevent setting attributes once __init__ is done."""
