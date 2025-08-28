@@ -166,6 +166,21 @@ class _UNSPECIFIED:
     pass
 
 
+def dictgetattr(obj, attr):
+    """A getattr that also works with dictionaries.
+
+    This will always raise an AttributeError if the attribute is not found to remain
+    compatible with `deepgetattr`'s error handling logic.
+    """
+    try:
+        return getattr(obj, attr)
+    except AttributeError as attr_error:
+        try:
+            return obj[attr]
+        except Exception as error:
+            raise attr_error from error
+
+
 def deepgetattr(obj, name, default=_UNSPECIFIED):
     """Try to retrieve the given attribute of an object, digging on '.'.
 
@@ -185,9 +200,9 @@ def deepgetattr(obj, name, default=_UNSPECIFIED):
     try:
         if '.' in name:
             attr, subname = name.split('.', 1)
-            return deepgetattr(getattr(obj, attr), subname, default)
+            return deepgetattr(dictgetattr(obj, attr), subname, default)
         else:
-            return getattr(obj, name)
+            return dictgetattr(obj, name)
     except AttributeError:
         if default is _UNSPECIFIED:
             raise

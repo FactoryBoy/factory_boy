@@ -42,6 +42,33 @@ class DigTestCase(unittest.TestCase):
         self.assertEqual(42, declarations.deepgetattr(obj, 'a.b.c.n.x', 42))
 
 
+class DigDictTestCase(unittest.TestCase):
+
+    def test_chaining(self):
+        """This is the same test as the `DigTestCase.test_chaining`, except it tests
+        that chaining works for dictionaries.
+        """
+        dictionary = {"n": 1}
+        dictionary["a"] = {"n": 2}
+        dictionary["a"]["b"] = {"n": 3}
+        dictionary["a"]["b"]["c"] = {"n": 4}
+
+        self.assertEqual(2, declarations.deepgetattr(dictionary, 'a')["n"])
+        with self.assertRaises(AttributeError):
+            declarations.deepgetattr(dictionary, 'b')
+        self.assertEqual(2, declarations.deepgetattr(dictionary, 'a.n'))
+        self.assertEqual(3, declarations.deepgetattr(dictionary, 'a.c', 3))
+        with self.assertRaises(AttributeError):
+            declarations.deepgetattr(dictionary, 'a.c.n')
+        with self.assertRaises(AttributeError):
+            declarations.deepgetattr(dictionary, 'a.d')
+        self.assertEqual(3, declarations.deepgetattr(dictionary, 'a.b')["n"])
+        self.assertEqual(3, declarations.deepgetattr(dictionary, 'a.b.n'))
+        self.assertEqual(4, declarations.deepgetattr(dictionary, 'a.b.c')["n"])
+        self.assertEqual(4, declarations.deepgetattr(dictionary, 'a.b.c.n'))
+        self.assertEqual(42, declarations.deepgetattr(dictionary, 'a.b.c.n.x', 42))
+
+
 class MaybeTestCase(unittest.TestCase):
     def test_init(self):
         declarations.Maybe('foo', 1, 2)
