@@ -567,6 +567,23 @@ class UsingFactoryTestCase(unittest.TestCase):
         test_model = TestModel2Factory()
         self.assertEqual(4, test_model.two.three)
 
+    def test_self_attribute_dict_factory(self):
+        class ChildFactory(factory.DictFactory):
+            first_name = "Bob"
+            last_name = "Dole"
+
+        class ParentFactory(factory.DictFactory):
+            child = factory.SubFactory(ChildFactory)
+            last_name = factory.SelfAttribute(
+                "child.last_name", deepgetattr_func=factory.declarations.deepdictgetattr
+            )
+
+        parent = ParentFactory()
+        self.assertEqual(
+            parent,
+            {"last_name": "Dole", "child": {"first_name": "Bob", "last_name": "Dole"}},
+        )
+
     def test_sequence_decorator(self):
         class TestObjectFactory(factory.Factory):
             class Meta:

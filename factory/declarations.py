@@ -1,6 +1,7 @@
 # Copyright: See the LICENSE file.
 
 
+import contextlib
 import itertools
 import logging
 import typing as T
@@ -166,6 +167,65 @@ class _UNSPECIFIED:
     pass
 
 
+def dictgetattr(obj, attr, default=_UNSPECIFIED):
+    """A version of `getattr` that allows retrieving attributes from dictionaries.
+
+    Args:
+        obj (object): the object of which an attribute or key should be read
+        name (str): the name of an attribute or key to look up.
+        default (object): the default value to use if the attribute or key wasn't found.
+
+    Returns:
+        the value pointed to by 'name'.
+
+    Raises:
+        KeyError: if obj has no 'name' key.
+        TypeError: if obj is not subscriptable. Also raised if object has no attribute.
+    """
+    # First, try and get the attribute ignoring any attribute errors.
+    with contextlib.suppress(AttributeError):
+        return getattr(obj, attr)
+
+    # If that doesn't work, assume it's a dictionary and try to retrieve the value by
+    # using the attr name as the key.
+    try:
+        return obj[attr]
+    except (KeyError, TypeError):
+        # If no default was specified, re-raise the exception. Otherwise, return the
+        # default.
+        if default is _UNSPECIFIED:
+            raise
+
+        return default
+
+
+def deepdictgetattr(obj, attr, default=_UNSPECIFIED):
+    """A deepgetattr that also works with dictionaries. This will first try retrieving
+    the named attribute before attempting to use bracket (`[]`) access assuming it might
+    be a dictionary.
+
+    Args:
+        obj (object): the object of which an attribute or key should be read.
+        name (str): the name of an attribute or key to look up. This can be a dotted
+            path to a nested attribute or key.
+        default (object): the default value to use if the attribute wasn't found.
+
+    Returns:
+        the value pointed to by 'name', splitting on '.'.
+
+    Raises:
+        KeyError: if obj has no 'name' key.
+        TypeError: if obj is not subscriptable. Also raised if object has no attribute.
+    """
+    result = obj
+    # Split on `.` and treat the values in between as parts of a path. Chain off the
+    # previously retrieved result to get the next nested attribute.
+    for attr_name in attr.split("."):
+        result = dictgetattr(result, attr_name, default)
+
+    return result
+
+
 def deepgetattr(obj, name, default=_UNSPECIFIED):
     """Try to retrieve the given attribute of an object, digging on '.'.
 
@@ -206,9 +266,12 @@ class SelfAttribute(BaseDeclaration):
         attribute_name (str): the name of the attribute to copy.
         default (object): the default value to use if the attribute doesn't
             exist.
+        deepgetattr_func (callable): the callable used to retrieve the potentially
+            nested attribute. Defaults to `deepgetattr` which supports dotted path
+            attribute access.
     """
 
-    def __init__(self, attribute_name, default=_UNSPECIFIED):
+    def __init__(self, attribute_name, default=_UNSPECIFIED, deepgetattr_func=deepgetattr):
         super().__init__()
         depth = len(attribute_name) - len(attribute_name.lstrip('.'))
         attribute_name = attribute_name[depth:]
@@ -216,6 +279,7 @@ class SelfAttribute(BaseDeclaration):
         self.depth = depth
         self.attribute_name = attribute_name
         self.default = default
+        self.deepgetattr_func = deepgetattr_func
 
     def evaluate(self, instance, step, extra):
         if self.depth > 1:
@@ -225,7 +289,7 @@ class SelfAttribute(BaseDeclaration):
             target = instance
 
         logger.debug("SelfAttribute: Picking attribute %r on %r", self.attribute_name, target)
-        return deepgetattr(target, self.attribute_name, self.default)
+        return self.deepgetattr_func(target, self.attribute_name, self.default)
 
     def __repr__(self):
         return '<%s(%r, default=%r)>' % (
