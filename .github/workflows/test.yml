@@ -19,13 +19,13 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
-          - "pypy-3.9"
+          - "3.13"
           - "pypy-3.10"
+          - "pypy-3.11"
 
     steps:
       - uses: actions/checkout@v4
@@ -41,5 +41,3 @@ jobs:
 
       - name: Run tests
         run: tox
-        env:
-          DATABASE_TYPE: ${{ matrix.database-type }}
