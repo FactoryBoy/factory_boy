@@ -25,6 +25,7 @@ jobs:
           - "3.12"
           - "3.13"
           - "pypy-3.10"
+          - "pypy-3.11"
 
     steps:
       - uses: actions/checkout@v4
@@ -40,5 +41,3 @@ jobs:
 
       - name: Run tests
         run: tox
-        env:
-          DATABASE_TYPE: ${{ matrix.database-type }}
