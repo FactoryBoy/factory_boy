@@ -66,6 +66,15 @@ class BaseDeclaration(utils.OrderedBase):
         context = self.unroll_context(instance, step, overrides)
         return self.evaluate(instance, step, context)
 
+    async def async_evaluate_pre(self, instance, step, overrides):
+        """Async version of evaluate_pre.
+
+        By default, calls the synchronous evaluate_pre.
+        Override this method for declarations that need async evaluation.
+        """
+        context = self.unroll_context(instance, step, overrides)
+        return self.evaluate(instance, step, context)
+
     def evaluate(self, instance, step, extra):
         """Evaluate this declaration.
 
@@ -157,6 +166,31 @@ class Transformer(BaseDeclaration):
             step=step,
             overrides=overrides,
         )
+        if bypass_transform:
+            return value
+        return self.transform(value)
+
+    async def async_evaluate_pre(self, instance, step, overrides):
+        """Async version of evaluate_pre for Transformer."""
+        # The call-time value, if present, is set under the "" key.
+        value_or_declaration = overrides.pop("", self.default)
+
+        if isinstance(value_or_declaration, self.Force):
+            bypass_transform = True
+            value_or_declaration = value_or_declaration.forced_value
+        else:
+            bypass_transform = False
+
+        # Check if it's a BaseDeclaration with async support
+        if isinstance(value_or_declaration, BaseDeclaration):
+            value = await value_or_declaration.async_evaluate_pre(
+                instance=instance,
+                step=step,
+                overrides=overrides,
+            )
+        else:
+            value = value_or_declaration
+
         if bypass_transform:
             return value
         return self.transform(value)
@@ -559,6 +593,31 @@ class Maybe(BaseDeclaration):
             step=step,
             overrides=overrides,
         )
+
+    async def async_evaluate_pre(self, instance, step, overrides):
+        """Async version of evaluate_pre for Maybe."""
+        # Check if decider has async support
+        if hasattr(self.decider, 'async_evaluate_pre'):
+            choice = await self.decider.async_evaluate_pre(instance=instance, step=step, overrides={})
+        else:
+            choice = self.decider.evaluate_pre(instance=instance, step=step, overrides={})
+
+        target = self.yes if choice else self.no
+
+        # Check if target has async support
+        if isinstance(target, BaseDeclaration) and hasattr(target, 'async_evaluate_pre'):
+            return await target.async_evaluate_pre(
+                instance=instance,
+                step=step,
+                overrides=overrides,
+            )
+        else:
+            return self._unwrap_evaluate_pre(
+                target,
+                instance=instance,
+                step=step,
+                overrides=overrides,
+            )
 
     def __repr__(self):
         return f'Maybe({self.decider!r}, yes={self.yes!r}, no={self.no!r})'

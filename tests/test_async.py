@@ -338,6 +338,109 @@ class AsyncBatchTestCase(unittest.TestCase):
         asyncio.run(run_test())
 
 
+class AsyncDeclarationsTestCase(unittest.TestCase):
+    """Test async support for various declarations."""
+
+    def test_async_with_lazy_function(self):
+        """Test async factory with LazyFunction."""
+        call_count = [0]
+
+        def lazy_func():
+            call_count[0] += 1
+            return f'lazy-{call_count[0]}'
+
+        class TestModelFactory(factory.Factory):
+            class Meta:
+                model = TestModel
+                strategy = enums.ASYNC_CREATE_STRATEGY
+
+            one = factory.LazyFunction(lazy_func)
+
+        async def run_test():
+            obj = await TestModelFactory()
+            self.assertEqual('lazy-1', obj.one)
+
+        asyncio.run(run_test())
+
+    def test_async_with_iterator(self):
+        """Test async factory with Iterator."""
+        class TestModelFactory(factory.Factory):
+            class Meta:
+                model = TestModel
+                strategy = enums.ASYNC_CREATE_STRATEGY
+
+            one = factory.Iterator(['a', 'b', 'c'])
+
+        async def run_test():
+            obj1 = await TestModelFactory()
+            obj2 = await TestModelFactory()
+            obj3 = await TestModelFactory()
+            self.assertEqual('a', obj1.one)
+            self.assertEqual('b', obj2.one)
+            self.assertEqual('c', obj3.one)
+
+        asyncio.run(run_test())
+
+    def test_async_with_self_attribute(self):
+        """Test async factory with SelfAttribute."""
+        class TestModelFactory(factory.Factory):
+            class Meta:
+                model = TestModel
+                strategy = enums.ASYNC_CREATE_STRATEGY
+
+            one = 'base'
+            two = factory.SelfAttribute('one')
+
+        async def run_test():
+            obj = await TestModelFactory()
+            self.assertEqual('base', obj.one)
+            self.assertEqual('base', obj.two)
+
+        asyncio.run(run_test())
+
+    def test_async_with_maybe(self):
+        """Test async factory with Maybe."""
+        class TestModelFactory(factory.Factory):
+            class Meta:
+                model = TestModel
+                strategy = enums.ASYNC_CREATE_STRATEGY
+
+            one = factory.Trait(
+                two='trait-value'
+            )
+            two = factory.Maybe(
+                'one',
+                yes_declaration='yes',
+                no_declaration='no'
+            )
+
+        async def run_test():
+            obj_yes = await TestModelFactory(one=True)
+            self.assertEqual('yes', obj_yes.two)
+
+            obj_no = await TestModelFactory(one=False)
+            self.assertEqual('no', obj_no.two)
+
+        asyncio.run(run_test())
+
+    def test_async_with_lazy_attribute_sequence(self):
+        """Test async factory with LazyAttributeSequence."""
+        class TestModelFactory(factory.Factory):
+            class Meta:
+                model = TestModel
+                strategy = enums.ASYNC_CREATE_STRATEGY
+
+            one = factory.LazyAttributeSequence(lambda obj, n: f'item-{n}')
+
+        async def run_test():
+            obj1 = await TestModelFactory()
+            obj2 = await TestModelFactory()
+            self.assertEqual('item-0', obj1.one)
+            self.assertEqual('item-1', obj2.one)
+
+        asyncio.run(run_test())
+
+
 if __name__ == '__main__':
     unittest.main()
 
