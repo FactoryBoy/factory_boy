@@ -28,13 +28,28 @@ def resolve_attribute(name, bases, default=None):
     return default
 
 
+class AsyncFactoryWrapper:
+    """Wrapper for async factory creation.
+
+    This allows `await MyFactory()` syntax when Meta.strategy is ASYNC_CREATE_STRATEGY.
+    """
+
+    def __init__(self, factory_class, kwargs):
+        self.factory_class = factory_class
+        self.kwargs = kwargs
+
+    def __await__(self):
+        return self.factory_class.async_create(**self.kwargs).__await__()
+
+
 class FactoryMetaClass(type):
     """Factory metaclass for handling ordered declarations."""
 
     def __call__(cls, **kwargs):
         """Override the default Factory() syntax to call the default strategy.
 
-        Returns an instance of the associated class.
+        Returns an instance of the associated class, or an AsyncFactoryWrapper
+        for async strategies.
         """
 
         if cls._meta.strategy == enums.BUILD_STRATEGY:
@@ -43,6 +58,8 @@ class FactoryMetaClass(type):
             return cls.create(**kwargs)
         elif cls._meta.strategy == enums.STUB_STRATEGY:
             return cls.stub(**kwargs)
+        elif cls._meta.strategy == enums.ASYNC_CREATE_STRATEGY:
+            return AsyncFactoryWrapper(cls, kwargs)
         else:
             raise errors.UnknownStrategy('Unknown Meta.strategy: {}'.format(
                 cls._meta.strategy))
@@ -322,6 +339,19 @@ class FactoryOptions:
             assert step.builder.strategy == enums.STUB_STRATEGY
             return StubObject(**kwargs)
 
+    async def async_instantiate(self, step, args, kwargs):
+        model = self.get_model_class()
+
+        if step.builder.strategy == enums.BUILD_STRATEGY:
+            return await self.factory._async_build(model, *args, **kwargs)
+        elif step.builder.strategy == enums.CREATE_STRATEGY:
+            return await self.factory._async_create(model, *args, **kwargs)
+        elif step.builder.strategy == enums.ASYNC_CREATE_STRATEGY:
+            return await self.factory._async_create(model, *args, **kwargs)
+        else:
+            assert step.builder.strategy == enums.STUB_STRATEGY
+            return StubObject(**kwargs)
+
     def use_postgeneration_results(self, step, instance, results):
         self.factory._after_postgeneration(
             instance,
@@ -494,6 +524,24 @@ class BaseFactory(Generic[T]):
         return model_class(*args, **kwargs)
 
     @classmethod
+    async def _async_build(cls, model_class, *args, **kwargs):
+        """Actually build an instance of the model_class asynchronously.
+
+        Customization point, will be called once the full set of args and kwargs
+        has been computed in an async context. Override this method to provide
+        custom async build logic.
+
+        By default, this calls the synchronous _build() method.
+
+        Args:
+            model_class (type): the class for which an instance should be
+                built
+            args (tuple): arguments to use when building the class
+            kwargs (dict): keyword arguments to use when building the class
+        """
+        return cls._build(model_class, *args, **kwargs)
+
+    @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Actually create an instance of the model_class.
 
@@ -507,6 +555,23 @@ class BaseFactory(Generic[T]):
             kwargs (dict): keyword arguments to use when creating the class
         """
         return model_class(*args, **kwargs)
+
+    @classmethod
+    async def _async_create(cls, model_class, *args, **kwargs):
+        """Actually create an instance of the model_class asynchronously.
+
+        Customization point, will be called once the full set of args and kwargs
+        has been computed. Override this method to provide custom async creation logic.
+
+        By default, this calls the synchronous _create() method.
+
+        Args:
+            model_class (type): the class for which an instance should be
+                created
+            args (tuple): arguments to use when creating the class
+            kwargs (dict): keyword arguments to use when creating the class
+        """
+        return cls._create(model_class, *args, **kwargs)
 
     @classmethod
     def build(cls, **kwargs) -> T:
@@ -551,6 +616,70 @@ class BaseFactory(Generic[T]):
             object list: the created instances
         """
         return [cls.create(**kwargs) for _ in range(size)]
+
+    @classmethod
+    async def async_create(cls, **kwargs) -> T:
+        """Create an instance of the associated class asynchronously, with overridden attrs.
+
+        The instance will be saved and persisted in the appropriate datastore.
+        This method should be awaited.
+        """
+        return await cls._async_generate(enums.ASYNC_CREATE_STRATEGY, kwargs)
+
+    @classmethod
+    async def async_create_batch(cls, size: int, **kwargs) -> List[T]:
+        """Create a batch of instances asynchronously, with overridden attrs.
+
+        The instances will be created concurrently using asyncio.gather(),
+        providing true parallelism for async operations.
+
+        Args:
+            size (int): the number of instances to create
+
+        Returns:
+            object list: the created instances
+        """
+        import asyncio
+        return await asyncio.gather(*[
+            cls.async_create(**kwargs) for _ in range(size)
+        ])
+
+    @classmethod
+    async def async_build_batch(cls, size: int, **kwargs) -> List[T]:
+        """Build a batch of instances asynchronously, with overridden attrs.
+
+        The instances will be built concurrently using asyncio.gather().
+        Note: This uses async_create with the current strategy, which may
+        differ from build() behavior.
+
+        Args:
+            size (int): the number of instances to build
+
+        Returns:
+            object list: the built instances
+        """
+        import asyncio
+        # For async_build_batch, we need to use _async_generate with BUILD_STRATEGY
+        return await asyncio.gather(*[
+            cls._async_generate(enums.BUILD_STRATEGY, kwargs) for _ in range(size)
+        ])
+
+    @classmethod
+    async def _async_generate(cls, strategy, params):
+        """Generate the object asynchronously.
+
+        Args:
+            params (dict): attributes to use for generating the object
+            strategy: the strategy to use
+        """
+        if cls._meta.abstract:
+            raise errors.FactoryError(
+                "Cannot generate instances of abstract factory %(f)s; "
+                "Ensure %(f)s.Meta.model is set and %(f)s.Meta.abstract "
+                "is either not set or False." % dict(f=cls.__name__))
+
+        step = builder.StepBuilder(cls._meta, params, strategy)
+        return await step.async_build()
 
     @classmethod
     def stub(cls, **kwargs):

@@ -456,6 +456,19 @@ class SubFactory(BaseDeclaration):
         force_sequence = step.sequence if self.FORCE_SEQUENCE else None
         return step.recurse(subfactory, extra, force_sequence=force_sequence)
 
+    async def async_evaluate_pre(self, instance, step, overrides):
+        """Async version of evaluate for async factory building."""
+        extra = self.unroll_context(instance, step, overrides)
+        subfactory = self.get_factory()
+        logger.debug(
+            "SubFactory (async): Instantiating %s.%s(%s), create=%r",
+            subfactory.__module__, subfactory.__name__,
+            utils.log_pprint(kwargs=extra),
+            step,
+        )
+        force_sequence = step.sequence if self.FORCE_SEQUENCE else None
+        return await step.async_recurse(subfactory, extra, force_sequence=force_sequence)
+
 
 class Dict(SubFactory):
     """Fill a dict with usual declarations."""

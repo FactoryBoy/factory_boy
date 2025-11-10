@@ -126,3 +126,80 @@ class SQLAlchemyModelFactory(base.Factory):
         elif session_persistence == SESSION_PERSISTENCE_COMMIT:
             session.commit()
         return obj
+
+    @classmethod
+    async def _async_create(cls, model_class, *args, **kwargs):
+        """Create an instance asynchronously using AsyncSession.
+
+        This method supports SQLAlchemy's AsyncSession (1.4+).
+        If you're using a synchronous session, use the regular create() method instead.
+        """
+        session_factory = cls._meta.sqlalchemy_session_factory
+        if session_factory:
+            cls._meta.sqlalchemy_session = session_factory()
+
+        session = cls._meta.sqlalchemy_session
+
+        if session is None:
+            raise RuntimeError("No session provided.")
+
+        if cls._meta.sqlalchemy_get_or_create:
+            return await cls._async_get_or_create(model_class, session, args, kwargs)
+        return await cls._async_save(model_class, session, args, kwargs)
+
+    @classmethod
+    async def _async_get_or_create(cls, model_class, session, args, kwargs):
+        """Async version of _get_or_create for AsyncSession."""
+        key_fields = {}
+        for field in cls._meta.sqlalchemy_get_or_create:
+            if field not in kwargs:
+                raise errors.FactoryError(
+                    "sqlalchemy_get_or_create - "
+                    "Unable to find initialization value for '%s' in factory %s" %
+                    (field, cls.__name__))
+            key_fields[field] = kwargs.pop(field)
+
+        # Use AsyncSession methods
+        from sqlalchemy import select
+        stmt = select(model_class).filter_by(*args, **key_fields)
+        result = await session.execute(stmt)
+        obj = result.scalar_one_or_none()
+
+        if not obj:
+            try:
+                obj = await cls._async_save(model_class, session, args, {**key_fields, **kwargs})
+            except IntegrityError as e:
+                await session.rollback()
+
+                if cls._original_params is None:
+                    raise e
+
+                get_or_create_params = {
+                    lookup: value
+                    for lookup, value in cls._original_params.items()
+                    if lookup in cls._meta.sqlalchemy_get_or_create
+                }
+                if get_or_create_params:
+                    try:
+                        stmt = select(model_class).filter_by(**get_or_create_params)
+                        result = await session.execute(stmt)
+                        obj = result.scalar_one()
+                    except NoResultFound:
+                        raise e
+                else:
+                    raise e
+
+        return obj
+
+    @classmethod
+    async def _async_save(cls, model_class, session, args, kwargs):
+        """Async version of _save for AsyncSession."""
+        session_persistence = cls._meta.sqlalchemy_session_persistence
+
+        obj = model_class(*args, **kwargs)
+        session.add(obj)
+        if session_persistence == SESSION_PERSISTENCE_FLUSH:
+            await session.flush()
+        elif session_persistence == SESSION_PERSISTENCE_COMMIT:
+            await session.commit()
+        return obj

@@ -4,6 +4,7 @@
 BUILD_STRATEGY = 'build'
 CREATE_STRATEGY = 'create'
 STUB_STRATEGY = 'stub'
+ASYNC_CREATE_STRATEGY = 'async_create'
 
 
 #: String for splitting an attribute name into a

@@ -30,7 +30,7 @@ from .declarations import (
     Trait,
     Transformer,
 )
-from .enums import BUILD_STRATEGY, CREATE_STRATEGY, STUB_STRATEGY
+from .enums import ASYNC_CREATE_STRATEGY, BUILD_STRATEGY, CREATE_STRATEGY, STUB_STRATEGY
 from .errors import FactoryError
 from .faker import Faker
 from .helpers import (

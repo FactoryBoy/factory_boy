@@ -227,6 +227,15 @@ class BuildStep:
         builder = self.builder.recurse(factory._meta, declarations)
         return builder.build(parent_step=self, force_sequence=force_sequence)
 
+    async def async_recurse(self, factory, declarations, force_sequence=None):
+        from . import base
+        if not issubclass(factory, base.BaseFactory):
+            raise errors.AssociatedClassError(
+                "%r: Attempting to recursing into a non-factory object %r"
+                % (self, factory))
+        builder = self.builder.recurse(factory._meta, declarations)
+        return await builder.async_build(parent_step=self, force_sequence=force_sequence)
+
     def __repr__(self):
         return f"<BuildStep for {self.builder!r}>"
 
@@ -248,7 +257,6 @@ class StepBuilder:
 
     def build(self, parent_step=None, force_sequence=None):
         """Build a factory instance."""
-        # TODO: Handle "batch build" natively
         pre, post = parse_declarations(
             self.extras,
             base_pre=self.factory_meta.pre_declarations,
@@ -291,6 +299,62 @@ class StepBuilder:
             results=postgen_results,
         )
         return instance
+
+    async def async_build(self, parent_step=None, force_sequence=None):
+        """Build a factory instance asynchronously."""
+        pre, post = parse_declarations(
+            self.extras,
+            base_pre=self.factory_meta.pre_declarations,
+            base_post=self.factory_meta.post_declarations,
+        )
+
+        if force_sequence is not None:
+            sequence = force_sequence
+        elif self.force_init_sequence is not None:
+            sequence = self.force_init_sequence
+        else:
+            sequence = self.factory_meta.next_sequence()
+
+        step = BuildStep(
+            builder=self,
+            sequence=sequence,
+            parent_step=parent_step,
+        )
+        await self._async_resolve(step, pre)
+
+        args, kwargs = self.factory_meta.prepare_arguments(step.attributes)
+
+        instance = await self.factory_meta.async_instantiate(
+            step=step,
+            args=args,
+            kwargs=kwargs,
+        )
+
+        postgen_results = {}
+        for declaration_name in post.sorted():
+            declaration = post[declaration_name]
+            postgen_results[declaration_name] = declaration.declaration.evaluate_post(
+                instance=instance,
+                step=step,
+                overrides=declaration.context,
+            )
+        self.factory_meta.use_postgeneration_results(
+            instance=instance,
+            step=step,
+            results=postgen_results,
+        )
+        return instance
+
+    async def _async_resolve(self, step, declarations):
+        """Resolve declarations asynchronously."""
+        step.stub = AsyncResolver(
+            declarations=declarations,
+            step=step,
+            sequence=step.sequence,
+        )
+
+        for field_name in declarations:
+            step.attributes[field_name] = await step.stub.async_get(field_name)
 
     def recurse(self, factory_meta, extras):
         """Recurse into a sub-factory call."""
@@ -368,6 +432,104 @@ class Resolver:
             raise AttributeError(
                 "The parameter %r is unknown. Evaluated attributes are %r, "
                 "definitions are %r." % (name, self.__values, self.__declarations))
+
+    def __setattr__(self, name, value):
+        """Prevent setting attributes once __init__ is done."""
+        if not self.__initialized:
+            return super().__setattr__(name, value)
+        else:
+            raise AttributeError('Setting of object attributes is not allowed')
+
+
+class AsyncResolver:
+    """Async version of Resolver for async factory building.
+
+    Attributes are set at instantiation time, values are computed lazily.
+
+    Attributes:
+        __initialized (bool): whether this object's __init__ as run. If set,
+            setting any attribute will be prevented.
+        __declarations (dict): maps attribute name to their declaration
+        __values (dict): maps attribute name to computed value
+        __pending (str list): names of the attributes whose value is being
+            computed. This allows to detect cyclic lazy attribute definition.
+        __step (BuildStep): the BuildStep related to this resolver.
+            This allows to have the value of a field depend on the value of
+            another field
+    """
+
+    __initialized = False
+
+    def __init__(self, declarations, step, sequence):
+        self.__declarations = declarations
+        self.__step = step
+
+        self.__values = {}
+        self.__pending = []
+
+        self.__initialized = True
+
+    @property
+    def factory_parent(self):
+        return self.__step.parent_step.stub if self.__step.parent_step else None
+
+    def __repr__(self):
+        return '<AsyncResolver for %r>' % self.__step
+
+    async def async_get(self, name):
+        """Retrieve an attribute's value asynchronously.
+
+        This will compute it if needed, unless it is already on the list of
+        attributes being computed.
+        """
+        if name in self.__pending:
+            raise errors.CyclicDefinitionError(
+                "Cyclic lazy attribute definition for %r; cycle found in %r." %
+                (name, self.__pending))
+        elif name in self.__values:
+            return self.__values[name]
+        elif name in self.__declarations:
+            declaration = self.__declarations[name]
+            value = declaration.declaration
+            if enums.get_builder_phase(value) == enums.BuilderPhase.ATTRIBUTE_RESOLUTION:
+                self.__pending.append(name)
+                try:
+                    # Check if the declaration has async_evaluate_pre method
+                    if hasattr(value, 'async_evaluate_pre'):
+                        value = await value.async_evaluate_pre(
+                            instance=self,
+                            step=self.__step,
+                            overrides=declaration.context,
+                        )
+                    else:
+                        value = value.evaluate_pre(
+                            instance=self,
+                            step=self.__step,
+                            overrides=declaration.context,
+                        )
+                finally:
+                    last = self.__pending.pop()
+                assert name == last
+
+            self.__values[name] = value
+            return value
+        else:
+            raise AttributeError(
+                "The parameter %r is unknown. Evaluated attributes are %r, "
+                "definitions are %r." % (name, self.__values, self.__declarations))
+
+    def __getattr__(self, name):
+        """Synchronous fallback for attribute access.
+
+        This allows access to already-computed values, which is needed for
+        LazyAttribute and similar declarations that access other attributes.
+        """
+        if name in self.__values:
+            return self.__values[name]
+        else:
+            raise AttributeError(
+                "AsyncResolver: attribute %r has not been computed yet. "
+                "Use async_get() to compute it, or ensure it's computed before access." % name)
 
     def __setattr__(self, name, value):
         """Prevent setting attributes once __init__ is done."""
