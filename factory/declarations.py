@@ -69,11 +69,11 @@ class BaseDeclaration(utils.OrderedBase):
     async def async_evaluate_pre(self, instance, step, overrides):
         """Async version of evaluate_pre.
 
-        By default, calls the synchronous evaluate_pre.
-        Override this method for declarations that need async evaluation.
+        By default, calls the async evaluate method.
+        Override this method for declarations that need custom async evaluation.
         """
         context = self.unroll_context(instance, step, overrides)
-        return self.evaluate(instance, step, context)
+        return await self.async_evaluate(instance, step, context)
 
     def evaluate(self, instance, step, extra):
         """Evaluate this declaration.
@@ -86,6 +86,21 @@ class BaseDeclaration(utils.OrderedBase):
                 for the step.
         """
         raise NotImplementedError('This is an abstract method')
+
+    async def async_evaluate(self, instance, step, extra):
+        """Async version of evaluate.
+
+        By default, calls the synchronous evaluate method.
+        Override this method for declarations that need async evaluation logic.
+
+        Args:
+            instance (builder.Resolver): The object holding currently computed
+                attributes
+            step: a factory.builder.BuildStep
+            extra (dict): additional, call-time added kwargs
+                for the step.
+        """
+        return self.evaluate(instance, step, extra)
 
 
 class OrderedDeclaration(BaseDeclaration):
@@ -181,7 +196,7 @@ class Transformer(BaseDeclaration):
         else:
             bypass_transform = False
 
-        # Check if it's a BaseDeclaration with async support
+        # Async unwrapping
         if isinstance(value_or_declaration, BaseDeclaration):
             value = await value_or_declaration.async_evaluate_pre(
                 instance=instance,
@@ -194,6 +209,14 @@ class Transformer(BaseDeclaration):
         if bypass_transform:
             return value
         return self.transform(value)
+
+    async def async_evaluate(self, instance, step, extra):
+        """Async version of evaluate for Transformer.
+
+        Transformer doesn't use evaluate(), it uses evaluate_pre() directly.
+        This is here for completeness but shouldn't be called.
+        """
+        return self.evaluate(instance, step, extra)
 
 
 class _UNSPECIFIED:
@@ -596,16 +619,13 @@ class Maybe(BaseDeclaration):
 
     async def async_evaluate_pre(self, instance, step, overrides):
         """Async version of evaluate_pre for Maybe."""
-        # Check if decider has async support
-        if hasattr(self.decider, 'async_evaluate_pre'):
-            choice = await self.decider.async_evaluate_pre(instance=instance, step=step, overrides={})
-        else:
-            choice = self.decider.evaluate_pre(instance=instance, step=step, overrides={})
+        # Async decider evaluation
+        choice = await self.decider.async_evaluate_pre(instance=instance, step=step, overrides={})
 
         target = self.yes if choice else self.no
 
-        # Check if target has async support
-        if isinstance(target, BaseDeclaration) and hasattr(target, 'async_evaluate_pre'):
+        # Async target evaluation
+        if isinstance(target, BaseDeclaration):
             return await target.async_evaluate_pre(
                 instance=instance,
                 step=step,
@@ -618,6 +638,14 @@ class Maybe(BaseDeclaration):
                 step=step,
                 overrides=overrides,
             )
+
+    async def async_evaluate(self, instance, step, extra):
+        """Async version of evaluate for Maybe.
+
+        Maybe doesn't use evaluate(), it uses evaluate_pre() directly.
+        This is here for completeness but shouldn't be called.
+        """
+        return self.evaluate(instance, step, extra)
 
     def __repr__(self):
         return f'Maybe({self.decider!r}, yes={self.yes!r}, no={self.no!r})'
@@ -723,6 +751,16 @@ class PostGenerationDeclaration(BaseDeclaration):
         )
         return self.call(instance, step, postgen_context)
 
+    async def async_evaluate_post(self, instance, step, overrides):
+        """Async version of evaluate_post."""
+        context = self.unroll_context(instance, step, overrides)
+        postgen_context = PostGenerationContext(
+            value_provided=bool('' in context),
+            value=context.get(''),
+            extra={k: v for k, v in context.items() if k != ''},
+        )
+        return await self.async_call(instance, step, postgen_context)
+
     def call(self, instance, step, context):  # pragma: no cover
         """Call this hook; no return value is expected.
 
@@ -733,6 +771,20 @@ class PostGenerationDeclaration(BaseDeclaration):
                 extracted from the containing factory's declaration
         """
         raise NotImplementedError()
+
+    async def async_call(self, instance, step, context):
+        """Async version of call.
+
+        By default, calls the synchronous call method.
+        Override this for async post-generation logic.
+
+        Args:
+            instance (object): the newly generated object
+            step (bool): whether the object was 'built' or 'created'
+            context: a declarations.PostGenerationContext containing values
+                extracted from the containing factory's declaration
+        """
+        return self.call(instance, step, context)
 
 
 class PostGeneration(PostGenerationDeclaration):
