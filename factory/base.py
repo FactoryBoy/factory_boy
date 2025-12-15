@@ -415,7 +415,7 @@ class BaseFactory(Generic[T]):
     UnknownStrategy = errors.UnknownStrategy
     UnsupportedStrategy = errors.UnsupportedStrategy
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs) -> T:
         """Would be called if trying to instantiate the class."""
         raise errors.FactoryError('You cannot instantiate BaseFactory')
 
