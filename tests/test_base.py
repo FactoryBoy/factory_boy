@@ -256,9 +256,14 @@ class FactoryTestCase(unittest.TestCase):
                 model = TestObject
 
             one = declarations.LazyAttribute(lambda a: a.does_not_exist)
+            two = 2
 
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(AttributeError) as exc:
             TestObjectFactory()
+        self.assertEqual(
+            str(exc.exception),
+            "The parameter 'does_not_exist' is unknown. Available attributes are: one, two.",
+        )
 
     def test_inheritance_with_sequence(self):
         """Tests that sequence IDs are shared between parent and son."""
