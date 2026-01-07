@@ -365,9 +365,9 @@ class Resolver:
             self.__values[name] = value
             return value
         else:
-            raise AttributeError(
+            raise errors.LazyAttributeError(
                 "The parameter %r is unknown. Evaluated attributes are %r, "
-                "definitions are %r." % (name, self.__values, self.__declarations))
+                "definitions are %r.", name, self.__values, self.__declarations)
 
     def __setattr__(self, name, value):
         """Prevent setting attributes once __init__ is done."""
