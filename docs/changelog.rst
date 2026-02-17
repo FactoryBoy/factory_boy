@@ -7,6 +7,8 @@ ChangeLog
 ------------------
 
 - Add support for Django 5.2
+- Remove support for Django 5.0
+- Remove support for Django 5.1
 
 
 3.3.3 (2025-02-03)
