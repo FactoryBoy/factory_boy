@@ -22,6 +22,7 @@ jobs:
           - docs
           - examples
           - lint
+          - typecheck
 
     env:
       TOXENV: ${{ matrix.tox-environment }}

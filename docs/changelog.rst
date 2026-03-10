@@ -6,7 +6,16 @@ ChangeLog
 3.3.4 (unreleased)
 ------------------
 
-- Add support for Django 5.2
+*New:*
+
+  - Add support for Django 5.2
+  - Add support for Django 6.0
+  - Add support for Python 3.14
+
+*Removed:*
+
+  - Remove support for Django 5.1
+  - Remove support for Python 3.9
 
 
 3.3.3 (2025-02-03)
