@@ -84,6 +84,8 @@ class TransformerTest(TestCase):
 
 
 class TestObject:
+    __test__ = False  # not a test class; pytest must not collect this helper
+
     def __init__(self, one=None, two=None, three=None):
         self.one = one
         self.two = two

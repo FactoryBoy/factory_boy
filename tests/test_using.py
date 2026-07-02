@@ -22,6 +22,8 @@ except ImportError:
 
 
 class TestObject:
+    __test__ = False  # not a test class; pytest must not collect this helper
+
     def __init__(self, one=None, two=None, three=None, four=None, five=None):
         self.one = one
         self.two = two
@@ -105,6 +107,7 @@ class FakeModelFactory(factory.Factory):
 
 
 class TestModel(FakeModel):
+    __test__ = False  # not a test class; pytest must not collect this helper
     pass
 
 
