@@ -408,7 +408,7 @@ Some factories only need little data:
         class Params:
             duration = 'short' # Or 'long'
 
-        start_date = factory.fuzzy.FuzzyDate()
+        start_date = factory.fuzzy.FuzzyDate(datetime.date.today())
         end_date = factory.LazyAttribute(
             lambda o: o.start_date + datetime.timedelta(days=2 if o.duration == 'short' else 7)
         )
@@ -1310,7 +1310,7 @@ That declaration takes a single argument, a dot-delimited path to the attribute 
         class Meta:
             model = User
 
-        birthdate = factory.fuzzy.FuzzyDate()
+        birthdate = factory.fuzzy.FuzzyDate(datetime.date.today())
         birthmonth = factory.SelfAttribute('birthdate.month')
 
 .. code-block:: pycon
