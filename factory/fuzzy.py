@@ -31,11 +31,11 @@ class BaseFuzzyAttribute(declarations.BaseDeclaration):
         return self.fuzz()
 
 
-class FuzzyAttribute(BaseFuzzyAttribute):
-    """Similar to LazyAttribute, but yields random values.
+class FuzzyFunction(BaseFuzzyAttribute):
+    """Similar to LazyFunction, but yields random values.
 
     Attributes:
-        function (callable): function taking no parameters and returning a
+        fuzzer (callable): function taking no parameters and returning a
             random value.
     """
 
@@ -45,6 +45,22 @@ class FuzzyAttribute(BaseFuzzyAttribute):
 
     def fuzz(self):
         return self.fuzzer()
+
+
+class FuzzyAttribute(FuzzyFunction):
+    """Deprecated alias for FuzzyFunction.
+
+    The name is misleading: the fuzzer takes no argument, so this behaves like
+    LazyFunction rather than LazyAttribute. Use FuzzyFunction instead.
+    """
+
+    def __init__(self, fuzzer):
+        warnings.warn(
+            "FuzzyAttribute is deprecated, use FuzzyFunction instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(fuzzer)
 
 
 class FuzzyText(BaseFuzzyAttribute):

@@ -16,19 +16,33 @@ random declarations.
 .. note:: Use ``import factory.fuzzy`` to load this module.
 
 
-FuzzyAttribute
---------------
+FuzzyFunction
+-------------
 
 
-.. class:: FuzzyAttribute
+.. class:: FuzzyFunction
 
-    The :class:`FuzzyAttribute` uses an arbitrary callable as fuzzer.
+    The :class:`FuzzyFunction` uses an arbitrary callable as fuzzer.
     It is expected that successive calls of that function return various
     values.
 
     .. attribute:: fuzzer
 
         The callable that generates random values
+
+
+FuzzyAttribute
+--------------
+
+
+.. class:: FuzzyAttribute
+
+    .. deprecated:: 3.3.4
+        Use :class:`FuzzyFunction` instead. The fuzzer takes no argument, so
+        the name is misleading: it behaves like :class:`~factory.LazyFunction`,
+        not :class:`~factory.LazyAttribute`.
+
+    A deprecated alias for :class:`FuzzyFunction`.
 
 
 FuzzyText

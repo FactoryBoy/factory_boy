@@ -8,6 +8,17 @@ ChangeLog
 
 - Add support for Django 5.2
 
+*New:*
+
+    - :issue:`961`: Add :class:`~factory.fuzzy.FuzzyFunction`, a correctly named
+      counterpart to :class:`~factory.fuzzy.FuzzyAttribute`.
+
+*Deprecated:*
+
+    - :issue:`961`: :class:`~factory.fuzzy.FuzzyAttribute` is deprecated in favor of
+      :class:`~factory.fuzzy.FuzzyFunction`. Its fuzzer takes no argument, so the name was
+      misleading. It now raises a :class:`DeprecationWarning`.
+
 
 3.3.3 (2025-02-03)
 ------------------
