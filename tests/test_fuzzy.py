@@ -12,9 +12,26 @@ from factory import fuzzy, random
 from . import utils
 
 
+class FuzzyFunctionTestCase(unittest.TestCase):
+    def test_simple_call(self):
+        d = fuzzy.FuzzyFunction(lambda: 10)
+
+        res = utils.evaluate_declaration(d)
+        self.assertEqual(10, res)
+
+        res = utils.evaluate_declaration(d)
+        self.assertEqual(10, res)
+
+
 class FuzzyAttributeTestCase(unittest.TestCase):
     def test_simple_call(self):
-        d = fuzzy.FuzzyAttribute(lambda: 10)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.filterwarnings("default", category=DeprecationWarning)
+            d = fuzzy.FuzzyAttribute(lambda: 10)
+
+        self.assertEqual(1, len(w))
+        self.assertIs(DeprecationWarning, w[-1].category)
+        self.assertIn('FuzzyFunction', str(w[-1].message))
 
         res = utils.evaluate_declaration(d)
         self.assertEqual(10, res)
