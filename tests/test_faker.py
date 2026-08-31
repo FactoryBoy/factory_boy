@@ -168,3 +168,27 @@ class FakerTests(unittest.TestCase):
         self.assertEqual(may_4th, trip.departure)
         self.assertEqual(october_19th, trip.transfer)
         self.assertEqual(may_25th, trip.arrival)
+
+    def test_faker_selfattribute_in_list(self):
+        class Amount:
+            def __init__(self, subtotal, parts):
+                self.subtotal = subtotal
+                self.parts = parts
+
+        class AmountFactory(factory.Factory):
+            class Meta:
+                model = Amount
+            subtotal = 42
+            parts = factory.Faker(
+                'parts',
+                values=[
+                    factory.SelfAttribute('..subtotal'),
+                ],
+            )
+
+        def fake_parts(values):
+            return values
+
+        self._setup_advanced_mock_faker(parts=fake_parts)
+        amount = AmountFactory()
+        self.assertEqual([42], amount.parts)
