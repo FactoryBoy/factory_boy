@@ -22,3 +22,13 @@ class BuilderPhase:
 
 def get_builder_phase(obj):
     return getattr(obj, 'FACTORY_BUILDER_PHASE', None)
+
+
+def _contains_declaration(value):
+    if get_builder_phase(value):
+        return True
+    if isinstance(value, (list, tuple)):
+        return any(_contains_declaration(v) for v in value)
+    if isinstance(value, dict):
+        return any(_contains_declaration(v) for v in value.values())
+    return False

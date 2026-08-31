@@ -9,6 +9,8 @@ from . import enums, errors, utils
 
 logger = logging.getLogger('factory.generate')
 
+_UNROLL_MARKER = '@unroll'
+
 
 class BaseDeclaration(utils.OrderedBase):
     """A factory declaration.
@@ -40,13 +42,35 @@ class BaseDeclaration(utils.OrderedBase):
 
         if not self.UNROLL_CONTEXT_BEFORE_EVALUATION:
             return full_context
-        if not any(enums.get_builder_phase(v) for v in full_context.values()):
-            # Optimization for simple contexts - don't do anything.
+
+        prepared = {}
+        list_keys = {}
+        for key, value in full_context.items():
+            if isinstance(value, (list, tuple)) and enums._contains_declaration(value):
+                list_keys[key] = type(value)
+                for index, item in enumerate(value):
+                    prepared['%s%s%d' % (key, _UNROLL_MARKER, index)] = item
+            else:
+                prepared[key] = value
+
+        if not any(enums.get_builder_phase(v) for v in prepared.values()):
             return full_context
 
         import factory.base
-        subfactory = factory.base.DictFactory
-        return step.recurse(subfactory, full_context, force_sequence=step.sequence)
+        unrolled = step.recurse(
+            factory.base.DictFactory, prepared, force_sequence=step.sequence
+        )
+        for key, seq_type in list_keys.items():
+            items = []
+            index = 0
+            while True:
+                item_key = '%s%s%d' % (key, _UNROLL_MARKER, index)
+                if item_key not in unrolled:
+                    break
+                items.append(unrolled.pop(item_key))
+                index += 1
+            unrolled[key] = seq_type(items)
+        return unrolled
 
     def _unwrap_evaluate_pre(self, wrapped, *, instance, step, overrides):
         """Evaluate a wrapped pre-declaration.
