@@ -454,7 +454,14 @@ class SubFactory(BaseDeclaration):
             step,
         )
         force_sequence = step.sequence if self.FORCE_SEQUENCE else None
-        return step.recurse(subfactory, extra, force_sequence=force_sequence)
+        original_params = getattr(subfactory, '_original_params', None)
+        if original_params is not None:
+            subfactory._original_params = None
+        try:
+            return step.recurse(subfactory, extra, force_sequence=force_sequence)
+        finally:
+            if original_params is not None:
+                subfactory._original_params = original_params
 
 
 class Dict(SubFactory):
