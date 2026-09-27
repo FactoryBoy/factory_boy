@@ -1183,3 +1183,56 @@ class IntegrityErrorForMissingOriginalParamsTest(django_test.TestCase):
         HasMultifieldModelFactory(multifield__slug="test")
         with self.assertRaises(IntegrityError):
             HasMultifieldModelFactory(multifield__slug="test")
+
+    def test_raises_integrity_error_after_direct_create(self):
+        """Regression test for #1099: _original_params from a prior direct create()
+        must not leak into subsequent SubFactory calls.
+        """
+
+        class MultifieldModelFactory2(MultifieldModelFactory):
+            class Meta:
+                model = models.MultifieldModel
+                django_get_or_create = ['text']
+
+        class HasMultifieldModelFactory(factory.django.DjangoModelFactory):
+            multifield = factory.SubFactory(MultifieldModelFactory2)
+
+            class Meta:
+                model = models.HasMultifieldModel
+
+        MultifieldModelFactory2(slug="initial", text="initial_text")
+        self.assertIsNone(MultifieldModelFactory2._original_params)
+
+        HasMultifieldModelFactory(multifield__slug="test")
+        with self.assertRaises(IntegrityError):
+            HasMultifieldModelFactory(multifield__slug="test")
+
+    def test_original_params_cleared_in_subfactory(self):
+        """Regression test for #1099: _original_params should be None when a factory
+        is invoked as a SubFactory after a direct create() call.
+        """
+        seen_original_params = []
+
+        class PointedTrackingFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointedModel
+
+            foo = 'default'
+
+            @classmethod
+            def _create(cls, model_class, *args, **kwargs):
+                seen_original_params.append(cls._original_params)
+                return super()._create(model_class, *args, **kwargs)
+
+        class PointerTrackingFactory(factory.django.DjangoModelFactory):
+            class Meta:
+                model = models.PointerModel
+
+            bar = 'bar'
+            pointed = factory.SubFactory(PointedTrackingFactory)
+
+        PointedTrackingFactory.create(foo='custom')
+        self.assertIsNone(PointedTrackingFactory._original_params)
+
+        PointerTrackingFactory.create()
+        self.assertEqual(seen_original_params, [{'foo': 'custom'}, None])

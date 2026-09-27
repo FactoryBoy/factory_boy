@@ -57,7 +57,10 @@ class SQLAlchemyModelFactory(base.Factory):
         # Original params are used in _get_or_create if it cannot build an
         # object initially due to an IntegrityError being raised
         cls._original_params = params
-        return super()._generate(strategy, params)
+        try:
+            return super()._generate(strategy, params)
+        finally:
+            cls._original_params = None
 
     @classmethod
     def _get_or_create(cls, model_class, session, args, kwargs):

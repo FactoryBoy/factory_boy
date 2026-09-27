@@ -168,6 +168,10 @@ class MultipleGetOrCreateFieldsTest(TransactionTestCase):
         with self.assertRaises(sqlalchemy.exc.IntegrityError):
             WithMultipleGetOrCreateFieldsFactory(title='Title')
 
+    def test_original_params_cleared_after_create(self):
+        WithMultipleGetOrCreateFieldsFactory(slug='slug0', text='text0')
+        self.assertIsNone(WithMultipleGetOrCreateFieldsFactory._original_params)
+
 
 class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):
     def setUp(self):
