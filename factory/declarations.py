@@ -157,7 +157,7 @@ class Transformer(BaseDeclaration):
             step=step,
             overrides=overrides,
         )
-        if bypass_transform:
+        if bypass_transform or value is SKIP:
             return value
         return self.transform(value)
 
@@ -483,6 +483,13 @@ class List(SubFactory):
 class Skip:
     def __bool__(self):
         return False
+
+    def __repr__(self):
+        return 'factory.SKIP'
+
+    def __reduce__(self):
+        # Keep the singleton through copy, deepcopy and pickle.
+        return 'SKIP'
 
 
 SKIP = Skip()

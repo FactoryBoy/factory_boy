@@ -1553,6 +1553,8 @@ with the :class:`Dict` and :class:`List` attributes:
         The actual factory to use for generating the dict can be set as a keyword
         argument, if an exotic dictionary-like object (SortedDict, ...) is required.
 
+    To leave a key out of the generated dict, set its value to :data:`SKIP`.
+
 
 .. class:: List(items[, list_factory=factory.ListFactory])
 
@@ -1626,6 +1628,59 @@ apply the effects of one or the other declaration:
 .. note:: If the condition for the decider is complex, use a :class:`LazyAttribute`
           defined in the :attr:`~Factory.Params` section of your factory to
           handle the computation.
+
+
+SKIP
+""""
+
+.. data:: SKIP
+
+    A marker value meaning "do not pass this field at all".
+
+    When a field resolves to :data:`SKIP`, whether declared on the factory,
+    passed at call time, or produced by a declaration such as :class:`Maybe`,
+    it is left out of the arguments given to the model.
+    A ``DictFactory`` omits the key; a model class falls back to its own default
+    for that argument.
+
+    .. code-block:: python
+
+        class ConfigFactory(factory.DictFactory):
+            host = "localhost"
+            port = 8080
+            debug = factory.SKIP
+
+    .. code-block:: pycon
+
+        >>> ConfigFactory()
+        {'host': 'localhost', 'port': 8080}
+        >>> ConfigFactory(debug=True)
+        {'host': 'localhost', 'port': 8080, 'debug': True}
+
+    With a model, the skipped argument takes the model's default:
+
+    .. code-block:: python
+
+        @dataclasses.dataclass
+        class Server:
+            host: str
+            port: int = 80
+
+        class ServerFactory(factory.Factory):
+            class Meta:
+                model = Server
+
+            host = "localhost"
+            port = 8080
+
+    .. code-block:: pycon
+
+        >>> ServerFactory(port=factory.SKIP)
+        Server(host='localhost', port=80)
+
+    A :class:`Transformer` does not call its ``transform`` function on :data:`SKIP`.
+    Skipping an argument the model requires raises the model's own :exc:`TypeError`.
+
 
 .. _post-generation-hooks:
 

@@ -7,6 +7,8 @@ ChangeLog
 ------------------
 
 - Add support for Django 5.2
+- :issue:`1140`: Expose :data:`factory.SKIP` to leave a field out of the generated object
+- :class:`~factory.Transformer` no longer calls its ``transform`` function on :data:`factory.SKIP`
 
 
 3.3.3 (2025-02-03)

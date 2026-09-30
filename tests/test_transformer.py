@@ -116,6 +116,35 @@ class TransformerSequenceTest(TestCase):
         self.assertIsNone(instance.three)
 
 
+class TransformerSkipTest(TestCase):
+    def setUp(self):
+        transform.reset()
+
+    def test_skip_override(self):
+        """A call-time SKIP leaves the model's default, untransformed"""
+        instance = TransformDeclarationFactory(one=factory.SKIP)
+        self.assertIsNone(instance.one)
+
+    def test_skip_from_declaration(self):
+        """A call-time declaration resolving to SKIP is not transformed"""
+        instance = TransformDeclarationFactory(one=factory.LazyFunction(lambda: factory.SKIP))
+        self.assertIsNone(instance.one)
+
+    def test_skip_from_wrapped_maybe(self):
+        """A wrapped Maybe resolving to SKIP never reaches the transform"""
+
+        class SkipMaybeFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            one = False
+            two = factory.Transformer(factory.Maybe("one", "x"), transform=transform)
+
+        self.assertIsNone(SkipMaybeFactory().two)
+        self.assertEqual(SkipMaybeFactory(one=True).two, "X")
+        self.assertEqual(transform.calls_count, 1)
+
+
 class WithMaybeFactory(factory.Factory):
     class Meta:
         model = TestObject
