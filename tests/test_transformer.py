@@ -152,6 +152,11 @@ class TransformerMaybeTest(TestCase):
         instance = WithMaybeFactory(one=True, two="NI")
         self.assertIs(instance.one, True)
         self.assertEqual(instance.two, "NI")
+
+    def test_override_forwarded_to_branch(self):
+        """An explicit Maybe forwards a `field__` value to the chosen branch's transformer"""
+        instance = WithMaybeFactory(one=True, two__="ni")
+        self.assertEqual(instance.two, "NI")
         self.assertIsNone(instance.three)
 
 
@@ -228,3 +233,44 @@ class TransformerTraitTest(TestCase):
         self.assertEqual(instance.one, "ONE")
         self.assertEqual(instance.two, "two")
         self.assertIsNone(instance.three)
+
+    def test_inactive_trait_keeps_base_transform(self):
+        """An inactive trait shouldn't prevent the base transformer from applying to caller-provided values"""
+        instance = WithTraitFactory(one="caller")
+        self.assertEqual(instance.one, "CALLER")
+
+    def test_inactive_trait_keeps_base_transform_force(self):
+        instance = WithTraitFactory(one=factory.Transformer.Force("caller"))
+        self.assertEqual(instance.one, "caller")
+
+    def test_active_trait_overridden_by_supplied(self):
+        """An active trait's value should be overridden by caller-provided values"""
+        instance = WithTraitFactory(odds=True, one="caller")
+        self.assertEqual(instance.one, "caller")
+        self.assertEqual(instance.three, "three")
+
+
+class WithTransformerTraitFactory(factory.Factory):
+    class Meta:
+        model = TestObject
+
+    class Params:
+        string = factory.Trait(one=factory.Transformer(234, transform=str))
+
+    one = factory.Transformer(123, transform=hex)
+
+
+class TransformerTraitOverridesTransformerTest(TestCase):
+    """A trait replacing a Transformer with another Transformer (#1119)."""
+
+    def test_trait_off(self):
+        self.assertEqual(WithTransformerTraitFactory().one, "0x7b")
+
+    def test_trait_off_applies_supplied(self):
+        self.assertEqual(WithTransformerTraitFactory(one=345).one, "0x159")
+
+    def test_trait_on(self):
+        self.assertEqual(WithTransformerTraitFactory(string=True).one, "234")
+
+    def test_trait_on_overridden_by_supplied(self):
+        self.assertEqual(WithTransformerTraitFactory(string=True, one=345).one, 345)

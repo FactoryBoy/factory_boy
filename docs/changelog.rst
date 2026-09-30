@@ -7,6 +7,8 @@ ChangeLog
 ------------------
 
 - Add support for Django 5.2
+- :issue:`1119`: Apply a field's :class:`~factory.Transformer` to caller-provided values
+  while a :class:`~factory.Trait` overriding that field is not enabled
 
 
 3.3.3 (2025-02-03)

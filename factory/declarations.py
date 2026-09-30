@@ -538,6 +538,9 @@ class Maybe(BaseDeclaration):
     def evaluate_pre(self, instance, step, overrides):
         choice = self.decider.evaluate_pre(instance=instance, step=step, overrides={})
         target = self.yes if choice else self.no
+        if choice and self.CAPTURE_OVERRIDES and '' in overrides:
+            # A call-time value (captured for `no_declaration`) replaces `yes_declaration`.
+            target = overrides.pop('')
         # The value can't be POST_INSTANTIATION, checked in __init__;
         # evaluate it as `evaluate_pre`
         return self._unwrap_evaluate_pre(
@@ -603,7 +606,7 @@ class Trait(Parameter):
     def as_declarations(self, field_name, declarations):
         overrides = {}
         for maybe_field, new_value in self.overrides.items():
-            overrides[maybe_field] = Maybe(
+            maybe = Maybe(
                 decider=SelfAttribute(
                     '%s.%s' % (
                         '.' * maybe_field.count(enums.SPLITTER),
@@ -614,6 +617,9 @@ class Trait(Parameter):
                 yes_declaration=new_value,
                 no_declaration=declarations.get(maybe_field, SKIP),
             )
+            # An inactive trait must not hide a base declaration capturing call-time values (e.g. a Transformer).
+            maybe.CAPTURE_OVERRIDES = getattr(maybe.no, 'CAPTURE_OVERRIDES', False)
+            overrides[maybe_field] = maybe
         return overrides
 
     def get_revdeps(self, parameters):
