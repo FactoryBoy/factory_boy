@@ -271,6 +271,15 @@ class StepBuilder:
 
         args, kwargs = self.factory_meta.prepare_arguments(step.attributes)
 
+        # Record the params this factory was called with (either directly or
+        # through a SubFactory); factories performing a get_or_create rely on
+        # them to extract the user-provided lookup when the initial creation
+        # hits an IntegrityError. This is normally performed by
+        # Factory._generate, which is only called for top-level
+        # instantiations, not for SubFactory recursion.
+        if hasattr(self.factory_meta.factory, '_original_params'):
+            self.factory_meta.factory._original_params = self.extras
+
         instance = self.factory_meta.instantiate(
             step=step,
             args=args,

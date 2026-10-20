@@ -1183,3 +1183,56 @@ class IntegrityErrorForMissingOriginalParamsTest(django_test.TestCase):
         HasMultifieldModelFactory(multifield__slug="test")
         with self.assertRaises(IntegrityError):
             HasMultifieldModelFactory(multifield__slug="test")
+
+
+class SubFactoryGetOrCreateTests(django_test.TestCase):
+    """django_get_or_create should be honoured through SubFactory.
+
+    See https://github.com/FactoryBoy/factory_boy/issues/979
+    """
+
+    def test_declared_subfactory_params(self):
+        """Params declared on the SubFactory are user intent, not
+        factory-generated values; the get_or_create fallback should
+        rely on them."""
+        class MultifieldSubFactory(MultifieldModelFactory):
+            class Meta:
+                model = models.MultifieldModel
+                django_get_or_create = ('slug', 'text')
+
+            text = factory.Sequence(lambda n: 'text%d' % n)
+
+        class HasMultifieldModelFactory(factory.django.DjangoModelFactory):
+            multifield = factory.SubFactory(MultifieldSubFactory, slug='collision')
+
+            class Meta:
+                model = models.HasMultifieldModel
+
+        first = HasMultifieldModelFactory()
+        second = HasMultifieldModelFactory()
+
+        self.assertEqual(first.multifield, second.multifield)
+        self.assertEqual(1, models.MultifieldModel.objects.count())
+
+    def test_call_time_subfactory_params(self):
+        """Params passed at call time through the SubFactory path are
+        user intent, not factory-generated values; the get_or_create
+        fallback should rely on them."""
+        class MultifieldSubFactory(MultifieldModelFactory):
+            class Meta:
+                model = models.MultifieldModel
+                django_get_or_create = ('slug', 'text')
+
+            text = factory.Sequence(lambda n: 'text%d' % n)
+
+        class HasMultifieldModelFactory(factory.django.DjangoModelFactory):
+            multifield = factory.SubFactory(MultifieldSubFactory)
+
+            class Meta:
+                model = models.HasMultifieldModel
+
+        first = HasMultifieldModelFactory(multifield__slug='collision')
+        second = HasMultifieldModelFactory(multifield__slug='collision')
+
+        self.assertEqual(first.multifield, second.multifield)
+        self.assertEqual(1, models.MultifieldModel.objects.count())
