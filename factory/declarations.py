@@ -7,7 +7,13 @@ import typing as T
 
 from . import enums, errors, utils
 
+if T.TYPE_CHECKING:
+    from .base import BaseFactory
+
 logger = logging.getLogger('factory.generate')
+
+# A ``factory=`` argument: a Factory subclass, or the dotted path to one.
+FactoryOrPath = T.Union[str, T.Type["BaseFactory[T.Any]"]]
 
 
 class BaseDeclaration(utils.OrderedBase):
@@ -29,7 +35,7 @@ class BaseDeclaration(utils.OrderedBase):
     #: Set to False on declarations that perform their own unrolling.
     UNROLL_CONTEXT_BEFORE_EVALUATION = True
 
-    def __init__(self, **defaults):
+    def __init__(self, **defaults: T.Any) -> None:
         super().__init__()
         self._defaults = defaults or {}
 
@@ -93,7 +99,7 @@ class LazyFunction(BaseDeclaration):
             returning the computed value.
     """
 
-    def __init__(self, function):
+    def __init__(self, function: T.Callable[[], T.Any]) -> None:
         super().__init__()
         self.function = function
 
@@ -110,7 +116,7 @@ class LazyAttribute(BaseDeclaration):
             returning the computed value.
     """
 
-    def __init__(self, function):
+    def __init__(self, function: T.Callable[[T.Any], T.Any]) -> None:
         super().__init__()
         self.function = function
 
@@ -130,13 +136,13 @@ class Transformer(BaseDeclaration):
         The forced value can be any declaration, and will be evaluated as if it
         had been passed instead of the Transformer declaration.
         """
-        def __init__(self, forced_value):
+        def __init__(self, forced_value: T.Any) -> None:
             self.forced_value = forced_value
 
         def __repr__(self):
             return f'Transformer.Force({repr(self.forced_value)})'
 
-    def __init__(self, default, *, transform):
+    def __init__(self, default: T.Any, *, transform: T.Callable[[T.Any], T.Any]) -> None:
         super().__init__()
         self.default = default
         self.transform = transform
@@ -208,7 +214,7 @@ class SelfAttribute(BaseDeclaration):
             exist.
     """
 
-    def __init__(self, attribute_name, default=_UNSPECIFIED):
+    def __init__(self, attribute_name: str, default: T.Any = _UNSPECIFIED) -> None:
         super().__init__()
         depth = len(attribute_name) - len(attribute_name.lstrip('.'))
         attribute_name = attribute_name[depth:]
@@ -245,10 +251,15 @@ class Iterator(BaseDeclaration):
         getter (callable or None): a function to parse returned values
     """
 
-    def __init__(self, iterator, cycle=True, getter=None):
+    def __init__(
+        self,
+        iterator: T.Iterable[T.Any],
+        cycle: bool = True,
+        getter: T.Optional[T.Callable[[T.Any], T.Any]] = None,
+    ) -> None:
         super().__init__()
         self.getter = getter
-        self.iterator = None
+        self.iterator: T.Optional[utils.ResetableIterator] = None
 
         if cycle:
             self.iterator_builder = lambda: utils.ResetableIterator(itertools.cycle(iterator))
@@ -282,9 +293,9 @@ class Sequence(BaseDeclaration):
         function (function): A function, expecting the current sequence counter
             and returning the computed value.
     """
-    def __init__(self, function):
+    def __init__(self, function: T.Callable[[int], T.Any]) -> None:
         super().__init__()
-        self.function = function
+        self.function: T.Callable[..., T.Any] = function
 
     def evaluate(self, instance, step, extra):
         logger.debug("Sequence: Computing next value of %r for seq=%s", self.function, step.sequence)
@@ -300,6 +311,11 @@ class LazyAttributeSequence(Sequence):
         type (function): A function converting an integer into the expected kind
             of counter for the 'function' attribute.
     """
+    def __init__(self, function: T.Callable[[T.Any, int], T.Any]) -> None:
+        # Skip Sequence.__init__: the callable takes (instance, sequence), not (sequence,).
+        BaseDeclaration.__init__(self)
+        self.function = function
+
     def evaluate(self, instance, step, extra):
         logger.debug(
             "LazyAttributeSequence: Computing next value of %r for seq=%s, obj=%r",
@@ -316,7 +332,11 @@ class ContainerAttribute(BaseDeclaration):
         strict (bool): Whether evaluating should fail when the containers are
             not passed in (i.e used outside a SubFactory).
     """
-    def __init__(self, function, strict=True):
+    def __init__(
+        self,
+        function: T.Callable[[T.Any, T.Tuple[T.Any, ...]], T.Any],
+        strict: bool = True,
+    ) -> None:
         super().__init__()
         self.function = function
         self.strict = strict
@@ -430,7 +450,7 @@ class SubFactory(BaseDeclaration):
     FORCE_SEQUENCE = False
     UNROLL_CONTEXT_BEFORE_EVALUATION = False
 
-    def __init__(self, factory, **kwargs):
+    def __init__(self, factory: FactoryOrPath, **kwargs: T.Any) -> None:
         super().__init__(**kwargs)
         self.factory_wrapper = _FactoryWrapper(factory)
 
@@ -462,7 +482,11 @@ class Dict(SubFactory):
 
     FORCE_SEQUENCE = True
 
-    def __init__(self, params, dict_factory='factory.DictFactory'):
+    def __init__(
+        self,
+        params: T.Mapping[str, T.Any],
+        dict_factory: FactoryOrPath = 'factory.DictFactory',
+    ) -> None:
         super().__init__(dict_factory, **dict(params))
 
 
@@ -471,9 +495,13 @@ class List(SubFactory):
 
     FORCE_SEQUENCE = True
 
-    def __init__(self, params, list_factory='factory.ListFactory'):
-        params = {str(i): v for i, v in enumerate(params)}
-        super().__init__(list_factory, **params)
+    def __init__(
+        self,
+        params: T.Iterable[T.Any],
+        list_factory: FactoryOrPath = 'factory.ListFactory',
+    ) -> None:
+        indexed_params = {str(i): v for i, v in enumerate(params)}
+        super().__init__(list_factory, **indexed_params)
 
 
 # Parameters
@@ -489,7 +517,12 @@ SKIP = Skip()
 
 
 class Maybe(BaseDeclaration):
-    def __init__(self, decider, yes_declaration=SKIP, no_declaration=SKIP):
+    def __init__(
+        self,
+        decider: T.Any,
+        yes_declaration: T.Any = SKIP,
+        no_declaration: T.Any = SKIP,
+    ) -> None:
         super().__init__()
 
         if enums.get_builder_phase(decider) is None:
@@ -596,7 +629,7 @@ class SimpleParameter(Parameter):
 
 class Trait(Parameter):
     """The simplest complex parameter, it enables a bunch of new declarations based on a boolean flag."""
-    def __init__(self, **overrides):
+    def __init__(self, **overrides: T.Any) -> None:
         super().__init__()
         self.overrides = overrides
 
@@ -665,7 +698,7 @@ class PostGenerationDeclaration(BaseDeclaration):
 
 class PostGeneration(PostGenerationDeclaration):
     """Calls a given function once the object has been generated."""
-    def __init__(self, function):
+    def __init__(self, function: T.Callable[..., T.Any]) -> None:
         super().__init__()
         self.function = function
 
@@ -696,7 +729,7 @@ class RelatedFactory(PostGenerationDeclaration):
 
     UNROLL_CONTEXT_BEFORE_EVALUATION = False
 
-    def __init__(self, factory, factory_related_name='', **defaults):
+    def __init__(self, factory: FactoryOrPath, factory_related_name: str = '', **defaults: T.Any) -> None:
         super().__init__()
 
         self.name = factory_related_name
@@ -745,7 +778,13 @@ class RelatedFactoryList(RelatedFactory):
             returning a list of 'factory' objects w/ size 'size'.
     """
 
-    def __init__(self, factory, factory_related_name='', size=2, **defaults):
+    def __init__(
+        self,
+        factory: FactoryOrPath,
+        factory_related_name: str = '',
+        size: T.Union[int, T.Callable[[], int]] = 2,
+        **defaults: T.Any,
+    ) -> None:
         self.size = size
         super().__init__(factory, factory_related_name, **defaults)
 
@@ -774,7 +813,7 @@ class PostGenerationMethodCall(PostGenerationDeclaration):
             ...
             password = factory.PostGenerationMethodCall('set_pass', password='')
     """
-    def __init__(self, method_name, *args, **kwargs):
+    def __init__(self, method_name: str, *args: T.Any, **kwargs: T.Any) -> None:
         super().__init__()
         if len(args) > 1:
             raise errors.InvalidDeclarationError(

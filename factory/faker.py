@@ -14,7 +14,7 @@ Usage:
 
 
 import contextlib
-from typing import Dict
+from typing import Any, Dict
 
 import faker
 import faker.config
@@ -36,7 +36,7 @@ class Faker(declarations.BaseDeclaration):
     Usage:
         >>> foo = factory.Faker('name')
     """
-    def __init__(self, provider, **kwargs):
+    def __init__(self, provider: str, **kwargs: Any) -> None:
         locale = kwargs.pop('locale', None)
         self.provider = provider
         super().__init__(

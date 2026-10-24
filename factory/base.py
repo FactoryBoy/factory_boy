@@ -4,7 +4,7 @@
 import collections
 import logging
 import warnings
-from typing import Generic, List, Type, TypeVar
+from typing import Any, Generic, List, Optional, Type, TypeVar
 
 from . import builder, declarations, enums, errors, utils
 
@@ -425,7 +425,7 @@ class BaseFactory(Generic[T]):
     _counter = None
 
     @classmethod
-    def reset_sequence(cls, value=None, force=False):
+    def reset_sequence(cls, value: Optional[int] = None, force: bool = False) -> None:
         """Reset the sequence counter.
 
         Args:
@@ -509,7 +509,7 @@ class BaseFactory(Generic[T]):
         return model_class(*args, **kwargs)
 
     @classmethod
-    def build(cls, **kwargs) -> T:
+    def build(cls, **kwargs: Any) -> T:
         """Build an instance of the associated class, with overridden attrs.
 
         The instance will not be saved and persisted to any datastore.
@@ -517,7 +517,7 @@ class BaseFactory(Generic[T]):
         return cls._generate(enums.BUILD_STRATEGY, kwargs)
 
     @classmethod
-    def build_batch(cls, size: int, **kwargs) -> List[T]:
+    def build_batch(cls, size: int, **kwargs: Any) -> List[T]:
         """Build a batch of instances of the given class, with overridden attrs.
 
         The instances will not be saved and persisted to any datastore.
@@ -531,7 +531,7 @@ class BaseFactory(Generic[T]):
         return [cls.build(**kwargs) for _ in range(size)]
 
     @classmethod
-    def create(cls, **kwargs) -> T:
+    def create(cls, **kwargs: Any) -> T:
         """Create an instance of the associated class, with overridden attrs.
 
         The instance will be saved and persisted in the appropriate datastore.
@@ -539,7 +539,7 @@ class BaseFactory(Generic[T]):
         return cls._generate(enums.CREATE_STRATEGY, kwargs)
 
     @classmethod
-    def create_batch(cls, size: int, **kwargs) -> List[T]:
+    def create_batch(cls, size: int, **kwargs: Any) -> List[T]:
         """Create a batch of instances of the given class, with overridden attrs.
 
         The instances will be saved and persisted in the appropriate datastore.
@@ -553,7 +553,7 @@ class BaseFactory(Generic[T]):
         return [cls.create(**kwargs) for _ in range(size)]
 
     @classmethod
-    def stub(cls, **kwargs):
+    def stub(cls, **kwargs: Any) -> Any:
         """Retrieve a stub of the associated class, with overridden attrs.
 
         This will return an object whose attributes are those defined in this
@@ -562,7 +562,7 @@ class BaseFactory(Generic[T]):
         return cls._generate(enums.STUB_STRATEGY, kwargs)
 
     @classmethod
-    def stub_batch(cls, size, **kwargs):
+    def stub_batch(cls, size: int, **kwargs: Any) -> List[Any]:
         """Stub a batch of instances of the given class, with overridden attrs.
 
         Args:
@@ -574,7 +574,7 @@ class BaseFactory(Generic[T]):
         return [cls.stub(**kwargs) for _ in range(size)]
 
     @classmethod
-    def generate(cls, strategy, **kwargs):
+    def generate(cls, strategy: str, **kwargs: Any) -> Any:
         """Generate a new instance.
 
         The instance will be created with the given strategy (one of
@@ -591,7 +591,7 @@ class BaseFactory(Generic[T]):
         return action(**kwargs)
 
     @classmethod
-    def generate_batch(cls, strategy, size, **kwargs):
+    def generate_batch(cls, strategy: str, size: int, **kwargs: Any) -> List[Any]:
         """Generate a batch of instances.
 
         The instances will be created with the given strategy (one of
@@ -609,7 +609,7 @@ class BaseFactory(Generic[T]):
         return batch_action(size, **kwargs)
 
     @classmethod
-    def simple_generate(cls, create, **kwargs):
+    def simple_generate(cls, create: bool, **kwargs: Any) -> T:
         """Generate a new instance.
 
         The instance will be either 'built' or 'created'.
@@ -624,7 +624,7 @@ class BaseFactory(Generic[T]):
         return cls.generate(strategy, **kwargs)
 
     @classmethod
-    def simple_generate_batch(cls, create, size, **kwargs):
+    def simple_generate_batch(cls, create: bool, size: int, **kwargs: Any) -> List[T]:
         """Generate a batch of instances.
 
         These instances will be either 'built' or 'created'.
