@@ -54,7 +54,8 @@ testall:
 # DOC: Run tests for the currently installed version
 # Remove cgi warning when dropping support for Django 3.2.
 test:
-	mypy --ignore-missing-imports tests/test_typing.py
+	mypy --ignore-missing-imports tests/test_typing.py tests/test_typing_unannotated.py
+	mypy --strict --implicit-reexport --follow-imports=silent --ignore-missing-imports tests/test_typing.py tests/test_typing_unannotated.py
 	python \
 		-b \
 		-X dev \

@@ -9,7 +9,7 @@ import io
 import logging
 import os
 import warnings
-from typing import Dict, TypeVar
+from typing import Any, Callable, Dict, TypeVar, cast
 
 from django.contrib.auth.hashers import make_password
 from django.core import files as django_files
@@ -22,6 +22,7 @@ logger = logging.getLogger('factory.generate')
 
 DEFAULT_DB_ALIAS = 'default'  # Same as django.db.DEFAULT_DB_ALIAS
 T = TypeVar("T")
+CallableT = TypeVar("CallableT", bound=Callable[..., Any])
 
 _LAZY_LOADS: Dict[str, object] = {}
 
@@ -193,7 +194,7 @@ class DjangoModelFactory(base.Factory[T]):
 
 
 class Password(declarations.Transformer):
-    def __init__(self, password, transform=make_password, **kwargs):
+    def __init__(self, password: Any, transform: Callable[[Any], Any] = make_password, **kwargs: Any) -> None:
         super().__init__(password, transform=transform, **kwargs)
 
 
@@ -292,11 +293,11 @@ class mute_signals:
             UserFactory.create_batch(10)
     """
 
-    def __init__(self, *signals):
+    def __init__(self, *signals: Any) -> None:
         self.signals = signals
-        self.paused = {}
+        self.paused: Dict[Any, Any] = {}
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         for signal in self.signals:
             logger.debug('mute_signals: Disabling signal handlers %r',
                          signal.receivers)
@@ -307,7 +308,7 @@ class mute_signals:
             self.paused[signal] = signal.receivers
             signal.receivers = []
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         for signal, receivers in self.paused.items():
             logger.debug('mute_signals: Restoring signal handlers %r',
                          receivers)
@@ -320,16 +321,17 @@ class mute_signals:
                 signal.sender_receivers_cache.clear()
         self.paused = {}
 
-    def copy(self):
+    def copy(self) -> "mute_signals":
         return mute_signals(*self.signals)
 
-    def __call__(self, callable_obj):
+    def __call__(self, callable_obj: CallableT) -> CallableT:
         if isinstance(callable_obj, base.FactoryMetaClass):
+            factory_class: Any = callable_obj
             # Retrieve __func__, the *actual* callable object.
-            callable_obj._create = self.wrap_method(callable_obj._create.__func__)
-            callable_obj._generate = self.wrap_method(callable_obj._generate.__func__)
-            callable_obj._after_postgeneration = self.wrap_method(
-                callable_obj._after_postgeneration.__func__
+            factory_class._create = self.wrap_method(factory_class._create.__func__)
+            factory_class._generate = self.wrap_method(factory_class._generate.__func__)
+            factory_class._after_postgeneration = self.wrap_method(
+                factory_class._after_postgeneration.__func__
             )
             return callable_obj
 
@@ -339,7 +341,7 @@ class mute_signals:
                 # A mute_signals() object is not reentrant; use a copy every time.
                 with self.copy():
                     return callable_obj(*args, **kwargs)
-            return wrapper
+            return cast(CallableT, wrapper)
 
     def wrap_method(self, method):
         @classmethod

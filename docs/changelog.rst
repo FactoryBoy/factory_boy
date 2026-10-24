@@ -7,6 +7,9 @@ ChangeLog
 ------------------
 
 - Add support for Django 5.2
+- Annotate the constructors of all public declarations, the helper functions and decorators,
+  and the public ``Factory`` class methods, so that projects type-checking with
+  ``mypy --strict`` (``disallow_untyped_calls``) can use them.
 
 
 3.3.3 (2025-02-03)
