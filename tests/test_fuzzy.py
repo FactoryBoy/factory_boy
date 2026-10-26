@@ -617,3 +617,39 @@ class FuzzyRandomTestCase(unittest.TestCase):
         random.set_random_state(state)
         value2 = utils.evaluate_declaration(fuzz)
         self.assertEqual(value, value2)
+
+
+class FuzzyDateTimeForcedFieldsTestCase(unittest.TestCase):
+    def test_force_calendar_fields_together(self):
+        cases = [
+            (datetime.datetime(2024, 1, 31, 23, 59, 59, 999999),
+             {'force_month': 2, 'force_day': 1, 'force_hour': 0,
+              'force_minute': 0, 'force_second': 0, 'force_microsecond': 0},
+             datetime.datetime(2024, 2, 1)),
+            (datetime.datetime(2024, 2, 29),
+             {'force_year': 2023, 'force_day': 28},
+             datetime.datetime(2023, 2, 28)),
+        ]
+        for fuzz_class, tzinfo in [
+            (fuzzy.FuzzyNaiveDateTime, None),
+            (fuzzy.FuzzyDateTime, datetime.timezone.utc),
+        ]:
+            for start, forced, expected in cases:
+                with self.subTest(fuzz_class=fuzz_class, start=start):
+                    start = start.replace(tzinfo=tzinfo)
+                    fuzz = fuzz_class(start, start, **forced)
+                    self.assertEqual(
+                        expected.replace(tzinfo=tzinfo),
+                        utils.evaluate_declaration(fuzz),
+                    )
+
+    def test_invalid_forced_calendar_date(self):
+        for fuzz_class, tzinfo in [
+            (fuzzy.FuzzyNaiveDateTime, None),
+            (fuzzy.FuzzyDateTime, datetime.timezone.utc),
+        ]:
+            with self.subTest(fuzz_class=fuzz_class):
+                start = datetime.datetime(2024, 1, 31, tzinfo=tzinfo)
+                fuzz = fuzz_class(start, start, force_month=2, force_day=30)
+                with self.assertRaises(ValueError):
+                    utils.evaluate_declaration(fuzz)

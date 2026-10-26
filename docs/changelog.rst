@@ -7,6 +7,8 @@ ChangeLog
 ------------------
 
 - Add support for Django 5.2
+- Apply forced date/time fields together so valid combinations do not fail
+  on an invalid intermediate date.
 
 
 3.3.3 (2025-02-03)

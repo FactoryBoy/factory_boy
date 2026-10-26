@@ -225,22 +225,12 @@ class BaseFuzzyDateTime(BaseFuzzyAttribute):
         offset = random.randgen.randint(0, microseconds)
         result = self.start_dt + datetime.timedelta(microseconds=offset)
 
-        if self.force_year is not None:
-            result = result.replace(year=self.force_year)
-        if self.force_month is not None:
-            result = result.replace(month=self.force_month)
-        if self.force_day is not None:
-            result = result.replace(day=self.force_day)
-        if self.force_hour is not None:
-            result = result.replace(hour=self.force_hour)
-        if self.force_minute is not None:
-            result = result.replace(minute=self.force_minute)
-        if self.force_second is not None:
-            result = result.replace(second=self.force_second)
-        if self.force_microsecond is not None:
-            result = result.replace(microsecond=self.force_microsecond)
-
-        return result
+        forced = {}
+        for field in ('year', 'month', 'day', 'hour', 'minute', 'second', 'microsecond'):
+            value = getattr(self, 'force_' + field)
+            if value is not None:
+                forced[field] = value
+        return result.replace(**forced)
 
 
 class FuzzyNaiveDateTime(BaseFuzzyDateTime):
