@@ -14,6 +14,7 @@ from typing import Dict, TypeVar
 from django.contrib.auth.hashers import make_password
 from django.core import files as django_files
 from django.db import IntegrityError
+from factory import enums
 
 from . import base, declarations, errors
 
@@ -72,6 +73,17 @@ class DjangoOptions(base.FactoryOptions):
 
         return self.model
 
+    def instantiate(self, step, args, kwargs):
+        model = self.get_model_class()
+        if step.builder.strategy == enums.CREATE_STRATEGY and self.django_get_or_create:
+            return self.factory._get_or_create(
+                model,
+                args,
+                kwargs,
+                original_params=step.builder.extras,
+            )
+        return super().instantiate(step, args, kwargs)
+
 
 class DjangoModelFactory(base.Factory[T]):
     """Factory for Django models.
@@ -83,7 +95,6 @@ class DjangoModelFactory(base.Factory[T]):
     """
 
     _options_class = DjangoOptions
-    _original_params = None
 
     class Meta:
         abstract = True  # Optional, but explicit.
@@ -115,15 +126,7 @@ class DjangoModelFactory(base.Factory[T]):
         return manager
 
     @classmethod
-    def _generate(cls, strategy, params):
-        # Original params are used in _get_or_create if it cannot build an
-        # object initially due to an IntegrityError being raised
-        cls._original_params = params
-        return super()._generate(strategy, params)
-
-    @classmethod
-    def _get_or_create(cls, model_class, *args, **kwargs):
-        """Create an instance of the model through objects.get_or_create."""
+    def _get_or_create(cls, model_class, args, kwargs, *, original_params):
         manager = cls._get_manager(model_class)
 
         assert 'defaults' not in cls._meta.django_get_or_create, (
@@ -145,12 +148,12 @@ class DjangoModelFactory(base.Factory[T]):
             instance, _created = manager.get_or_create(*args, **key_fields)
         except IntegrityError as e:
 
-            if cls._original_params is None:
+            if original_params is None:
                 raise e
 
             get_or_create_params = {
                 lookup: value
-                for lookup, value in cls._original_params.items()
+                for lookup, value in original_params.items()
                 if lookup in cls._meta.django_get_or_create
             }
             if get_or_create_params:
@@ -168,9 +171,6 @@ class DjangoModelFactory(base.Factory[T]):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
-        if cls._meta.django_get_or_create:
-            return cls._get_or_create(model_class, *args, **kwargs)
-
         manager = cls._get_manager(model_class)
         return manager.create(*args, **kwargs)
 

@@ -273,6 +273,32 @@ class MultipleGetOrCreateFieldsTest(django_test.TestCase):
         with self.assertRaises(django.db.IntegrityError):
             WithMultipleGetOrCreateFieldsFactory(title="Title")
 
+    def test_subfactory_declaration(self):
+        class HasMultifieldModelFactory(factory.django.DjangoModelFactory):
+            multifield = factory.SubFactory(WithMultipleGetOrCreateFieldsFactory, slug='collision')
+
+            class Meta:
+                model = models.HasMultifieldUniqueModel
+
+        first = HasMultifieldModelFactory()
+        second = HasMultifieldModelFactory()
+
+        self.assertEqual(first.multifield, second.multifield)
+        self.assertEqual(1, models.MultifieldUniqueModel.objects.count())
+
+    def test_subfactory_call_kwargs(self):
+        class HasMultifieldModelFactory(factory.django.DjangoModelFactory):
+            multifield = factory.SubFactory(WithMultipleGetOrCreateFieldsFactory)
+
+            class Meta:
+                model = models.HasMultifieldUniqueModel
+
+        first = HasMultifieldModelFactory(multifield__slug='collision')
+        second = HasMultifieldModelFactory(multifield__slug='collision')
+
+        self.assertEqual(first.multifield, second.multifield)
+        self.assertEqual(1, models.MultifieldUniqueModel.objects.count())
+
 
 class DjangoPkForceTestCase(django_test.TestCase):
     def setUp(self):
@@ -1162,13 +1188,6 @@ class DjangoModelFactoryDuplicateSaveDeprecationTest(django_test.TestCase):
 class IntegrityErrorForMissingOriginalParamsTest(django_test.TestCase):
 
     def test_raises_integrity_error(self):
-        """
-        In factory.django.DjangoModelFactory._get_or_create
-        _original_params can give some trouble when None
-
-        This test case verifies if the IntegrityError is correctly re-raised
-        """
-
         class MultifieldModelFactory2(MultifieldModelFactory):
             class Meta:
                 model = models.MultifieldModel

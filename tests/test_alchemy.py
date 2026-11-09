@@ -5,6 +5,8 @@
 import unittest
 from unittest import mock
 
+from sqlalchemy import func, select
+
 try:
     import sqlalchemy
 except ImportError:
@@ -167,6 +169,36 @@ class MultipleGetOrCreateFieldsTest(TransactionTestCase):
         WithMultipleGetOrCreateFieldsFactory(title='Title')
         with self.assertRaises(sqlalchemy.exc.IntegrityError):
             WithMultipleGetOrCreateFieldsFactory(title='Title')
+
+    def test_subfactory_declaration(self):
+        class HasMultifieldModelFactory(SQLAlchemyModelFactory):
+            multifield = factory.SubFactory(WithMultipleGetOrCreateFieldsFactory, slug='collision')
+
+            class Meta:
+                model = models.HasMultifieldUniqueModel
+                sqlalchemy_session = models.session
+                sqlalchemy_session_persistence = 'commit'
+
+        first = HasMultifieldModelFactory()
+        second = HasMultifieldModelFactory()
+
+        self.assertEqual(first.multifield, second.multifield)
+        self.assertEqual(1, models.session.scalars(select(func.count(models.MultifieldUniqueModel.id))).one())
+
+    def test_subfactory_call_kwargs(self):
+        class HasMultifieldModelFactory(SQLAlchemyModelFactory):
+            multifield = factory.SubFactory(WithMultipleGetOrCreateFieldsFactory)
+
+            class Meta:
+                model = models.HasMultifieldUniqueModel
+                sqlalchemy_session = models.session
+                sqlalchemy_session_persistence = 'commit'
+
+        first = HasMultifieldModelFactory(multifield__slug='collision')
+        second = HasMultifieldModelFactory(multifield__slug='collision')
+
+        self.assertEqual(first.multifield, second.multifield)
+        self.assertEqual(1, models.session.scalars(select(func.count(models.MultifieldUniqueModel.id))).one())
 
 
 class SQLAlchemySessionPersistenceTestCase(unittest.TestCase):

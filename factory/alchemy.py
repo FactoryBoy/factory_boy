@@ -1,5 +1,6 @@
 # Copyright: See the LICENSE file.
 
+from factory import enums
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -42,12 +43,22 @@ class SQLAlchemyOptions(base.FactoryOptions):
             ),
         ]
 
+    def instantiate(self, step, args, kwargs):
+        model = self.get_model_class()
+        if step.builder.strategy == enums.CREATE_STRATEGY and self.sqlalchemy_get_or_create:
+            return self.factory._get_or_create(
+                model,
+                args,
+                kwargs,
+                original_params=step.builder.extras,
+            )
+        return super().instantiate(step, args, kwargs)
+
 
 class SQLAlchemyModelFactory(base.Factory):
     """Factory for SQLAlchemy models. """
 
     _options_class = SQLAlchemyOptions
-    _original_params = None
 
     class Meta:
         abstract = True
@@ -63,14 +74,7 @@ class SQLAlchemyModelFactory(base.Factory):
         return session
 
     @classmethod
-    def _generate(cls, strategy, params):
-        # Original params are used in _get_or_create if it cannot build an
-        # object initially due to an IntegrityError being raised
-        cls._original_params = params
-        return super()._generate(strategy, params)
-
-    @classmethod
-    def _get_or_create(cls, model_class, session, args, kwargs):
+    def _get_or_create(cls, model_class, args, kwargs, *, original_params):
         key_fields = {}
         for field in cls._meta.sqlalchemy_get_or_create:
             if field not in kwargs:
@@ -80,6 +84,7 @@ class SQLAlchemyModelFactory(base.Factory):
                     (field, cls.__name__))
             key_fields[field] = kwargs.pop(field)
 
+        session = cls._session()
         obj = session.query(model_class).filter_by(
             *args, **key_fields).one_or_none()
 
@@ -89,12 +94,12 @@ class SQLAlchemyModelFactory(base.Factory):
             except IntegrityError as e:
                 session.rollback()
 
-                if cls._original_params is None:
+                if original_params is None:
                     raise e
 
                 get_or_create_params = {
                     lookup: value
-                    for lookup, value in cls._original_params.items()
+                    for lookup, value in original_params.items()
                     if lookup in cls._meta.sqlalchemy_get_or_create
                 }
                 if get_or_create_params:
@@ -114,8 +119,6 @@ class SQLAlchemyModelFactory(base.Factory):
     def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
         session = cls._session()
-        if cls._meta.sqlalchemy_get_or_create:
-            return cls._get_or_create(model_class, session, args, kwargs)
         return cls._save(model_class, session, args, kwargs)
 
     @classmethod

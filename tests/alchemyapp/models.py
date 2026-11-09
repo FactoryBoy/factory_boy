@@ -3,8 +3,8 @@
 
 """Helpers for testing SQLAlchemy apps."""
 
-from sqlalchemy import Column, Integer, Unicode, create_engine
-from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
+from sqlalchemy import Column, ForeignKey, Integer, Unicode, create_engine
+from sqlalchemy.orm import Mapped, declarative_base, relationship, scoped_session, sessionmaker
 
 engine_name = 'sqlite://'
 
@@ -36,6 +36,14 @@ class MultifieldUniqueModel(Base):
     slug = Column(Unicode(20), unique=True)
     text = Column(Unicode(20), unique=True)
     title = Column(Unicode(20), unique=True)
+
+
+class HasMultifieldUniqueModel(Base):
+    __tablename__ = 'HasMultifieldUniqueModelTable'
+
+    id = Column(Integer(), primary_key=True)
+    multifield_id = Column(Integer(), ForeignKey(MultifieldUniqueModel.id), nullable=False)
+    multifield: Mapped[MultifieldUniqueModel] = relationship()
 
 
 class NonIntegerPk(Base):
