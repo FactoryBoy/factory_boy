@@ -53,6 +53,16 @@ class SQLAlchemyModelFactory(base.Factory):
         abstract = True
 
     @classmethod
+    def _session(cls):
+        session_factory = cls._meta.sqlalchemy_session_factory
+        if session_factory:
+            cls._meta.sqlalchemy_session = session_factory()
+        session = cls._meta.sqlalchemy_session
+        if session is None:
+            raise RuntimeError("No session provided.")
+        return session
+
+    @classmethod
     def _generate(cls, strategy, params):
         # Original params are used in _get_or_create if it cannot build an
         # object initially due to an IntegrityError being raised
@@ -103,14 +113,7 @@ class SQLAlchemyModelFactory(base.Factory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Create an instance of the model, and save it to the database."""
-        session_factory = cls._meta.sqlalchemy_session_factory
-        if session_factory:
-            cls._meta.sqlalchemy_session = session_factory()
-
-        session = cls._meta.sqlalchemy_session
-
-        if session is None:
-            raise RuntimeError("No session provided.")
+        session = cls._session()
         if cls._meta.sqlalchemy_get_or_create:
             return cls._get_or_create(model_class, session, args, kwargs)
         return cls._save(model_class, session, args, kwargs)
