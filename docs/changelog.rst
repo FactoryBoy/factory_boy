@@ -3,11 +3,18 @@ ChangeLog
 
 .. Note for v4.x: don't forget to check "Deprecated" sections for removal.
 
-3.3.4 (unreleased)
+3.4.0 (unreleased)
 ------------------
 
-- Add support for Django 5.2
+*Bugfix:*
 
+    - :issue:`979`: Refactor :class:`~factory.django.DjangoModelFactory` and
+      :class:`~factory.alchemy.SQLAlchemyModelFactory` to better support ``get_or_create`` (e.g. for use in a
+      :class:`~factory.SubFactory`). The ``get_or_create`` behavior is now a different instantiation method.
+
+*New:*
+
+    - Add support for Django 5.2
 
 3.3.3 (2025-02-03)
 ------------------

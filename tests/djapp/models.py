@@ -137,3 +137,7 @@ class FromAbstractWithCustomManager(AbstractWithCustomManager):
 
 class HasMultifieldModel(models.Model):
     multifield = models.ForeignKey(to=MultifieldModel, on_delete=models.CASCADE)
+
+
+class HasMultifieldUniqueModel(models.Model):
+    multifield = models.ForeignKey(to=MultifieldUniqueModel, on_delete=models.CASCADE)
