@@ -164,7 +164,9 @@ class FakerTests(unittest.TestCase):
             date_between_dates=fake_select_date,
         )
 
-        trip = TripFactory()
-        self.assertEqual(may_4th, trip.departure)
-        self.assertEqual(october_19th, trip.transfer)
-        self.assertEqual(may_25th, trip.arrival)
+        for strategy in ('build', 'create', 'stub'):
+            with self.subTest(strategy=strategy):
+                trip = TripFactory.generate(strategy)
+                self.assertEqual(may_4th, trip.departure)
+                self.assertEqual(october_19th, trip.transfer)
+                self.assertEqual(may_25th, trip.arrival)
