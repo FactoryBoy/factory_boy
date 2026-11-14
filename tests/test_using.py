@@ -10,7 +10,7 @@ import sys
 import unittest
 
 import factory
-from factory import errors
+from factory import base, errors
 
 from . import utils
 
@@ -2229,6 +2229,36 @@ class DjangoModelFactoryTestCase(unittest.TestCase):
 
 
 class PostGenerationTestCase(unittest.TestCase):
+    def test_stub_with_declarations_in_context(self):
+        class ChildFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            one = factory.SelfAttribute('...one')
+
+        class TestObjectFactory(factory.Factory):
+            class Meta:
+                model = TestObject
+
+            one = 'parent'
+
+            @factory.post_generation
+            def context(self, create, extracted, **kwargs):
+                self.two = extracted
+                self.three = kwargs['child']
+                self.four = create
+
+        obj = TestObjectFactory.stub(
+            __sequence=42,
+            context=factory.Sequence(lambda n: n),
+            context__child=factory.SubFactory(ChildFactory),
+        )
+
+        self.assertEqual(42, obj.two)
+        self.assertIsInstance(obj.three, base.StubObject)
+        self.assertEqual('parent', obj.three.one)
+        self.assertFalse(obj.four)
+
     def test_post_generation(self):
         class TestObjectFactory(factory.Factory):
             class Meta:

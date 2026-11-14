@@ -46,7 +46,11 @@ class BaseDeclaration(utils.OrderedBase):
 
         import factory.base
         subfactory = factory.base.DictFactory
-        return step.recurse(subfactory, full_context, force_sequence=step.sequence)
+        unrolled_context = step.recurse(subfactory, full_context, force_sequence=step.sequence)
+        if step.builder.strategy == enums.STUB_STRATEGY:
+            # The temporary container is also stubbed, but declarations expect a mapping.
+            return vars(unrolled_context)
+        return unrolled_context
 
     def _unwrap_evaluate_pre(self, wrapped, *, instance, step, overrides):
         """Evaluate a wrapped pre-declaration.
