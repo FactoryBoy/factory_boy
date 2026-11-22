@@ -657,6 +657,70 @@ factory_boy supports two main strategies for generating instances, plus stubs.
         BaseFactory: Generating tests.test_using.TestModel2Factory(two=<tests.test_using.TestModel object at 0x1e15410>)
 
 
+Dictionary and list factories
+-----------------------------
+
+.. class:: DictFactory(Factory)
+
+    A :class:`Factory` whose :attr:`~FactoryOptions.model` is :class:`dict`.
+    Declare dictionary keys as factory attributes; declarations and overrides
+    work as they do on other factories:
+
+    .. code-block:: pycon
+
+        >>> import factory
+        >>> class UserDataFactory(factory.DictFactory):
+        ...     name = 'Ada'
+        ...     active = True
+        ...
+        >>> UserDataFactory.build()
+        {'name': 'Ada', 'active': True}
+        >>> UserDataFactory(name='Grace')
+        {'name': 'Grace', 'active': True}
+
+.. class:: ListFactory(Factory)
+
+    A :class:`Factory` whose :attr:`~FactoryOptions.model` is :class:`list`.
+    The evaluated attribute values become list items in declaration order;
+    attribute names are used for overrides, not included in the result:
+
+    .. code-block:: pycon
+
+        >>> class TagsFactory(factory.ListFactory):
+        ...     first = 'news'
+        ...     second = 'technology'
+        ...
+        >>> TagsFactory.build()
+        ['news', 'technology']
+        >>> TagsFactory(second='python')
+        ['news', 'python']
+
+For both factories, :meth:`~Factory.build` and :meth:`~Factory.create` construct
+a new container without saving it to a database. Neither supports
+:attr:`~FactoryOptions.inline_args`.
+
+To generate a container as a field on another factory, use :class:`SubFactory`
+with the container factory, or use the :class:`Dict` and :class:`List`
+declarations directly:
+
+.. code-block:: pycon
+
+    >>> class EventFactory(factory.DictFactory):
+    ...     payload = factory.SubFactory(UserDataFactory)
+    ...     tags = factory.List(['news', 'python'])
+    ...
+    >>> EventFactory.build()['payload']
+    {'name': 'Ada', 'active': True}
+    >>> first, second = EventFactory.build_batch(2)
+    >>> first['tags'].append('extra')
+    >>> second['tags']
+    ['news', 'python']
+
+Calling ``ListFactory()`` or ``DictFactory()`` in a factory class body creates
+a container immediately. That value is then shared by generated objects, just
+like a literal ``[]`` or ``{}``; it does not declare a factory field.
+
+
 .. _declarations:
 
 Declarations
