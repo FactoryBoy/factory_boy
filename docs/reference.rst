@@ -728,6 +728,29 @@ Faker
               to reach fields of the surrounding :class:`~factory.Factory`, as shown
               in the ``SelfAttribute('..xxx')`` example above.
 
+    To use a generated value inside a :class:`LazyAttribute`, declare the
+    :class:`Faker` value in :attr:`~Factory.Params` and access it through the
+    object passed to the lazy attribute. A ``Faker`` declaration does not
+    generate a value until the factory evaluates it:
+
+    .. code-block:: python
+
+        class ConnectionFactory(factory.DictFactory):
+            class Params:
+                user = None
+                fallback_ip_address = factory.Faker('ipv4')
+
+            current_ip_address = factory.LazyAttribute(
+                lambda obj: obj.user.ip_address
+                if obj.user is not None else obj.fallback_ip_address
+            )
+
+    ``ConnectionFactory()`` uses the generated fallback address, while
+    ``ConnectionFactory(user=user)`` uses ``user.ip_address``. The parameters
+    ``user`` and ``fallback_ip_address`` are available to declarations but are
+    not included in the resulting dictionary. This pattern uses the public
+    declaration API without calling ``Faker.evaluate()`` directly.
+
     .. attribute:: locale
 
         If a custom locale is required for one specific field,
