@@ -728,6 +728,37 @@ Faker
               to reach fields of the surrounding :class:`~factory.Factory`, as shown
               in the ``SelfAttribute('..xxx')`` example above.
 
+    To use a Faker-generated value in a :class:`LazyAttribute`, declare it as a
+    helper in :attr:`~Factory.Params` and read it from the resolver passed to
+    the lazy attribute. Parameters are available to declarations but are not
+    passed to the generated object's constructor:
+
+    .. code-block:: pycon
+
+        >>> import factory
+        >>> from ipaddress import IPv4Address
+        >>> from types import SimpleNamespace
+        >>> class ConnectionFactory(factory.DictFactory):
+        ...     class Params:
+        ...         user = None
+        ...         fallback_ip_address = factory.Faker('ipv4')
+        ...
+        ...     ip_address = factory.LazyAttribute(
+        ...         lambda obj: obj.user.ip_address if obj.user else obj.fallback_ip_address,
+        ...     )
+        ...
+        >>> user = SimpleNamespace(ip_address='192.0.2.1')
+        >>> ConnectionFactory.build(user=user)
+        {'ip_address': '192.0.2.1'}
+        >>> ConnectionFactory.build(fallback_ip_address='198.51.100.2')
+        {'ip_address': '198.51.100.2'}
+        >>> IPv4Address(ConnectionFactory.build()['ip_address']).version
+        4
+
+    A :class:`Faker` declaration is evaluated by factory_boy during generation;
+    constructing one inside a lazy attribute does not generate a value.
+    Calling its private evaluation methods directly is not a supported API.
+
     .. attribute:: locale
 
         If a custom locale is required for one specific field,
