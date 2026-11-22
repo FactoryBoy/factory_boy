@@ -1146,8 +1146,18 @@ SubFactory
 
     .. OHAI_VIM**
 
-This attribute declaration calls another :class:`Factory` subclass,
-selecting the same build strategy and collecting extra kwargs in the process.
+This attribute declaration generates an object with another :class:`Factory`
+subclass and passes that object as an attribute of the parent object. The inner
+factory runs when the parent factory is called, using the parent's
+:ref:`strategy <strategies>` and any keyword arguments supplied to the declaration.
+For example, ``CompanyFactory.build()`` builds its ``UserFactory`` owner, while
+``CompanyFactory.create()`` creates its owner using ``UserFactory``'s create
+behavior. The inner factory's default strategy does not override the parent's
+chosen strategy.
+
+Unlike calling ``UserFactory()`` directly in a class body, which generates one
+object when the class is defined, ``SubFactory(UserFactory)`` generates an object
+for each call to the parent factory.
 
 The :class:`SubFactory` attribute should be called with:
 
@@ -1255,6 +1265,15 @@ The strategy chosen for the external factory will be propagated to all subfactor
     None
     >>> c.owner.pk      # Not saved either
     None
+
+Persistence is performed by each factory's create implementation, such as an
+ORM-specific :meth:`~Factory._create` method. Attaching a built object to another
+object does not, by itself, ask factory_boy to save it.
+
+Passing an existing object overrides the declaration entirely. For example,
+``CompanyFactory.create(owner=existing_user)`` does not call ``UserFactory`` or
+save ``existing_user`` through the ``SubFactory``. Whether saving the company
+also saves that user depends on the model and ORM's own behavior.
 
 
 .. _subfactory-circular:
