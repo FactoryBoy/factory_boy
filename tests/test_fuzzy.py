@@ -7,6 +7,7 @@ import unittest
 import warnings
 from unittest import mock
 
+import factory
 from factory import fuzzy, random
 
 from . import utils
@@ -75,6 +76,50 @@ class FuzzyChoiceTestCase(unittest.TestCase):
     def test_getter(self):
         options = [('a', 1), ('b', 2), ('c', 3)]
         d = fuzzy.FuzzyChoice(options, getter=lambda x: x[1])
+        res = utils.evaluate_declaration(d)
+        self.assertIn(res, [1, 2, 3])
+
+    def test_self_attribute(self):
+        class TestFactory(factory.Factory):
+            class Meta:
+                model = dict
+
+            options = [1, 2, 3]
+            value = fuzzy.FuzzyChoice(factory.SelfAttribute('options'))
+
+        res = TestFactory()['value']
+        self.assertIn(res, [1, 2, 3])
+
+    def test_self_attribute_per_build(self):
+        class TestFactory(factory.Factory):
+            class Meta:
+                model = dict
+
+            options = ['a', 'b']
+            value = fuzzy.FuzzyChoice(factory.SelfAttribute('options'))
+
+        # The referenced attribute may be overridden on each build, so the
+        # choices must be resolved again instead of being cached.
+        seen = set()
+        for _i in range(50):
+            seen.add(TestFactory(options=['x', 'y', 'z'])['value'])
+        self.assertEqual({'x', 'y', 'z'}, seen)
+
+    def test_self_attribute_getter(self):
+        class TestFactory(factory.Factory):
+            class Meta:
+                model = dict
+
+            options = [('a', 1), ('b', 2), ('c', 3)]
+            value = fuzzy.FuzzyChoice(
+                factory.SelfAttribute('options'), getter=lambda x: x[1],
+            )
+
+        res = TestFactory()['value']
+        self.assertIn(res, [1, 2, 3])
+
+    def test_self_attribute_default(self):
+        d = fuzzy.FuzzyChoice(factory.SelfAttribute('missing', default=[1, 2, 3]))
         res = utils.evaluate_declaration(d)
         self.assertIn(res, [1, 2, 3])
 

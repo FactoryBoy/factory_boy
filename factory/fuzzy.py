@@ -91,10 +91,21 @@ class FuzzyChoice(BaseFuzzyAttribute):
         self.getter = getter
         super().__init__()
 
+    def evaluate(self, instance, step, extra):
+        if isinstance(self.choices_generator, declarations.BaseDeclaration):
+            # Resolve declarations (e.g. SelfAttribute) on each build, as the
+            # referenced value may differ from one instance to another.
+            choices = list(self.choices_generator.evaluate(instance, step, extra))
+            return self._pick(choices)
+        return self.fuzz()
+
     def fuzz(self):
         if self.choices is None:
             self.choices = list(self.choices_generator)
-        value = random.randgen.choice(self.choices)
+        return self._pick(self.choices)
+
+    def _pick(self, choices):
+        value = random.randgen.choice(choices)
         if self.getter is None:
             return value
         return self.getter(value)

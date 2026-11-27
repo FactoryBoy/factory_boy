@@ -7,6 +7,7 @@ ChangeLog
 ------------------
 
 - Add support for Django 5.2
+- Fix FuzzyChoice crashing when passed a declaration (e.g. SelfAttribute) as choices
 
 
 3.3.3 (2025-02-03)
